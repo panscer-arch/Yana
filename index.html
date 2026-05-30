@@ -3,21 +3,29 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Игры Яны</title>
+    <title>Яна Единорог</title>
     <style>
       :root {
         color-scheme: light;
-        --ink: #27221f;
-        --muted: #756b62;
-        --paper: #fffaf0;
-        --accent: #f06f42;
-        --accent-dark: #b9492e;
-        --sky: #bde7ff;
-        --grass: #72c16a;
+        --ink: #241f35;
+        --muted: #6a6079;
+        --paper: #fffdf7;
+        --pink: #ff72ad;
+        --violet: #8e67ff;
+        --blue: #54b8ff;
+        --mint: #42c995;
+        --sun: #ffd45c;
+        --orange: #ff8b45;
+        --line: rgba(36, 31, 53, .14);
+        --shadow: 0 18px 0 rgba(36, 31, 53, .08);
       }
 
       * {
         box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
       }
 
       body {
@@ -26,110 +34,991 @@
         font-family: Arial, Helvetica, sans-serif;
         color: var(--ink);
         background:
-          radial-gradient(circle at 20% 18%, rgba(255, 255, 255, .88) 0 8%, transparent 9%),
-          radial-gradient(circle at 78% 16%, rgba(255, 255, 255, .82) 0 9%, transparent 10%),
-          linear-gradient(180deg, var(--sky) 0 58%, #9bd978 58% 100%);
+          radial-gradient(circle at 10% 12%, rgba(255, 255, 255, .95) 0 5%, transparent 6%),
+          radial-gradient(circle at 82% 9%, rgba(255, 255, 255, .9) 0 7%, transparent 8%),
+          radial-gradient(circle at 70% 72%, rgba(255, 212, 92, .28) 0 18%, transparent 19%),
+          linear-gradient(135deg, #bdefff 0%, #f9d6ff 46%, #fff0aa 100%);
       }
 
-      main {
-        width: min(1040px, calc(100% - 32px));
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .shell {
+        width: min(1120px, calc(100% - 28px));
         margin: 0 auto;
-        padding: 56px 0;
       }
 
-      .hero {
-        display: grid;
-        gap: 18px;
-        max-width: 720px;
-        padding: 34px 0 26px;
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 2px solid rgba(255, 255, 255, .7);
+        background: rgba(255, 253, 247, .86);
+        backdrop-filter: blur(14px);
       }
 
-      h1 {
-        margin: 0;
-        font-size: clamp(42px, 8vw, 82px);
-        line-height: .95;
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 72px;
       }
 
-      p {
-        margin: 0;
-        color: var(--muted);
-        font-size: 18px;
-        line-height: 1.45;
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+        text-decoration: none;
+        font-size: 22px;
+        font-weight: 900;
       }
 
-      .games {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 18px;
-        margin-top: 28px;
+      .mark {
+        width: 42px;
+        height: 42px;
+        position: relative;
+        flex: 0 0 auto;
+        border: 3px solid var(--ink);
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 5px 0 rgba(36, 31, 53, .12);
       }
 
-      .game-card {
-        display: grid;
-        gap: 14px;
-        min-height: 220px;
-        padding: 20px;
-        border: 3px solid rgba(39, 34, 31, .12);
-        border-radius: 8px;
-        background: var(--paper);
-        box-shadow: 0 16px 0 rgba(39, 34, 31, .08);
+      .mark::before {
+        content: "";
+        position: absolute;
+        left: 16px;
+        top: -17px;
+        width: 10px;
+        height: 24px;
+        border: 3px solid var(--ink);
+        border-bottom: 0;
+        border-radius: 10px 10px 0 0;
+        background: linear-gradient(180deg, var(--sun), var(--pink));
+        transform: rotate(14deg);
       }
 
-      .game-art {
-        min-height: 112px;
-        border-radius: 8px;
-        background:
-          radial-gradient(circle at 30% 58%, #ffffff 0 15%, transparent 16%),
-          radial-gradient(circle at 37% 50%, #ffffff 0 11%, transparent 12%),
-          radial-gradient(circle at 72% 54%, #9b5838 0 16%, transparent 17%),
-          radial-gradient(circle at 68% 46%, #9b5838 0 11%, transparent 12%),
-          linear-gradient(180deg, #8ed9ff 0 52%, #75c96d 52% 100%);
+      .mark::after {
+        content: "";
+        position: absolute;
+        left: 9px;
+        top: 19px;
+        width: 19px;
+        height: 7px;
+        border-radius: 12px;
+        background: linear-gradient(90deg, var(--pink), var(--violet), var(--blue));
       }
 
-      h2 {
-        margin: 0;
-        font-size: 24px;
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
       }
 
-      a.button {
-        width: fit-content;
-        min-height: 44px;
+      .nav a {
+        min-height: 40px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        padding: 0 14px;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 800;
+      }
+
+      .nav a:hover,
+      .nav a:focus-visible {
+        border-color: var(--line);
+        background: #fff;
+      }
+
+      main {
+        padding: 28px 0 64px;
+      }
+
+      .hero {
+        min-height: calc(100vh - 108px);
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(280px, .95fr);
+        gap: 24px;
+        align-items: center;
+      }
+
+      .hero-copy {
+        display: grid;
+        gap: 18px;
+        align-content: center;
+      }
+
+      .tag {
+        width: fit-content;
+        padding: 9px 13px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .72);
+        font-weight: 900;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        max-width: 720px;
+        font-size: clamp(42px, 8vw, 86px);
+        line-height: .92;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 640px;
+        color: var(--muted);
+        font-size: clamp(18px, 2.2vw, 24px);
+        line-height: 1.35;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .button {
+        min-height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
         padding: 0 18px;
+        border: 2px solid rgba(36, 31, 53, .18);
         border-radius: 8px;
         color: #fff;
         text-decoration: none;
-        font-weight: 700;
-        background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+        font-weight: 900;
+        background: linear-gradient(180deg, var(--pink), #df4f9a);
+        box-shadow: 0 8px 0 rgba(36, 31, 53, .12);
       }
 
-      .soon {
-        width: fit-content;
-        padding: 8px 12px;
+      .button.secondary {
+        color: var(--ink);
+        background: #fff;
+      }
+
+      .hero-stage {
+        min-height: 430px;
+        position: relative;
+        overflow: hidden;
+        border: 3px solid rgba(36, 31, 53, .16);
         border-radius: 8px;
-        color: var(--accent-dark);
-        background: rgba(240, 111, 66, .14);
-        font-weight: 700;
+        background:
+          radial-gradient(circle at 22% 18%, #fff 0 11%, transparent 12%),
+          radial-gradient(circle at 74% 24%, #fff 0 13%, transparent 14%),
+          linear-gradient(180deg, #8fddff 0 54%, #63ca7b 55% 100%);
+        box-shadow: var(--shadow);
+      }
+
+      .rainbow {
+        position: absolute;
+        left: 10%;
+        right: 10%;
+        bottom: 122px;
+        height: 160px;
+        border: 28px solid var(--pink);
+        border-bottom: 0;
+        border-radius: 180px 180px 0 0;
+      }
+
+      .rainbow::before,
+      .rainbow::after {
+        content: "";
+        position: absolute;
+        inset: 18px;
+        border: 22px solid var(--sun);
+        border-bottom: 0;
+        border-radius: 140px 140px 0 0;
+      }
+
+      .rainbow::after {
+        inset: 46px;
+        border-color: var(--blue);
+      }
+
+      .unicorn {
+        position: absolute;
+        left: 50%;
+        bottom: 66px;
+        width: 210px;
+        height: 142px;
+        transform: translateX(-50%);
+      }
+
+      .unicorn-body {
+        position: absolute;
+        left: 24px;
+        bottom: 0;
+        width: 145px;
+        height: 84px;
+        border: 4px solid var(--ink);
+        border-radius: 48px 58px 38px 42px;
+        background: #fff;
+      }
+
+      .unicorn-head {
+        position: absolute;
+        right: 0;
+        top: 26px;
+        width: 72px;
+        height: 64px;
+        border: 4px solid var(--ink);
+        border-radius: 50%;
+        background: #fff;
+      }
+
+      .unicorn-head::before {
+        content: "";
+        position: absolute;
+        left: 18px;
+        top: -34px;
+        width: 16px;
+        height: 42px;
+        border: 4px solid var(--ink);
+        border-bottom: 0;
+        border-radius: 12px 12px 0 0;
+        background: linear-gradient(180deg, var(--sun), var(--orange), var(--pink));
+        transform: rotate(10deg);
+      }
+
+      .unicorn-head::after {
+        content: "";
+        position: absolute;
+        right: 18px;
+        top: 24px;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--ink);
+      }
+
+      .mane {
+        position: absolute;
+        right: 54px;
+        top: 36px;
+        width: 28px;
+        height: 62px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, var(--pink), var(--violet), var(--blue));
+      }
+
+      .tail {
+        position: absolute;
+        left: 0;
+        top: 52px;
+        width: 48px;
+        height: 34px;
+        border-radius: 30px 6px 30px 18px;
+        background: linear-gradient(90deg, var(--pink), var(--violet), var(--blue));
+        transform: rotate(-18deg);
+      }
+
+      .leg {
+        position: absolute;
+        bottom: -26px;
+        width: 19px;
+        height: 40px;
+        border: 4px solid var(--ink);
+        border-top: 0;
+        border-radius: 0 0 10px 10px;
+        background: #fff;
+      }
+
+      .leg.one { left: 54px; }
+      .leg.two { left: 126px; }
+
+      .spark {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        background: var(--sun);
+        clip-path: polygon(50% 0, 62% 36%, 100% 50%, 62% 64%, 50% 100%, 38% 64%, 0 50%, 38% 36%);
+      }
+
+      .spark.s1 { left: 12%; top: 21%; }
+      .spark.s2 { right: 15%; top: 48%; background: var(--pink); }
+      .spark.s3 { left: 19%; bottom: 21%; background: var(--blue); }
+
+      section {
+        scroll-margin-top: 92px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 18px;
+        margin: 36px 0 18px;
+      }
+
+      h2 {
+        font-size: clamp(30px, 4vw, 48px);
+        line-height: 1;
+      }
+
+      .section-title p {
+        max-width: 520px;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.4;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        display: grid;
+        gap: 14px;
+        min-height: 230px;
+        padding: 18px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+      }
+
+      .game-art {
+        min-height: 118px;
+        border: 2px solid rgba(36, 31, 53, .12);
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 31% 62%, #fff 0 15%, transparent 16%),
+          radial-gradient(circle at 38% 53%, #fff 0 10%, transparent 11%),
+          radial-gradient(circle at 72% 58%, #9b5838 0 15%, transparent 16%),
+          radial-gradient(circle at 68% 49%, #9b5838 0 10%, transparent 11%),
+          linear-gradient(180deg, #8ed9ff 0 52%, #75c96d 52% 100%);
+      }
+
+      .game-art.empty {
+        background:
+          linear-gradient(90deg, rgba(255, 114, 173, .4), rgba(84, 184, 255, .4)),
+          repeating-linear-gradient(45deg, rgba(255, 255, 255, .45) 0 14px, transparent 14px 28px);
+      }
+
+      .card h3 {
+        font-size: 23px;
+      }
+
+      .card p {
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .pill {
+        width: fit-content;
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        background: rgba(255, 212, 92, .32);
+        color: #7b4d00;
+        font-weight: 900;
+      }
+
+      .learn-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(290px, .75fr);
+        gap: 18px;
+      }
+
+      .trainer,
+      .table-box,
+      .ideas-box {
+        padding: 18px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .94);
+        box-shadow: var(--shadow);
+      }
+
+      .trainer {
+        display: grid;
+        gap: 16px;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-weight: 800;
+        font-size: 14px;
+      }
+
+      select,
+      input {
+        min-height: 44px;
+        width: 100%;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        padding: 0 12px;
+        color: var(--ink);
+        background: #fff;
+        font-weight: 900;
+      }
+
+      .problem {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 160px;
+        gap: 14px;
+        align-items: center;
+        padding: 18px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(255, 114, 173, .14), rgba(84, 184, 255, .14));
+      }
+
+      .example {
+        min-height: 132px;
+        display: grid;
+        align-content: center;
+        justify-content: center;
+        color: var(--ink);
+        font-family: "Courier New", monospace;
+        font-size: clamp(28px, 6vw, 54px);
+        font-weight: 900;
+        line-height: 1.05;
+        white-space: pre;
+      }
+
+      .answer-panel {
+        display: grid;
+        gap: 10px;
+      }
+
+      .answer-panel button,
+      .small-actions button {
+        min-height: 44px;
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--violet), #6647d8);
+        font-weight: 900;
+      }
+
+      .small-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .small-actions button:nth-child(2) {
+        background: linear-gradient(180deg, var(--mint), #23976f);
+      }
+
+      .result {
+        min-height: 30px;
+        color: var(--muted);
+        font-weight: 900;
+      }
+
+      .score-row {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .score {
+        min-height: 64px;
+        display: grid;
+        align-content: center;
+        padding: 10px;
+        border-radius: 8px;
+        background: #fff;
+        border: 2px solid var(--line);
+        text-align: center;
+        font-weight: 900;
+      }
+
+      .score span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .table-box {
+        display: grid;
+        gap: 14px;
+        align-content: start;
+      }
+
+      .multiplication {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .multiplication button {
+        min-height: 42px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--ink);
+        font-weight: 900;
+      }
+
+      .multiplication button.active {
+        border-color: transparent;
+        color: #fff;
+        background: linear-gradient(180deg, var(--orange), #dc6230);
+      }
+
+      .table-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .table-list div {
+        min-height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #fff;
+        border: 2px solid rgba(36, 31, 53, .1);
+        font-weight: 900;
+      }
+
+      .ideas-box {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .idea {
+        min-height: 112px;
+        display: grid;
+        align-content: center;
+        gap: 8px;
+        padding: 12px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .idea strong {
+        font-size: 18px;
+      }
+
+      .idea span {
+        color: var(--muted);
+        line-height: 1.35;
+      }
+
+      footer {
+        padding: 28px 0 44px;
+        color: var(--muted);
+        text-align: center;
+        font-weight: 800;
+      }
+
+      @media (max-width: 860px) {
+        .hero,
+        .learn-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          min-height: auto;
+          padding: 28px 0 8px;
+        }
+
+        .hero-stage {
+          min-height: 340px;
+        }
+
+        .cards,
+        .ideas-box {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .controls,
+        .problem {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .topbar-inner {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 12px 0;
+        }
+
+        .nav {
+          justify-content: flex-start;
+        }
+
+        .nav a {
+          min-height: 36px;
+          padding: 0 10px;
+        }
+
+        .cards,
+        .ideas-box,
+        .controls,
+        .problem,
+        .score-row {
+          grid-template-columns: 1fr;
+        }
+
+        .table-list {
+          grid-template-columns: 1fr;
+        }
+
+        .multiplication {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
       }
     </style>
   </head>
   <body>
-    <main>
-      <section class="hero">
-        <h1>Игры Яны</h1>
-        <p>Здесь будет коллекция всех игр: кошачьи погони, карты, уровни, скины и новые приключения.</p>
+    <header class="topbar">
+      <div class="shell topbar-inner">
+        <a class="brand" href="#top" aria-label="Яна Единорог">
+          <span class="mark" aria-hidden="true"></span>
+          <span>Яна Единорог</span>
+        </a>
+        <nav class="nav" aria-label="Главное меню">
+          <a href="#games">Игры</a>
+          <a href="#learn">Обучение</a>
+          <a href="#ideas">Идеи</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top" class="shell">
+      <section class="hero" aria-label="Главная">
+        <div class="hero-copy">
+          <span class="tag">Сайт игр и веб-разработок Яны</span>
+          <h1>Яркая мастерская игр, учебы и маленьких сайтов</h1>
+          <p class="lead">Здесь будут жить игры, тренажеры по школе, эксперименты с кодом и новые идеи, которые Яна сможет сама пополнять.</p>
+          <div class="hero-actions">
+            <a class="button" href="#games">Смотреть игры</a>
+            <a class="button secondary" href="#learn">Открыть математику</a>
+          </div>
+        </div>
+
+        <div class="hero-stage" aria-hidden="true">
+          <div class="rainbow"></div>
+          <div class="spark s1"></div>
+          <div class="spark s2"></div>
+          <div class="spark s3"></div>
+          <div class="unicorn">
+            <div class="tail"></div>
+            <div class="unicorn-body">
+              <div class="leg one"></div>
+              <div class="leg two"></div>
+            </div>
+            <div class="mane"></div>
+            <div class="unicorn-head"></div>
+          </div>
+        </div>
       </section>
 
-      <section class="games" aria-label="Список игр">
-        <article class="game-card">
-          <div class="game-art" aria-hidden="true"></div>
-          <h2>Кошачья погоня</h2>
-          <p>Луна убегает от Ланы, собирает вкусности и добегает до финиша.</p>
-          <span class="soon">Скоро добавим файлы игры</span>
-        </article>
+      <section id="games" aria-labelledby="games-title">
+        <div class="section-title">
+          <h2 id="games-title">Витрина игр</h2>
+          <p>Сюда будем добавлять все готовые игры, демки и новые веб-приключения.</p>
+        </div>
+
+        <div class="cards">
+          <article class="card">
+            <div class="game-art" aria-hidden="true"></div>
+            <h3>Кошачья погоня</h3>
+            <p>Луна убегает от Ланы, собирает вкусности, открывает скины и добегает до финиша.</p>
+            <span class="pill">Файлы игры добавим следующим шагом</span>
+          </article>
+
+          <article class="card">
+            <div class="game-art empty" aria-hidden="true"></div>
+            <h3>Новая игра</h3>
+            <p>Здесь может появиться платформер, квест, ферма, лабиринт или игра про питомцев.</p>
+            <span class="pill">Место готово</span>
+          </article>
+
+          <article class="card">
+            <div class="game-art empty" aria-hidden="true"></div>
+            <h3>Веб-проект</h3>
+            <p>Для маленьких сайтов, открыток, школьных страниц и красивых экспериментов с кодом.</p>
+            <span class="pill">Можно пополнять</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="learn" aria-labelledby="learn-title">
+        <div class="section-title">
+          <h2 id="learn-title">Обучение</h2>
+          <p>Математика с примерами, счетом побед и таблицей умножения.</p>
+        </div>
+
+        <div class="learn-grid">
+          <div class="trainer">
+            <div class="controls">
+              <label>
+                Действие
+                <select id="operation">
+                  <option value="add">Сложение</option>
+                  <option value="sub">Вычитание</option>
+                  <option value="mul">Умножение</option>
+                  <option value="div">Деление</option>
+                </select>
+              </label>
+
+              <label>
+                Сложность
+                <select id="level">
+                  <option value="easy">Легко</option>
+                  <option value="normal">Средне</option>
+                  <option value="hard">Сложно</option>
+                </select>
+              </label>
+
+              <label>
+                Вид
+                <select id="viewMode">
+                  <option value="line">В строку</option>
+                  <option value="column">В столбик</option>
+                </select>
+              </label>
+
+              <label>
+                Ответ
+                <input id="answer" type="number" inputmode="numeric" autocomplete="off">
+              </label>
+            </div>
+
+            <div class="problem">
+              <div class="example" id="example">7 + 5 = ?</div>
+              <div class="answer-panel">
+                <button id="checkAnswer" type="button">Проверить</button>
+                <div class="small-actions">
+                  <button id="newTask" type="button">Новый</button>
+                  <button id="resetScore" type="button">Сброс</button>
+                </div>
+                <div class="result" id="result">Реши пример.</div>
+              </div>
+            </div>
+
+            <div class="score-row" aria-label="Результаты">
+              <div class="score"><span>Правильно</span><strong id="rightCount">0</strong></div>
+              <div class="score"><span>Ошибки</span><strong id="wrongCount">0</strong></div>
+              <div class="score"><span>Серия</span><strong id="streakCount">0</strong></div>
+            </div>
+          </div>
+
+          <aside class="table-box" aria-labelledby="table-title">
+            <h3 id="table-title">Таблица умножения</h3>
+            <div class="multiplication" id="tableButtons" aria-label="Выбор числа"></div>
+            <div class="table-list" id="tableList"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="ideas" aria-labelledby="ideas-title">
+        <div class="section-title">
+          <h2 id="ideas-title">Что можно добавить</h2>
+          <p>Это заготовки для будущих разделов, чтобы сайт рос вместе с новыми идеями.</p>
+        </div>
+
+        <div class="ideas-box">
+          <div class="idea"><strong>Дневник проектов</strong><span>Записывать, что Яна сделала и что хочет добавить.</span></div>
+          <div class="idea"><strong>Скины и герои</strong><span>Коллекция персонажей для игр.</span></div>
+          <div class="idea"><strong>Школьные тренажеры</strong><span>Русский язык, чтение, задачи и диктанты.</span></div>
+          <div class="idea"><strong>Галерея</strong><span>Картинки, рисунки и скриншоты игр.</span></div>
+        </div>
       </section>
     </main>
+
+    <footer>
+      Сделано для Яны. Сайт можно развивать и пополнять новыми играми.
+    </footer>
+
+    <script>
+      const operation = document.querySelector("#operation");
+      const level = document.querySelector("#level");
+      const viewMode = document.querySelector("#viewMode");
+      const answer = document.querySelector("#answer");
+      const example = document.querySelector("#example");
+      const result = document.querySelector("#result");
+      const rightCount = document.querySelector("#rightCount");
+      const wrongCount = document.querySelector("#wrongCount");
+      const streakCount = document.querySelector("#streakCount");
+      const checkAnswer = document.querySelector("#checkAnswer");
+      const newTask = document.querySelector("#newTask");
+      const resetScore = document.querySelector("#resetScore");
+      const tableButtons = document.querySelector("#tableButtons");
+      const tableList = document.querySelector("#tableList");
+
+      let task = { a: 7, b: 5, op: "+", answer: 12 };
+      let score = { right: 0, wrong: 0, streak: 0 };
+      let activeTable = 2;
+
+      function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function maxByLevel() {
+        if (level.value === "hard") return 999;
+        if (level.value === "normal") return 99;
+        return 20;
+      }
+
+      function makeTask() {
+        const max = maxByLevel();
+        const op = operation.value;
+        let a = randomInt(1, max);
+        let b = randomInt(1, max);
+        let symbol = "+";
+        let correct = a + b;
+
+        if (op === "sub") {
+          if (b > a) [a, b] = [b, a];
+          symbol = "-";
+          correct = a - b;
+        }
+
+        if (op === "mul") {
+          const mulMax = level.value === "hard" ? 12 : level.value === "normal" ? 10 : 5;
+          a = randomInt(2, mulMax);
+          b = randomInt(2, mulMax);
+          symbol = "×";
+          correct = a * b;
+        }
+
+        if (op === "div") {
+          const divMax = level.value === "hard" ? 12 : level.value === "normal" ? 10 : 5;
+          b = randomInt(2, divMax);
+          correct = randomInt(2, divMax);
+          a = b * correct;
+          symbol = "÷";
+        }
+
+        task = { a, b, op: symbol, answer: correct };
+        renderTask();
+        answer.value = "";
+        result.textContent = "Реши пример.";
+        answer.focus();
+      }
+
+      function renderTask() {
+        if (viewMode.value === "column" && (task.op === "+" || task.op === "-")) {
+          const width = String(Math.max(task.a, task.b)).length + 2;
+          example.textContent =
+            String(task.a).padStart(width, " ") + "\n" +
+            task.op + String(task.b).padStart(width - 1, " ") + "\n" +
+            "─".repeat(width) + "\n" +
+            "?".padStart(width, " ");
+          return;
+        }
+
+        example.textContent = `${task.a} ${task.op} ${task.b} = ?`;
+      }
+
+      function updateScore() {
+        rightCount.textContent = score.right;
+        wrongCount.textContent = score.wrong;
+        streakCount.textContent = score.streak;
+      }
+
+      function checkCurrentAnswer() {
+        const value = Number(answer.value);
+        if (answer.value.trim() === "") {
+          result.textContent = "Сначала напиши ответ.";
+          return;
+        }
+
+        if (value === task.answer) {
+          score.right += 1;
+          score.streak += 1;
+          result.textContent = "Правильно! Получилось отлично.";
+          updateScore();
+          setTimeout(makeTask, 520);
+          return;
+        }
+
+        score.wrong += 1;
+        score.streak = 0;
+        result.textContent = `Почти. Правильный ответ: ${task.answer}.`;
+        updateScore();
+      }
+
+      function renderTableButtons() {
+        tableButtons.innerHTML = "";
+        for (let number = 1; number <= 10; number += 1) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = number;
+          button.className = number === activeTable ? "active" : "";
+          button.addEventListener("click", () => {
+            activeTable = number;
+            renderMultiplication();
+          });
+          tableButtons.append(button);
+        }
+      }
+
+      function renderMultiplication() {
+        renderTableButtons();
+        tableList.innerHTML = "";
+        for (let number = 1; number <= 10; number += 1) {
+          const row = document.createElement("div");
+          row.textContent = `${activeTable} × ${number} = ${activeTable * number}`;
+          tableList.append(row);
+        }
+      }
+
+      operation.addEventListener("change", makeTask);
+      level.addEventListener("change", makeTask);
+      viewMode.addEventListener("change", renderTask);
+      checkAnswer.addEventListener("click", checkCurrentAnswer);
+      newTask.addEventListener("click", makeTask);
+      resetScore.addEventListener("click", () => {
+        score = { right: 0, wrong: 0, streak: 0 };
+        result.textContent = "Счет сброшен.";
+        updateScore();
+      });
+      answer.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          checkCurrentAnswer();
+        }
+      });
+
+      renderMultiplication();
+      makeTask();
+      updateScore();
+    </script>
   </body>
 </html>
