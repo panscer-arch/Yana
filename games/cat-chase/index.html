@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Кошачья погоня</title>
+    <style>
+      :root {
+        --ink: #241f35;
+        --muted: #6a6079;
+        --paper: #fffdf7;
+        --pink: #ff72ad;
+        --violet: #8e67ff;
+        --blue: #54b8ff;
+        --mint: #42c995;
+        --sun: #ffd45c;
+        --orange: #ff8b45;
+        --line: rgba(36, 31, 53, .16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Arial, Helvetica, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 12% 12%, rgba(255, 255, 255, .9) 0 7%, transparent 8%),
+          radial-gradient(circle at 88% 18%, rgba(255, 255, 255, .82) 0 8%, transparent 9%),
+          linear-gradient(135deg, #bdefff 0%, #f9d6ff 48%, #fff0aa 100%);
+      }
+
+      button,
+      select {
+        font: inherit;
+      }
+
+      .shell {
+        width: min(1120px, calc(100% - 24px));
+        margin: 0 auto;
+        padding: 18px 0 28px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .back {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 13px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .8);
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      h1,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(32px, 7vw, 64px);
+        line-height: 1;
+      }
+
+      .lead {
+        color: var(--muted);
+        font-size: 17px;
+        font-weight: 800;
+      }
+
+      .game-shell {
+        display: grid;
+        gap: 12px;
+      }
+
+      .hud {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .hud div,
+      .panel {
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .92);
+        box-shadow: 0 12px 0 rgba(36, 31, 53, .08);
+      }
+
+      .hud div {
+        min-height: 62px;
+        display: grid;
+        align-content: center;
+        padding: 8px 12px;
+        font-weight: 900;
+      }
+
+      .hud span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .stage {
+        position: relative;
+        overflow: hidden;
+        height: min(62vh, 540px);
+        min-height: 420px;
+        border: 4px solid rgba(36, 31, 53, .18);
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 18% 20%, rgba(255, 255, 255, .92) 0 7%, transparent 8%),
+          radial-gradient(circle at 78% 22%, rgba(255, 255, 255, .86) 0 9%, transparent 10%),
+          linear-gradient(180deg, #9bdfff 0 48%, #70cf7b 49% 100%);
+        box-shadow: 0 18px 0 rgba(36, 31, 53, .08);
+        outline: none;
+      }
+
+      .path {
+        position: absolute;
+        inset: 52% 0 0;
+        background:
+          repeating-linear-gradient(90deg, rgba(255, 255, 255, .18) 0 22px, transparent 22px 46px),
+          linear-gradient(180deg, #e5c88c, #c79759);
+        clip-path: polygon(0 28%, 100% 0, 100% 100%, 0 100%);
+      }
+
+      .finish {
+        position: absolute;
+        right: 28px;
+        top: 82px;
+        width: 82px;
+        height: 238px;
+        border-left: 8px solid #4a2f25;
+      }
+
+      .finish::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: 0;
+        width: 58px;
+        height: 42px;
+        border: 3px solid var(--ink);
+        background:
+          conic-gradient(#fff 0 25%, #111 0 50%, #fff 0 75%, #111 0) 0 0 / 24px 24px;
+      }
+
+      .item,
+      .cat,
+      .lana {
+        position: absolute;
+        transform: translate(-50%, -50%);
+      }
+
+      .item {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border: 2px solid rgba(36, 31, 53, .2);
+        border-radius: 50%;
+        background: #fff;
+        font-size: 20px;
+        box-shadow: 0 5px 0 rgba(36, 31, 53, .08);
+      }
+
+      .cat,
+      .lana {
+        width: 70px;
+        height: 54px;
+      }
+
+      .cat-body,
+      .lana-body {
+        position: absolute;
+        left: 8px;
+        bottom: 0;
+        width: 54px;
+        height: 36px;
+        border: 3px solid var(--ink);
+        border-radius: 26px 28px 20px 20px;
+        background: #fff;
+      }
+
+      .lana-body {
+        background: #9b5838;
+      }
+
+      .cat-head,
+      .lana-head {
+        position: absolute;
+        right: 0;
+        top: 5px;
+        width: 38px;
+        height: 34px;
+        border: 3px solid var(--ink);
+        border-radius: 50%;
+        background: #fff;
+      }
+
+      .lana-head {
+        background: #9b5838;
+      }
+
+      .cat-head::before,
+      .cat-head::after,
+      .lana-head::before,
+      .lana-head::after {
+        content: "";
+        position: absolute;
+        top: -11px;
+        width: 14px;
+        height: 16px;
+        border: 3px solid var(--ink);
+        border-bottom: 0;
+        border-radius: 12px 12px 0 0;
+        background: inherit;
+      }
+
+      .cat-head::before,
+      .lana-head::before {
+        left: 2px;
+        transform: rotate(-28deg);
+      }
+
+      .cat-head::after,
+      .lana-head::after {
+        right: 2px;
+        transform: rotate(28deg);
+      }
+
+      .eye {
+        position: absolute;
+        top: 14px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #4ab7ff;
+      }
+
+      .lana .eye {
+        background: #ffd45c;
+      }
+
+      .eye.left {
+        left: 10px;
+      }
+
+      .eye.right {
+        right: 10px;
+      }
+
+      .tail {
+        position: absolute;
+        left: -1px;
+        top: 23px;
+        width: 28px;
+        height: 12px;
+        border: 3px solid var(--ink);
+        border-right: 0;
+        border-radius: 20px 0 0 20px;
+        transform: rotate(12deg);
+      }
+
+      .message {
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 14px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .92);
+        color: var(--muted);
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .controls button {
+        min-height: 48px;
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--pink), #df4f9a);
+        font-weight: 900;
+        box-shadow: 0 8px 0 rgba(36, 31, 53, .12);
+      }
+
+      .controls button:last-child {
+        color: var(--ink);
+        background: #fff;
+      }
+
+      @media (max-width: 720px) {
+        .hud,
+        .controls {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .stage {
+          min-height: 360px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <div>
+          <h1>Кошачья погоня</h1>
+          <p class="lead">Луна собирает вкусности, убегает от Ланы и добегает до финиша.</p>
+        </div>
+        <a class="back" href="../../index.html#games">Назад к сайту</a>
+      </header>
+
+      <section class="game-shell" aria-label="Игра Кошачья погоня">
+        <div class="hud" aria-label="Показатели">
+          <div><span>Счёт</span><strong id="score">0</strong></div>
+          <div><span>Жизни</span><strong id="lives">3</strong></div>
+          <div><span>Собрано</span><strong id="collected">0 / 8</strong></div>
+          <div><span>Режим</span><strong>Стартовая карта</strong></div>
+        </div>
+
+        <div class="stage" id="stage" tabindex="0">
+          <div class="path"></div>
+          <div class="finish"></div>
+          <div class="cat" id="luna" aria-label="Луна">
+            <div class="tail"></div>
+            <div class="cat-body"></div>
+            <div class="cat-head"><span class="eye left"></span><span class="eye right"></span></div>
+          </div>
+          <div class="lana" id="lana" aria-label="Лана">
+            <div class="lana-body"></div>
+            <div class="lana-head"><span class="eye left"></span><span class="eye right"></span></div>
+          </div>
+        </div>
+
+        <div class="message" id="message">Нажми “Старт” и управляй стрелками или WASD.</div>
+
+        <div class="controls">
+          <button id="start" type="button">Старт</button>
+          <button id="restart" type="button">Заново</button>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const stage = document.querySelector("#stage");
+      const luna = document.querySelector("#luna");
+      const lana = document.querySelector("#lana");
+      const scoreEl = document.querySelector("#score");
+      const livesEl = document.querySelector("#lives");
+      const collectedEl = document.querySelector("#collected");
+      const message = document.querySelector("#message");
+      const startButton = document.querySelector("#start");
+      const restartButton = document.querySelector("#restart");
+
+      const state = {
+        running: false,
+        won: false,
+        lost: false,
+        score: 0,
+        lives: 3,
+        collected: 0,
+        luna: { x: 85, y: 295 },
+        lana: { x: 55, y: 330 },
+        keys: new Set(),
+        items: []
+      };
+
+      const itemKinds = ["🐟", "💎", "⭐", "🍓"];
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function random(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      function resetItems() {
+        state.items.forEach((item) => item.el.remove());
+        state.items = [];
+        const rect = stage.getBoundingClientRect();
+        for (let index = 0; index < 8; index += 1) {
+          const el = document.createElement("div");
+          el.className = "item";
+          el.textContent = itemKinds[index % itemKinds.length];
+          const item = {
+            x: random(150, rect.width - 140),
+            y: random(115, rect.height - 85),
+            el,
+            taken: false
+          };
+          stage.append(el);
+          state.items.push(item);
+        }
+      }
+
+      function resetGame() {
+        state.running = false;
+        state.won = false;
+        state.lost = false;
+        state.score = 0;
+        state.lives = 3;
+        state.collected = 0;
+        state.luna = { x: 85, y: 295 };
+        state.lana = { x: 55, y: 330 };
+        resetItems();
+        render();
+        message.textContent = "Нажми “Старт” и управляй стрелками или WASD.";
+      }
+
+      function distance(a, b) {
+        return Math.hypot(a.x - b.x, a.y - b.y);
+      }
+
+      function updatePlayer() {
+        const speed = 4.2;
+        const rect = stage.getBoundingClientRect();
+        let dx = 0;
+        let dy = 0;
+        if (state.keys.has("ArrowLeft") || state.keys.has("KeyA")) dx -= 1;
+        if (state.keys.has("ArrowRight") || state.keys.has("KeyD")) dx += 1;
+        if (state.keys.has("ArrowUp") || state.keys.has("KeyW")) dy -= 1;
+        if (state.keys.has("ArrowDown") || state.keys.has("KeyS")) dy += 1;
+
+        if (dx || dy) {
+          const length = Math.hypot(dx, dy);
+          state.luna.x += (dx / length) * speed;
+          state.luna.y += (dy / length) * speed;
+        }
+
+        state.luna.x = clamp(state.luna.x, 35, rect.width - 35);
+        state.luna.y = clamp(state.luna.y, 45, rect.height - 35);
+      }
+
+      function updateLana() {
+        const speed = 1.45 + state.collected * 0.06;
+        const dx = state.luna.x - state.lana.x;
+        const dy = state.luna.y - state.lana.y;
+        const length = Math.hypot(dx, dy) || 1;
+        state.lana.x += (dx / length) * speed;
+        state.lana.y += (dy / length) * speed;
+      }
+
+      function checkItems() {
+        for (const item of state.items) {
+          if (!item.taken && distance(state.luna, item) < 38) {
+            item.taken = true;
+            item.el.remove();
+            state.score += 10;
+            state.collected += 1;
+            message.textContent = "Луна собрала вкусность!";
+          }
+        }
+      }
+
+      function checkCatch() {
+        if (distance(state.luna, state.lana) > 46) return;
+        state.lives -= 1;
+        state.luna = { x: 85, y: 295 };
+        state.lana = { x: 55, y: 330 };
+        message.textContent = state.lives > 0 ? "Лана догнала Луну. Осторожнее!" : "Лана поймала Луну. Попробуй ещё раз.";
+        if (state.lives <= 0) {
+          state.running = false;
+          state.lost = true;
+        }
+      }
+
+      function checkFinish() {
+        const rect = stage.getBoundingClientRect();
+        const reachedFinish = state.luna.x > rect.width - 95 && state.luna.y < 325;
+        if (reachedFinish && state.collected >= state.items.length) {
+          state.running = false;
+          state.won = true;
+          state.score += 50;
+          message.textContent = "Победа! Луна собрала всё и добежала до финиша.";
+        } else if (reachedFinish) {
+          message.textContent = "До финиша можно, но сначала собери все вкусности.";
+        }
+      }
+
+      function render() {
+        luna.style.left = `${state.luna.x}px`;
+        luna.style.top = `${state.luna.y}px`;
+        lana.style.left = `${state.lana.x}px`;
+        lana.style.top = `${state.lana.y}px`;
+        for (const item of state.items) {
+          item.el.style.left = `${item.x}px`;
+          item.el.style.top = `${item.y}px`;
+        }
+        scoreEl.textContent = state.score;
+        livesEl.textContent = "❤️".repeat(Math.max(0, state.lives));
+        collectedEl.textContent = `${state.collected} / ${state.items.length}`;
+      }
+
+      function loop() {
+        if (state.running) {
+          updatePlayer();
+          updateLana();
+          checkItems();
+          checkCatch();
+          checkFinish();
+          render();
+        }
+        requestAnimationFrame(loop);
+      }
+
+      window.addEventListener("keydown", (event) => {
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "KeyA", "KeyD", "KeyW", "KeyS"].includes(event.code)) {
+          event.preventDefault();
+          state.keys.add(event.code);
+        }
+      });
+
+      window.addEventListener("keyup", (event) => {
+        state.keys.delete(event.code);
+      });
+
+      startButton.addEventListener("click", () => {
+        if (state.won || state.lost) resetGame();
+        state.running = true;
+        message.textContent = "Беги к вкусностям, а потом к финишу!";
+        stage.focus();
+      });
+
+      restartButton.addEventListener("click", () => {
+        resetGame();
+        stage.focus();
+      });
+
+      resetGame();
+      loop();
+    </script>
+  </body>
+</html>
