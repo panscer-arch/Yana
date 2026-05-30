@@ -234,6 +234,25 @@
         font-weight: 800;
       }
 
+      .badge-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .badge {
+        min-height: 32px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 11px;
+        border: 2px solid rgba(36, 31, 53, .1);
+        border-radius: 8px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, .78);
+        font-size: 14px;
+        font-weight: 900;
+      }
+
       .button {
         min-height: 48px;
         display: inline-flex;
@@ -691,6 +710,18 @@
         font-weight: 900;
       }
 
+      .achievement {
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 2px solid rgba(66, 201, 149, .25);
+        border-radius: 8px;
+        color: #1d7358;
+        background: rgba(66, 201, 149, .13);
+        font-weight: 900;
+      }
+
       .score-row {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -763,6 +794,73 @@
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 12px;
+      }
+
+      .launch-grid {
+        display: grid;
+        grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+        gap: 18px;
+      }
+
+      .launch-card {
+        padding: 22px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 92% 12%, rgba(84, 184, 255, .22), transparent 34%),
+          rgba(255, 253, 247, .95);
+        box-shadow: var(--shadow);
+      }
+
+      .launch-card h3 {
+        margin-bottom: 14px;
+        font-size: 26px;
+      }
+
+      .launch-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+      }
+
+      .launch-note {
+        margin-top: 14px;
+        color: var(--muted);
+        line-height: 1.4;
+        font-weight: 800;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 10px;
+      }
+
+      .timeline-item {
+        display: grid;
+        grid-template-columns: 38px minmax(0, 1fr);
+        gap: 12px;
+        align-items: start;
+        padding: 13px;
+        border: 2px solid rgba(36, 31, 53, .1);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .timeline-item strong {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--violet), #6647d8);
+      }
+
+      .timeline-item span {
+        display: block;
+        color: var(--muted);
+        line-height: 1.35;
       }
 
       .studio-grid {
@@ -871,7 +969,8 @@
 
         .cards,
         .ideas-box,
-        .studio-grid {
+        .studio-grid,
+        .launch-grid {
           grid-template-columns: 1fr 1fr;
         }
 
@@ -901,6 +1000,7 @@
         .cards,
         .ideas-box,
         .studio-grid,
+        .launch-grid,
         .controls,
         .problem,
         .daily-goal,
@@ -930,6 +1030,7 @@
           <a href="#games">Игры</a>
           <a href="#learn">Обучение</a>
           <a href="#studio">Студия</a>
+          <a href="#publish">Публикация</a>
           <a href="#ideas">Идеи</a>
         </nav>
       </div>
@@ -947,8 +1048,13 @@
           </div>
           <div class="quick-stats" aria-label="Что есть на сайте">
             <div><strong>3</strong><span>места для игр</span></div>
-            <div><strong>4</strong><span>вида примеров</span></div>
+            <div><strong>5</strong><span>режимов математики</span></div>
             <div><strong>10</strong><span>таблиц умножения</span></div>
+          </div>
+          <div class="badge-row" aria-label="Особенности сайта">
+            <span class="badge">яркий детский стиль</span>
+            <span class="badge">готово для GitHub Pages</span>
+            <span class="badge">можно расширять самой</span>
           </div>
         </div>
 
@@ -1023,6 +1129,7 @@
               <label>
                 Действие
                 <select id="operation">
+                  <option value="mixed">Микс</option>
                   <option value="add">Сложение</option>
                   <option value="sub">Вычитание</option>
                   <option value="mul">Умножение</option>
@@ -1079,6 +1186,7 @@
               <div class="score"><span>Ошибки</span><strong id="wrongCount">0</strong></div>
               <div class="score"><span>Серия</span><strong id="streakCount">0</strong></div>
             </div>
+            <div class="achievement" id="achievement">Награда появится после первой серии.</div>
           </div>
 
           <aside class="table-box" aria-labelledby="table-title">
@@ -1119,6 +1227,34 @@
         </div>
       </section>
 
+      <section id="publish" aria-labelledby="publish-title">
+        <div class="section-title">
+          <h2 id="publish-title">Публикация</h2>
+          <p>Понятный путь от локальной версии до сайта на домене.</p>
+        </div>
+
+        <div class="launch-grid">
+          <article class="launch-card">
+            <h3>Куда всё выкладываем</h3>
+            <p>Основной репозиторий сайта: <strong>panscer-arch/Yana</strong>. Рабочая ветка для доработки: <strong>games-publish</strong>.</p>
+            <div class="launch-actions">
+              <a class="mini-button" href="https://github.com/panscer-arch/Yana/tree/games-publish">Открыть GitHub</a>
+              <a class="mini-button disabled" aria-disabled="true">GitHub Pages следующим шагом</a>
+            </div>
+            <p class="launch-note">Когда подключим “Кошачью погоню”, можно будет включить GitHub Pages и получить публичную ссылку.</p>
+          </article>
+
+          <article class="launch-card">
+            <h3>Дорожная карта</h3>
+            <div class="timeline">
+              <div class="timeline-item"><strong>1</strong><span>Довести главную страницу, обучение и витрину игр до аккуратного вида.</span></div>
+              <div class="timeline-item"><strong>2</strong><span>Перенести настоящие игры в папку <b>games</b> и связать карточки с кнопками “Играть”.</span></div>
+              <div class="timeline-item"><strong>3</strong><span>Опубликовать сайт через GitHub Pages, затем подключить домен.</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
       <section id="ideas" aria-labelledby="ideas-title">
         <div class="section-title">
           <h2 id="ideas-title">Что можно добавить</h2>
@@ -1150,6 +1286,7 @@
       const streakCount = document.querySelector("#streakCount");
       const goalText = document.querySelector("#goalText");
       const goalFill = document.querySelector("#goalFill");
+      const achievement = document.querySelector("#achievement");
       const checkAnswer = document.querySelector("#checkAnswer");
       const newTask = document.querySelector("#newTask");
       const hintTask = document.querySelector("#hintTask");
@@ -1209,7 +1346,10 @@
 
       function makeTask() {
         const max = maxByLevel();
-        const op = operation.value;
+        const modes = ["add", "sub", "mul", "div"];
+        const op = operation.value === "mixed"
+          ? modes[randomInt(0, modes.length - 1)]
+          : operation.value;
         let a = randomInt(1, max);
         let b = randomInt(1, max);
         let symbol = "+";
@@ -1267,6 +1407,17 @@
         goalText.textContent = score.right >= dailyTarget
           ? "Цель выполнена. Можно взять новую сложность!"
           : `Реши ${dailyTarget - score.right} из ${dailyTarget} примеров.`;
+        if (score.streak >= 10) {
+          achievement.textContent = "Суперсерия: 10 правильных подряд!";
+        } else if (score.streak >= 5) {
+          achievement.textContent = "Награда: сильная серия из 5 ответов.";
+        } else if (score.right >= dailyTarget) {
+          achievement.textContent = "Награда: дневная цель выполнена.";
+        } else if (score.right > 0) {
+          achievement.textContent = "Продолжай: первая победа уже есть.";
+        } else {
+          achievement.textContent = "Награда появится после первой серии.";
+        }
         saveScore();
       }
 
