@@ -4,6 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Яна Единорог</title>
+    <meta name="description" content="Детский сайт Яны с играми, обучением, математикой, дневником идей и единорожьей мастерской проектов.">
+    <meta name="theme-color" content="#ff72ad">
+    <meta property="og:title" content="Яна Единорог">
+    <meta property="og:description" content="Игры, обучение и маленькие веб-проекты Яны в яркой единорожьей мастерской.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/yana-unicorn-hero.png">
+    <link rel="icon" type="image/png" href="assets/yana-unicorn-logo.png">
+    <link rel="apple-touch-icon" href="assets/yana-unicorn-logo.png">
     <style>
       :root {
         color-scheme: light;
@@ -125,6 +133,11 @@
       .nav a:focus-visible {
         border-color: var(--line);
         background: #fff;
+      }
+
+      .nav a[aria-current="page"] {
+        border-color: rgba(255, 114, 173, .42);
+        background: rgba(255, 114, 173, .12);
       }
 
       main {
@@ -921,10 +934,12 @@
 
         .nav {
           justify-content: flex-start;
+          width: 100%;
         }
 
         .nav a {
           min-height: 36px;
+          flex: 1 1 auto;
           padding: 0 10px;
         }
 
@@ -992,7 +1007,7 @@
         </div>
 
         <div class="hero-stage" aria-hidden="true">
-          <img class="hero-art" src="assets/yana-unicorn-hero.png" alt="">
+          <img class="hero-art" src="assets/yana-unicorn-hero.png" alt="" width="1672" height="941" fetchpriority="high">
         </div>
       </section>
 
@@ -1159,7 +1174,7 @@
             <h3>Куда всё выкладываем</h3>
             <p>Основной репозиторий сайта: <strong>panscer-arch/Yana</strong>. Рабочая ветка для доработки: <strong>games-publish</strong>.</p>
             <div class="launch-actions">
-              <a class="mini-button" href="https://github.com/panscer-arch/Yana/tree/games-publish">Открыть GitHub</a>
+              <a class="mini-button" href="https://github.com/panscer-arch/Yana/tree/games-publish" target="_blank" rel="noreferrer">Открыть GitHub</a>
               <a class="mini-button disabled" aria-disabled="true">Ждёт публикации</a>
             </div>
             <p class="launch-note">Игра уже подключена. Следующий шаг — отправить последние коммиты в GitHub и включить GitHub Pages.</p>
