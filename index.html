@@ -796,6 +796,70 @@
         gap: 12px;
       }
 
+      .journal-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, .75fr);
+        gap: 18px;
+      }
+
+      .journal-card {
+        display: grid;
+        gap: 14px;
+        padding: 22px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .95);
+        box-shadow: var(--shadow);
+      }
+
+      .journal-card textarea {
+        min-height: 220px;
+        width: 100%;
+        resize: vertical;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        color: var(--ink);
+        background: #fff;
+        font: 800 16px/1.45 Arial, Helvetica, sans-serif;
+      }
+
+      .journal-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .journal-status {
+        min-height: 28px;
+        color: var(--muted);
+        font-weight: 900;
+      }
+
+      .project-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .project-list div {
+        padding: 13px;
+        border: 2px solid rgba(36, 31, 53, .1);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .project-list strong,
+      .project-list span {
+        display: block;
+      }
+
+      .project-list span {
+        margin-top: 3px;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+
       .launch-grid {
         display: grid;
         grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
@@ -970,7 +1034,8 @@
         .cards,
         .ideas-box,
         .studio-grid,
-        .launch-grid {
+        .launch-grid,
+        .journal-grid {
           grid-template-columns: 1fr 1fr;
         }
 
@@ -1001,6 +1066,7 @@
         .ideas-box,
         .studio-grid,
         .launch-grid,
+        .journal-grid,
         .controls,
         .problem,
         .daily-goal,
@@ -1032,6 +1098,7 @@
           <a href="#studio">Студия</a>
           <a href="#publish">Публикация</a>
           <a href="#ideas">Идеи</a>
+          <a href="#journal">Дневник</a>
         </nav>
       </div>
     </header>
@@ -1268,6 +1335,34 @@
           <div class="idea"><strong>Галерея</strong><span>Картинки, рисунки и скриншоты игр.</span></div>
         </div>
       </section>
+
+      <section id="journal" aria-labelledby="journal-title">
+        <div class="section-title">
+          <h2 id="journal-title">Дневник Яны</h2>
+          <p>Здесь можно записывать идеи игр, планы уроков и то, что хочется доделать завтра.</p>
+        </div>
+
+        <div class="journal-grid">
+          <article class="journal-card">
+            <h3>Мои идеи</h3>
+            <textarea id="journalText" aria-label="Дневник идей" placeholder="Например: добавить игру про единорога, сделать новую карту, выучить таблицу на 7..."></textarea>
+            <div class="journal-actions">
+              <button class="mini-button" id="saveJournal" type="button">Сохранить</button>
+              <button class="quiet-button" id="clearJournal" type="button">Очистить</button>
+              <span class="journal-status" id="journalStatus">Записи сохраняются в этом браузере.</span>
+            </div>
+          </article>
+
+          <aside class="journal-card">
+            <h3>Быстрые направления</h3>
+            <div class="project-list">
+              <div><strong>Игры</strong><span>Карты, персонажи, уровни, музыка, финиши и награды.</span></div>
+              <div><strong>Школа</strong><span>Математика, чтение, русский язык, задачи и тренировка памяти.</span></div>
+              <div><strong>Кодинг</strong><span>Маленькие сайты, открытки, галереи и эксперименты.</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
     </main>
 
     <footer>
@@ -1293,11 +1388,16 @@
       const resetScore = document.querySelector("#resetScore");
       const tableButtons = document.querySelector("#tableButtons");
       const tableList = document.querySelector("#tableList");
+      const journalText = document.querySelector("#journalText");
+      const saveJournal = document.querySelector("#saveJournal");
+      const clearJournal = document.querySelector("#clearJournal");
+      const journalStatus = document.querySelector("#journalStatus");
 
       let task = { a: 7, b: 5, op: "+", answer: 12 };
       let score = loadScore();
       let activeTable = 2;
       const dailyTarget = 10;
+      const journalKey = "yana-project-journal";
 
       function todayKey() {
         return new Date().toISOString().slice(0, 10);
@@ -1487,12 +1587,43 @@
         }
       }
 
+      function loadJournal() {
+        try {
+          journalText.value = localStorage.getItem(journalKey) || "";
+        } catch (error) {
+          console.warn("Journal was not loaded", error);
+        }
+      }
+
+      function saveJournalEntry() {
+        try {
+          localStorage.setItem(journalKey, journalText.value);
+          journalStatus.textContent = journalText.value.trim()
+            ? "Сохранено. Идея не потеряется."
+            : "Пустая заметка сохранена.";
+        } catch (error) {
+          journalStatus.textContent = "Не получилось сохранить в браузере.";
+          console.warn("Journal was not saved", error);
+        }
+      }
+
+      function clearJournalEntry() {
+        journalText.value = "";
+        saveJournalEntry();
+        journalStatus.textContent = "Дневник очищен.";
+      }
+
       operation.addEventListener("change", makeTask);
       level.addEventListener("change", makeTask);
       viewMode.addEventListener("change", renderTask);
       checkAnswer.addEventListener("click", checkCurrentAnswer);
       newTask.addEventListener("click", makeTask);
       hintTask.addEventListener("click", showHint);
+      saveJournal.addEventListener("click", saveJournalEntry);
+      clearJournal.addEventListener("click", clearJournalEntry);
+      journalText.addEventListener("input", () => {
+        journalStatus.textContent = "Есть несохраненные изменения.";
+      });
       resetScore.addEventListener("click", () => {
         score = { right: 0, wrong: 0, streak: 0 };
         result.textContent = "Счет сброшен.";
@@ -1505,6 +1636,7 @@
       });
 
       renderMultiplication();
+      loadJournal();
       makeTask();
       updateScore();
     </script>
