@@ -50,6 +50,14 @@
         cursor: pointer;
       }
 
+      a:focus-visible,
+      button:focus-visible,
+      input:focus-visible,
+      select:focus-visible {
+        outline: 4px solid rgba(84, 184, 255, .45);
+        outline-offset: 3px;
+      }
+
       .shell {
         width: min(1120px, calc(100% - 28px));
         margin: 0 auto;
@@ -197,6 +205,33 @@
         display: flex;
         gap: 12px;
         flex-wrap: wrap;
+      }
+
+      .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        max-width: 620px;
+      }
+
+      .quick-stats div {
+        min-height: 78px;
+        display: grid;
+        align-content: center;
+        gap: 3px;
+        padding: 12px;
+        border: 2px solid rgba(36, 31, 53, .12);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .72);
+      }
+
+      .quick-stats strong {
+        font-size: 28px;
+      }
+
+      .quick-stats span {
+        color: var(--muted);
+        font-weight: 800;
       }
 
       .button {
@@ -403,6 +438,37 @@
         box-shadow: var(--shadow);
       }
 
+      .featured-card {
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, .8), rgba(255, 253, 247, .96)),
+          radial-gradient(circle at 92% 8%, rgba(255, 212, 92, .45), transparent 32%);
+      }
+
+      .status {
+        width: fit-content;
+        min-height: 30px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 900;
+        background: var(--violet);
+      }
+
+      .status.ready {
+        background: linear-gradient(180deg, var(--pink), #db4f95);
+      }
+
+      .status.idea-status {
+        background: linear-gradient(180deg, var(--blue), #2b92d7);
+      }
+
+      .status.web-status {
+        background: linear-gradient(180deg, var(--mint), #23976f);
+      }
+
       .game-art {
         min-height: 118px;
         border: 2px solid rgba(36, 31, 53, .12);
@@ -442,6 +508,40 @@
         font-weight: 900;
       }
 
+      .card-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: auto;
+      }
+
+      .mini-button {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        color: #fff;
+        text-decoration: none;
+        background: linear-gradient(180deg, var(--violet), #6647d8);
+        font-weight: 900;
+      }
+
+      .mini-button.disabled {
+        color: rgba(36, 31, 53, .62);
+        background: rgba(36, 31, 53, .08);
+      }
+
+      .path-label {
+        color: var(--muted);
+        font-family: "Courier New", monospace;
+        font-size: 13px;
+        font-weight: 900;
+      }
+
       .learn-grid {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(290px, .75fr);
@@ -467,6 +567,45 @@
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 10px;
+      }
+
+      .daily-goal {
+        display: grid;
+        grid-template-columns: minmax(0, 230px) minmax(0, 1fr);
+        gap: 14px;
+        align-items: center;
+        padding: 14px;
+        border-radius: 8px;
+        color: var(--ink);
+        background: rgba(255, 212, 92, .26);
+      }
+
+      .daily-goal strong,
+      .daily-goal span {
+        display: block;
+      }
+
+      .daily-goal span {
+        margin-top: 3px;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .goal-track {
+        height: 18px;
+        overflow: hidden;
+        border: 2px solid rgba(36, 31, 53, .12);
+        border-radius: 999px;
+        background: #fff;
+      }
+
+      .goal-track span {
+        display: block;
+        width: 0%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--mint), var(--blue), var(--violet));
+        transition: width .22s ease;
       }
 
       label {
@@ -535,6 +674,15 @@
 
       .small-actions button:nth-child(2) {
         background: linear-gradient(180deg, var(--mint), #23976f);
+      }
+
+      .quiet-button {
+        min-height: 38px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        background: #fff;
+        font-weight: 900;
       }
 
       .result {
@@ -617,6 +765,68 @@
         gap: 12px;
       }
 
+      .studio-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 18px;
+      }
+
+      .studio-panel {
+        min-height: 270px;
+        padding: 22px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .94);
+        box-shadow: var(--shadow);
+      }
+
+      .studio-panel h3 {
+        margin-bottom: 14px;
+        font-size: 26px;
+      }
+
+      .accent-panel {
+        background:
+          radial-gradient(circle at 92% 12%, rgba(255, 114, 173, .24), transparent 34%),
+          rgba(255, 253, 247, .94);
+      }
+
+      .steps,
+      .checklist {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+      }
+
+      .steps {
+        padding-left: 22px;
+      }
+
+      .steps li {
+        padding-left: 5px;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.35;
+      }
+
+      .checklist label {
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 12px;
+        border: 2px solid rgba(36, 31, 53, .1);
+        border-radius: 8px;
+        color: var(--ink);
+        background: #fff;
+        font-size: 16px;
+      }
+
+      .checklist input {
+        width: 18px;
+        min-height: 18px;
+      }
+
       .idea {
         min-height: 112px;
         display: grid;
@@ -660,12 +870,14 @@
         }
 
         .cards,
-        .ideas-box {
+        .ideas-box,
+        .studio-grid {
           grid-template-columns: 1fr 1fr;
         }
 
         .controls,
-        .problem {
+        .problem,
+        .daily-goal {
           grid-template-columns: 1fr 1fr;
         }
       }
@@ -688,8 +900,11 @@
 
         .cards,
         .ideas-box,
+        .studio-grid,
         .controls,
         .problem,
+        .daily-goal,
+        .quick-stats,
         .score-row {
           grid-template-columns: 1fr;
         }
@@ -714,6 +929,7 @@
         <nav class="nav" aria-label="Главное меню">
           <a href="#games">Игры</a>
           <a href="#learn">Обучение</a>
+          <a href="#studio">Студия</a>
           <a href="#ideas">Идеи</a>
         </nav>
       </div>
@@ -728,6 +944,11 @@
           <div class="hero-actions">
             <a class="button" href="#games">Смотреть игры</a>
             <a class="button secondary" href="#learn">Открыть математику</a>
+          </div>
+          <div class="quick-stats" aria-label="Что есть на сайте">
+            <div><strong>3</strong><span>места для игр</span></div>
+            <div><strong>4</strong><span>вида примеров</span></div>
+            <div><strong>10</strong><span>таблиц умножения</span></div>
           </div>
         </div>
 
@@ -755,25 +976,37 @@
         </div>
 
         <div class="cards">
-          <article class="card">
+          <article class="card featured-card">
             <div class="game-art" aria-hidden="true"></div>
+            <span class="status ready">Главная игра</span>
             <h3>Кошачья погоня</h3>
             <p>Луна убегает от Ланы, собирает вкусности, открывает скины и добегает до финиша.</p>
-            <span class="pill">Файлы игры добавим следующим шагом</span>
+            <div class="card-actions">
+              <a class="mini-button disabled" aria-disabled="true">Скоро играть</a>
+              <span class="path-label">games/cat-chase</span>
+            </div>
           </article>
 
           <article class="card">
             <div class="game-art empty" aria-hidden="true"></div>
+            <span class="status idea-status">Слот проекта</span>
             <h3>Новая игра</h3>
             <p>Здесь может появиться платформер, квест, ферма, лабиринт или игра про питомцев.</p>
-            <span class="pill">Место готово</span>
+            <div class="card-actions">
+              <a class="mini-button disabled" aria-disabled="true">Добавить позже</a>
+              <span class="path-label">games/new-game</span>
+            </div>
           </article>
 
           <article class="card">
             <div class="game-art empty" aria-hidden="true"></div>
+            <span class="status web-status">Веб-кодинг</span>
             <h3>Веб-проект</h3>
             <p>Для маленьких сайтов, открыток, школьных страниц и красивых экспериментов с кодом.</p>
-            <span class="pill">Можно пополнять</span>
+            <div class="card-actions">
+              <a class="mini-button disabled" aria-disabled="true">Скоро раздел</a>
+              <span class="path-label">projects</span>
+            </div>
           </article>
         </div>
       </section>
@@ -820,14 +1053,23 @@
               </label>
             </div>
 
+            <div class="daily-goal">
+              <div>
+                <strong>Цель на сегодня</strong>
+                <span id="goalText">Реши 10 примеров правильно.</span>
+              </div>
+              <div class="goal-track" aria-label="Прогресс цели"><span id="goalFill"></span></div>
+            </div>
+
             <div class="problem">
               <div class="example" id="example">7 + 5 = ?</div>
               <div class="answer-panel">
                 <button id="checkAnswer" type="button">Проверить</button>
                 <div class="small-actions">
                   <button id="newTask" type="button">Новый</button>
-                  <button id="resetScore" type="button">Сброс</button>
+                  <button id="hintTask" type="button">Подсказка</button>
                 </div>
+                <button class="quiet-button" id="resetScore" type="button">Сбросить счет</button>
                 <div class="result" id="result">Реши пример.</div>
               </div>
             </div>
@@ -844,6 +1086,36 @@
             <div class="multiplication" id="tableButtons" aria-label="Выбор числа"></div>
             <div class="table-list" id="tableList"></div>
           </aside>
+        </div>
+      </section>
+
+      <section id="studio" aria-labelledby="studio-title">
+        <div class="section-title">
+          <h2 id="studio-title">Студия Яны</h2>
+          <p>Место, где удобно вести сайт: что уже есть, что доделать и куда складывать новые штуки.</p>
+        </div>
+
+        <div class="studio-grid">
+          <article class="studio-panel">
+            <h3>Как добавлять новые игры</h3>
+            <ol class="steps">
+              <li>Создать папку внутри <strong>games</strong>.</li>
+              <li>Положить туда <strong>index.html</strong> и файлы игры.</li>
+              <li>Добавить карточку в витрину.</li>
+              <li>Проверить локально и сохранить на GitHub.</li>
+            </ol>
+          </article>
+
+          <article class="studio-panel accent-panel">
+            <h3>План до идеала</h3>
+            <div class="checklist">
+              <label><input type="checkbox" checked disabled> Главная страница</label>
+              <label><input type="checkbox" checked disabled> Математика</label>
+              <label><input type="checkbox" disabled> Подключить “Кошачью погоню”</label>
+              <label><input type="checkbox" disabled> Опубликовать GitHub Pages</label>
+              <label><input type="checkbox" disabled> Подключить домен</label>
+            </div>
+          </article>
         </div>
       </section>
 
@@ -876,15 +1148,54 @@
       const rightCount = document.querySelector("#rightCount");
       const wrongCount = document.querySelector("#wrongCount");
       const streakCount = document.querySelector("#streakCount");
+      const goalText = document.querySelector("#goalText");
+      const goalFill = document.querySelector("#goalFill");
       const checkAnswer = document.querySelector("#checkAnswer");
       const newTask = document.querySelector("#newTask");
+      const hintTask = document.querySelector("#hintTask");
       const resetScore = document.querySelector("#resetScore");
       const tableButtons = document.querySelector("#tableButtons");
       const tableList = document.querySelector("#tableList");
 
       let task = { a: 7, b: 5, op: "+", answer: 12 };
-      let score = { right: 0, wrong: 0, streak: 0 };
+      let score = loadScore();
       let activeTable = 2;
+      const dailyTarget = 10;
+
+      function todayKey() {
+        return new Date().toISOString().slice(0, 10);
+      }
+
+      function loadScore() {
+        try {
+          const raw = localStorage.getItem("yana-math-score");
+          const saved = raw ? JSON.parse(raw) : null;
+          if (saved && saved.date === todayKey()) {
+            return {
+              right: Number(saved.right) || 0,
+              wrong: Number(saved.wrong) || 0,
+              streak: Number(saved.streak) || 0
+            };
+          }
+        } catch (error) {
+          console.warn("Score was not loaded", error);
+        }
+
+        return { right: 0, wrong: 0, streak: 0 };
+      }
+
+      function saveScore() {
+        try {
+          localStorage.setItem("yana-math-score", JSON.stringify({
+            date: todayKey(),
+            right: score.right,
+            wrong: score.wrong,
+            streak: score.streak
+          }));
+        } catch (error) {
+          console.warn("Score was not saved", error);
+        }
+      }
 
       function randomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -951,6 +1262,31 @@
         rightCount.textContent = score.right;
         wrongCount.textContent = score.wrong;
         streakCount.textContent = score.streak;
+        const progress = Math.min(score.right / dailyTarget, 1) * 100;
+        goalFill.style.width = `${progress}%`;
+        goalText.textContent = score.right >= dailyTarget
+          ? "Цель выполнена. Можно взять новую сложность!"
+          : `Реши ${dailyTarget - score.right} из ${dailyTarget} примеров.`;
+        saveScore();
+      }
+
+      function showHint() {
+        if (task.op === "+") {
+          result.textContent = `Подсказка: начни с ${task.a}, потом прибавь ${task.b}.`;
+          return;
+        }
+
+        if (task.op === "-") {
+          result.textContent = `Подсказка: от ${task.a} убери ${task.b}.`;
+          return;
+        }
+
+        if (task.op === "×") {
+          result.textContent = `Подсказка: ${task.a} нужно взять ${task.b} раз.`;
+          return;
+        }
+
+        result.textContent = `Подсказка: найди число, которое при умножении на ${task.b} даст ${task.a}.`;
       }
 
       function checkCurrentAnswer() {
@@ -1005,6 +1341,7 @@
       viewMode.addEventListener("change", renderTask);
       checkAnswer.addEventListener("click", checkCurrentAnswer);
       newTask.addEventListener("click", makeTask);
+      hintTask.addEventListener("click", showHint);
       resetScore.addEventListener("click", () => {
         score = { right: 0, wrong: 0, streak: 0 };
         result.textContent = "Счет сброшен.";
