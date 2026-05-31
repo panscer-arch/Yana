@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Игровая лаборатория Яны</title>
+    <meta name="description" content="Игровая лаборатория Яны: готовые игры, идеи новых игр, карты, персонажи и план разработки.">
+    <meta name="theme-color" content="#ff72ad">
+    <link rel="icon" type="image/png" href="../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #241f35;
+        --muted: #655b78;
+        --paper: #fffdf7;
+        --pink: #ff72ad;
+        --violet: #8e67ff;
+        --blue: #54b8ff;
+        --mint: #42c995;
+        --sun: #ffd45c;
+        --line: rgba(36, 31, 53, .14);
+        --shadow: 0 16px 0 rgba(36, 31, 53, .08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 14% 14%, rgba(255, 255, 255, .9) 0 7%, transparent 8%),
+          radial-gradient(circle at 84% 18%, rgba(255, 255, 255, .82) 0 8%, transparent 9%),
+          linear-gradient(135deg, #bdefff 0%, #fbd6ff 48%, #fff0aa 100%);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .shell {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        border-bottom: 3px solid var(--line);
+        background: rgba(255, 253, 247, .92);
+        backdrop-filter: blur(12px);
+      }
+
+      .topbar-inner {
+        min-height: 74px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .brand,
+      .button,
+      .mini-button {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .brand {
+        gap: 10px;
+        color: var(--ink);
+      }
+
+      .mark {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 auto;
+        border: 3px solid var(--line);
+        border-radius: 50%;
+        background: center / cover no-repeat url("../assets/yana-unicorn-logo.png");
+      }
+
+      .nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .nav a {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .nav a:hover,
+      .nav a:focus-visible {
+        border-color: var(--line);
+        background: #fff;
+      }
+
+      .hero {
+        min-height: 520px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, .82fr);
+        gap: 28px;
+        align-items: center;
+        padding: 42px 0 18px;
+      }
+
+      .tag,
+      .status {
+        width: fit-content;
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .76);
+        color: #653f94;
+        font-size: 14px;
+        font-weight: 900;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        max-width: 780px;
+        margin-top: 16px;
+        font-size: clamp(42px, 8vw, 82px);
+        line-height: .95;
+      }
+
+      .lead {
+        max-width: 650px;
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+      }
+
+      .button,
+      .mini-button {
+        padding: 0 16px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--pink), #df4f9a);
+        box-shadow: 0 8px 0 rgba(36, 31, 53, .12);
+      }
+
+      .button.secondary,
+      .mini-button.secondary {
+        color: var(--ink);
+        background: #fff;
+      }
+
+      .hero-card,
+      .game-card,
+      .panel {
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .94);
+        box-shadow: var(--shadow);
+      }
+
+      .hero-card {
+        display: grid;
+        gap: 16px;
+        padding: 20px;
+      }
+
+      .hero-card img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+      }
+
+      section {
+        padding: 34px 0;
+      }
+
+      .section-title {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      h2 {
+        font-size: clamp(30px, 5vw, 48px);
+        line-height: 1;
+      }
+
+      .section-title p,
+      .hero-card p,
+      .game-card p,
+      .panel p,
+      .panel li {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .game-grid,
+      .panel-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .game-card,
+      .panel {
+        display: grid;
+        gap: 12px;
+        padding: 18px;
+      }
+
+      .preview {
+        min-height: 132px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .cat-preview {
+        background:
+          radial-gradient(circle at 31% 62%, #fff 0 15%, transparent 16%),
+          radial-gradient(circle at 72% 58%, #9b5838 0 15%, transparent 16%),
+          linear-gradient(180deg, #8ed9ff 0 52%, #75c96d 52% 100%);
+      }
+
+      .unicorn-preview {
+        background:
+          linear-gradient(90deg, rgba(255, 255, 255, .78), rgba(255, 255, 255, .08)),
+          center / cover no-repeat url("../assets/yana-unicorn-hero.png");
+      }
+
+      .quest-preview {
+        background:
+          radial-gradient(circle at 30% 30%, #ffd45c 0 13%, transparent 14%),
+          radial-gradient(circle at 72% 66%, #8e67ff 0 16%, transparent 17%),
+          repeating-linear-gradient(45deg, rgba(255, 255, 255, .42) 0 12px, transparent 12px 24px),
+          linear-gradient(135deg, #bdefff, #fbd6ff);
+      }
+
+      .status.ready {
+        color: #0d6b49;
+        background: rgba(66, 201, 149, .2);
+      }
+
+      .status.next {
+        color: #7b4d00;
+        background: rgba(255, 212, 92, .32);
+      }
+
+      ul,
+      ol {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      footer {
+        padding: 28px 16px 36px;
+        color: var(--muted);
+        text-align: center;
+        font-weight: 900;
+      }
+
+      @media (max-width: 860px) {
+        .hero,
+        .game-grid,
+        .panel-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar-inner {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 12px 0;
+        }
+
+        .nav {
+          width: 100%;
+        }
+
+        .nav a {
+          flex: 1 1 auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="shell topbar-inner">
+        <a class="brand" href="../index.html" aria-label="Яна Единорог">
+          <span class="mark" aria-hidden="true"></span>
+          <span>Яна Единорог</span>
+        </a>
+        <nav class="nav" aria-label="Навигация">
+          <a href="../index.html#games">Витрина</a>
+          <a href="../index.html#learn">Обучение</a>
+          <a href="../projects/index.html">Проекты</a>
+          <a href="../index.html">Главная</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="hero" aria-label="Игровая лаборатория">
+        <div>
+          <span class="tag">Игровая лаборатория</span>
+          <h1>Все игры и идеи в одном месте</h1>
+          <p class="lead">Здесь видно, во что уже можно играть, какие игры Яна может делать дальше и какие детали стоит добавить: карты, скины, уровни и награды.</p>
+          <div class="hero-actions">
+            <a class="button" href="cat-chase/index.html">Играть в Кошачью погоню</a>
+            <a class="button secondary" href="#next-games">Смотреть идеи</a>
+          </div>
+        </div>
+
+        <aside class="hero-card">
+          <img src="../assets/yana-unicorn-hero.png" alt="">
+          <h2>Цель лаборатории</h2>
+          <p>Чтобы новая игра не терялась: сначала появляется идея, потом папка, потом кнопка на главной странице.</p>
+        </aside>
+      </section>
+
+      <section aria-labelledby="ready-title">
+        <div class="section-title">
+          <h2 id="ready-title">Готово играть</h2>
+          <p>Рабочие игры, которые уже открываются с сайта.</p>
+        </div>
+
+        <div class="game-grid">
+          <article class="game-card">
+            <div class="preview cat-preview" aria-hidden="true"></div>
+            <span class="status ready">Готовая игра</span>
+            <h3>Кошачья погоня</h3>
+            <p>Луна собирает вкусности, убегает от Ланы и добегает до финиша. Есть жизни, счёт и управление на клавиатуре или телефоне.</p>
+            <a class="mini-button" href="cat-chase/index.html">Играть</a>
+          </article>
+
+          <article class="game-card">
+            <div class="preview unicorn-preview" aria-hidden="true"></div>
+            <span class="status next">Следующая игра</span>
+            <h3>Единорожий забег</h3>
+            <p>Идея для платформера: прыгать по облакам, собирать звёзды, открывать радужные скины.</p>
+            <a class="mini-button secondary" href="../index.html#journal">Записать детали</a>
+          </article>
+
+          <article class="game-card">
+            <div class="preview quest-preview" aria-hidden="true"></div>
+            <span class="status next">Учебная игра</span>
+            <h3>Математический квест</h3>
+            <p>Игра, где двери открываются правильными ответами, а за серии выдаются медали и новые комнаты.</p>
+            <a class="mini-button secondary" href="../index.html#learn">Тренировать математику</a>
+          </article>
+        </div>
+      </section>
+
+      <section id="next-games" aria-labelledby="next-title">
+        <div class="section-title">
+          <h2 id="next-title">Что добавлять в игры</h2>
+          <p>Короткий список фич, которые делают игру более полной и интересной.</p>
+        </div>
+
+        <div class="panel-grid">
+          <article class="panel">
+            <h3>Карты</h3>
+            <p>Лес, лёд, пустыня, дом, облака и праздничные карты с разными препятствиями.</p>
+          </article>
+
+          <article class="panel">
+            <h3>Награды</h3>
+            <p>Скины, медали, короны, золотые цепочки и смешные титулы за победы.</p>
+          </article>
+
+          <article class="panel">
+            <h3>Режимы</h3>
+            <p>Лёгкий, обычный, сложный, испытание на время и спокойный режим без погони.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Игровая лаборатория готова для новых идей Яны.
+    </footer>
+  </body>
+</html>

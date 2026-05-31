@@ -437,9 +437,16 @@
         font-weight: 900;
       }
 
-      .mini-button.disabled {
+      .waiting-pill {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+        border-radius: 8px;
         color: rgba(36, 31, 53, .62);
         background: rgba(36, 31, 53, .08);
+        font-weight: 900;
       }
 
       .path-label {
@@ -1052,12 +1059,12 @@
 
           <article class="card">
             <div class="game-art unicorn-art" aria-hidden="true"></div>
-            <span class="status idea-status">Слот проекта</span>
-            <h3>Новая игра</h3>
-            <p>Здесь может появиться платформер, квест, ферма, лабиринт или игра про питомцев.</p>
+            <span class="status idea-status">Игровая лаборатория</span>
+            <h3>Новые игры</h3>
+            <p>Идеи будущих игр: единорожий забег, математический квест, новые карты, скины и награды.</p>
             <div class="card-actions">
-              <a class="mini-button disabled" aria-disabled="true">Добавить позже</a>
-              <span class="path-label">games/new-game</span>
+              <a class="mini-button" href="games/index.html">Открыть идеи</a>
+              <span class="path-label">games</span>
             </div>
           </article>
 
@@ -1169,7 +1176,7 @@
               <li>Добавить карточку в витрину.</li>
               <li>Проверить локально и сохранить на GitHub.</li>
             </ol>
-            <p class="launch-note">Для маленьких сайтов действует такой же порядок, только папка создаётся внутри <strong>projects</strong>.</p>
+            <p class="launch-note">Идеи новых игр теперь собираются в <strong>games/index.html</strong>. Для маленьких сайтов действует такой же порядок, только папка создаётся внутри <strong>projects</strong>.</p>
           </article>
 
           <article class="studio-panel accent-panel">
@@ -1198,7 +1205,7 @@
             <p>Основной репозиторий сайта: <strong>panscer-arch/Yana</strong>. Рабочая ветка для доработки: <strong>games-publish</strong>.</p>
             <div class="launch-actions">
               <a class="mini-button" href="https://github.com/panscer-arch/Yana/tree/games-publish" target="_blank" rel="noreferrer">Открыть GitHub</a>
-              <a class="mini-button disabled" aria-disabled="true">Ждёт публикации</a>
+              <span class="waiting-pill">Ждёт публикации</span>
             </div>
             <p class="launch-note">Игра уже подключена. Следующий шаг — отправить последние коммиты в GitHub и включить GitHub Pages.</p>
           </article>
