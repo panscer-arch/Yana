@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Веб-проекты Яны</title>
-    <meta name="description" content="Мастерская веб-проектов Яны: открытки, школьные страницы, мини-сайты и идеи для кодинга.">
+    <title>Галерея Яны</title>
+    <meta name="description" content="Галерея Яны: скриншоты игр, рисунки, красивые страницы и любимые проекты.">
     <meta name="theme-color" content="#ff72ad">
     <link rel="icon" type="image/png" href="../assets/yana-unicorn-logo.png">
     <style>
@@ -31,7 +31,7 @@
         color: var(--ink);
         background:
           radial-gradient(circle at 12% 12%, rgba(255, 255, 255, .9) 0 7%, transparent 8%),
-          radial-gradient(circle at 88% 18%, rgba(255, 255, 255, .8) 0 8%, transparent 9%),
+          radial-gradient(circle at 86% 18%, rgba(255, 255, 255, .82) 0 8%, transparent 9%),
           linear-gradient(135deg, #bdefff 0%, #fbd6ff 48%, #fff0aa 100%);
         font-family: Arial, Helvetica, sans-serif;
       }
@@ -110,7 +110,7 @@
       }
 
       .hero {
-        min-height: 520px;
+        min-height: 500px;
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(320px, .82fr);
         gap: 28px;
@@ -140,7 +140,7 @@
       }
 
       h1 {
-        max-width: 780px;
+        max-width: 760px;
         margin-top: 16px;
         font-size: clamp(42px, 8vw, 82px);
         line-height: .95;
@@ -176,33 +176,27 @@
         background: #fff;
       }
 
-      .hero-card,
-      .panel,
-      .project-card {
+      .hero-frame,
+      .gallery-card,
+      .panel {
         border: 3px solid var(--line);
         border-radius: 8px;
         background: rgba(255, 253, 247, .94);
         box-shadow: var(--shadow);
       }
 
-      .hero-card {
+      .hero-frame {
         display: grid;
-        gap: 16px;
-        padding: 20px;
+        gap: 12px;
+        padding: 18px;
       }
 
-      .hero-card img {
+      .hero-frame img {
         width: 100%;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 4 / 3;
         object-fit: cover;
         border: 3px solid var(--line);
         border-radius: 8px;
-      }
-
-      .hero-card p {
-        color: var(--muted);
-        font-weight: 800;
-        line-height: 1.45;
       }
 
       section {
@@ -220,61 +214,53 @@
         line-height: 1;
       }
 
-      .section-title p {
-        max-width: 760px;
+      .section-title p,
+      .hero-frame p,
+      .gallery-card p,
+      .panel p {
         color: var(--muted);
-        font-size: 18px;
         font-weight: 800;
         line-height: 1.45;
       }
 
-      .project-grid,
+      .gallery-grid,
       .panel-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 16px;
       }
 
-      .project-card,
+      .gallery-card,
       .panel {
         display: grid;
         gap: 12px;
         padding: 18px;
       }
 
-      .project-preview {
-        min-height: 132px;
+      .art-preview {
+        min-height: 150px;
         border: 2px solid var(--line);
         border-radius: 8px;
       }
 
-      .postcard {
+      .screenshot {
         background:
-          radial-gradient(circle at 70% 28%, #fff 0 10%, transparent 11%),
-          linear-gradient(135deg, rgba(255, 114, 173, .7), rgba(84, 184, 255, .55)),
-          repeating-linear-gradient(-45deg, rgba(255, 255, 255, .42) 0 12px, transparent 12px 24px);
+          radial-gradient(circle at 28% 36%, #fff 0 13%, transparent 14%),
+          radial-gradient(circle at 70% 56%, #9b5838 0 13%, transparent 14%),
+          linear-gradient(180deg, #8ed9ff 0 52%, #75c96d 52% 100%);
+      }
+
+      .unicorn {
+        background:
+          linear-gradient(90deg, rgba(255, 255, 255, .76), rgba(255, 255, 255, .08)),
+          center / cover no-repeat url("../assets/yana-unicorn-hero.png");
       }
 
       .school {
         background:
-          linear-gradient(90deg, rgba(255, 255, 255, .72) 0 36%, transparent 37%),
+          linear-gradient(90deg, rgba(255, 255, 255, .72) 0 35%, transparent 36%),
           repeating-linear-gradient(0deg, rgba(84, 184, 255, .42) 0 3px, transparent 3px 22px),
           #fffdf7;
-      }
-
-      .gallery {
-        background:
-          radial-gradient(circle at 28% 34%, #ffd45c 0 16%, transparent 17%),
-          radial-gradient(circle at 72% 62%, #42c995 0 18%, transparent 19%),
-          linear-gradient(135deg, #f9d6ff, #bdefff);
-      }
-
-      .project-card p,
-      .panel p,
-      .panel li {
-        color: var(--muted);
-        font-weight: 800;
-        line-height: 1.45;
       }
 
       .status.ready {
@@ -287,12 +273,6 @@
         background: rgba(255, 212, 92, .32);
       }
 
-      ul,
-      ol {
-        margin: 0;
-        padding-left: 20px;
-      }
-
       footer {
         padding: 28px 16px 36px;
         color: var(--muted);
@@ -302,7 +282,7 @@
 
       @media (max-width: 860px) {
         .hero,
-        .project-grid,
+        .gallery-grid,
         .panel-grid {
           grid-template-columns: 1fr;
         }
@@ -332,93 +312,92 @@
         </a>
         <nav class="nav" aria-label="Навигация">
           <a href="../index.html#games">Игры</a>
+          <a href="../projects/index.html">Проекты</a>
           <a href="../index.html#learn">Обучение</a>
-          <a href="../gallery/index.html">Галерея</a>
-          <a href="../index.html#journal">Дневник</a>
           <a href="../index.html">Главная</a>
         </nav>
       </div>
     </header>
 
     <main class="shell">
-      <section class="hero" aria-label="Веб-проекты">
+      <section class="hero" aria-label="Галерея">
         <div>
-          <span class="tag">Мастерская веб-кодинга</span>
-          <h1>Здесь живут маленькие сайты Яны</h1>
-          <p class="lead">Открытки, школьные страницы, галереи, мини-лендинги и эксперименты можно собирать тут, а потом добавлять на главную витрину.</p>
+          <span class="tag">Галерея работ</span>
+          <h1>Скриншоты, рисунки и красивые проекты</h1>
+          <p class="lead">Здесь можно собирать лучшие моменты: победы в играх, новые страницы, картинки, школьные работы и всё, чем Яна захочет гордиться.</p>
           <div class="hero-actions">
-            <a class="button" href="#templates">Смотреть заготовки</a>
-            <a class="button secondary" href="../index.html#studio">План сайта</a>
+            <a class="button" href="#collection">Смотреть коллекцию</a>
+            <a class="button secondary" href="../index.html#journal">Записать новую идею</a>
           </div>
         </div>
 
-        <aside class="hero-card">
-          <img src="../assets/yana-unicorn-logo.png" alt="">
-          <h2>Правило мастерской</h2>
-          <p>Каждый новый проект получает свою папку, понятное название и кнопку на главной странице.</p>
+        <aside class="hero-frame">
+          <img src="../assets/yana-unicorn-hero.png" alt="">
+          <h2>Как пополнять</h2>
+          <p>Добавлять картинки в папку проекта, а потом делать карточку с названием, датой и короткой историей.</p>
         </aside>
       </section>
 
-      <section id="templates" aria-labelledby="templates-title">
+      <section id="collection" aria-labelledby="collection-title">
         <div class="section-title">
-          <h2 id="templates-title">Заготовки проектов</h2>
-          <p>Это не пустые карточки, а понятные направления, с которых удобно начать следующий сайт.</p>
+          <h2 id="collection-title">Коллекция</h2>
+          <p>Первые карточки уже показывают, какие типы работ будут храниться в галерее.</p>
         </div>
 
-        <div class="project-grid">
-          <article class="project-card">
-            <div class="project-preview postcard" aria-hidden="true"></div>
-            <span class="status ready">Можно делать первой</span>
-            <h3>Открытка</h3>
-            <p>Красивая страница с поздравлением, картинкой, музыкой и кнопкой-сюрпризом.</p>
-            <a class="mini-button" href="../index.html#journal">Записать идею</a>
+        <div class="gallery-grid">
+          <article class="gallery-card">
+            <div class="art-preview screenshot" aria-hidden="true"></div>
+            <span class="status ready">Игра</span>
+            <h3>Кошачья погоня</h3>
+            <p>Место для скриншотов побед, новых карт, скинов Луны и смешных моментов с Ланой.</p>
+            <a class="mini-button" href="../games/cat-chase/index.html">Открыть игру</a>
           </article>
 
-          <article class="project-card">
-            <div class="project-preview school" aria-hidden="true"></div>
-            <span class="status next">Для школы</span>
-            <h3>Страница урока</h3>
-            <p>Мини-сайт по теме: правило, примеры, задачки, ответы и маленькая проверка знаний.</p>
+          <article class="gallery-card">
+            <div class="art-preview unicorn" aria-hidden="true"></div>
+            <span class="status ready">Бренд</span>
+            <h3>Единорог сайта</h3>
+            <p>Логотип и главная картинка, которые делают сайт узнаваемым и весёлым.</p>
+            <a class="mini-button secondary" href="../index.html">На главную</a>
+          </article>
+
+          <article class="gallery-card">
+            <div class="art-preview school" aria-hidden="true"></div>
+            <span class="status next">Школа</span>
+            <h3>Учебные победы</h3>
+            <p>Здесь можно сохранять карточки с таблицей умножения, примерами и рекордами.</p>
             <a class="mini-button secondary" href="../index.html#learn">Открыть обучение</a>
-          </article>
-
-          <article class="project-card">
-            <div class="project-preview gallery" aria-hidden="true"></div>
-            <span class="status next">Для творчества</span>
-            <h3>Галерея</h3>
-            <p>Место для рисунков, скриншотов игр, котиков, единорогов и любимых проектов.</p>
-            <a class="mini-button secondary" href="../gallery/index.html">Открыть галерею</a>
           </article>
         </div>
       </section>
 
       <section aria-labelledby="rules-title">
         <div class="section-title">
-          <h2 id="rules-title">Как добавлять проект</h2>
-          <p>Короткий порядок, чтобы сайт оставался аккуратным даже когда проектов станет много.</p>
+          <h2 id="rules-title">Правила галереи</h2>
+          <p>Чтобы галерея росла аккуратно и не превращалась в свалку файлов.</p>
         </div>
 
         <div class="panel-grid">
           <article class="panel">
-            <h3>Папка</h3>
-            <p>Создать новую папку внутри <strong>projects</strong>, например <strong>projects/postcard</strong>.</p>
+            <h3>Название</h3>
+            <p>У каждой работы должно быть короткое название: игра, урок, открытка или рисунок.</p>
           </article>
 
           <article class="panel">
-            <h3>Страница</h3>
-            <p>Положить внутрь <strong>index.html</strong>, картинки и звуки, если они нужны проекту.</p>
+            <h3>История</h3>
+            <p>Одно предложение: что это, почему нравится и что хочется улучшить потом.</p>
           </article>
 
           <article class="panel">
-            <h3>Витрина</h3>
-            <p>Добавить карточку на главную, чтобы проект открывался в один клик.</p>
+            <h3>Порядок</h3>
+            <p>Лучшие работы можно выносить на главную, а остальные хранить здесь по разделам.</p>
           </article>
         </div>
       </section>
     </main>
 
     <footer>
-      Веб-мастерская Яны готова принимать новые проекты.
+      Галерея готова для новых работ Яны.
     </footer>
   </body>
 </html>
