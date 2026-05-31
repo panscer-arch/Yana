@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Школьная комната Яны</title>
+    <meta name="description" content="Школьная комната Яны: тренажёры по чтению, русскому языку и задачам.">
+    <meta name="theme-color" content="#ff72ad">
+    <link rel="icon" type="image/png" href="../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #241f35;
+        --muted: #655b78;
+        --paper: #fffdf7;
+        --pink: #ff72ad;
+        --violet: #8e67ff;
+        --blue: #54b8ff;
+        --mint: #42c995;
+        --sun: #ffd45c;
+        --line: rgba(36, 31, 53, .14);
+        --shadow: 0 16px 0 rgba(36, 31, 53, .08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 14% 12%, rgba(255, 255, 255, .9) 0 7%, transparent 8%),
+          radial-gradient(circle at 86% 18%, rgba(255, 255, 255, .82) 0 8%, transparent 9%),
+          linear-gradient(135deg, #bdefff 0%, #fbd6ff 48%, #fff0aa 100%);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .shell {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        border-bottom: 3px solid var(--line);
+        background: rgba(255, 253, 247, .92);
+        backdrop-filter: blur(12px);
+      }
+
+      .topbar-inner {
+        min-height: 74px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .brand,
+      .button,
+      .mini-button {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .brand {
+        gap: 10px;
+        color: var(--ink);
+      }
+
+      .mark {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 auto;
+        border: 3px solid var(--line);
+        border-radius: 50%;
+        background: center / cover no-repeat url("../assets/yana-unicorn-logo.png");
+      }
+
+      .nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .nav a {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .nav a:hover,
+      .nav a:focus-visible {
+        border-color: var(--line);
+        background: #fff;
+      }
+
+      .hero {
+        min-height: 500px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, .82fr);
+        gap: 28px;
+        align-items: center;
+        padding: 42px 0 18px;
+      }
+
+      .tag {
+        width: fit-content;
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .76);
+        color: #653f94;
+        font-size: 14px;
+        font-weight: 900;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin-top: 16px;
+        font-size: clamp(42px, 8vw, 82px);
+        line-height: .95;
+      }
+
+      .lead {
+        max-width: 650px;
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+      }
+
+      .button,
+      .mini-button {
+        padding: 0 16px;
+        border: 0;
+        color: #fff;
+        background: linear-gradient(180deg, var(--pink), #df4f9a);
+        box-shadow: 0 8px 0 rgba(36, 31, 53, .12);
+        cursor: pointer;
+      }
+
+      .button.secondary,
+      .mini-button.secondary {
+        color: var(--ink);
+        background: #fff;
+      }
+
+      .hero-card,
+      .trainer,
+      .panel {
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .94);
+        box-shadow: var(--shadow);
+      }
+
+      .hero-card {
+        display: grid;
+        gap: 14px;
+        padding: 20px;
+      }
+
+      .hero-card img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+      }
+
+      section {
+        padding: 34px 0;
+      }
+
+      .section-title {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      h2 {
+        font-size: clamp(30px, 5vw, 48px);
+        line-height: 1;
+      }
+
+      .section-title p,
+      .hero-card p,
+      .trainer p,
+      .panel p {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .trainer-grid,
+      .panel-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .trainer,
+      .panel {
+        display: grid;
+        gap: 12px;
+        padding: 18px;
+      }
+
+      .task-box {
+        min-height: 118px;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        font-size: 24px;
+        font-weight: 900;
+        line-height: 1.25;
+        text-align: center;
+      }
+
+      .answer-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+      }
+
+      input {
+        min-height: 42px;
+        width: 100%;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        padding: 0 12px;
+        color: var(--ink);
+        background: #fff;
+        font-weight: 900;
+      }
+
+      .result {
+        min-height: 28px;
+        color: var(--muted);
+        font-weight: 900;
+      }
+
+      .result.good {
+        color: #15704f;
+      }
+
+      .result.bad {
+        color: #a43b68;
+      }
+
+      footer {
+        padding: 28px 16px 36px;
+        color: var(--muted);
+        text-align: center;
+        font-weight: 900;
+      }
+
+      @media (max-width: 860px) {
+        .hero,
+        .trainer-grid,
+        .panel-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar-inner {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 12px 0;
+        }
+
+        .nav,
+        .answer-row {
+          width: 100%;
+          grid-template-columns: 1fr;
+        }
+
+        .nav a {
+          flex: 1 1 auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="shell topbar-inner">
+        <a class="brand" href="../index.html" aria-label="Яна Единорог">
+          <span class="mark" aria-hidden="true"></span>
+          <span>Яна Единорог</span>
+        </a>
+        <nav class="nav" aria-label="Навигация">
+          <a href="../index.html#learn">Математика</a>
+          <a href="../games/index.html">Игры</a>
+          <a href="../gallery/index.html">Галерея</a>
+          <a href="../index.html">Главная</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="hero" aria-label="Школьная комната">
+        <div>
+          <span class="tag">Школьная комната</span>
+          <h1>Русский, чтение и задачи рядом с играми</h1>
+          <p class="lead">Кроме математики на главной, здесь можно тренировать словарные слова, читать короткие тексты и решать простые задачи.</p>
+          <div class="hero-actions">
+            <a class="button" href="#trainers">Начать тренировку</a>
+            <a class="button secondary" href="../index.html#learn">Открыть математику</a>
+          </div>
+        </div>
+
+        <aside class="hero-card">
+          <img src="../assets/yana-unicorn-logo.png" alt="">
+          <h2>Как заниматься</h2>
+          <p>Выбрать карточку, ответить, нажать проверку и записать сложные места в дневник на главной.</p>
+        </aside>
+      </section>
+
+      <section id="trainers" aria-labelledby="trainers-title">
+        <div class="section-title">
+          <h2 id="trainers-title">Тренажёры</h2>
+          <p>Три быстрых упражнения, чтобы школьный раздел уже был полезным.</p>
+        </div>
+
+        <div class="trainer-grid">
+          <article class="trainer">
+            <h3>Словарное слово</h3>
+            <p>Вставь пропущенную букву.</p>
+            <div class="task-box" id="wordTask">м_дведь</div>
+            <div class="answer-row">
+              <input id="wordAnswer" autocomplete="off" aria-label="Ответ для словарного слова">
+              <button class="mini-button" id="checkWord" type="button">Проверить</button>
+            </div>
+            <button class="mini-button secondary" id="newWord" type="button">Новое слово</button>
+            <div class="result" id="wordResult" aria-live="polite">Напиши букву.</div>
+          </article>
+
+          <article class="trainer">
+            <h3>Чтение</h3>
+            <p>Прочитай вслух и ответь, кто герой.</p>
+            <div class="task-box" id="readingTask">Луна нашла звёздочку и спрятала её в корзинку.</div>
+            <div class="answer-row">
+              <input id="readingAnswer" autocomplete="off" aria-label="Ответ по чтению">
+              <button class="mini-button" id="checkReading" type="button">Проверить</button>
+            </div>
+            <button class="mini-button secondary" id="newReading" type="button">Новый текст</button>
+            <div class="result" id="readingResult" aria-live="polite">Ответь одним словом.</div>
+          </article>
+
+          <article class="trainer">
+            <h3>Задача</h3>
+            <p>Реши короткую задачу.</p>
+            <div class="task-box" id="storyTask">У Яны было 5 звёзд, ещё 3 подарил единорог. Сколько стало?</div>
+            <div class="answer-row">
+              <input id="storyAnswer" type="number" inputmode="numeric" aria-label="Ответ на задачу">
+              <button class="mini-button" id="checkStory" type="button">Проверить</button>
+            </div>
+            <button class="mini-button secondary" id="newStory" type="button">Новая задача</button>
+            <div class="result" id="storyResult" aria-live="polite">Напиши число.</div>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="plan-title">
+        <div class="section-title">
+          <h2 id="plan-title">Что добавить дальше</h2>
+          <p>Школьную комнату можно расширять постепенно.</p>
+        </div>
+
+        <div class="panel-grid">
+          <article class="panel">
+            <h3>Русский язык</h3>
+            <p>Безударные гласные, парные согласные, словарные диктанты и разбор предложений.</p>
+          </article>
+
+          <article class="panel">
+            <h3>Чтение</h3>
+            <p>Тексты по уровню, вопросы на внимательность и отметки “прочитано”.</p>
+          </article>
+
+          <article class="panel">
+            <h3>Задачи</h3>
+            <p>Больше задач на сложение, вычитание, умножение, деление и работу в столбик.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Школьная комната готова для новых упражнений.
+    </footer>
+
+    <script>
+      const wordTasks = [
+        { text: "м_дведь", answer: "е" },
+        { text: "к_рова", answer: "о" },
+        { text: "с_бака", answer: "о" },
+        { text: "м_лина", answer: "а" }
+      ];
+      const readingTasks = [
+        { text: "Луна нашла звёздочку и спрятала её в корзинку.", answer: "луна" },
+        { text: "Яна построила радужный домик для единорога.", answer: "яна" },
+        { text: "Лана сидела у финиша и смотрела на облака.", answer: "лана" }
+      ];
+      const storyTasks = [
+        { text: "У Яны было 5 звёзд, ещё 3 подарил единорог. Сколько стало?", answer: 8 },
+        { text: "Луна собрала 9 ягод и 4 съела. Сколько осталось?", answer: 5 },
+        { text: "В галерее 3 рисунка, Яна добавила ещё 6. Сколько всего?", answer: 9 }
+      ];
+
+      let wordIndex = 0;
+      let readingIndex = 0;
+      let storyIndex = 0;
+
+      const wordTask = document.querySelector("#wordTask");
+      const wordAnswer = document.querySelector("#wordAnswer");
+      const wordResult = document.querySelector("#wordResult");
+      const readingTask = document.querySelector("#readingTask");
+      const readingAnswer = document.querySelector("#readingAnswer");
+      const readingResult = document.querySelector("#readingResult");
+      const storyTask = document.querySelector("#storyTask");
+      const storyAnswer = document.querySelector("#storyAnswer");
+      const storyResult = document.querySelector("#storyResult");
+
+      function setResult(element, text, ok) {
+        element.textContent = text;
+        element.className = ok ? "result good" : "result bad";
+      }
+
+      function rotate(list, index) {
+        return (index + 1) % list.length;
+      }
+
+      function renderWord() {
+        wordTask.textContent = wordTasks[wordIndex].text;
+        wordAnswer.value = "";
+        wordResult.textContent = "Напиши букву.";
+        wordResult.className = "result";
+      }
+
+      function renderReading() {
+        readingTask.textContent = readingTasks[readingIndex].text;
+        readingAnswer.value = "";
+        readingResult.textContent = "Ответь одним словом.";
+        readingResult.className = "result";
+      }
+
+      function renderStory() {
+        storyTask.textContent = storyTasks[storyIndex].text;
+        storyAnswer.value = "";
+        storyResult.textContent = "Напиши число.";
+        storyResult.className = "result";
+      }
+
+      document.querySelector("#checkWord").addEventListener("click", () => {
+        const value = wordAnswer.value.trim().toLowerCase();
+        const ok = value === wordTasks[wordIndex].answer;
+        setResult(wordResult, ok ? "Верно! Отличное слово." : `Правильно: ${wordTasks[wordIndex].answer}.`, ok);
+      });
+
+      document.querySelector("#newWord").addEventListener("click", () => {
+        wordIndex = rotate(wordTasks, wordIndex);
+        renderWord();
+      });
+
+      document.querySelector("#checkReading").addEventListener("click", () => {
+        const value = readingAnswer.value.trim().toLowerCase();
+        const ok = value === readingTasks[readingIndex].answer;
+        setResult(readingResult, ok ? "Да, герой найден." : `Герой: ${readingTasks[readingIndex].answer}.`, ok);
+      });
+
+      document.querySelector("#newReading").addEventListener("click", () => {
+        readingIndex = rotate(readingTasks, readingIndex);
+        renderReading();
+      });
+
+      document.querySelector("#checkStory").addEventListener("click", () => {
+        const value = Number(storyAnswer.value);
+        const ok = value === storyTasks[storyIndex].answer;
+        setResult(storyResult, ok ? "Правильно! Задача решена." : `Ответ: ${storyTasks[storyIndex].answer}.`, ok);
+      });
+
+      document.querySelector("#newStory").addEventListener("click", () => {
+        storyIndex = rotate(storyTasks, storyIndex);
+        renderStory();
+      });
+    </script>
+  </body>
+</html>
