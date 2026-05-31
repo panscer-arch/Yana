@@ -134,6 +134,10 @@
         font-weight: 800;
       }
 
+      .nav .optional-link {
+        display: inline-flex;
+      }
+
       .nav a:hover,
       .nav a:focus-visible {
         border-color: var(--line);
@@ -948,6 +952,10 @@
           padding: 0 10px;
         }
 
+        .nav .optional-link {
+          display: none;
+        }
+
         .cards,
         .ideas-box,
         .studio-grid,
@@ -968,6 +976,13 @@
         .multiplication {
           grid-template-columns: repeat(3, minmax(0, 1fr));
         }
+
+        .example {
+          min-height: 104px;
+          padding: 10px;
+          font-size: 30px;
+          line-height: 1.12;
+        }
       }
     </style>
   </head>
@@ -981,9 +996,10 @@
         <nav class="nav" aria-label="Главное меню">
           <a href="#games">Игры</a>
           <a href="#learn">Обучение</a>
-          <a href="#studio">Студия</a>
-          <a href="#publish">Публикация</a>
-          <a href="#ideas">Идеи</a>
+          <a href="projects/index.html">Проекты</a>
+          <a class="optional-link" href="#studio">Студия</a>
+          <a class="optional-link" href="#publish">Публикация</a>
+          <a class="optional-link" href="#ideas">Идеи</a>
           <a href="#journal">Дневник</a>
         </nav>
       </div>
@@ -993,7 +1009,7 @@
       <section class="hero" aria-label="Главная">
         <div class="hero-copy">
           <span class="tag">Сайт игр и веб-разработок Яны</span>
-          <h1>Яркая мастерская игр, учебы и маленьких сайтов</h1>
+          <h1>Яна Единорог</h1>
           <p class="lead">Здесь будут жить игры, тренажеры по школе, эксперименты с кодом и новые идеи, которые Яна сможет сама пополнять.</p>
           <div class="hero-actions">
             <a class="button" href="#games">Смотреть игры</a>
@@ -1002,7 +1018,7 @@
           <div class="quick-stats" aria-label="Что есть на сайте">
             <div><strong>3</strong><span>места для игр</span></div>
             <div><strong>5</strong><span>режимов математики</span></div>
-            <div><strong>10</strong><span>таблиц умножения</span></div>
+            <div><strong>1</strong><span>раздел проектов</span></div>
           </div>
           <div class="badge-row" aria-label="Особенности сайта">
             <span class="badge">яркий детский стиль</span>
@@ -1047,11 +1063,11 @@
 
           <article class="card">
             <div class="game-art empty" aria-hidden="true"></div>
-            <span class="status web-status">Веб-кодинг</span>
-            <h3>Веб-проект</h3>
-            <p>Для маленьких сайтов, открыток, школьных страниц и красивых экспериментов с кодом.</p>
+            <span class="status ready">Веб-кодинг</span>
+            <h3>Мастерская проектов</h3>
+            <p>Открытки, школьные страницы, галереи и идеи для новых маленьких сайтов Яны.</p>
             <div class="card-actions">
-              <a class="mini-button disabled" aria-disabled="true">Скоро раздел</a>
+              <a class="mini-button" href="projects/index.html">Открыть</a>
               <span class="path-label">projects</span>
             </div>
           </article>
@@ -1104,7 +1120,7 @@
             <div class="daily-goal">
               <div>
                 <strong>Цель на сегодня</strong>
-                <span id="goalText">Реши 10 примеров правильно.</span>
+                <span id="goalText" aria-live="polite">Реши 10 примеров правильно.</span>
               </div>
               <div class="goal-track" aria-label="Прогресс цели"><span id="goalFill"></span></div>
             </div>
@@ -1118,7 +1134,7 @@
                   <button id="hintTask" type="button">Подсказка</button>
                 </div>
                 <button class="quiet-button" id="resetScore" type="button">Сбросить счет</button>
-                <div class="result" id="result">Реши пример.</div>
+                <div class="result" id="result" aria-live="polite">Реши пример.</div>
               </div>
             </div>
 
@@ -1127,7 +1143,7 @@
               <div class="score"><span>Ошибки</span><strong id="wrongCount">0</strong></div>
               <div class="score"><span>Серия</span><strong id="streakCount">0</strong></div>
             </div>
-            <div class="achievement" id="achievement">Награда появится после первой серии.</div>
+            <div class="achievement" id="achievement" aria-live="polite">Награда появится после первой серии.</div>
           </div>
 
           <aside class="table-box" aria-labelledby="table-title">
@@ -1153,6 +1169,7 @@
               <li>Добавить карточку в витрину.</li>
               <li>Проверить локально и сохранить на GitHub.</li>
             </ol>
+            <p class="launch-note">Для маленьких сайтов действует такой же порядок, только папка создаётся внутри <strong>projects</strong>.</p>
           </article>
 
           <article class="studio-panel accent-panel">
@@ -1161,6 +1178,7 @@
               <label><input type="checkbox" checked disabled> Главная страница</label>
               <label><input type="checkbox" checked disabled> Математика</label>
               <label><input type="checkbox" checked disabled> “Кошачья погоня” подключена</label>
+              <label><input type="checkbox" checked disabled> Мастерская веб-проектов</label>
               <label><input type="checkbox" disabled> Опубликовать GitHub Pages</label>
               <label><input type="checkbox" disabled> Подключить домен</label>
             </div>
@@ -1189,8 +1207,8 @@
             <h3>Дорожная карта</h3>
             <div class="timeline">
               <div class="timeline-item"><strong>1</strong><span>Главная, обучение, дневник и витрина уже собраны в один портал.</span></div>
-              <div class="timeline-item"><strong>2</strong><span>“Кошачья погоня” уже открывается по кнопке “Играть”; дальше можно добавлять уровни и скины.</span></div>
-              <div class="timeline-item"><strong>3</strong><span>Осталось опубликовать сайт через GitHub Pages, затем подключить домен.</span></div>
+              <div class="timeline-item"><strong>2</strong><span>“Кошачья погоня” и мастерская веб-проектов уже открываются с главной страницы.</span></div>
+              <div class="timeline-item"><strong>3</strong><span>Осталось отправить актуальные коммиты в GitHub, включить GitHub Pages и затем подключить домен.</span></div>
             </div>
           </article>
         </div>

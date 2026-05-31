@@ -133,6 +133,11 @@
         outline: none;
       }
 
+      .stage:focus-visible {
+        outline: 4px solid rgba(255, 114, 173, .82);
+        outline-offset: 4px;
+      }
+
       .path {
         position: absolute;
         inset: 52% 0 0;
@@ -315,6 +320,47 @@
         background: #fff;
       }
 
+      .touch-pad {
+        display: none;
+        grid-template-columns: repeat(3, 64px);
+        justify-content: center;
+        gap: 10px;
+        padding: 12px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .86);
+      }
+
+      .touch-pad button {
+        width: 64px;
+        height: 58px;
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--violet), #6647d8);
+        font-size: 24px;
+        font-weight: 900;
+        box-shadow: 0 7px 0 rgba(36, 31, 53, .12);
+        touch-action: none;
+        user-select: none;
+      }
+
+      .touch-pad button:nth-child(1) {
+        grid-column: 2;
+      }
+
+      .touch-pad button:nth-child(2) {
+        grid-column: 1;
+      }
+
+      .touch-pad button:nth-child(3) {
+        grid-column: 3;
+      }
+
+      .touch-pad button:nth-child(4) {
+        grid-column: 2;
+      }
+
       @media (max-width: 720px) {
         .hud,
         .controls {
@@ -323,6 +369,10 @@
 
         .stage {
           min-height: 360px;
+        }
+
+        .touch-pad {
+          display: grid;
         }
       }
     </style>
@@ -359,11 +409,18 @@
           </div>
         </div>
 
-        <div class="message" id="message">Нажми “Старт” и управляй стрелками или WASD.</div>
+        <div class="message" id="message" aria-live="polite">Нажми “Старт” и управляй стрелками или WASD.</div>
 
         <div class="controls">
           <button id="start" type="button">Старт</button>
           <button id="restart" type="button">Заново</button>
+        </div>
+
+        <div class="touch-pad" aria-label="Управление на телефоне">
+          <button type="button" data-key="ArrowUp" aria-label="Вверх">↑</button>
+          <button type="button" data-key="ArrowLeft" aria-label="Влево">←</button>
+          <button type="button" data-key="ArrowRight" aria-label="Вправо">→</button>
+          <button type="button" data-key="ArrowDown" aria-label="Вниз">↓</button>
         </div>
       </section>
     </main>
@@ -378,6 +435,7 @@
       const message = document.querySelector("#message");
       const startButton = document.querySelector("#start");
       const restartButton = document.querySelector("#restart");
+      const touchButtons = document.querySelectorAll("[data-key]");
 
       const state = {
         running: false,
@@ -540,6 +598,28 @@
 
       window.addEventListener("keyup", (event) => {
         state.keys.delete(event.code);
+      });
+
+      window.addEventListener("blur", () => {
+        state.keys.clear();
+      });
+
+      touchButtons.forEach((button) => {
+        const key = button.dataset.key;
+        const press = (event) => {
+          event.preventDefault();
+          state.keys.add(key);
+          stage.focus();
+        };
+        const release = (event) => {
+          event.preventDefault();
+          state.keys.delete(key);
+        };
+
+        button.addEventListener("pointerdown", press);
+        button.addEventListener("pointerup", release);
+        button.addEventListener("pointercancel", release);
+        button.addEventListener("pointerleave", release);
       });
 
       startButton.addEventListener("click", () => {
