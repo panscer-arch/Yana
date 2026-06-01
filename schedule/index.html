@@ -261,6 +261,54 @@
         margin-bottom: 18px;
       }
 
+      .plan-note {
+        display: grid;
+        grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+        gap: 16px;
+        align-items: stretch;
+        margin-bottom: 18px;
+      }
+
+      .plan-note-card {
+        display: grid;
+        gap: 10px;
+        padding: 18px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .94);
+        box-shadow: 0 10px 0 rgba(36, 31, 53, .08);
+      }
+
+      .plan-note-card strong {
+        font-size: 22px;
+      }
+
+      .plan-note-card p {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .daily-rhythm {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .daily-rhythm span {
+        min-height: 32px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border: 2px solid rgba(36, 31, 53, .1);
+        border-radius: 8px;
+        background: #fff;
+        color: #653f94;
+        font-size: 13px;
+        font-weight: 900;
+      }
+
       .summary-card {
         min-height: 86px;
         display: grid;
@@ -434,6 +482,7 @@
         .hero,
         .week-grid,
         .week-summary,
+        .plan-note,
         .rules-grid {
           grid-template-columns: 1fr;
         }
@@ -499,6 +548,7 @@
         }
 
         .section-title p,
+        .plan-note,
         .week-summary {
           display: none;
         }
@@ -611,6 +661,25 @@
           <div class="summary-card"><strong>10</strong><span>примеров по математике утром</span></div>
           <div class="summary-card"><strong>2 ч</strong><span>Codex и веб-кодинг до обеда</span></div>
           <div class="summary-card"><strong>16:00</strong><span>главное дело по комнате</span></div>
+        </div>
+
+        <div class="plan-note" aria-label="Официальный план Яны">
+          <article class="plan-note-card">
+            <strong>Полный план добавлен</strong>
+            <p>На этой странице стоит расписание из твоего сообщения: понедельник, вторник, среда, четверг, пятница, суббота и воскресенье с делами по времени.</p>
+          </article>
+          <article class="plan-note-card">
+            <strong>Ежедневный ритм</strong>
+            <div class="daily-rhythm" aria-label="Главные блоки дня">
+              <span>7:30 подъём</span>
+              <span>9:20 чтение</span>
+              <span>9:30 математика</span>
+              <span>10:00 Codex</span>
+              <span>16:00 порядок</span>
+              <span>18:00 прогулка</span>
+              <span>22:00 сон</span>
+            </div>
+          </article>
         </div>
 
         <div class="progress-panel" aria-live="polite">
