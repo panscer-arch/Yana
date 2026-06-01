@@ -57,6 +57,8 @@ npm run check
 node scripts/check-site.mjs
 ```
 
+Та же проверка настроена в GitHub Actions: `.github/workflows/site-check.yml`.
+
 Локальный сервер:
 
 ```bash
