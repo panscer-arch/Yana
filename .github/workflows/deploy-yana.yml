@@ -3,7 +3,7 @@ name: Deploy Yana site
 on:
   push:
     branches:
-      - games-publish
+      - main
   workflow_dispatch:
 
 permissions:

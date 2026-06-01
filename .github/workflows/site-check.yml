@@ -3,7 +3,6 @@ name: Site check
 on:
   push:
     branches:
-      - games-publish
       - main
   pull_request:
   workflow_dispatch:
