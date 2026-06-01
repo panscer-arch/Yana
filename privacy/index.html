@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Запуск сайта Яна Единорог</title>
-    <meta name="description" content="План запуска сайта Яна Единорог на GitHub Pages и домене.">
+    <title>Приватность — Яна Единорог</title>
+    <meta name="description" content="Простая страница приватности сайта Яна Единорог: что хранится в браузере и как это очистить.">
     <meta name="theme-color" content="#ff72ad">
     <link rel="icon" type="image/png" href="../assets/yana-unicorn-logo.png">
     <style>
@@ -34,6 +34,10 @@
           radial-gradient(circle at 86% 18%, rgba(255, 255, 255, .82) 0 8%, transparent 9%),
           linear-gradient(135deg, #bdefff 0%, #fbd6ff 48%, #fff0aa 100%);
         font-family: Arial, Helvetica, sans-serif;
+      }
+
+      button {
+        font: inherit;
       }
 
       .shell {
@@ -132,9 +136,9 @@
       }
 
       .hero {
-        min-height: 500px;
+        min-height: 460px;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(320px, .82fr);
+        grid-template-columns: minmax(0, 1fr) minmax(320px, .72fr);
         gap: 28px;
         align-items: center;
         padding: 42px 0 18px;
@@ -187,9 +191,11 @@
       .button,
       .mini-button {
         padding: 0 16px;
+        border: 0;
         color: #fff;
         background: linear-gradient(180deg, var(--pink), #df4f9a);
         box-shadow: 0 8px 0 rgba(36, 31, 53, .12);
+        cursor: pointer;
       }
 
       .button.secondary,
@@ -199,7 +205,7 @@
       }
 
       .hero-card,
-      .launch-card,
+      .info-card,
       .panel {
         border: 3px solid var(--line);
         border-radius: 8px;
@@ -208,7 +214,7 @@
       }
 
       .hero-card,
-      .launch-card,
+      .info-card,
       .panel {
         display: grid;
         gap: 14px;
@@ -217,7 +223,7 @@
 
       .hero-card img {
         width: 100%;
-        aspect-ratio: 4 / 3;
+        aspect-ratio: 1 / 1;
         object-fit: cover;
         border: 3px solid var(--line);
         border-radius: 8px;
@@ -240,7 +246,7 @@
 
       .section-title p,
       .hero-card p,
-      .launch-card p,
+      .info-card p,
       .panel p,
       .panel li {
         color: var(--muted);
@@ -248,30 +254,41 @@
         line-height: 1.45;
       }
 
-      .launch-grid,
+      .info-grid,
       .panel-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 16px;
       }
 
-      .status.done {
+      .status.good {
         color: #0d6b49;
         background: rgba(66, 201, 149, .2);
       }
 
-      .status.wait {
+      .status.note {
         color: #7b4d00;
         background: rgba(255, 212, 92, .32);
       }
 
+      ul,
       ol {
         margin: 0;
         padding-left: 20px;
       }
 
-      code {
-        font-family: "Courier New", monospace;
+      .clear-box {
+        display: grid;
+        gap: 12px;
+        padding: 18px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .94);
+        box-shadow: var(--shadow);
+      }
+
+      .clear-status {
+        color: var(--muted);
         font-weight: 900;
       }
 
@@ -303,7 +320,7 @@
 
       @media (max-width: 860px) {
         .hero,
-        .launch-grid,
+        .info-grid,
         .panel-grid {
           grid-template-columns: 1fr;
         }
@@ -334,96 +351,132 @@
         </a>
         <nav class="nav" aria-label="Навигация">
           <a href="../index.html">Главная</a>
-          <a href="../games/index.html">Игры</a>
           <a href="../school/index.html">Школа</a>
           <a href="../schedule/index.html">План</a>
-          <a href="../gallery/index.html">Галерея</a>
-          <a href="../privacy/index.html">Приватность</a>
+          <a href="../games/index.html">Игры</a>
+          <a href="../launch/index.html">Запуск</a>
         </nav>
       </div>
     </header>
 
     <main id="content" class="shell">
-      <section class="hero" aria-label="Запуск сайта">
+      <section class="hero" aria-label="Приватность">
         <div>
-          <span class="tag">План запуска</span>
-          <h1>Сайт готовится к публикации</h1>
-          <p class="lead">Локальная версия уже собрана как портал. Осталось отправить актуальную ветку в GitHub, включить GitHub Pages и, когда будет адрес домена, подключить его.</p>
+          <span class="tag">Приватность и безопасность</span>
+          <h1>Данные остаются в этом браузере</h1>
+          <p class="lead">Сайт Яны не отправляет дневник, отметки плана и учебный прогресс на сервер. Всё хранится локально в браузере на этом устройстве.</p>
           <div class="hero-actions">
-            <a class="button" href="https://github.com/panscer-arch/Yana/tree/games-publish" target="_blank" rel="noreferrer">Открыть GitHub</a>
-            <a class="button secondary" href="../index.html#publish">Раздел публикации</a>
+            <a class="button" href="#storage">Что хранится</a>
+            <button class="button secondary" id="clearLocalData" type="button">Очистить данные сайта</button>
           </div>
         </div>
 
         <aside class="hero-card">
           <img src="../assets/yana-unicorn-logo.png" alt="">
-          <h2>Текущий статус</h2>
-          <p>Файлы сайта, manifest, sitemap, robots.txt, 404 и .nojekyll подготовлены. Терминалу нужна авторизация GitHub для отправки коммитов.</p>
+          <h2>Коротко</h2>
+          <p>Если открыть сайт на другом устройстве, отметок и дневника там не будет. Они живут только в браузере, где их записали.</p>
         </aside>
       </section>
 
-      <section aria-labelledby="checklist-title">
+      <section id="storage" aria-labelledby="storage-title">
         <div class="section-title">
-          <h2 id="checklist-title">Чеклист запуска</h2>
-          <p>Что уже готово и что осталось сделать перед доменом.</p>
+          <h2 id="storage-title">Что сохраняется</h2>
+          <p>Только маленькие данные, которые нужны для удобства сайта.</p>
         </div>
 
-        <div class="launch-grid">
-          <article class="launch-card">
-            <span class="status done">Готово локально</span>
-            <h3>Сайт собран</h3>
-            <p>Главная, игры, школа, проекты, галерея, дневник, 404, sitemap и manifest находятся в одной структуре.</p>
+        <div class="info-grid">
+          <article class="info-card">
+            <span class="status good">Математика</span>
+            <h3>Прогресс дня</h3>
+            <p>Количество правильных ответов, ошибок и серия. Ключ: <strong>yana-math-score</strong>.</p>
           </article>
 
-          <article class="launch-card">
-            <span class="status wait">Нужен вход</span>
-            <h3>Отправить в GitHub</h3>
-            <p>Команда <code>git push origin games-publish</code> готова, но текущий терминал не получил логин GitHub.</p>
+          <article class="info-card">
+            <span class="status good">План недели</span>
+            <h3>Отметки дел</h3>
+            <p>Какие пункты расписания отмечены выполненными. Ключ: <strong>yana-week-schedule-done</strong>.</p>
           </article>
 
-          <article class="launch-card">
-            <span class="status wait">После push</span>
-            <h3>Включить Pages</h3>
-            <p>В настройках репозитория выбрать ветку <code>games-publish</code> и папку root для публикации.</p>
+          <article class="info-card">
+            <span class="status note">Дневник</span>
+            <h3>Идеи Яны</h3>
+            <p>Текст из дневника идей на главной странице. Ключ: <strong>yana-project-journal</strong>.</p>
           </article>
         </div>
       </section>
 
-      <section aria-labelledby="domain-title">
+      <section aria-labelledby="clear-title">
         <div class="section-title">
-          <h2 id="domain-title">Домен</h2>
-          <p>Когда будет выбран красивый адрес, его можно подключить отдельным шагом.</p>
+          <h2 id="clear-title">Очистка</h2>
+          <p>Можно убрать все локальные данные сайта одним нажатием.</p>
+        </div>
+
+        <div class="clear-box">
+          <h3>Очистить локальные данные</h3>
+          <p>Кнопка удалит только данные этого сайта в этом браузере: дневник, математику и отметки плана.</p>
+          <button class="mini-button" id="clearLocalDataBottom" type="button">Очистить данные сайта</button>
+          <span class="clear-status" id="clearStatus" aria-live="polite">Данные не очищались.</span>
+        </div>
+      </section>
+
+      <section aria-labelledby="rules-title">
+        <div class="section-title">
+          <h2 id="rules-title">Правила безопасности</h2>
+          <p>Чтобы сайт оставался уютным и безопасным для ребёнка.</p>
         </div>
 
         <div class="panel-grid">
           <article class="panel">
-            <h3>1. Выбрать адрес</h3>
-            <p>Например, короткое имя для сайта Яны. Пока адрес не выбран, файл <code>CNAME</code> не создаём.</p>
+            <h3>Без личных секретов</h3>
+            <p>В дневник лучше не писать адрес, телефон, пароли и другие личные данные.</p>
           </article>
 
           <article class="panel">
-            <h3>2. Добавить CNAME</h3>
-            <p>После выбора домена на сайт добавляется файл <code>CNAME</code> с этим адресом.</p>
+            <h3>С родителями</h3>
+            <p>Публикацию на GitHub Pages и домен лучше включать вместе со взрослым.</p>
           </article>
 
           <article class="panel">
-            <h3>3. Проверить Pages</h3>
-            <p>После настройки DNS GitHub Pages должен открыть сайт уже по домену.</p>
+            <h3>Свои картинки</h3>
+            <p>Для галереи и игр лучше использовать свои рисунки, скриншоты и разрешённые изображения.</p>
           </article>
         </div>
       </section>
     </main>
 
     <footer>
-      <p>Страница запуска помогает не потерять последние шаги перед публикацией.</p>
+      <p>Страница приватности помогает понимать, что сайт хранит в браузере.</p>
       <nav aria-label="Быстрые ссылки в подвале">
         <a href="../index.html">Главная</a>
-        <a href="../games/index.html">Игры</a>
         <a href="../school/index.html">Школа</a>
         <a href="../schedule/index.html">План</a>
-        <a href="../gallery/index.html">Галерея</a>
-        <a href="../privacy/index.html">Приватность</a>
+        <a href="../games/index.html">Игры</a>
+        <a href="../launch/index.html">Запуск</a>
       </nav>
     </footer>
+
+    <script>
+      const keys = [
+        "yana-math-score",
+        "yana-week-schedule-done",
+        "yana-project-journal"
+      ];
+      const clearStatus = document.querySelector("#clearStatus");
+      const buttons = [
+        document.querySelector("#clearLocalData"),
+        document.querySelector("#clearLocalDataBottom")
+      ];
+
+      function clearLocalData() {
+        for (const key of keys) {
+          localStorage.removeItem(key);
+        }
+        clearStatus.textContent = "Локальные данные сайта очищены.";
+      }
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", clearLocalData);
+      });
+    </script>
   </body>
 </html>
