@@ -97,6 +97,23 @@ function checkHtmlMetadata(file, html) {
   }
 }
 
+function checkPageStructure(file, html) {
+  const page = relative(file);
+  if (page === "404.html") return;
+
+  if (!/<nav[\s>]/.test(html)) {
+    errors.push(`${page} is missing navigation`);
+  }
+
+  if (!/<footer[\s>]/.test(html)) {
+    errors.push(`${page} is missing footer`);
+  }
+
+  if (!/<footer[\s\S]*?<nav[\s\S]*?<\/footer>/.test(html)) {
+    errors.push(`${page} footer must include quick links`);
+  }
+}
+
 function checkLocalReference(file, html, attribute, link) {
   if (!link || link.startsWith("data:")) return;
   if (/^(https?:|mailto:|tel:)/.test(link)) return;
@@ -194,6 +211,7 @@ function checkRequiredPublishingFiles() {
 for (const file of htmlFiles()) {
   const html = read(file);
   checkHtmlMetadata(file, html);
+  checkPageStructure(file, html);
   checkHtmlScripts(file, html);
   checkHtmlLinks(file, html);
 }
