@@ -145,6 +145,10 @@ function checkPageStructure(file, html) {
   if (!/<footer[\s\S]*?<nav[\s\S]*?<\/footer>/.test(html)) {
     errors.push(`${page} footer must include quick links`);
   }
+
+  if (!/<script\s+src="[^"]*assets\/site\.js"><\/script>/.test(html)) {
+    errors.push(`${page} must register the shared site script`);
+  }
 }
 
 function checkLocalReference(file, html, attribute, link) {
@@ -202,6 +206,45 @@ function checkManifest() {
     const iconPath = path.join(root, icon.src || "");
     if (!fs.existsSync(iconPath)) {
       errors.push(`site.webmanifest points to missing icon ${icon.src}`);
+    }
+  }
+}
+
+function checkServiceWorker() {
+  const workerPath = path.join(root, "sw.js");
+  const siteScriptPath = path.join(root, "assets", "site.js");
+
+  if (!fs.existsSync(workerPath)) {
+    errors.push("sw.js is missing");
+    return;
+  }
+
+  if (!fs.existsSync(siteScriptPath)) {
+    errors.push("assets/site.js is missing");
+  }
+
+  const worker = read(workerPath);
+  const cacheMatch = worker.match(/const CACHE_PATHS = \[([\s\S]*?)\];/);
+  if (!cacheMatch) {
+    errors.push("sw.js is missing CACHE_PATHS");
+    return;
+  }
+
+  const cachedPaths = [...cacheMatch[1].matchAll(/"([^"]+)"/g)].map((match) => match[1]);
+  const cachedSet = new Set(cachedPaths);
+
+  for (const cachedPath of cachedPaths) {
+    if (cachedPath === "./") continue;
+    const localPath = path.join(root, cachedPath.replace(/^\.\//, ""));
+    if (!fs.existsSync(localPath)) {
+      errors.push(`sw.js caches missing file ${cachedPath}`);
+    }
+  }
+
+  for (const page of publishableIndexPages()) {
+    const cachePath = page ? `./${page}index.html` : "./index.html";
+    if (!cachedSet.has(cachePath)) {
+      errors.push(`sw.js CACHE_PATHS is missing ${cachePath}`);
     }
   }
 }
@@ -277,6 +320,7 @@ for (const file of htmlFiles()) {
 }
 
 checkManifest();
+checkServiceWorker();
 checkSitemap();
 checkReachablePages();
 checkRequiredPublishingFiles();
