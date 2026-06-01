@@ -59,6 +59,7 @@
       }
 
       .brand,
+      .print-button,
       .button,
       .mini-button {
         min-height: 42px;
@@ -162,14 +163,18 @@
       }
 
       .button,
+      .print-button,
       .mini-button {
+        border: 0;
         padding: 0 16px;
         color: #fff;
         background: linear-gradient(180deg, var(--pink), #df4f9a);
         box-shadow: 0 8px 0 rgba(36, 31, 53, .12);
+        cursor: pointer;
       }
 
       .button.secondary,
+      .print-button.secondary,
       .mini-button.secondary {
         color: var(--ink);
         background: #fff;
@@ -225,6 +230,35 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 18px;
+      }
+
+      .week-summary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .summary-card {
+        min-height: 86px;
+        display: grid;
+        align-content: center;
+        gap: 4px;
+        padding: 14px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .94);
+        box-shadow: 0 10px 0 rgba(36, 31, 53, .08);
+      }
+
+      .summary-card strong {
+        font-size: 24px;
+      }
+
+      .summary-card span {
+        color: var(--muted);
+        font-weight: 900;
+        line-height: 1.25;
       }
 
       .day-card {
@@ -315,6 +349,7 @@
       @media (max-width: 860px) {
         .hero,
         .week-grid,
+        .week-summary,
         .rules-grid {
           grid-template-columns: 1fr;
         }
@@ -345,6 +380,97 @@
           gap: 4px;
         }
       }
+
+      @media print {
+        @page {
+          margin: 10mm;
+        }
+
+        body {
+          color: #111;
+          background: #fff;
+        }
+
+        .topbar,
+        .hero,
+        .rules-grid,
+        footer {
+          display: none;
+        }
+
+        .shell {
+          width: 100%;
+        }
+
+        section {
+          padding: 0;
+        }
+
+        .section-title {
+          margin-bottom: 8px;
+        }
+
+        .section-title h2 {
+          font-size: 24px;
+        }
+
+        .section-title p,
+        .week-summary {
+          display: none;
+        }
+
+        .week-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+        }
+
+        .day-card {
+          break-inside: avoid;
+          border: 2px solid #222;
+          box-shadow: none;
+        }
+
+        .day-card header {
+          padding: 8px 10px;
+          border-bottom: 2px solid #222;
+          background: #f2f2f2;
+        }
+
+        .day-card h3 {
+          font-size: 16px;
+        }
+
+        .room-task {
+          min-height: 24px;
+          color: #111;
+          background: #fff;
+          font-size: 11px;
+        }
+
+        .schedule-list {
+          gap: 3px;
+          padding: 6px;
+        }
+
+        .schedule-row {
+          grid-template-columns: 78px minmax(0, 1fr);
+          min-height: 0;
+          padding: 3px 5px;
+          border: 1px solid #ddd;
+        }
+
+        .schedule-row dt,
+        .schedule-row dd {
+          color: #111;
+          font-size: 11px;
+          line-height: 1.2;
+        }
+
+        .schedule-row.special {
+          border-color: #222;
+          background: #f7f7f7;
+        }
+      }
     </style>
   </head>
   <body>
@@ -372,6 +498,7 @@
           <p class="lead">План помогает видеть день целиком: утро, чтение, математика, веб-кодинг, проекты, прогулка, помощь дома и спокойный сон.</p>
           <div class="hero-actions">
             <a class="button" href="#week">Смотреть неделю</a>
+            <button class="print-button secondary" id="printPlan" type="button">Распечатать</button>
             <a class="button secondary" href="../index.html#journal">Записать заметку</a>
           </div>
         </div>
@@ -387,6 +514,13 @@
         <div class="section-title">
           <h2 id="week-title">Расписание по дням</h2>
           <p>Каждый день похож по ритму, а в 16:00 меняется главное дело по комнате.</p>
+        </div>
+
+        <div class="week-summary" aria-label="Короткая сводка недели">
+          <div class="summary-card"><strong>7</strong><span>дней с понятным планом</span></div>
+          <div class="summary-card"><strong>10</strong><span>примеров по математике утром</span></div>
+          <div class="summary-card"><strong>2 ч</strong><span>Codex и веб-кодинг до обеда</span></div>
+          <div class="summary-card"><strong>16:00</strong><span>главное дело по комнате</span></div>
         </div>
 
         <div class="week-grid" id="weekGrid"></div>
@@ -453,6 +587,7 @@
       ];
 
       const weekGrid = document.querySelector("#weekGrid");
+      const printPlan = document.querySelector("#printPlan");
 
       function dayRows(roomTask) {
         const rows = [...sharedRows];
@@ -490,6 +625,10 @@
           weekGrid.append(card);
         }
       }
+
+      printPlan.addEventListener("click", () => {
+        window.print();
+      });
 
       renderWeek();
     </script>
