@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>План недели Яны</title>
+    <meta name="description" content="Недельный план Яны: утро, чтение, математика, Codex, учёба, прогулка и вечерние дела.">
+    <meta name="theme-color" content="#ff72ad">
+    <link rel="icon" type="image/png" href="../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #241f35;
+        --muted: #655b78;
+        --paper: #fffdf7;
+        --pink: #ff72ad;
+        --violet: #8e67ff;
+        --blue: #54b8ff;
+        --mint: #42c995;
+        --sun: #ffd45c;
+        --line: rgba(36, 31, 53, .14);
+        --shadow: 0 16px 0 rgba(36, 31, 53, .08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 12% 12%, rgba(255, 255, 255, .9) 0 7%, transparent 8%),
+          radial-gradient(circle at 86% 18%, rgba(255, 255, 255, .82) 0 8%, transparent 9%),
+          linear-gradient(135deg, #bdefff 0%, #fbd6ff 48%, #fff0aa 100%);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        border-bottom: 3px solid var(--line);
+        background: rgba(255, 253, 247, .92);
+        backdrop-filter: blur(12px);
+      }
+
+      .topbar-inner {
+        min-height: 74px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .brand,
+      .button,
+      .mini-button {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .brand {
+        gap: 10px;
+        color: var(--ink);
+      }
+
+      .mark {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 auto;
+        border: 3px solid var(--line);
+        border-radius: 50%;
+        background: center / cover no-repeat url("../assets/yana-unicorn-logo.png");
+      }
+
+      .nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .nav a {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .nav a:hover,
+      .nav a:focus-visible {
+        border-color: var(--line);
+        background: #fff;
+      }
+
+      .hero {
+        min-height: 440px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(300px, .7fr);
+        gap: 28px;
+        align-items: center;
+        padding: 42px 0 18px;
+      }
+
+      .tag {
+        width: fit-content;
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .76);
+        color: #653f94;
+        font-size: 14px;
+        font-weight: 900;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin-top: 16px;
+        font-size: clamp(42px, 8vw, 82px);
+        line-height: .95;
+      }
+
+      .lead {
+        max-width: 690px;
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+      }
+
+      .button,
+      .mini-button {
+        padding: 0 16px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--pink), #df4f9a);
+        box-shadow: 0 8px 0 rgba(36, 31, 53, .12);
+      }
+
+      .button.secondary,
+      .mini-button.secondary {
+        color: var(--ink);
+        background: #fff;
+      }
+
+      .hero-card,
+      .day-card,
+      .rules-card {
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .94);
+        box-shadow: var(--shadow);
+      }
+
+      .hero-card {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+      }
+
+      .hero-card img {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+      }
+
+      section {
+        padding: 34px 0;
+      }
+
+      .section-title {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      h2 {
+        font-size: clamp(30px, 5vw, 48px);
+        line-height: 1;
+      }
+
+      .section-title p,
+      .hero-card p,
+      .rules-card p {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .week-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .day-card {
+        overflow: hidden;
+      }
+
+      .day-card header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 18px;
+        border-bottom: 3px solid var(--line);
+        background: linear-gradient(90deg, rgba(255, 114, 173, .18), rgba(84, 184, 255, .18));
+      }
+
+      .day-card h3 {
+        font-size: 24px;
+      }
+
+      .room-task {
+        min-height: 32px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border-radius: 8px;
+        color: #7b4d00;
+        background: rgba(255, 212, 92, .32);
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .schedule-list {
+        display: grid;
+        margin: 0;
+        padding: 14px;
+        gap: 8px;
+      }
+
+      .schedule-row {
+        display: grid;
+        grid-template-columns: 112px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+        min-height: 38px;
+        padding: 8px 10px;
+        border: 2px solid rgba(36, 31, 53, .08);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .schedule-row dt {
+        color: #653f94;
+        font-weight: 900;
+      }
+
+      .schedule-row dd {
+        margin: 0;
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.35;
+      }
+
+      .schedule-row.special {
+        border-color: rgba(255, 114, 173, .28);
+        background: rgba(255, 114, 173, .08);
+      }
+
+      .rules-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .rules-card {
+        display: grid;
+        gap: 10px;
+        padding: 18px;
+      }
+
+      footer {
+        padding: 28px 16px 36px;
+        color: var(--muted);
+        text-align: center;
+        font-weight: 900;
+      }
+
+      @media (max-width: 860px) {
+        .hero,
+        .week-grid,
+        .rules-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar-inner {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 12px 0;
+        }
+
+        .nav {
+          width: 100%;
+        }
+
+        .nav a {
+          flex: 1 1 auto;
+        }
+      }
+
+      @media (max-width: 540px) {
+        .day-card header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .schedule-row {
+          grid-template-columns: 1fr;
+          gap: 4px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="shell topbar-inner">
+        <a class="brand" href="../index.html" aria-label="Яна Единорог">
+          <span class="mark" aria-hidden="true"></span>
+          <span>Яна Единорог</span>
+        </a>
+        <nav class="nav" aria-label="Навигация">
+          <a href="../index.html">Главная</a>
+          <a href="../school/index.html">Школа</a>
+          <a href="../games/index.html">Игры</a>
+          <a href="../projects/index.html">Проекты</a>
+          <a href="../gallery/index.html">Галерея</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="hero" aria-label="План недели">
+        <div>
+          <span class="tag">План недели</span>
+          <h1>Неделя Яны: учёба, Codex, прогулки и порядок</h1>
+          <p class="lead">План помогает видеть день целиком: утро, чтение, математика, веб-кодинг, проекты, прогулка, помощь дома и спокойный сон.</p>
+          <div class="hero-actions">
+            <a class="button" href="#week">Смотреть неделю</a>
+            <a class="button secondary" href="../index.html#journal">Записать заметку</a>
+          </div>
+        </div>
+
+        <aside class="hero-card">
+          <img src="../assets/yana-unicorn-logo.png" alt="">
+          <h2>Главное правило</h2>
+          <p>Если день пошёл не идеально, план не ругается. Он просто помогает вернуться к следующему делу.</p>
+        </aside>
+      </section>
+
+      <section id="week" aria-labelledby="week-title">
+        <div class="section-title">
+          <h2 id="week-title">Расписание по дням</h2>
+          <p>Каждый день похож по ритму, а в 16:00 меняется главное дело по комнате.</p>
+        </div>
+
+        <div class="week-grid" id="weekGrid"></div>
+      </section>
+
+      <section aria-labelledby="rules-title">
+        <div class="section-title">
+          <h2 id="rules-title">Как пользоваться планом</h2>
+          <p>Чтобы план помогал, а не превращался в лишнюю нагрузку.</p>
+        </div>
+
+        <div class="rules-grid">
+          <article class="rules-card">
+            <h3>Утро</h3>
+            <p>Сначала простые повторяющиеся дела: ванная, кровать, проветривание, завтрак.</p>
+          </article>
+
+          <article class="rules-card">
+            <h3>Учёба</h3>
+            <p>Чтение, математика, таблица умножения и Codex идут короткими понятными блоками.</p>
+          </article>
+
+          <article class="rules-card">
+            <h3>Вечер</h3>
+            <p>После прогулки остаются помощь на кухне, подготовка ко сну и спокойный финал дня.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      План недели добавлен в мастерскую Яны.
+    </footer>
+
+    <script>
+      const sharedRows = [
+        ["7:30", "подъём"],
+        ["7:40", "умыться"],
+        ["7:50", "почистить зубы"],
+        ["8:00", "выйти из ванной"],
+        ["8:05", "заправить кровать"],
+        ["8:10", "запустить робота-пылесоса и проветрить комнату"],
+        ["8:20", "завтрак"],
+        ["9:20–9:30", "чтение книги"],
+        ["9:30–9:50", "10 примеров по математике"],
+        ["9:50–10:00", "таблица умножения"],
+        ["10:00–12:00", "Codex, веб-кодинг, создание игр"],
+        ["12:00", "обед"],
+        ["12:30–16:00", "учёба, проекты, Codex"],
+        ["18:00–20:00", "прогулка"],
+        ["20:30", "помощь на кухне, посуда"],
+        ["21:20", "подготовка ко сну"],
+        ["22:00", "сон"]
+      ];
+
+      const days = [
+        ["Понедельник", "разобрать нижний ящик у стены"],
+        ["Вторник", "разобрать средние и верхние ящики у стены"],
+        ["Среда", "разобрать шкаф с одеждой"],
+        ["Четверг", "разобрать шкаф напротив кровати"],
+        ["Пятница", "разобрать верхние шкафы и шкафчик с трубами"],
+        ["Суббота", "составить список всех вещей в комнате"],
+        ["Воскресенье", "проверить порядок в комнате и закончить всё недоделанное"]
+      ];
+
+      const weekGrid = document.querySelector("#weekGrid");
+
+      function dayRows(roomTask) {
+        const rows = [...sharedRows];
+        rows.splice(13, 0, ["16:00", roomTask, true]);
+        return rows;
+      }
+
+      function renderWeek() {
+        weekGrid.innerHTML = "";
+        for (const [day, roomTask] of days) {
+          const card = document.createElement("article");
+          card.className = "day-card";
+          const header = document.createElement("header");
+          const title = document.createElement("h3");
+          title.textContent = day;
+          const pill = document.createElement("span");
+          pill.className = "room-task";
+          pill.textContent = "16:00 порядок";
+          header.append(title, pill);
+
+          const list = document.createElement("dl");
+          list.className = "schedule-list";
+          for (const [time, text, special] of dayRows(roomTask)) {
+            const row = document.createElement("div");
+            row.className = special ? "schedule-row special" : "schedule-row";
+            const dt = document.createElement("dt");
+            dt.textContent = time;
+            const dd = document.createElement("dd");
+            dd.textContent = text;
+            row.append(dt, dd);
+            list.append(row);
+          }
+
+          card.append(header, list);
+          weekGrid.append(card);
+        }
+      }
+
+      renderWeek();
+    </script>
+  </body>
+</html>
