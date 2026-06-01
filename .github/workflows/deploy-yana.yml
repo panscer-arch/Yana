@@ -34,9 +34,14 @@ jobs:
       - name: Configure SSH
         env:
           YANA_DEPLOY_KEY: ${{ secrets.YANA_DEPLOY_KEY }}
+          YANA_DEPLOY_KEY_B64: ${{ secrets.YANA_DEPLOY_KEY_B64 }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "$YANA_DEPLOY_KEY" > ~/.ssh/yana_deploy_key
+          if [ -n "$YANA_DEPLOY_KEY_B64" ]; then
+            printf '%s' "$YANA_DEPLOY_KEY_B64" | base64 -d > ~/.ssh/yana_deploy_key
+          else
+            printf '%s\n' "$YANA_DEPLOY_KEY" > ~/.ssh/yana_deploy_key
+          fi
           chmod 600 ~/.ssh/yana_deploy_key
           printf '%s\n' '145.223.90.93 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBc30Sj0RdjjjQb2G6aN7XOkxAAEbxuVwjwex9jTEUdE' > ~/.ssh/known_hosts
 
