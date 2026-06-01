@@ -283,6 +283,37 @@
         line-height: 1.25;
       }
 
+      .progress-panel {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+        padding: 14px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .94);
+        box-shadow: 0 10px 0 rgba(36, 31, 53, .08);
+      }
+
+      .progress-panel strong,
+      .progress-panel span {
+        display: block;
+      }
+
+      .progress-panel span {
+        margin-top: 4px;
+        color: var(--muted);
+        font-weight: 900;
+      }
+
+      .progress-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
       .day-card {
         overflow: hidden;
       }
@@ -322,9 +353,9 @@
 
       .schedule-row {
         display: grid;
-        grid-template-columns: 112px minmax(0, 1fr);
+        grid-template-columns: 28px 112px minmax(0, 1fr);
         gap: 10px;
-        align-items: start;
+        align-items: center;
         min-height: 38px;
         padding: 8px 10px;
         border: 2px solid rgba(36, 31, 53, .08);
@@ -347,6 +378,18 @@
       .schedule-row.special {
         border-color: rgba(255, 114, 173, .28);
         background: rgba(255, 114, 173, .08);
+      }
+
+      .task-check {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        accent-color: var(--pink);
+      }
+
+      .schedule-row.done dd {
+        color: rgba(101, 91, 120, .72);
+        text-decoration: line-through;
       }
 
       .rules-grid {
@@ -475,7 +518,7 @@
         }
 
         .schedule-row {
-          grid-template-columns: 78px minmax(0, 1fr);
+          grid-template-columns: 18px 78px minmax(0, 1fr);
           min-height: 0;
           padding: 3px 5px;
           border: 1px solid #ddd;
@@ -491,6 +534,11 @@
         .schedule-row.special {
           border-color: #222;
           background: #f7f7f7;
+        }
+
+        .task-check {
+          width: 12px;
+          height: 12px;
         }
       }
     </style>
@@ -544,6 +592,16 @@
           <div class="summary-card"><strong>10</strong><span>примеров по математике утром</span></div>
           <div class="summary-card"><strong>2 ч</strong><span>Codex и веб-кодинг до обеда</span></div>
           <div class="summary-card"><strong>16:00</strong><span>главное дело по комнате</span></div>
+        </div>
+
+        <div class="progress-panel" aria-live="polite">
+          <div>
+            <strong id="progressTitle">Отметь выполненные дела</strong>
+            <span id="progressText">Прогресс сохранится в этом браузере.</span>
+          </div>
+          <div class="progress-actions">
+            <button class="print-button secondary" id="clearDone" type="button">Снять отметки</button>
+          </div>
         </div>
 
         <div class="week-grid" id="weekGrid"></div>
@@ -611,6 +669,32 @@
 
       const weekGrid = document.querySelector("#weekGrid");
       const printPlan = document.querySelector("#printPlan");
+      const clearDone = document.querySelector("#clearDone");
+      const progressTitle = document.querySelector("#progressTitle");
+      const progressText = document.querySelector("#progressText");
+      const doneKey = "yana-week-schedule-done";
+      let doneMap = loadDoneMap();
+
+      function loadDoneMap() {
+        try {
+          return JSON.parse(localStorage.getItem(doneKey)) || {};
+        } catch (error) {
+          console.warn("Schedule progress was not loaded", error);
+          return {};
+        }
+      }
+
+      function saveDoneMap() {
+        try {
+          localStorage.setItem(doneKey, JSON.stringify(doneMap));
+        } catch (error) {
+          console.warn("Schedule progress was not saved", error);
+        }
+      }
+
+      function taskKey(day, time, text) {
+        return `${day}|${time}|${text}`;
+      }
 
       function dayRows(roomTask) {
         const rows = [...sharedRows];
@@ -634,23 +718,61 @@
           const list = document.createElement("dl");
           list.className = "schedule-list";
           for (const [time, text, special] of dayRows(roomTask)) {
+            const key = taskKey(day, time, text);
             const row = document.createElement("div");
             row.className = special ? "schedule-row special" : "schedule-row";
+            const check = document.createElement("input");
+            check.className = "task-check";
+            check.type = "checkbox";
+            check.checked = Boolean(doneMap[key]);
+            check.setAttribute("aria-label", `${day}, ${time}: ${text}`);
+            if (check.checked) row.classList.add("done");
             const dt = document.createElement("dt");
             dt.textContent = time;
             const dd = document.createElement("dd");
             dd.textContent = text;
-            row.append(dt, dd);
+            check.addEventListener("change", () => {
+              doneMap[key] = check.checked;
+              if (!check.checked) delete doneMap[key];
+              row.classList.toggle("done", check.checked);
+              saveDoneMap();
+              updateProgress();
+            });
+            row.append(check, dt, dd);
             list.append(row);
           }
 
           card.append(header, list);
           weekGrid.append(card);
         }
+        updateProgress();
+      }
+
+      function totalTasks() {
+        return days.reduce((sum, [, roomTask]) => sum + dayRows(roomTask).length, 0);
+      }
+
+      function doneCount() {
+        return Object.keys(doneMap).length;
+      }
+
+      function updateProgress() {
+        const total = totalTasks();
+        const done = doneCount();
+        progressTitle.textContent = done ? `Выполнено ${done} из ${total}` : "Отметь выполненные дела";
+        progressText.textContent = done === total
+          ? "Вся неделя отмечена. Вот это порядок!"
+          : "Прогресс сохранится в этом браузере.";
       }
 
       printPlan.addEventListener("click", () => {
         window.print();
+      });
+
+      clearDone.addEventListener("click", () => {
+        doneMap = {};
+        saveDoneMap();
+        renderWeek();
       });
 
       renderWeek();
