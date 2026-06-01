@@ -46,6 +46,39 @@ function publishableIndexPages() {
     .sort();
 }
 
+function pageFileFromKey(page) {
+  return page ? path.join(root, page, "index.html") : path.join(root, "index.html");
+}
+
+function pageKeyFromFile(file) {
+  const page = relative(file).replaceAll(path.sep, "/");
+  if (page === "index.html") return "";
+  if (!page.endsWith("/index.html")) return null;
+  return page.replace(/index\.html$/, "");
+}
+
+function pageKeyFromHref(file, href) {
+  if (!href || href.startsWith("data:")) return null;
+  if (/^(https?:|mailto:|tel:)/.test(href)) return null;
+
+  const [target] = href.split("#");
+  if (!target) return pageKeyFromFile(file);
+
+  const resolved = path.normalize(path.join(path.dirname(file), target));
+  const statPath = fs.existsSync(resolved) && fs.statSync(resolved).isDirectory()
+    ? path.join(resolved, "index.html")
+    : resolved;
+
+  if (!statPath.endsWith("index.html") || !fs.existsSync(statPath)) return null;
+  return pageKeyFromFile(statPath);
+}
+
+function linkedPageKeys(file, html) {
+  return [...html.matchAll(/\shref="([^"]+)"/g)]
+    .map((match) => pageKeyFromHref(file, match[1]))
+    .filter((page) => page !== null);
+}
+
 function checkHtmlScripts(file, html) {
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
     .map((match) => match[1])
@@ -200,6 +233,33 @@ function checkSitemap() {
   }
 }
 
+function checkReachablePages() {
+  const expectedPages = publishableIndexPages();
+  const expectedSet = new Set(expectedPages);
+  const visited = new Set();
+  const queue = [""];
+
+  while (queue.length) {
+    const page = queue.shift();
+    if (visited.has(page) || !expectedSet.has(page)) continue;
+    visited.add(page);
+
+    const file = pageFileFromKey(page);
+    const html = read(file);
+    for (const nextPage of linkedPageKeys(file, html)) {
+      if (expectedSet.has(nextPage) && !visited.has(nextPage)) {
+        queue.push(nextPage);
+      }
+    }
+  }
+
+  for (const page of expectedPages) {
+    if (!visited.has(page)) {
+      errors.push(`/${page} is not reachable from the home page`);
+    }
+  }
+}
+
 function checkRequiredPublishingFiles() {
   for (const file of [".nojekyll", "404.html", "robots.txt", "sitemap.xml", "site.webmanifest"]) {
     if (!fs.existsSync(path.join(root, file))) {
@@ -218,6 +278,7 @@ for (const file of htmlFiles()) {
 
 checkManifest();
 checkSitemap();
+checkReachablePages();
 checkRequiredPublishingFiles();
 
 if (errors.length) {
