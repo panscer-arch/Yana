@@ -76,6 +76,12 @@ node scripts/check-site.mjs
 
 Та же проверка настроена в GitHub Actions: `.github/workflows/site-check.yml`.
 
+## Деплой
+
+Сайт развернут на VPS в `/var/www/yana` и открывается на `https://barbarpatapim.com`.
+
+Автодеплой настроен через GitHub Actions workflow `.github/workflows/deploy-yana.yml`: при push в ветку `games-publish` выполняется проверка сайта и синхронизация файлов на сервер. Для работы workflow в GitHub Secrets нужен секрет `YANA_DEPLOY_KEY` с приватным SSH-ключом deploy-пользователя.
+
 Локальный сервер:
 
 ```bash

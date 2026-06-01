@@ -1,0 +1,45 @@
+name: Deploy Yana site
+
+on:
+  push:
+    branches:
+      - games-publish
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to barbarpatapim.com
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check static site
+        run: node scripts/check-site.mjs
+
+      - name: Configure SSH
+        env:
+          YANA_DEPLOY_KEY: ${{ secrets.YANA_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$YANA_DEPLOY_KEY" > ~/.ssh/yana_deploy_key
+          chmod 600 ~/.ssh/yana_deploy_key
+          ssh-keyscan -H 145.223.90.93 >> ~/.ssh/known_hosts
+
+      - name: Upload site
+        run: |
+          rsync -az --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.DS_Store' \
+            -e "ssh -i ~/.ssh/yana_deploy_key" \
+            ./ deploy-yana@145.223.90.93:/var/www/yana/
