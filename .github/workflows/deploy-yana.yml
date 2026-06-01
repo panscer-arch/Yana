@@ -26,6 +26,11 @@ jobs:
       - name: Check static site
         run: node scripts/check-site.mjs
 
+      - name: Install deploy tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rsync openssh-client
+
       - name: Configure SSH
         env:
           YANA_DEPLOY_KEY: ${{ secrets.YANA_DEPLOY_KEY }}
@@ -35,6 +40,11 @@ jobs:
           chmod 600 ~/.ssh/yana_deploy_key
           ssh-keyscan -H 145.223.90.93 >> ~/.ssh/known_hosts
 
+      - name: Check server access
+        run: |
+          ssh -i ~/.ssh/yana_deploy_key deploy-yana@145.223.90.93 \
+            'whoami && test -w /var/www/yana && echo "$USER can write /var/www/yana"'
+
       - name: Upload site
         run: |
           rsync -az --delete \
@@ -43,3 +53,8 @@ jobs:
             --exclude='.DS_Store' \
             -e "ssh -i ~/.ssh/yana_deploy_key" \
             ./ deploy-yana@145.223.90.93:/var/www/yana/
+
+      - name: Mark deployment
+        run: |
+          ssh -i ~/.ssh/yana_deploy_key deploy-yana@145.223.90.93 \
+            "printf '%s\n' '${GITHUB_SHA}' > /var/www/yana/.deploy-sha"
