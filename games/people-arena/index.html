@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Живая арена для 2-10 игроков без ботов: собирайте звёзды, толкайтесь и играйте вместе на одном экране.">
+    <meta name="theme-color" content="#161629">
+    <title>10 друзей: Арена</title>
+    <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        --bg: #10111f;
+        --panel: rgba(255, 255, 255, .9);
+        --ink: #252235;
+        --muted: #625d76;
+        --pink: #ff72ad;
+        --blue: #54b8ff;
+        --mint: #42c995;
+        --gold: #ffd45c;
+        --line: rgba(37, 34, 53, .14);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100%;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at 18% 20%, rgba(255, 212, 92, .34), transparent 28%),
+          radial-gradient(circle at 82% 18%, rgba(84, 184, 255, .28), transparent 30%),
+          radial-gradient(circle at 70% 82%, rgba(255, 114, 173, .28), transparent 30%),
+          linear-gradient(135deg, #fff8fb, #eaf7ff 50%, #f4fff6);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      button,
+      select {
+        font: inherit;
+      }
+
+      button {
+        border: 0;
+        cursor: pointer;
+      }
+
+      .skip-link {
+        position: fixed;
+        left: 16px;
+        top: 12px;
+        z-index: 50;
+        padding: 10px 14px;
+        border-radius: 8px;
+        color: white;
+        background: var(--pink);
+        font-weight: 900;
+        transform: translateY(-140%);
+        transition: transform 160ms ease;
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .portal-bar,
+      .portal-footer {
+        width: min(1180px, calc(100vw - 28px));
+        margin: 0 auto;
+      }
+
+      .portal-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 0 10px;
+      }
+
+      .brand,
+      .portal-bar nav a,
+      .portal-footer a,
+      .small-button {
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 900;
+        background: rgba(255, 255, 255, .72);
+        box-shadow: 0 8px 24px rgba(37, 34, 53, .08);
+      }
+
+      .brand {
+        color: white;
+        background: linear-gradient(135deg, var(--pink), #8e67ff);
+      }
+
+      .portal-bar nav,
+      .portal-footer nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .wrap {
+        width: min(1180px, calc(100vw - 28px));
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 14px;
+        align-items: start;
+      }
+
+      .stage {
+        min-width: 0;
+        overflow: hidden;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .58);
+        box-shadow: 0 20px 70px rgba(37, 34, 53, .14);
+      }
+
+      .hud {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        background: var(--line);
+      }
+
+      .hud div {
+        min-width: 0;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, .88);
+      }
+
+      .hud span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .hud strong {
+        display: block;
+        margin-top: 2px;
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        background: #fcfeff;
+        touch-action: none;
+      }
+
+      .controls {
+        display: grid;
+        gap: 12px;
+      }
+
+      .panel {
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: var(--panel);
+        box-shadow: 0 14px 40px rgba(37, 34, 53, .1);
+      }
+
+      .panel h1,
+      .panel h2,
+      .panel p {
+        margin: 0;
+      }
+
+      .panel h1 {
+        font-size: 28px;
+        line-height: 1;
+      }
+
+      .panel h2 {
+        font-size: 18px;
+      }
+
+      .panel p {
+        margin-top: 8px;
+        color: var(--muted);
+        line-height: 1.42;
+      }
+
+      .setup {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .big-button {
+        min-height: 46px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 950;
+        background: linear-gradient(135deg, var(--pink), #8e67ff);
+        box-shadow: 0 12px 24px rgba(142, 103, 255, .2);
+      }
+
+      .ghost-button {
+        min-height: 46px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        font-weight: 900;
+        background: white;
+      }
+
+      .players {
+        display: grid;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .player-row {
+        display: grid;
+        grid-template-columns: 26px 1fr auto;
+        gap: 8px;
+        align-items: center;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .72);
+      }
+
+      .dot {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(37, 34, 53, .18);
+      }
+
+      .player-row strong,
+      .player-row span {
+        display: block;
+      }
+
+      .player-row span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .player-row button {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 950;
+        background: var(--pink);
+      }
+
+      .pads {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .pad {
+        min-height: 90px;
+        position: relative;
+        overflow: hidden;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .74);
+        touch-action: none;
+        user-select: none;
+      }
+
+      .pad::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: .24;
+        transform: translate(-50%, -50%);
+      }
+
+      .pad b {
+        position: absolute;
+        left: 8px;
+        top: 8px;
+        font-size: 12px;
+      }
+
+      .pad span {
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.2;
+      }
+
+      .portal-footer {
+        padding: 16px 0 22px;
+      }
+
+      @media (max-width: 920px) {
+        .wrap {
+          grid-template-columns: 1fr;
+        }
+
+        .portal-bar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .hud {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .pads {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 620px) {
+        .setup,
+        .pads {
+          grid-template-columns: 1fr;
+        }
+
+        canvas {
+          aspect-ratio: 1 / 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header class="portal-bar">
+      <a class="brand" href="../../index.html">Яна Единорог</a>
+      <nav aria-label="Навигация игры">
+        <a href="../index.html">Игры</a>
+        <a href="../../school/index.html">Учёба</a>
+        <a href="../../map/index.html">Карта</a>
+      </nav>
+    </header>
+
+    <main id="content" class="wrap">
+      <section class="stage" aria-label="Арена игры">
+        <div class="hud">
+          <div><span>Игроки</span><strong id="playersCount">2</strong></div>
+          <div><span>Раунд</span><strong id="roundTime">90</strong></div>
+          <div><span>Звёзды</span><strong id="starsLeft">0</strong></div>
+          <div><span>Лидер</span><strong id="leaderName">-</strong></div>
+        </div>
+        <canvas id="arena" width="1120" height="700"></canvas>
+      </section>
+
+      <aside class="controls">
+        <section class="panel">
+          <h1>10 друзей: Арена</h1>
+          <p>Выбирайте от 2 до 10 живых игроков. Собирайте звёзды, толкайте друг друга и набирайте очки за 90 секунд.</p>
+          <div class="setup">
+            <button class="big-button" id="startButton" type="button">Старт</button>
+            <button class="ghost-button" id="resetButton" type="button">Заново</button>
+            <button class="ghost-button" id="minusButton" type="button">- игрок</button>
+            <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
+          </div>
+          <p>Клавиатура: 1 WASD, 2 стрелки, 3 IJKL, 4 TFGH. Остальные игроки двигаются своими панелями ниже.</p>
+        </section>
+
+        <section class="panel">
+          <h2>Счёт</h2>
+          <div class="players" id="scoreList"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Панели игроков</h2>
+          <p>Нажмите и тяните в своей панели. Работает мышью и пальцем.</p>
+          <div class="pads" id="pads"></div>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="portal-footer">
+      <nav aria-label="Быстрые ссылки">
+        <a href="../../index.html">Главная</a>
+        <a href="../index.html">Все игры</a>
+        <a href="../snake-clash/index.html">Snake Clash</a>
+        <a href="../cat-chase/index.html">Кошачья погоня</a>
+      </nav>
+    </footer>
+
+    <script>
+      const canvas = document.querySelector("#arena");
+      const ctx = canvas.getContext("2d");
+      const playersCountEl = document.querySelector("#playersCount");
+      const roundTimeEl = document.querySelector("#roundTime");
+      const starsLeftEl = document.querySelector("#starsLeft");
+      const leaderNameEl = document.querySelector("#leaderName");
+      const scoreList = document.querySelector("#scoreList");
+      const padsEl = document.querySelector("#pads");
+      const startButton = document.querySelector("#startButton");
+      const resetButton = document.querySelector("#resetButton");
+      const plusButton = document.querySelector("#plusButton");
+      const minusButton = document.querySelector("#minusButton");
+
+      const world = { width: 1120, height: 700 };
+      const keys = new Set();
+      const colors = ["#ff4f9a", "#42a5ff", "#36c978", "#ffd45c", "#9b72ff", "#ff8b3d", "#16c7d4", "#ef5d7a", "#7ab800", "#725cff"];
+      const names = ["Роза", "Небо", "Лайм", "Солнце", "Ирис", "Огонёк", "Бирюза", "Карамель", "Листик", "Космос"];
+      const keyboardMaps = [
+        { up: "KeyW", down: "KeyS", left: "KeyA", right: "KeyD", label: "WASD" },
+        { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", label: "стрелки" },
+        { up: "KeyI", down: "KeyK", left: "KeyJ", right: "KeyL", label: "IJKL" },
+        { up: "KeyT", down: "KeyG", left: "KeyF", right: "KeyH", label: "TFGH" }
+      ];
+
+      let playerCount = 2;
+      let players = [];
+      let stars = [];
+      let running = false;
+      let timeLeft = 90;
+      let lastTime = 0;
+      let animationId = 0;
+
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+      const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+      const rand = (min, max) => Math.random() * (max - min) + min;
+
+      function makePlayer(index) {
+        const angle = (Math.PI * 2 * index) / playerCount;
+        return {
+          id: index + 1,
+          name: names[index],
+          color: colors[index],
+          x: world.width / 2 + Math.cos(angle) * 210,
+          y: world.height / 2 + Math.sin(angle) * 210,
+          vx: 0,
+          vy: 0,
+          radius: 22,
+          score: 0,
+          boost: 0,
+          pad: { x: 0, y: 0, pointer: null }
+        };
+      }
+
+      function spawnStars(count) {
+        stars = [];
+        for (let i = 0; i < count; i += 1) {
+          stars.push({
+            x: rand(46, world.width - 46),
+            y: rand(70, world.height - 46),
+            value: Math.random() > 0.82 ? 3 : 1,
+            spin: rand(0, Math.PI * 2)
+          });
+        }
+      }
+
+      function resetGame() {
+        players = Array.from({ length: playerCount }, (_, index) => makePlayer(index));
+        spawnStars(18 + playerCount * 4);
+        timeLeft = 90;
+        running = false;
+        lastTime = performance.now();
+        renderPads();
+        renderScores();
+        updateHud();
+        draw();
+      }
+
+      function startGame() {
+        if (players.length !== playerCount) resetGame();
+        running = true;
+        lastTime = performance.now();
+      }
+
+      function addPlayer() {
+        playerCount = clamp(playerCount + 1, 2, 10);
+        resetGame();
+      }
+
+      function removePlayer() {
+        playerCount = clamp(playerCount - 1, 2, 10);
+        resetGame();
+      }
+
+      function directionFor(player) {
+        let dx = player.pad.x;
+        let dy = player.pad.y;
+        const map = keyboardMaps[player.id - 1];
+        if (map) {
+          if (keys.has(map.left)) dx -= 1;
+          if (keys.has(map.right)) dx += 1;
+          if (keys.has(map.up)) dy -= 1;
+          if (keys.has(map.down)) dy += 1;
+        }
+        const length = Math.hypot(dx, dy);
+        if (!length) return { x: 0, y: 0 };
+        return { x: dx / length, y: dy / length };
+      }
+
+      function update(delta) {
+        if (!running) return;
+        timeLeft = Math.max(0, timeLeft - delta);
+        if (timeLeft <= 0) running = false;
+
+        for (const player of players) {
+          const dir = directionFor(player);
+          const speed = 320 + player.boost;
+          player.vx += dir.x * speed * delta * 4.2;
+          player.vy += dir.y * speed * delta * 4.2;
+          player.vx *= 0.88;
+          player.vy *= 0.88;
+          player.x = clamp(player.x + player.vx * delta, player.radius, world.width - player.radius);
+          player.y = clamp(player.y + player.vy * delta, player.radius + 46, world.height - player.radius);
+          player.boost = Math.max(0, player.boost - 180 * delta);
+        }
+
+        for (let i = 0; i < players.length; i += 1) {
+          for (let j = i + 1; j < players.length; j += 1) {
+            bump(players[i], players[j]);
+          }
+        }
+
+        for (let i = stars.length - 1; i >= 0; i -= 1) {
+          const star = stars[i];
+          star.spin += delta * 3;
+          const picker = players.find((player) => distance(player, star) < player.radius + 15);
+          if (picker) {
+            picker.score += star.value;
+            picker.boost = 120;
+            stars.splice(i, 1);
+          }
+        }
+
+        if (stars.length < 8) spawnStars(14 + playerCount * 2);
+        updateHud();
+      }
+
+      function bump(a, b) {
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const d = Math.hypot(dx, dy) || 1;
+        const min = a.radius + b.radius;
+        if (d >= min) return;
+        const push = (min - d) / 2;
+        const nx = dx / d;
+        const ny = dy / d;
+        a.x -= nx * push;
+        a.y -= ny * push;
+        b.x += nx * push;
+        b.y += ny * push;
+        a.vx -= nx * 60;
+        a.vy -= ny * 60;
+        b.vx += nx * 60;
+        b.vy += ny * 60;
+      }
+
+      function drawStar(star) {
+        ctx.save();
+        ctx.translate(star.x, star.y);
+        ctx.rotate(star.spin);
+        ctx.fillStyle = star.value > 1 ? "#ff8b3d" : "#ffd45c";
+        ctx.strokeStyle = "#6a4300";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i < 10; i += 1) {
+          const radius = i % 2 ? 7 : 16;
+          const angle = -Math.PI / 2 + (Math.PI * 2 * i) / 10;
+          const x = Math.cos(angle) * radius;
+          const y = Math.sin(angle) * radius;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawPlayer(player) {
+        ctx.save();
+        ctx.translate(player.x, player.y);
+        ctx.fillStyle = player.color;
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(255,255,255,.92)";
+        ctx.beginPath();
+        ctx.arc(-7, -5, 4, 0, Math.PI * 2);
+        ctx.arc(8, -5, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#252235";
+        ctx.beginPath();
+        ctx.arc(-6, -5, 2, 0, Math.PI * 2);
+        ctx.arc(9, -5, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "rgba(37,34,53,.88)";
+        ctx.font = "900 13px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(String(player.id), 0, 33);
+        ctx.restore();
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, world.width, world.height);
+        ctx.fillStyle = "#fbfeff";
+        ctx.fillRect(0, 0, world.width, world.height);
+
+        ctx.strokeStyle = "rgba(84,184,255,.18)";
+        ctx.lineWidth = 2;
+        for (let x = 0; x < world.width; x += 56) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, world.height);
+          ctx.stroke();
+        }
+        for (let y = 44; y < world.height; y += 56) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(world.width, y);
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = "rgba(255,114,173,.12)";
+        ctx.fillRect(0, 0, world.width, 46);
+        stars.forEach(drawStar);
+        players.forEach(drawPlayer);
+
+        if (!running) {
+          const winner = [...players].sort((a, b) => b.score - a.score)[0];
+          ctx.fillStyle = "rgba(255,255,255,.82)";
+          ctx.fillRect(0, 0, world.width, world.height);
+          ctx.fillStyle = "#252235";
+          ctx.textAlign = "center";
+          ctx.font = "900 52px system-ui";
+          ctx.fillText(timeLeft <= 0 ? "Финиш!" : "Готовы играть?", world.width / 2, world.height / 2 - 32);
+          ctx.font = "800 24px system-ui";
+          const text = timeLeft <= 0 && winner ? `Победил игрок ${winner.id}: ${winner.name}` : "Выберите игроков и нажмите Старт";
+          ctx.fillText(text, world.width / 2, world.height / 2 + 12);
+        }
+      }
+
+      function loop(now) {
+        const delta = Math.min(0.032, (now - lastTime) / 1000 || 0);
+        lastTime = now;
+        update(delta);
+        draw();
+        renderScores();
+        animationId = requestAnimationFrame(loop);
+      }
+
+      function updateHud() {
+        const leader = [...players].sort((a, b) => b.score - a.score)[0];
+        playersCountEl.textContent = playerCount;
+        roundTimeEl.textContent = Math.ceil(timeLeft);
+        starsLeftEl.textContent = stars.length;
+        leaderNameEl.textContent = leader ? `${leader.id}: ${leader.score}` : "-";
+      }
+
+      function renderScores() {
+        scoreList.innerHTML = players
+          .map((player) => {
+            const control = keyboardMaps[player.id - 1]?.label || "панель";
+            return `<div class="player-row">
+              <i class="dot" style="background:${player.color}"></i>
+              <div><strong>${player.id}. ${player.name}</strong><span>${control}</span></div>
+              <b>${player.score}</b>
+            </div>`;
+          })
+          .join("");
+      }
+
+      function renderPads() {
+        padsEl.innerHTML = "";
+        players.forEach((player) => {
+          const pad = document.createElement("div");
+          pad.className = "pad";
+          pad.style.color = player.color;
+          pad.innerHTML = `<b>${player.id}. ${player.name}</b><span>тяни сюда</span>`;
+          pad.addEventListener("pointerdown", (event) => {
+            pad.setPointerCapture(event.pointerId);
+            player.pad.pointer = event.pointerId;
+            updatePad(player, pad, event);
+          });
+          pad.addEventListener("pointermove", (event) => {
+            if (player.pad.pointer === event.pointerId) updatePad(player, pad, event);
+          });
+          const clear = (event) => {
+            if (player.pad.pointer !== event.pointerId) return;
+            player.pad.pointer = null;
+            player.pad.x = 0;
+            player.pad.y = 0;
+          };
+          pad.addEventListener("pointerup", clear);
+          pad.addEventListener("pointercancel", clear);
+          padsEl.appendChild(pad);
+        });
+      }
+
+      function updatePad(player, pad, event) {
+        const rect = pad.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        const y = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+        player.pad.x = clamp(x, -1, 1);
+        player.pad.y = clamp(y, -1, 1);
+      }
+
+      window.addEventListener("keydown", (event) => {
+        keys.add(event.code);
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) {
+          event.preventDefault();
+        }
+      });
+
+      window.addEventListener("keyup", (event) => keys.delete(event.code));
+      startButton.addEventListener("click", startGame);
+      resetButton.addEventListener("click", resetGame);
+      plusButton.addEventListener("click", addPlayer);
+      minusButton.addEventListener("click", removePlayer);
+
+      resetGame();
+      cancelAnimationFrame(animationId);
+      animationId = requestAnimationFrame(loop);
+    </script>
+    <script src="../../assets/site.js"></script>
+  </body>
+</html>

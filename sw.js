@@ -12,6 +12,7 @@ const CACHE_PATHS = [
   "./games/kolobok/game.js",
   "./games/kolobok/styles.css",
   "./games/snake-clash/index.html",
+  "./games/people-arena/index.html",
   "./school/index.html",
   "./schedule/index.html",
   "./projects/index.html",

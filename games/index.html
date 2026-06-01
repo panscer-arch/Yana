@@ -311,6 +311,16 @@
           conic-gradient(from 180deg at 54% 50%, #41e8b7, #63b3ed, #b794f4, #41e8b7);
       }
 
+      .people-preview {
+        background:
+          radial-gradient(circle at 18% 64%, #ff72ad 0 8%, transparent 9%),
+          radial-gradient(circle at 36% 38%, #54b8ff 0 8%, transparent 9%),
+          radial-gradient(circle at 54% 68%, #42c995 0 8%, transparent 9%),
+          radial-gradient(circle at 72% 36%, #ffd45c 0 8%, transparent 9%),
+          radial-gradient(circle at 86% 62%, #8e67ff 0 8%, transparent 9%),
+          linear-gradient(135deg, #ffffff, #eaf7ff 52%, #fff4fb);
+      }
+
       .status.ready {
         color: #0d6b49;
         background: rgba(66, 201, 149, .2);
@@ -455,6 +465,14 @@
           </article>
 
           <article class="game-card">
+            <div class="preview people-preview" aria-hidden="true"></div>
+            <span class="status ready">2-10 игроков</span>
+            <h3>10 друзей: Арена</h3>
+            <p>Настоящие игроки без ботов: выбирайте количество участников, собирайте звёзды и играйте на одном экране.</p>
+            <a class="mini-button" href="people-arena/index.html">Играть</a>
+          </article>
+
+          <article class="game-card">
             <div class="preview unicorn-preview" aria-hidden="true"></div>
             <span class="status next">Следующая игра</span>
             <h3>Единорожий забег</h3>
@@ -504,6 +522,7 @@
         <a href="parkour/index.html">Паркур</a>
         <a href="kolobok/index.html">Колобок</a>
         <a href="snake-clash/index.html">Snake Clash</a>
+        <a href="people-arena/index.html">10 друзей</a>
         <a href="../school/index.html">Школа</a>
         <a href="../schedule/index.html">План</a>
         <a href="../projects/index.html">Проекты</a>
