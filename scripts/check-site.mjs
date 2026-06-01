@@ -52,6 +52,33 @@ function checkHtmlScripts(file, html) {
   }
 }
 
+function hasTag(html, pattern) {
+  return pattern.test(html);
+}
+
+function checkHtmlMetadata(file, html) {
+  const page = relative(file);
+  const required = [
+    ["doctype", /^<!doctype html>/i],
+    ["html lang=\"ru\"", /<html\s+lang="ru">/],
+    ["viewport meta", /<meta\s+name="viewport"\s+content="width=device-width,\s*initial-scale=1">/],
+    ["title", /<title>[^<]+<\/title>/],
+    ["description meta", /<meta\s+name="description"\s+content="[^"]+">/],
+    ["theme-color meta", /<meta\s+name="theme-color"\s+content="[^"]+">/],
+    ["favicon", /<link\s+rel="icon"\s+type="image\/png"\s+href="[^"]+">/]
+  ];
+
+  for (const [label, pattern] of required) {
+    if (!hasTag(html, pattern)) {
+      errors.push(`${page} is missing ${label}`);
+    }
+  }
+
+  if (!/<main[\s>]/.test(html)) {
+    errors.push(`${page} is missing main landmark`);
+  }
+}
+
 function checkLocalReference(file, html, attribute, link) {
   if (!link || link.startsWith("data:")) return;
   if (/^(https?:|mailto:|tel:)/.test(link)) return;
@@ -140,6 +167,7 @@ function checkRequiredPublishingFiles() {
 
 for (const file of htmlFiles()) {
   const html = read(file);
+  checkHtmlMetadata(file, html);
   checkHtmlScripts(file, html);
   checkHtmlLinks(file, html);
 }

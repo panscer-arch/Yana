@@ -44,10 +44,22 @@
 ## Проверка перед публикацией
 
 ```bash
-node scripts/check-site.mjs
+npm run check
 ```
 
 Команда проверяет HTML-страницы, внутренние ссылки, якоря, manifest, sitemap и обязательные файлы для GitHub Pages.
+
+Если `npm` недоступен, можно запустить напрямую:
+
+```bash
+node scripts/check-site.mjs
+```
+
+Локальный сервер:
+
+```bash
+npm run serve
+```
 
 ## Следующие шаги
 

@@ -1,0 +1,11 @@
+{
+  "name": "yana-unicorn-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Детский портал Яны с играми, обучением, проектами и галереей.",
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check-site.mjs",
+    "serve": "python3 -m http.server 8096 --bind 127.0.0.1"
+  }
+}
