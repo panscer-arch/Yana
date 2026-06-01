@@ -38,7 +38,7 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$YANA_DEPLOY_KEY" > ~/.ssh/yana_deploy_key
           chmod 600 ~/.ssh/yana_deploy_key
-          ssh-keyscan -H 145.223.90.93 >> ~/.ssh/known_hosts
+          printf '%s\n' '145.223.90.93 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBc30Sj0RdjjjQb2G6aN7XOkxAAEbxuVwjwex9jTEUdE' > ~/.ssh/known_hosts
 
       - name: Check server access
         run: |
