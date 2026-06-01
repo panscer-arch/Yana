@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Живая арена для 2-10 игроков без ботов: собирайте звёзды, толкайтесь и играйте вместе на одном экране.">
+    <meta name="description" content="Живая аренная стрелялка для 2-10 игроков без ботов: бластеры, укрытия, здоровье и очки за попадания.">
     <meta name="theme-color" content="#161629">
     <title>10 друзей: Арена</title>
     <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
@@ -370,7 +370,7 @@
         <div class="hud">
           <div><span>Игроки</span><strong id="playersCount">2</strong></div>
           <div><span>Раунд</span><strong id="roundTime">90</strong></div>
-          <div><span>Звёзды</span><strong id="starsLeft">0</strong></div>
+          <div><span>Снаряды</span><strong id="starsLeft">0</strong></div>
           <div><span>Лидер</span><strong id="leaderName">-</strong></div>
         </div>
         <canvas id="arena" width="1120" height="700"></canvas>
@@ -379,14 +379,14 @@
       <aside class="controls">
         <section class="panel">
           <h1>10 друзей: Арена</h1>
-          <p>Выбирайте от 2 до 10 живых игроков. Собирайте звёзды, толкайте друг друга и набирайте очки за 90 секунд.</p>
+          <p>Выбирайте от 2 до 10 живых игроков. Двигайтесь, прячьтесь за блоками, стреляйте мягкими бластерами и набирайте очки за попадания.</p>
           <div class="setup">
             <button class="big-button" id="startButton" type="button">Старт</button>
             <button class="ghost-button" id="resetButton" type="button">Заново</button>
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
           </div>
-          <p>Клавиатура: 1 WASD, 2 стрелки, 3 IJKL, 4 TFGH. Остальные игроки двигаются своими панелями ниже.</p>
+          <p>Клавиатура: 1 WASD+Space, 2 стрелки+Enter, 3 IJKL+U, 4 TFGH+R. Остальные игроки двигаются панелями и стреляют кнопкой в счёте.</p>
         </section>
 
         <section class="panel">
@@ -396,7 +396,7 @@
 
         <section class="panel">
           <h2>Панели игроков</h2>
-          <p>Нажмите и тяните в своей панели. Работает мышью и пальцем.</p>
+          <p>Нажмите и тяните в своей панели, чтобы двигаться и целиться. Стреляйте кнопкой рядом со счётом.</p>
           <div class="pads" id="pads"></div>
         </section>
       </aside>
@@ -430,15 +430,17 @@
       const colors = ["#ff4f9a", "#42a5ff", "#36c978", "#ffd45c", "#9b72ff", "#ff8b3d", "#16c7d4", "#ef5d7a", "#7ab800", "#725cff"];
       const names = ["Роза", "Небо", "Лайм", "Солнце", "Ирис", "Огонёк", "Бирюза", "Карамель", "Листик", "Космос"];
       const keyboardMaps = [
-        { up: "KeyW", down: "KeyS", left: "KeyA", right: "KeyD", label: "WASD" },
-        { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", label: "стрелки" },
-        { up: "KeyI", down: "KeyK", left: "KeyJ", right: "KeyL", label: "IJKL" },
-        { up: "KeyT", down: "KeyG", left: "KeyF", right: "KeyH", label: "TFGH" }
+        { up: "KeyW", down: "KeyS", left: "KeyA", right: "KeyD", fire: "Space", label: "WASD + Space" },
+        { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", fire: "Enter", label: "стрелки + Enter" },
+        { up: "KeyI", down: "KeyK", left: "KeyJ", right: "KeyL", fire: "KeyU", label: "IJKL + U" },
+        { up: "KeyT", down: "KeyG", left: "KeyF", right: "KeyH", fire: "KeyR", label: "TFGH + R" }
       ];
 
       let playerCount = 2;
       let players = [];
-      let stars = [];
+      let crates = [];
+      let bullets = [];
+      let obstacles = [];
       let running = false;
       let timeLeft = 90;
       let lastTime = 0;
@@ -460,26 +462,42 @@
           vy: 0,
           radius: 22,
           score: 0,
-          boost: 0,
+          hp: 5,
+          ammo: 12,
+          cooldown: 0,
+          invulnerable: 0,
+          angle,
           pad: { x: 0, y: 0, pointer: null }
         };
       }
 
-      function spawnStars(count) {
-        stars = [];
+      function spawnCrates(count) {
+        crates = [];
         for (let i = 0; i < count; i += 1) {
-          stars.push({
+          crates.push({
             x: rand(46, world.width - 46),
             y: rand(70, world.height - 46),
-            value: Math.random() > 0.82 ? 3 : 1,
+            value: Math.random() > 0.75 ? 6 : 3,
             spin: rand(0, Math.PI * 2)
           });
         }
       }
 
+      function makeObstacles() {
+        obstacles = [
+          { x: 205, y: 164, w: 126, h: 46 },
+          { x: 790, y: 164, w: 126, h: 46 },
+          { x: 486, y: 318, w: 148, h: 56 },
+          { x: 180, y: 514, w: 150, h: 48 },
+          { x: 790, y: 514, w: 150, h: 48 }
+        ];
+      }
+
       function resetGame() {
         players = Array.from({ length: playerCount }, (_, index) => makePlayer(index));
-        spawnStars(18 + playerCount * 4);
+        bullets = [];
+        spawnCrates(8 + playerCount);
+        makeObstacles();
         timeLeft = 90;
         running = false;
         lastTime = performance.now();
@@ -527,14 +545,17 @@
 
         for (const player of players) {
           const dir = directionFor(player);
-          const speed = 320 + player.boost;
+          if (dir.x || dir.y) player.angle = Math.atan2(dir.y, dir.x);
+          const speed = 330;
           player.vx += dir.x * speed * delta * 4.2;
           player.vy += dir.y * speed * delta * 4.2;
           player.vx *= 0.88;
           player.vy *= 0.88;
-          player.x = clamp(player.x + player.vx * delta, player.radius, world.width - player.radius);
-          player.y = clamp(player.y + player.vy * delta, player.radius + 46, world.height - player.radius);
-          player.boost = Math.max(0, player.boost - 180 * delta);
+          moveWithWalls(player, delta);
+          player.cooldown = Math.max(0, player.cooldown - delta);
+          player.invulnerable = Math.max(0, player.invulnerable - delta);
+          const map = keyboardMaps[player.id - 1];
+          if (map && keys.has(map.fire)) shoot(player);
         }
 
         for (let i = 0; i < players.length; i += 1) {
@@ -543,19 +564,103 @@
           }
         }
 
-        for (let i = stars.length - 1; i >= 0; i -= 1) {
-          const star = stars[i];
-          star.spin += delta * 3;
-          const picker = players.find((player) => distance(player, star) < player.radius + 15);
+        for (let i = crates.length - 1; i >= 0; i -= 1) {
+          const crate = crates[i];
+          crate.spin += delta * 3;
+          const picker = players.find((player) => distance(player, crate) < player.radius + 15);
           if (picker) {
-            picker.score += star.value;
-            picker.boost = 120;
-            stars.splice(i, 1);
+            picker.ammo = Math.min(24, picker.ammo + crate.value);
+            crates.splice(i, 1);
           }
         }
 
-        if (stars.length < 8) spawnStars(14 + playerCount * 2);
+        updateBullets(delta);
+        if (crates.length < 5) spawnCrates(7 + playerCount);
         updateHud();
+      }
+
+      function moveWithWalls(player, delta) {
+        const oldX = player.x;
+        const oldY = player.y;
+        player.x = clamp(player.x + player.vx * delta, player.radius, world.width - player.radius);
+        player.y = clamp(player.y + player.vy * delta, player.radius + 46, world.height - player.radius);
+        if (obstacles.some((block) => circleRect(player, block))) {
+          player.x = oldX;
+          player.y = oldY;
+          player.vx *= -0.25;
+          player.vy *= -0.25;
+        }
+      }
+
+      function shoot(player) {
+        if (!running || player.cooldown > 0 || player.ammo <= 0) return;
+        player.cooldown = 0.28;
+        player.ammo -= 1;
+        bullets.push({
+          owner: player.id,
+          x: player.x + Math.cos(player.angle) * (player.radius + 10),
+          y: player.y + Math.sin(player.angle) * (player.radius + 10),
+          vx: Math.cos(player.angle) * 650,
+          vy: Math.sin(player.angle) * 650,
+          life: 1.25,
+          color: player.color
+        });
+      }
+
+      function updateBullets(delta) {
+        for (let i = bullets.length - 1; i >= 0; i -= 1) {
+          const bullet = bullets[i];
+          bullet.x += bullet.vx * delta;
+          bullet.y += bullet.vy * delta;
+          bullet.life -= delta;
+
+          const blocked = bullet.life <= 0
+            || bullet.x < 0
+            || bullet.x > world.width
+            || bullet.y < 46
+            || bullet.y > world.height
+            || obstacles.some((block) => pointRect(bullet, block));
+          if (blocked) {
+            bullets.splice(i, 1);
+            continue;
+          }
+
+          const target = players.find((player) => player.id !== bullet.owner && player.invulnerable <= 0 && distance(player, bullet) < player.radius + 6);
+          if (target) {
+            const shooter = players.find((player) => player.id === bullet.owner);
+            if (shooter) shooter.score += 1;
+            target.hp -= 1;
+            target.invulnerable = 0.35;
+            target.vx += Math.cos(Math.atan2(target.y - bullet.y, target.x - bullet.x)) * 120;
+            target.vy += Math.sin(Math.atan2(target.y - bullet.y, target.x - bullet.x)) * 120;
+            if (target.hp <= 0) {
+              if (shooter) shooter.score += 3;
+              respawn(target);
+            }
+            bullets.splice(i, 1);
+          }
+        }
+      }
+
+      function respawn(player) {
+        const angle = rand(0, Math.PI * 2);
+        player.x = world.width / 2 + Math.cos(angle) * 250;
+        player.y = world.height / 2 + Math.sin(angle) * 210;
+        player.hp = 5;
+        player.ammo = 12;
+        player.invulnerable = 1.2;
+        player.vx = 0;
+        player.vy = 0;
+      }
+
+      function pointRect(point, rect) {
+        return point.x >= rect.x && point.x <= rect.x + rect.w && point.y >= rect.y && point.y <= rect.y + rect.h;
+      }
+
+      function circleRect(circle, rect) {
+        const x = clamp(circle.x, rect.x, rect.x + rect.w);
+        const y = clamp(circle.y, rect.y, rect.y + rect.h);
+        return Math.hypot(circle.x - x, circle.y - y) < circle.radius;
       }
 
       function bump(a, b) {
@@ -577,23 +682,28 @@
         b.vy += ny * 60;
       }
 
-      function drawStar(star) {
+      function drawCrate(crate) {
         ctx.save();
-        ctx.translate(star.x, star.y);
-        ctx.rotate(star.spin);
-        ctx.fillStyle = star.value > 1 ? "#ff8b3d" : "#ffd45c";
+        ctx.translate(crate.x, crate.y);
+        ctx.rotate(crate.spin);
+        ctx.fillStyle = crate.value > 3 ? "#ff8b3d" : "#ffd45c";
         ctx.strokeStyle = "#6a4300";
         ctx.lineWidth = 2;
+        ctx.fillRect(-14, -14, 28, 28);
+        ctx.strokeRect(-14, -14, 28, 28);
+        ctx.fillStyle = "#6a4300";
+        ctx.fillRect(-3, -12, 6, 24);
+        ctx.fillRect(-12, -3, 24, 6);
+        ctx.restore();
+      }
+
+      function drawBullet(bullet) {
+        ctx.save();
+        ctx.fillStyle = bullet.color;
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        for (let i = 0; i < 10; i += 1) {
-          const radius = i % 2 ? 7 : 16;
-          const angle = -Math.PI / 2 + (Math.PI * 2 * i) / 10;
-          const x = Math.cos(angle) * radius;
-          const y = Math.sin(angle) * radius;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
+        ctx.arc(bullet.x, bullet.y, 7, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
         ctx.restore();
@@ -602,6 +712,9 @@
       function drawPlayer(player) {
         ctx.save();
         ctx.translate(player.x, player.y);
+        if (player.invulnerable > 0 && Math.floor(player.invulnerable * 18) % 2 === 0) {
+          ctx.globalAlpha = 0.45;
+        }
         ctx.fillStyle = player.color;
         ctx.strokeStyle = "white";
         ctx.lineWidth = 5;
@@ -625,6 +738,12 @@
         ctx.font = "900 13px system-ui";
         ctx.textAlign = "center";
         ctx.fillText(String(player.id), 0, 33);
+
+        ctx.rotate(player.angle);
+        ctx.fillStyle = "#252235";
+        ctx.fillRect(10, -5, 24, 10);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(26, -3, 8, 6);
         ctx.restore();
       }
 
@@ -650,7 +769,9 @@
 
         ctx.fillStyle = "rgba(255,114,173,.12)";
         ctx.fillRect(0, 0, world.width, 46);
-        stars.forEach(drawStar);
+        drawObstacles();
+        crates.forEach(drawCrate);
+        bullets.forEach(drawBullet);
         players.forEach(drawPlayer);
 
         if (!running) {
@@ -667,6 +788,18 @@
         }
       }
 
+      function drawObstacles() {
+        for (const block of obstacles) {
+          ctx.fillStyle = "rgba(37,34,53,.82)";
+          ctx.strokeStyle = "rgba(255,255,255,.9)";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.roundRect(block.x, block.y, block.w, block.h, 8);
+          ctx.fill();
+          ctx.stroke();
+        }
+      }
+
       function loop(now) {
         const delta = Math.min(0.032, (now - lastTime) / 1000 || 0);
         lastTime = now;
@@ -680,7 +813,7 @@
         const leader = [...players].sort((a, b) => b.score - a.score)[0];
         playersCountEl.textContent = playerCount;
         roundTimeEl.textContent = Math.ceil(timeLeft);
-        starsLeftEl.textContent = stars.length;
+        starsLeftEl.textContent = bullets.length;
         leaderNameEl.textContent = leader ? `${leader.id}: ${leader.score}` : "-";
       }
 
@@ -690,8 +823,8 @@
             const control = keyboardMaps[player.id - 1]?.label || "панель";
             return `<div class="player-row">
               <i class="dot" style="background:${player.color}"></i>
-              <div><strong>${player.id}. ${player.name}</strong><span>${control}</span></div>
-              <b>${player.score}</b>
+              <div><strong>${player.id}. ${player.name}</strong><span>${control} · ❤ ${player.hp} · ${player.ammo}</span></div>
+              <button type="button" data-fire="${player.id}" aria-label="Огонь игрок ${player.id}">${player.score}</button>
             </div>`;
           })
           .join("");
@@ -734,7 +867,7 @@
 
       window.addEventListener("keydown", (event) => {
         keys.add(event.code);
-        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) {
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "Enter"].includes(event.code)) {
           event.preventDefault();
         }
       });
@@ -744,6 +877,12 @@
       resetButton.addEventListener("click", resetGame);
       plusButton.addEventListener("click", addPlayer);
       minusButton.addEventListener("click", removePlayer);
+      scoreList.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-fire]");
+        if (!button) return;
+        const player = players.find((item) => item.id === Number(button.dataset.fire));
+        if (player) shoot(player);
+      });
 
       resetGame();
       cancelAnimationFrame(animationId);
