@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Обновления сайта Яна Единорог</title>
-    <meta name="description" content="Журнал обновлений сайта Яна Единорог: игры, обучение, план недели, публикация и следующие шаги.">
+    <title>Родителям — Яна Единорог</title>
+    <meta name="description" content="Короткий гид для родителей по сайту Яна Единорог: игры, обучение, план недели, безопасность, публикация и следующие шаги.">
     <meta name="theme-color" content="#ff72ad">
     <link rel="icon" type="image/png" href="../assets/yana-unicorn-logo.png">
     <style>
@@ -170,7 +170,7 @@
       }
 
       .lead {
-        max-width: 680px;
+        max-width: 690px;
         margin-top: 18px;
         color: var(--muted);
         font-size: 20px;
@@ -200,8 +200,8 @@
       }
 
       .hero-card,
-      .release-card,
-      .next-card {
+      .guide-card,
+      .route-card {
         border: 3px solid var(--line);
         border-radius: 8px;
         background: rgba(255, 253, 247, .94);
@@ -209,8 +209,8 @@
       }
 
       .hero-card,
-      .release-card,
-      .next-card {
+      .guide-card,
+      .route-card {
         display: grid;
         gap: 14px;
         padding: 18px;
@@ -241,24 +241,25 @@
 
       .section-title p,
       .hero-card p,
-      .release-card p,
-      .next-card p,
-      .release-card li,
-      .next-card li {
+      .guide-card p,
+      .route-card p,
+      .guide-card li,
+      .route-card li {
         color: var(--muted);
         font-weight: 800;
         line-height: 1.45;
       }
 
-      .release-grid,
-      .next-grid {
+      .guide-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 16px;
       }
 
-      .release-card.featured {
-        grid-column: 1 / -1;
+      .route-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
       }
 
       .status.ready {
@@ -266,7 +267,7 @@
         background: rgba(66, 201, 149, .2);
       }
 
-      .status.work {
+      .status.wait {
         color: #7b4d00;
         background: rgba(255, 212, 92, .32);
       }
@@ -277,7 +278,7 @@
         padding-left: 20px;
       }
 
-      .release-links {
+      .link-row {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
@@ -311,8 +312,8 @@
 
       @media (max-width: 860px) {
         .hero,
-        .release-grid,
-        .next-grid {
+        .guide-grid,
+        .route-grid {
           grid-template-columns: 1fr;
         }
 
@@ -345,105 +346,103 @@
           <a href="../games/index.html">Игры</a>
           <a href="../school/index.html">Школа</a>
           <a href="../schedule/index.html">План</a>
-          <a href="../gallery/index.html">Галерея</a>
           <a href="../launch/index.html">Запуск</a>
           <a href="../privacy/index.html">Приватность</a>
-          <a href="../parents/index.html">Родителям</a>
-          <a href="../updates/index.html" aria-current="page">Обновления</a>
+          <a href="../parents/index.html" aria-current="page">Родителям</a>
         </nav>
       </div>
     </header>
 
     <main id="content" class="shell">
-      <section class="hero" aria-label="Обновления сайта">
+      <section class="hero" aria-label="Гид для родителей">
         <div>
-          <span class="tag">Журнал развития</span>
-          <h1>Что нового на сайте</h1>
-          <p class="lead">Здесь видно, какие разделы уже собраны, что стало удобнее и какие шаги ведут сайт Яны к красивой публикации на GitHub Pages и домене.</p>
+          <span class="tag">Гид для взрослых</span>
+          <h1>Что уже есть на сайте Яны</h1>
+          <p class="lead">Эта страница помогает быстро понять, где игры, где обучение, как хранится прогресс, что готово к публикации и какие шаги остались до домена.</p>
           <div class="hero-actions">
-            <a class="button" href="#latest">Смотреть обновления</a>
-            <a class="button secondary" href="../launch/index.html">План запуска</a>
+            <a class="button" href="#overview">Краткий обзор</a>
+            <a class="button secondary" href="../launch/index.html">Запуск сайта</a>
           </div>
         </div>
 
         <aside class="hero-card">
           <img src="../assets/yana-unicorn-logo.png" alt="">
-          <h2>Текущий релиз</h2>
-          <p>1 июня 2026: портал собран как единый детский сайт с играми, обучением, недельным планом, галереей, приватностью и проверкой качества.</p>
+          <h2>Главная идея</h2>
+          <p>Сайт задуман как личная детская мастерская: Яна играет, учится, придумывает проекты и постепенно пополняет свой веб-портал.</p>
         </aside>
       </section>
 
-      <section id="latest" aria-labelledby="latest-title">
+      <section id="overview" aria-labelledby="overview-title">
         <div class="section-title">
-          <h2 id="latest-title">Последние обновления</h2>
-          <p>Короткая история того, что уже доведено до аккуратного состояния.</p>
+          <h2 id="overview-title">Краткий обзор</h2>
+          <p>Самые важные зоны сайта, чтобы быстро проверить результат и показать его семье.</p>
         </div>
 
-        <div class="release-grid">
-          <article class="release-card featured">
-            <span class="status ready">Готово</span>
-            <h3>Портал собран в одну систему</h3>
-            <p>Главная страница теперь ведёт к играм, школе, плану недели, проектам, галерее, запуску, приватности и журналу обновлений.</p>
-            <div class="release-links">
-              <a class="mini-button" href="../index.html">Главная</a>
-              <a class="mini-button secondary" href="../index.html#map">Карта сайта</a>
-            </div>
-          </article>
-
-          <article class="release-card">
+        <div class="guide-grid">
+          <article class="guide-card">
             <span class="status ready">Игры</span>
-            <h3>Кошачья погоня и лаборатория</h3>
-            <ul>
-              <li>Рабочая игра открывается из витрины.</li>
-              <li>Есть отдельная игровая лаборатория для будущих идей.</li>
-              <li>Добавлены мобильные элементы управления и место для новых карт.</li>
-            </ul>
-            <div class="release-links">
+            <h3>Витрина и “Кошачья погоня”</h3>
+            <p>Готовая игра открывается с главной, а отдельная лаборатория хранит идеи для новых игр, карт, героев и наград.</p>
+            <div class="link-row">
               <a class="mini-button" href="../games/index.html">Игры</a>
               <a class="mini-button secondary" href="../games/cat-chase/index.html">Играть</a>
             </div>
           </article>
 
-          <article class="release-card">
+          <article class="guide-card">
             <span class="status ready">Учёба</span>
-            <h3>Математика и школьная комната</h3>
-            <ul>
-              <li>На главной есть тренажёр примеров.</li>
-              <li>Поддерживаются сложение, вычитание, умножение, деление и микс.</li>
-              <li>Есть таблица умножения и дневная цель на 10 правильных ответов.</li>
-            </ul>
-            <div class="release-links">
+            <h3>Математика и школа</h3>
+            <p>На главной есть тренажёр примеров, цель на 10 правильных ответов, таблица умножения и отдельная школьная комната.</p>
+            <div class="link-row">
               <a class="mini-button" href="../index.html#learn">Математика</a>
               <a class="mini-button secondary" href="../school/index.html">Школа</a>
             </div>
           </article>
 
-          <article class="release-card">
-            <span class="status ready">План</span>
-            <h3>Недельное расписание</h3>
+          <article class="guide-card">
+            <span class="status ready">Режим дня</span>
+            <h3>План недели</h3>
+            <p>Расписание по дням недели можно отмечать чекбоксами. Прогресс сохраняется в этом браузере и подходит для печати.</p>
+            <div class="link-row">
+              <a class="mini-button" href="../schedule/index.html">План</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="safety-title">
+        <div class="section-title">
+          <h2 id="safety-title">Безопасность и данные</h2>
+          <p>Что важно знать перед публикацией и использованием сайта дома.</p>
+        </div>
+
+        <div class="route-grid">
+          <article class="route-card">
+            <span class="status ready">Локально</span>
+            <h3>Что хранится в браузере</h3>
             <ul>
-              <li>Добавлен полный план по дням недели.</li>
-              <li>Дела можно отмечать чекбоксами.</li>
-              <li>Прогресс сохраняется в браузере, а план можно распечатать.</li>
+              <li>Счёт математического тренажёра.</li>
+              <li>Отметки плана недели.</li>
+              <li>Записи дневника идей на главной.</li>
             </ul>
-            <div class="release-links">
-              <a class="mini-button" href="../schedule/index.html">План недели</a>
+            <p>Эти данные не отправляются на сервер самим сайтом и очищаются на странице приватности.</p>
+            <div class="link-row">
+              <a class="mini-button" href="../privacy/index.html">Приватность</a>
             </div>
           </article>
 
-          <article class="release-card">
-            <span class="status ready">Публикация</span>
-            <h3>Подготовка к GitHub Pages</h3>
-            <ul>
-              <li>Добавлены manifest, sitemap, robots.txt, 404 и .nojekyll.</li>
-              <li>Есть страница запуска с понятными следующими шагами.</li>
-              <li>Добавлен родительский гид по структуре, данным и публикации.</li>
-              <li>Настроена локальная проверка сайта и GitHub Actions.</li>
-            </ul>
-            <div class="release-links">
-              <a class="mini-button" href="../launch/index.html">Запуск</a>
-              <a class="mini-button secondary" href="../parents/index.html">Родителям</a>
-              <a class="mini-button secondary" href="../privacy/index.html">Приватность</a>
+          <article class="route-card">
+            <span class="status wait">Перед доменом</span>
+            <h3>Публикация</h3>
+            <ol>
+              <li>Отправить ветку <strong>games-publish</strong> в GitHub.</li>
+              <li>Включить GitHub Pages для репозитория.</li>
+              <li>Проверить публичную ссылку.</li>
+              <li>Подключить домен, когда будет выбран адрес.</li>
+            </ol>
+            <div class="link-row">
+              <a class="mini-button" href="../launch/index.html">План запуска</a>
+              <a class="mini-button secondary" href="../updates/index.html">Обновления</a>
             </div>
           </article>
         </div>
@@ -451,37 +450,39 @@
 
       <section aria-labelledby="next-title">
         <div class="section-title">
-          <h2 id="next-title">Что дальше</h2>
-          <p>Оставшиеся шаги, которые действительно приближают сайт к “идеалу”.</p>
+          <h2 id="next-title">Как доводить дальше</h2>
+          <p>Практичные направления, которые помогут сайту расти без хаоса.</p>
         </div>
 
-        <div class="next-grid">
-          <article class="next-card">
-            <span class="status work">Нужна авторизация</span>
-            <h3>Залить изменения в GitHub</h3>
-            <p>Локальные коммиты готовы, но push требует вход в GitHub из терминала. После авторизации можно отправить ветку <strong>games-publish</strong>.</p>
+        <div class="guide-grid">
+          <article class="guide-card">
+            <h3>Добавлять игры</h3>
+            <p>Каждую новую игру лучше класть в отдельную папку внутри <strong>games</strong>, а потом добавлять карточку в витрину.</p>
           </article>
 
-          <article class="next-card">
-            <span class="status work">После push</span>
-            <h3>Включить Pages и домен</h3>
-            <p>Когда ветка окажется на GitHub, останется включить GitHub Pages, проверить публичную ссылку и добавить домен, когда будет выбран адрес.</p>
+          <article class="guide-card">
+            <h3>Расширять обучение</h3>
+            <p>Следующие тренажёры можно добавлять по школьным темам: русский язык, чтение, задачи, диктанты и таблица умножения.</p>
+          </article>
+
+          <article class="guide-card">
+            <h3>Сохранять понятность</h3>
+            <p>После каждого крупного шага полезно обновлять журнал изменений и запускать проверку сайта перед публикацией.</p>
           </article>
         </div>
       </section>
     </main>
 
     <footer>
-      <p>Журнал обновлений помогает видеть, как сайт Яны становится лучше шаг за шагом.</p>
+      <p>Гид для родителей помогает быстро увидеть смысл сайта и следующие шаги.</p>
       <nav aria-label="Быстрые ссылки в подвале">
         <a href="../index.html">Главная</a>
         <a href="../games/index.html">Игры</a>
         <a href="../school/index.html">Школа</a>
         <a href="../schedule/index.html">План</a>
-        <a href="../gallery/index.html">Галерея</a>
         <a href="../launch/index.html">Запуск</a>
         <a href="../privacy/index.html">Приватность</a>
-        <a href="../parents/index.html">Родителям</a>
+        <a href="../updates/index.html">Обновления</a>
       </nav>
     </footer>
   </body>
