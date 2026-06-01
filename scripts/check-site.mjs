@@ -77,6 +77,16 @@ function checkHtmlMetadata(file, html) {
   if (!/<main[\s>]/.test(html)) {
     errors.push(`${page} is missing main landmark`);
   }
+
+  if (page !== "404.html") {
+    if (!/<a\s+class="skip-link"\s+href="#content">К содержанию<\/a>/.test(html)) {
+      errors.push(`${page} is missing skip link`);
+    }
+
+    if (!/<main\s+id="content"[\s>]/.test(html)) {
+      errors.push(`${page} main landmark must use id="content"`);
+    }
+  }
 }
 
 function checkLocalReference(file, html, attribute, link) {

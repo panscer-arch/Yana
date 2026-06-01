@@ -149,6 +149,28 @@
         background: rgba(255, 114, 173, .12);
       }
 
+      .skip-link {
+        position: fixed;
+        left: 16px;
+        top: 12px;
+        z-index: 20;
+        transform: translateY(-150%);
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 14px;
+        border-radius: 8px;
+        color: #fff;
+        background: var(--ink);
+        font-weight: 900;
+        text-decoration: none;
+        transition: transform .15s ease;
+      }
+
+      .skip-link:focus-visible {
+        transform: translateY(0);
+      }
+
       main {
         padding: 28px 0 64px;
       }
@@ -998,9 +1020,10 @@
     </style>
   </head>
   <body>
+    <a class="skip-link" href="#content">К содержанию</a>
     <header class="topbar">
       <div class="shell topbar-inner">
-        <a class="brand" href="#top" aria-label="Яна Единорог">
+        <a class="brand" href="#content" aria-label="Яна Единорог">
           <span class="mark" aria-hidden="true"></span>
           <span>Яна Единорог</span>
         </a>
@@ -1020,7 +1043,7 @@
       </div>
     </header>
 
-    <main id="top" class="shell">
+    <main id="content" class="shell">
       <section class="hero" aria-label="Главная">
         <div class="hero-copy">
           <span class="tag">Сайт игр и веб-разработок Яны</span>
