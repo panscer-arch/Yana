@@ -38,6 +38,14 @@ function htmlFiles() {
   return walk(root).filter((file) => file.endsWith(".html"));
 }
 
+function publishableIndexPages() {
+  return htmlFiles()
+    .filter((file) => path.basename(file) === "index.html")
+    .map((file) => path.dirname(relative(file)))
+    .map((dir) => (dir === "." ? "" : `${dir.replaceAll(path.sep, "/")}/`))
+    .sort();
+}
+
 function checkHtmlScripts(file, html) {
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
     .map((match) => match[1])
@@ -157,12 +165,20 @@ function checkSitemap() {
 
   const sitemap = read(sitemapPath);
   const urls = [...sitemap.matchAll(/<loc>https:\/\/panscer-arch\.github\.io\/Yana\/([^<]*)<\/loc>/g)]
-    .map((match) => match[1]);
+    .map((match) => match[1])
+    .sort();
+  const urlSet = new Set(urls);
 
   for (const url of urls) {
     const localPath = url ? path.join(root, url, "index.html") : path.join(root, "index.html");
     if (!fs.existsSync(localPath)) {
       errors.push(`sitemap.xml points to missing page /${url}`);
+    }
+  }
+
+  for (const page of publishableIndexPages()) {
+    if (!urlSet.has(page)) {
+      errors.push(`sitemap.xml is missing publishable page /${page}`);
     }
   }
 }
