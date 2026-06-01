@@ -1035,6 +1035,26 @@
         font-weight: 800;
       }
 
+      footer nav {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+
+      footer a {
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border-radius: 8px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, .72);
+        font-weight: 900;
+        text-decoration: none;
+      }
+
       @media (max-width: 860px) {
         .hero,
         .learn-grid {
@@ -1473,7 +1493,15 @@
     </main>
 
     <footer>
-      Сделано для Яны. Сайт можно развивать и пополнять новыми играми.
+      <p>Сделано для Яны. Сайт можно развивать и пополнять новыми играми.</p>
+      <nav aria-label="Быстрые ссылки в подвале">
+        <a href="#games">Игры</a>
+        <a href="school/index.html">Школа</a>
+        <a href="schedule/index.html">План</a>
+        <a href="projects/index.html">Проекты</a>
+        <a href="gallery/index.html">Галерея</a>
+        <a href="launch/index.html">Запуск</a>
+      </nav>
     </footer>
 
     <script>

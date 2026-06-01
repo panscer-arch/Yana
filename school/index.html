@@ -317,6 +317,25 @@
         font-weight: 900;
       }
 
+      footer nav {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+
+      footer a {
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border-radius: 8px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, .72);
+        text-decoration: none;
+      }
+
       @media (max-width: 860px) {
         .hero,
         .trainer-grid,
@@ -450,7 +469,14 @@
     </main>
 
     <footer>
-      Школьная комната готова для новых упражнений.
+      <p>Школьная комната готова для новых упражнений.</p>
+      <nav aria-label="Быстрые ссылки в подвале">
+        <a href="../index.html">Главная</a>
+        <a href="../index.html#learn">Математика</a>
+        <a href="../schedule/index.html">План</a>
+        <a href="../games/index.html">Игры</a>
+        <a href="../gallery/index.html">Галерея</a>
+      </nav>
     </footer>
 
     <script>
