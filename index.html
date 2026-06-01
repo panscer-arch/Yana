@@ -318,6 +318,62 @@
         pointer-events: none;
       }
 
+      .today-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) repeat(3, minmax(0, .7fr));
+        gap: 14px;
+        align-items: stretch;
+        margin: 20px 0 8px;
+      }
+
+      .today-card {
+        display: grid;
+        gap: 8px;
+        min-height: 118px;
+        padding: 16px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .94);
+        box-shadow: var(--shadow);
+      }
+
+      .today-card.primary {
+        background:
+          linear-gradient(135deg, rgba(255, 114, 173, .16), rgba(84, 184, 255, .14)),
+          rgba(255, 253, 247, .96);
+      }
+
+      .today-card span {
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 900;
+      }
+
+      .today-card strong {
+        font-size: clamp(22px, 3vw, 34px);
+        line-height: 1;
+      }
+
+      .today-card p {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.35;
+      }
+
+      .today-card a {
+        width: fit-content;
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border-radius: 8px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--violet), #6647d8);
+        font-size: 14px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+
       section {
         scroll-margin-top: 92px;
       }
@@ -952,7 +1008,12 @@
           min-height: 340px;
         }
 
+        .today-panel {
+          grid-template-columns: 1fr 1fr;
+        }
+
         .cards,
+        .today-panel,
         .ideas-box,
         .studio-grid,
         .launch-grid,
@@ -1068,6 +1129,33 @@
         <div class="hero-stage" aria-hidden="true">
           <img class="hero-art" src="assets/yana-unicorn-hero.png" alt="" width="1672" height="941" fetchpriority="high">
         </div>
+      </section>
+
+      <section class="today-panel" aria-label="Сегодня у Яны">
+        <article class="today-card primary">
+          <span>Сегодня</span>
+          <strong id="todayName">План дня</strong>
+          <p id="todayTask">Открой план недели и отметь выполненные дела.</p>
+          <a href="schedule/index.html">Открыть план</a>
+        </article>
+
+        <article class="today-card">
+          <span>Прогресс недели</span>
+          <strong id="weekDone">0 / 126</strong>
+          <p id="weekDoneText">Отметки сохраняются в браузере.</p>
+        </article>
+
+        <article class="today-card">
+          <span>Математика</span>
+          <strong id="mathToday">0 / 10</strong>
+          <p>Утренняя цель по примерам.</p>
+        </article>
+
+        <article class="today-card">
+          <span>Быстрый старт</span>
+          <strong>10:00</strong>
+          <p>Codex, веб-кодинг, создание игр.</p>
+        </article>
       </section>
 
       <section id="games" aria-labelledby="games-title">
@@ -1323,12 +1411,28 @@
       const saveJournal = document.querySelector("#saveJournal");
       const clearJournal = document.querySelector("#clearJournal");
       const journalStatus = document.querySelector("#journalStatus");
+      const todayName = document.querySelector("#todayName");
+      const todayTask = document.querySelector("#todayTask");
+      const weekDone = document.querySelector("#weekDone");
+      const weekDoneText = document.querySelector("#weekDoneText");
+      const mathToday = document.querySelector("#mathToday");
 
       let task = { a: 7, b: 5, op: "+", answer: 12 };
       let score = loadScore();
       let activeTable = 2;
       const dailyTarget = 10;
       const journalKey = "yana-project-journal";
+      const scheduleDoneKey = "yana-week-schedule-done";
+      const scheduleTasksPerDay = 18;
+      const scheduleDayTasks = [
+        ["Воскресенье", "проверить порядок в комнате и закончить всё недоделанное"],
+        ["Понедельник", "разобрать нижний ящик у стены"],
+        ["Вторник", "разобрать средние и верхние ящики у стены"],
+        ["Среда", "разобрать шкаф с одеждой"],
+        ["Четверг", "разобрать шкаф напротив кровати"],
+        ["Пятница", "разобрать верхние шкафы и шкафчик с трубами"],
+        ["Суббота", "составить список всех вещей в комнате"]
+      ];
 
       function todayKey() {
         return new Date().toISOString().slice(0, 10);
@@ -1363,6 +1467,28 @@
         } catch (error) {
           console.warn("Score was not saved", error);
         }
+      }
+
+      function loadScheduleDone() {
+        try {
+          return JSON.parse(localStorage.getItem(scheduleDoneKey)) || {};
+        } catch (error) {
+          console.warn("Schedule progress was not loaded", error);
+          return {};
+        }
+      }
+
+      function updateTodayPanel() {
+        const [day, roomTask] = scheduleDayTasks[new Date().getDay()];
+        const done = Object.keys(loadScheduleDone()).length;
+        const total = scheduleDayTasks.length * scheduleTasksPerDay;
+        todayName.textContent = day;
+        todayTask.textContent = `В 16:00 — ${roomTask}.`;
+        weekDone.textContent = `${done} / ${total}`;
+        weekDoneText.textContent = done
+          ? "Часть дел уже отмечена. Продолжаем спокойно."
+          : "Отметки сохраняются в браузере.";
+        mathToday.textContent = `${Math.min(score.right, dailyTarget)} / ${dailyTarget}`;
       }
 
       function randomInt(min, max) {
@@ -1450,6 +1576,7 @@
           achievement.textContent = "Награда появится после первой серии.";
         }
         saveScore();
+        updateTodayPanel();
       }
 
       function showHint() {
@@ -1570,6 +1697,7 @@
       loadJournal();
       makeTask();
       updateScore();
+      updateTodayPanel();
     </script>
   </body>
 </html>
