@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Быстрый старт — Яна Единорог</title>
-    <meta name="description" content="Быстрый старт по сайту Яна Единорог: что открыть первым, как играть, учиться, отмечать план и добавлять новые идеи.">
+    <title>Карта сайта — Яна Единорог</title>
+    <meta name="description" content="Карта сайта Яна Единорог: все игры, обучение, план недели, проекты, галерея, запуск, приватность и обновления в одном месте.">
     <meta name="theme-color" content="#ff72ad">
     <link rel="icon" type="image/png" href="../assets/yana-unicorn-logo.png">
     <style>
@@ -133,16 +133,15 @@
       }
 
       .hero {
-        min-height: 480px;
+        min-height: 420px;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr);
+        grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr);
         gap: 28px;
         align-items: center;
         padding: 42px 0 18px;
       }
 
-      .tag,
-      .step-number {
+      .tag {
         width: fit-content;
         min-height: 34px;
         display: inline-flex;
@@ -170,7 +169,7 @@
       }
 
       .lead {
-        max-width: 690px;
+        max-width: 680px;
         margin-top: 18px;
         color: var(--muted);
         font-size: 20px;
@@ -200,8 +199,7 @@
       }
 
       .hero-card,
-      .step-card,
-      .daily-card {
+      .map-card {
         border: 3px solid var(--line);
         border-radius: 8px;
         background: rgba(255, 253, 247, .94);
@@ -209,8 +207,7 @@
       }
 
       .hero-card,
-      .step-card,
-      .daily-card {
+      .map-card {
         display: grid;
         gap: 14px;
         padding: 18px;
@@ -241,35 +238,39 @@
 
       .section-title p,
       .hero-card p,
-      .step-card p,
-      .daily-card p,
-      .daily-card li {
+      .map-card p {
         color: var(--muted);
         font-weight: 800;
         line-height: 1.45;
       }
 
-      .steps-grid {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 16px;
-      }
-
-      .daily-grid {
+      .map-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 16px;
       }
 
-      .link-row {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
+      .map-links {
+        display: grid;
+        gap: 8px;
       }
 
-      ul {
-        margin: 0;
-        padding-left: 20px;
+      .map-links a {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        color: var(--ink);
+        background: #fff;
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .map-links a:hover,
+      .map-links a:focus-visible {
+        outline: 4px solid rgba(84, 184, 255, .42);
+        outline-offset: 2px;
       }
 
       footer {
@@ -298,10 +299,9 @@
         text-decoration: none;
       }
 
-      @media (max-width: 920px) {
+      @media (max-width: 900px) {
         .hero,
-        .steps-grid,
-        .daily-grid {
+        .map-grid {
           grid-template-columns: 1fr;
         }
 
@@ -331,117 +331,94 @@
         </a>
         <nav class="nav" aria-label="Навигация">
           <a href="../index.html">Главная</a>
+          <a href="../start/index.html">Старт</a>
           <a href="../games/index.html">Игры</a>
           <a href="../school/index.html">Школа</a>
           <a href="../schedule/index.html">План</a>
-          <a href="../projects/index.html">Проекты</a>
-          <a href="../gallery/index.html">Галерея</a>
-          <a href="../map/index.html">Карта</a>
-          <a href="../start/index.html" aria-current="page">Старт</a>
+          <a href="../map/index.html" aria-current="page">Карта</a>
         </nav>
       </div>
     </header>
 
     <main id="content" class="shell">
-      <section class="hero" aria-label="Быстрый старт">
+      <section class="hero" aria-label="Карта сайта">
         <div>
-          <span class="tag">Быстрый старт</span>
-          <h1>С чего начать сегодня</h1>
-          <p class="lead">Это короткая дорожка по сайту: открыть игру, решить математику, отметить план, записать новую идею и спокойно продолжить делать свои проекты.</p>
+          <span class="tag">Все разделы</span>
+          <h1>Карта сайта</h1>
+          <p class="lead">Одна страница для быстрого перехода ко всем играм, школьным заданиям, плану недели, проектам, запуску, приватности и обновлениям.</p>
           <div class="hero-actions">
-            <a class="button" href="#steps">Открыть маршрут</a>
-            <a class="button secondary" href="../games/cat-chase/index.html">Сразу играть</a>
+            <a class="button" href="#sections">Смотреть разделы</a>
+            <a class="button secondary" href="../start/index.html">Быстрый старт</a>
           </div>
         </div>
 
         <aside class="hero-card">
           <img src="../assets/yana-unicorn-logo.png" alt="">
-          <h2>Главное</h2>
-          <p>Не нужно каждый раз искать всё заново. Эта страница ведёт по сайту как маленькое меню дня.</p>
+          <h2>Зачем это нужно</h2>
+          <p>Когда сайт растёт, карта помогает не потеряться и быстро открыть нужное место без поисков по меню.</p>
         </aside>
       </section>
 
-      <section id="steps" aria-labelledby="steps-title">
+      <section id="sections" aria-labelledby="sections-title">
         <div class="section-title">
-          <h2 id="steps-title">Маршрут на день</h2>
-          <p>Четыре быстрых шага, чтобы сайт был полезен каждый день.</p>
+          <h2 id="sections-title">Разделы портала</h2>
+          <p>Все основные страницы собраны по смыслу.</p>
         </div>
 
-        <div class="steps-grid">
-          <article class="step-card">
-            <span class="step-number">1</span>
-            <h3>Поиграть</h3>
-            <p>Открой “Кошачью погоню” или витрину игр, если хочется посмотреть идеи новых игр.</p>
-            <div class="link-row">
-              <a class="mini-button" href="../games/cat-chase/index.html">Играть</a>
-              <a class="mini-button secondary" href="../games/index.html">Игры</a>
+        <div class="map-grid">
+          <article class="map-card">
+            <h3>Начать</h3>
+            <p>Главная и ежедневный маршрут по сайту.</p>
+            <div class="map-links">
+              <a href="../index.html">Главная</a>
+              <a href="../start/index.html">Быстрый старт</a>
             </div>
           </article>
 
-          <article class="step-card">
-            <span class="step-number">2</span>
-            <h3>Решить математику</h3>
-            <p>На главной можно выбрать действие, сложность, вид примера и набрать 10 правильных ответов.</p>
-            <div class="link-row">
-              <a class="mini-button" href="../index.html#learn">Математика</a>
+          <article class="map-card">
+            <h3>Играть</h3>
+            <p>Готовая игра и лаборатория новых игровых идей.</p>
+            <div class="map-links">
+              <a href="../games/index.html">Витрина игр</a>
+              <a href="../games/cat-chase/index.html">Кошачья погоня</a>
             </div>
           </article>
 
-          <article class="step-card">
-            <span class="step-number">3</span>
-            <h3>Отметить план</h3>
-            <p>В расписании есть чекбоксы. Можно отмечать дела по дням и потом распечатать неделю.</p>
-            <div class="link-row">
-              <a class="mini-button" href="../schedule/index.html">План</a>
+          <article class="map-card">
+            <h3>Учиться</h3>
+            <p>Математика, школьная комната и ежедневная цель.</p>
+            <div class="map-links">
+              <a href="../index.html#learn">Математика</a>
+              <a href="../school/index.html">Школа</a>
             </div>
           </article>
 
-          <article class="step-card">
-            <span class="step-number">4</span>
-            <h3>Записать идею</h3>
-            <p>В дневнике на главной можно оставить идею новой игры, проекта, карты или школьного тренажёра.</p>
-            <div class="link-row">
-              <a class="mini-button" href="../index.html#journal">Дневник</a>
+          <article class="map-card">
+            <h3>Планировать</h3>
+            <p>Расписание, чекбоксы и дневник идей.</p>
+            <div class="map-links">
+              <a href="../schedule/index.html">План недели</a>
+              <a href="../index.html#journal">Дневник Яны</a>
             </div>
           </article>
-        </div>
-      </section>
 
-      <section aria-labelledby="daily-title">
-        <div class="section-title">
-          <h2 id="daily-title">Что делать дальше</h2>
-          <p>Три спокойных направления, чтобы сайт продолжал расти.</p>
-        </div>
-
-        <div class="daily-grid">
-          <article class="daily-card">
-            <h3>Для игр</h3>
-            <ul>
-              <li>Придумать новую карту.</li>
-              <li>Добавить новый скин.</li>
-              <li>Записать идею в дневник.</li>
-            </ul>
+          <article class="map-card">
+            <h3>Создавать</h3>
+            <p>Веб-проекты, галерея работ и новые задумки.</p>
+            <div class="map-links">
+              <a href="../projects/index.html">Проекты</a>
+              <a href="../gallery/index.html">Галерея</a>
+            </div>
           </article>
 
-          <article class="daily-card">
-            <h3>Для школы</h3>
-            <ul>
-              <li>Решить 10 примеров.</li>
-              <li>Повторить таблицу умножения.</li>
-              <li>Открыть школьную комнату.</li>
-            </ul>
-          </article>
-
-          <article class="daily-card">
-            <h3>Для публикации</h3>
-            <ul>
-              <li>Проверить страницу обновлений.</li>
-              <li>Посмотреть план запуска.</li>
-              <li>Показать сайт родителям.</li>
-            </ul>
-            <div class="link-row">
-              <a class="mini-button" href="../updates/index.html">Обновления</a>
-              <a class="mini-button secondary" href="../parents/index.html">Родителям</a>
+          <article class="map-card">
+            <h3>Запускать</h3>
+            <p>Публикация, безопасность и история развития сайта.</p>
+            <div class="map-links">
+              <a href="../launch/index.html">Запуск сайта</a>
+              <a href="../privacy/index.html">Приватность</a>
+              <a href="../parents/index.html">Родителям</a>
+              <a href="../updates/index.html">Обновления</a>
             </div>
           </article>
         </div>
@@ -449,15 +426,13 @@
     </main>
 
     <footer>
-      <p>Быстрый старт помогает Яне сразу понять, куда нажимать дальше.</p>
+      <p>Карта сайта помогает быстро открыть любой раздел портала.</p>
       <nav aria-label="Быстрые ссылки в подвале">
         <a href="../index.html">Главная</a>
+        <a href="../start/index.html">Старт</a>
         <a href="../games/index.html">Игры</a>
         <a href="../school/index.html">Школа</a>
         <a href="../schedule/index.html">План</a>
-        <a href="../projects/index.html">Проекты</a>
-        <a href="../gallery/index.html">Галерея</a>
-        <a href="../map/index.html">Карта</a>
         <a href="../updates/index.html">Обновления</a>
         <a href="../parents/index.html">Родителям</a>
       </nav>
