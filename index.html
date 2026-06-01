@@ -472,6 +472,30 @@
           repeating-linear-gradient(45deg, rgba(255, 255, 255, .45) 0 14px, transparent 14px 28px);
       }
 
+      .game-art.parkour-art {
+        background:
+          radial-gradient(circle at 22% 68%, #ffe16a 0 12%, transparent 13%),
+          linear-gradient(135deg, transparent 0 46%, rgba(255, 225, 106, .78) 47% 52%, transparent 53%),
+          repeating-linear-gradient(115deg, rgba(255, 255, 255, .24) 0 10px, transparent 10px 22px),
+          linear-gradient(145deg, #211733, #4c2b69 48%, #15111c);
+      }
+
+      .game-art.kolobok-art {
+        background:
+          radial-gradient(circle at 44% 58%, #f2b35f 0 18%, transparent 19%),
+          radial-gradient(circle at 49% 53%, #4b2814 0 2%, transparent 3%),
+          radial-gradient(circle at 39% 52%, #4b2814 0 2%, transparent 3%),
+          linear-gradient(180deg, #18231c 0 56%, #3e2b1f 56% 100%);
+      }
+
+      .game-art.snake-art {
+        background:
+          radial-gradient(circle at 72% 32%, #ffd166 0 4%, transparent 5%),
+          radial-gradient(circle at 28% 68%, #41e8b7 0 5%, transparent 6%),
+          radial-gradient(circle at 64% 72%, #ff5f7e 0 5%, transparent 6%),
+          conic-gradient(from 180deg at 54% 50%, #41e8b7, #63b3ed, #b794f4, #41e8b7);
+      }
+
       .card h3 {
         font-size: 23px;
       }
@@ -1248,6 +1272,39 @@
           </article>
 
           <article class="card">
+            <div class="game-art parkour-art" aria-hidden="true"></div>
+            <span class="status ready">Готовая игра</span>
+            <h3>Искорка: Паркур</h3>
+            <p>Пять уровней с прыжками, рывком, лавой, верёвками и ледяным финишем.</p>
+            <div class="card-actions">
+              <a class="mini-button" href="games/parkour/index.html">Играть</a>
+              <span class="path-label">games/parkour</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="game-art kolobok-art" aria-hidden="true"></div>
+            <span class="status ready">Готовая игра</span>
+            <h3>Колобок: Темная Тропа</h3>
+            <p>Колобок собирает хлебные крошки в ночном лесу и ищет теплую печь.</p>
+            <div class="card-actions">
+              <a class="mini-button" href="games/kolobok/index.html">Играть</a>
+              <span class="path-label">games/kolobok</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="game-art snake-art" aria-hidden="true"></div>
+            <span class="status ready">Готовая игра</span>
+            <h3>Snake Clash</h3>
+            <p>Большая арена со змейками: собирай точки, расти и обгоняй соперников.</p>
+            <div class="card-actions">
+              <a class="mini-button" href="games/snake-clash/index.html">Играть</a>
+              <span class="path-label">games/snake-clash</span>
+            </div>
+          </article>
+
+          <article class="card">
             <div class="game-art unicorn-art" aria-hidden="true"></div>
             <span class="status idea-status">Игровая лаборатория</span>
             <h3>Новые игры</h3>
@@ -1438,6 +1495,9 @@
             <p>Готовая игра, лаборатория идей, будущие карты и скины.</p>
             <a href="games/index.html">Игры</a>
             <a href="games/cat-chase/index.html">Кошачья погоня</a>
+            <a href="games/parkour/index.html">Искорка: Паркур</a>
+            <a href="games/kolobok/index.html">Колобок</a>
+            <a href="games/snake-clash/index.html">Snake Clash</a>
           </article>
 
           <article class="site-map-card">

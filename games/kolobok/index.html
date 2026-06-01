@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Игра Колобок: темная тропа, где нужно собрать хлебные крошки и найти печь.">
+    <meta name="theme-color" content="#07090b">
+    <title>Колобок: Темная Тропа</title>
+    <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header class="portal-bar">
+      <a class="brand" href="../../index.html">Яна Единорог</a>
+      <nav aria-label="Навигация игры">
+        <a href="../index.html">Игры</a>
+        <a href="../../school/index.html">Учёба</a>
+        <a href="../../map/index.html">Карта</a>
+      </nav>
+    </header>
+
+    <main id="content" class="game-shell">
+      <section class="game-panel" aria-label="Колобок: Темная Тропа">
+        <div class="hud">
+          <div>
+            <span class="hud-label">Крошки</span>
+            <strong id="crumbs">0 / 9</strong>
+          </div>
+          <div>
+            <span class="hud-label">Страх</span>
+            <strong id="fear">0%</strong>
+          </div>
+          <div>
+            <span class="hud-label">Ночь</span>
+            <strong id="time">00:00</strong>
+          </div>
+        </div>
+
+        <canvas id="game" width="960" height="640"></canvas>
+
+        <div class="touch-controls" aria-label="Управление">
+          <button data-dir="up" aria-label="Вверх">▲</button>
+          <button data-dir="left" aria-label="Влево">◀</button>
+          <button data-dir="down" aria-label="Вниз">▼</button>
+          <button data-dir="right" aria-label="Вправо">▶</button>
+        </div>
+
+        <div class="overlay" id="overlay">
+          <h1>Колобок: Темная Тропа</h1>
+          <p>
+            Бабушка оставила окно открытым. Лес поет старую песню наоборот.
+            Собери 9 хлебных крошек и найди печь до рассвета.
+          </p>
+          <button id="start">Катиться</button>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <h2>Правила</h2>
+        <p>Двигайся клавишами WASD или стрелками. На телефоне используй кнопки.</p>
+        <p>Светлячки-крошки снижают страх. Тени, лиса и шепот поднимают его.</p>
+        <p>Когда соберешь все крошки, появится теплая печь. Доберись до нее.</p>
+      </aside>
+    </main>
+
+    <footer class="portal-footer">
+      <nav aria-label="Быстрые ссылки">
+        <a href="../../index.html">Главная</a>
+        <a href="../index.html">Все игры</a>
+        <a href="../parkour/index.html">Паркур</a>
+        <a href="../snake-clash/index.html">Snake Clash</a>
+      </nav>
+    </footer>
+
+    <script src="game.js"></script>
+    <script src="../../assets/site.js"></script>
+  </body>
+</html>

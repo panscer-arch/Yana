@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Snake Clash: арена со змейками, светящимися точками и ботами-соперниками.">
+    <meta name="theme-color" content="#080b10">
+    <title>Snake Clash</title>
+    <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        --bg: #080b10;
+        --panel: rgba(13, 18, 27, 0.82);
+        --line: rgba(255, 255, 255, 0.12);
+        --text: #f4f7fb;
+        --muted: #9da8b7;
+        --accent: #41e8b7;
+        --danger: #ff5f7e;
+        --gold: #ffd166;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        overflow: hidden;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--text);
+        background: var(--bg);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .skip-link {
+        position: fixed;
+        left: 14px;
+        top: 10px;
+        z-index: 30;
+        padding: 10px 14px;
+        border-radius: 8px;
+        color: #04110d;
+        background: var(--accent);
+        font-weight: 900;
+        transform: translateY(-140%);
+        transition: transform 160ms ease;
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .portal-bar {
+        position: fixed;
+        z-index: 15;
+        inset: 16px 16px auto auto;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(13, 18, 27, 0.72);
+        backdrop-filter: blur(14px);
+      }
+
+      .brand,
+      .portal-bar nav a,
+      .portal-footer a {
+        min-height: 32px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 850;
+      }
+
+      .brand {
+        color: #04110d;
+        background: var(--accent);
+      }
+
+      .portal-bar nav {
+        display: flex;
+        gap: 8px;
+      }
+
+      .portal-bar nav a,
+      .portal-footer a {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .portal-footer {
+        position: fixed;
+        left: -999px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+
+      canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        cursor: crosshair;
+      }
+
+      .hud {
+        position: fixed;
+        inset: 16px auto auto 16px;
+        display: grid;
+        gap: 10px;
+        width: min(330px, calc(100vw - 32px));
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+        pointer-events: none;
+      }
+
+      h1,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 22px;
+        letter-spacing: 0;
+      }
+
+      .hint {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .stat {
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.045);
+      }
+
+      .stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .stat strong {
+        display: block;
+        margin-top: 2px;
+        font-size: 20px;
+      }
+
+      .leaderboard {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .leaderboard div {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .leaderboard strong {
+        color: var(--text);
+      }
+
+      .overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        place-items: center;
+        padding: 20px;
+        background: rgba(3, 5, 9, 0.66);
+      }
+
+      .overlay.show {
+        display: grid;
+      }
+
+      .modal {
+        width: min(520px, 100%);
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(13, 18, 27, 0.95);
+        box-shadow: 0 24px 90px rgba(0, 0, 0, 0.46);
+      }
+
+      .modal h2 {
+        margin: 0 0 8px;
+        font-size: 28px;
+        letter-spacing: 0;
+      }
+
+      .modal p {
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      button {
+        width: 100%;
+        min-height: 44px;
+        margin-top: 18px;
+        border: 1px solid rgba(65, 232, 183, 0.45);
+        border-radius: 8px;
+        color: #04110d;
+        background: var(--accent);
+        font: inherit;
+        font-weight: 850;
+        cursor: pointer;
+      }
+
+      @media (max-width: 650px) {
+        .hud {
+          inset: 70px 10px auto 10px;
+          width: auto;
+        }
+
+        .portal-bar {
+          inset: 10px 10px auto 10px;
+          justify-content: space-between;
+        }
+
+        .portal-bar nav a:not(:first-child) {
+          display: none;
+        }
+
+        .hint {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header class="portal-bar">
+      <a class="brand" href="../../index.html">Яна Единорог</a>
+      <nav aria-label="Навигация игры">
+        <a href="../index.html">Игры</a>
+        <a href="../../school/index.html">Учёба</a>
+        <a href="../../map/index.html">Карта</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <canvas id="arena"></canvas>
+
+      <section class="hud" aria-label="Информация">
+        <div>
+          <h1>Snake Clash</h1>
+          <p class="hint">Веди змейку мышкой или пальцем. Собирай точки, ешь меньших, избегай больших.</p>
+        </div>
+        <div class="stats">
+          <div class="stat"><span>Длина</span><strong id="length">0</strong></div>
+          <div class="stat"><span>Съедено</span><strong id="kills">0</strong></div>
+          <div class="stat"><span>Место</span><strong id="rank">0</strong></div>
+        </div>
+        <div class="leaderboard" id="leaderboard"></div>
+      </section>
+
+      <div class="overlay show" id="overlay">
+        <div class="modal">
+          <h2 id="modalTitle">Snake Clash</h2>
+          <p id="modalText">Собирай светящиеся точки. Если твоя змейка длиннее другой, ты можешь её съесть. Если другая длиннее тебя, держись подальше.</p>
+          <button id="playButton" type="button">Играть</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="portal-footer">
+      <nav aria-label="Быстрые ссылки">
+        <a href="../../index.html">Главная</a>
+        <a href="../index.html">Все игры</a>
+        <a href="../kolobok/index.html">Колобок</a>
+        <a href="../parkour/index.html">Паркур</a>
+      </nav>
+    </footer>
+
+    <script>
+      const canvas = document.querySelector("#arena");
+      const ctx = canvas.getContext("2d");
+      const lengthEl = document.querySelector("#length");
+      const killsEl = document.querySelector("#kills");
+      const rankEl = document.querySelector("#rank");
+      const leaderboardEl = document.querySelector("#leaderboard");
+      const overlay = document.querySelector("#overlay");
+      const modalTitle = document.querySelector("#modalTitle");
+      const modalText = document.querySelector("#modalText");
+      const playButton = document.querySelector("#playButton");
+
+      const world = { width: 3200, height: 2200 };
+      const names = ["Vortex", "Nova", "Byte", "Razor", "Pulse", "Echo", "Ghost", "Titan", "Neon", "Orbit"];
+      const snakeColors = ["#41e8b7", "#ff5f7e", "#63b3ed", "#ffd166", "#b794f4", "#f687b3", "#9ae6b4", "#f6ad55"];
+      const foodColors = ["#41e8b7", "#63b3ed", "#ffd166", "#ff5f7e", "#b794f4"];
+
+      let width = 0;
+      let height = 0;
+      let scale = 1;
+      let running = false;
+      let gameOver = false;
+      let lastTime = 0;
+      let camera = { x: 0, y: 0 };
+      let pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2, active: false };
+      let snakes = [];
+      let foods = [];
+      let bursts = [];
+      let player = null;
+
+      function resize() {
+        scale = window.devicePixelRatio || 1;
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = Math.floor(width * scale);
+        canvas.height = Math.floor(height * scale);
+        ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      }
+
+      function rand(min, max) {
+        return min + Math.random() * (max - min);
+      }
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function distance(a, b) {
+        return Math.hypot(a.x - b.x, a.y - b.y);
+      }
+
+      function makeSnake(name, isPlayer) {
+        const start = {
+          x: rand(260, world.width - 260),
+          y: rand(260, world.height - 260)
+        };
+        const length = isPlayer ? 18 : Math.floor(rand(10, 42));
+        const snake = {
+          id: crypto.randomUUID(),
+          name,
+          isPlayer,
+          color: isPlayer ? "#41e8b7" : snakeColors[Math.floor(Math.random() * snakeColors.length)],
+          x: start.x,
+          y: start.y,
+          angle: rand(0, Math.PI * 2),
+          targetAngle: rand(0, Math.PI * 2),
+          speed: isPlayer ? 190 : rand(120, 175),
+          radius: isPlayer ? 12 : rand(10, 14),
+          length,
+          kills: 0,
+          alive: true,
+          points: []
+        };
+
+        for (let i = 0; i < length; i += 1) {
+          snake.points.push({ x: start.x - i * 10, y: start.y });
+        }
+        return snake;
+      }
+
+      function makeFood(x = rand(30, world.width - 30), y = rand(30, world.height - 30), value = 1) {
+        return {
+          x,
+          y,
+          value,
+          radius: 4 + value * 1.6,
+          color: foodColors[Math.floor(Math.random() * foodColors.length)],
+          pulse: rand(0, Math.PI * 2)
+        };
+      }
+
+      function resetGame() {
+        player = makeSnake("Ты", true);
+        snakes = [player];
+        for (let i = 0; i < 9; i += 1) {
+          snakes.push(makeSnake(names[i], false));
+        }
+        foods = [];
+        bursts = [];
+        for (let i = 0; i < 260; i += 1) {
+          foods.push(makeFood());
+        }
+        running = true;
+        gameOver = false;
+        overlay.classList.remove("show");
+      }
+
+      function screenToWorld(point) {
+        return {
+          x: camera.x + point.x - width / 2,
+          y: camera.y + point.y - height / 2
+        };
+      }
+
+      function setPointer(event) {
+        const touch = event.touches ? event.touches[0] : event;
+        pointer = { x: touch.clientX, y: touch.clientY, active: true };
+      }
+
+      function angleLerp(current, target, amount) {
+        let diff = ((target - current + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+        return current + diff * amount;
+      }
+
+      function growSnake(snake, amount) {
+        snake.length += amount;
+        const tail = snake.points[snake.points.length - 1] || { x: snake.x, y: snake.y };
+        for (let i = 0; i < amount; i += 1) {
+          snake.points.push({ x: tail.x, y: tail.y });
+        }
+      }
+
+      function updateSnakeShape(snake) {
+        snake.points.unshift({ x: snake.x, y: snake.y });
+        const targetPoints = Math.max(8, Math.floor(snake.length));
+        while (snake.points.length > targetPoints) {
+          snake.points.pop();
+        }
+      }
+
+      function botTarget(snake) {
+        const smallerEnemies = snakes.filter((other) => other.alive && other !== snake && snake.length > other.length + 6);
+        const biggerEnemies = snakes.filter((other) => other.alive && other !== snake && other.length > snake.length + 4);
+        const scary = biggerEnemies.find((other) => distance(snake, other) < 220);
+
+        if (scary) {
+          return Math.atan2(snake.y - scary.y, snake.x - scary.x);
+        }
+
+        const prey = smallerEnemies
+          .map((other) => ({ other, dist: distance(snake, other) }))
+          .sort((a, b) => a.dist - b.dist)[0];
+
+        if (prey && prey.dist < 340) {
+          return Math.atan2(prey.other.y - snake.y, prey.other.x - snake.x);
+        }
+
+        const nearestFood = foods
+          .map((food) => ({ food, dist: distance(snake, food) }))
+          .sort((a, b) => a.dist - b.dist)[0];
+
+        if (nearestFood) {
+          return Math.atan2(nearestFood.food.y - snake.y, nearestFood.food.x - snake.x);
+        }
+
+        return snake.targetAngle;
+      }
+
+      function moveSnake(snake, delta) {
+        if (snake.isPlayer) {
+          const target = screenToWorld(pointer);
+          snake.targetAngle = Math.atan2(target.y - snake.y, target.x - snake.x);
+        } else {
+          snake.targetAngle = botTarget(snake);
+        }
+
+        snake.angle = angleLerp(snake.angle, snake.targetAngle, snake.isPlayer ? 0.16 : 0.06);
+        const speedBoost = snake.isPlayer && pointer.active ? 1.08 : 1;
+        const speed = (snake.speed + Math.min(90, snake.length * 1.4)) * speedBoost;
+        snake.x += Math.cos(snake.angle) * speed * delta;
+        snake.y += Math.sin(snake.angle) * speed * delta;
+        snake.x = clamp(snake.x, 20, world.width - 20);
+        snake.y = clamp(snake.y, 20, world.height - 20);
+        updateSnakeShape(snake);
+      }
+
+      function eatFood(snake) {
+        for (let i = foods.length - 1; i >= 0; i -= 1) {
+          const food = foods[i];
+          if (Math.hypot(snake.x - food.x, snake.y - food.y) < snake.radius + food.radius + 3) {
+            growSnake(snake, food.value);
+            foods.splice(i, 1);
+            foods.push(makeFood());
+          }
+        }
+      }
+
+      function burstSnake(victim) {
+        const pieces = Math.min(36, Math.floor(victim.length / 2));
+        for (let i = 0; i < pieces; i += 1) {
+          const point = victim.points[Math.floor(rand(0, victim.points.length))] || victim;
+          const value = Math.random() > 0.8 ? 3 : 1;
+          foods.push(makeFood(point.x + rand(-30, 30), point.y + rand(-30, 30), value));
+          bursts.push({
+            x: point.x,
+            y: point.y,
+            vx: rand(-90, 90),
+            vy: rand(-90, 90),
+            life: rand(0.25, 0.7),
+            color: victim.color
+          });
+        }
+      }
+
+      function respawnBot(dead) {
+        setTimeout(() => {
+          if (!gameOver) snakes.push(makeSnake(dead.name, false));
+        }, 1000);
+      }
+
+      function snakeCombat() {
+        for (let i = snakes.length - 1; i >= 0; i -= 1) {
+          const a = snakes[i];
+          if (!a.alive) continue;
+
+          for (let j = snakes.length - 1; j >= 0; j -= 1) {
+            const b = snakes[j];
+            if (!b.alive || a === b) continue;
+            if (distance(a, b) > a.radius + b.radius + 14) continue;
+
+            if (a.length >= b.length + 4) {
+              a.kills += 1;
+              growSnake(a, Math.max(4, Math.floor(b.length * 0.35)));
+              burstSnake(b);
+              b.alive = false;
+              snakes.splice(j, 1);
+              if (b.isPlayer) endGame(`Тебя съел ${a.name}`);
+              else respawnBot(b);
+              break;
+            }
+
+            if (b.length >= a.length + 4) {
+              b.kills += 1;
+              growSnake(b, Math.max(4, Math.floor(a.length * 0.35)));
+              burstSnake(a);
+              a.alive = false;
+              snakes.splice(i, 1);
+              if (a.isPlayer) endGame(`Тебя съел ${b.name}`);
+              else respawnBot(a);
+              break;
+            }
+          }
+        }
+      }
+
+      function endGame(reason) {
+        gameOver = true;
+        running = false;
+        modalTitle.textContent = "Раунд окончен";
+        modalText.textContent = `${reason}. Твоя длина: ${Math.floor(player.length)}. Съедено змей: ${player.kills}.`;
+        playButton.textContent = "Играть ещё";
+        overlay.classList.add("show");
+      }
+
+      function updateCamera(delta) {
+        if (!player) return;
+        camera.x += (player.x - camera.x) * Math.min(1, delta * 7);
+        camera.y += (player.y - camera.y) * Math.min(1, delta * 7);
+      }
+
+      function drawGrid() {
+        ctx.fillStyle = "#080b10";
+        ctx.fillRect(0, 0, width, height);
+
+        const left = camera.x - width / 2;
+        const top = camera.y - height / 2;
+        const grid = 80;
+        ctx.strokeStyle = "rgba(255,255,255,0.045)";
+        ctx.lineWidth = 1;
+
+        for (let x = -left % grid; x < width; x += grid) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+          ctx.stroke();
+        }
+
+        for (let y = -top % grid; y < height; y += grid) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = "rgba(255,95,126,0.35)";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(-left, -top, world.width, world.height);
+      }
+
+      function worldToScreen(point) {
+        return {
+          x: point.x - camera.x + width / 2,
+          y: point.y - camera.y + height / 2
+        };
+      }
+
+      function drawFood(time) {
+        foods.forEach((food) => {
+          const p = worldToScreen(food);
+          if (p.x < -40 || p.x > width + 40 || p.y < -40 || p.y > height + 40) return;
+          const pulse = Math.sin(time / 250 + food.pulse) * 1.5;
+          ctx.save();
+          ctx.shadowColor = food.color;
+          ctx.shadowBlur = 14;
+          ctx.fillStyle = food.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, food.radius + pulse, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+      }
+
+      function drawSnake(snake) {
+        if (snake.points.length < 2) return;
+
+        ctx.save();
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = snake.color;
+        ctx.shadowColor = snake.color;
+        ctx.shadowBlur = snake.isPlayer ? 18 : 10;
+        ctx.lineWidth = snake.radius * 2;
+        ctx.beginPath();
+        snake.points.forEach((point, index) => {
+          const p = worldToScreen(point);
+          if (index === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        });
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = "rgba(255,255,255,0.28)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+
+        const head = worldToScreen(snake);
+        const eyeOffset = snake.radius * 0.45;
+        const side = snake.angle + Math.PI / 2;
+        ctx.fillStyle = "#071018";
+        ctx.beginPath();
+        ctx.arc(head.x + Math.cos(side) * eyeOffset + Math.cos(snake.angle) * 6, head.y + Math.sin(side) * eyeOffset + Math.sin(snake.angle) * 6, 3, 0, Math.PI * 2);
+        ctx.arc(head.x - Math.cos(side) * eyeOffset + Math.cos(snake.angle) * 6, head.y - Math.sin(side) * eyeOffset + Math.sin(snake.angle) * 6, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = snake.isPlayer ? "#ffffff" : "rgba(255,255,255,0.72)";
+        ctx.font = "700 12px Inter, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`${snake.name} ${Math.floor(snake.length)}`, head.x, head.y - snake.radius - 14);
+      }
+
+      function drawBursts(delta) {
+        bursts = bursts.filter((burst) => burst.life > 0);
+        bursts.forEach((burst) => {
+          burst.life -= delta;
+          burst.x += burst.vx * delta;
+          burst.y += burst.vy * delta;
+          const p = worldToScreen(burst);
+          ctx.globalAlpha = Math.max(0, burst.life);
+          ctx.fillStyle = burst.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        });
+      }
+
+      function renderHud() {
+        if (!player) return;
+        const sorted = [...snakes].sort((a, b) => b.length - a.length);
+        const rank = sorted.findIndex((snake) => snake.isPlayer) + 1;
+        lengthEl.textContent = Math.floor(player.length);
+        killsEl.textContent = player.kills;
+        rankEl.textContent = rank || "-";
+        leaderboardEl.innerHTML = sorted.slice(0, 5).map((snake, index) => `
+          <div><span>${index + 1}. ${snake.name}</span><strong>${Math.floor(snake.length)}</strong></div>
+        `).join("");
+      }
+
+      function tick(time) {
+        const delta = Math.min(0.033, (time - lastTime) / 1000 || 0);
+        lastTime = time;
+
+        if (running) {
+          snakes.forEach((snake) => moveSnake(snake, delta));
+          snakes.forEach(eatFood);
+          snakeCombat();
+          updateCamera(delta);
+          renderHud();
+        }
+
+        drawGrid();
+        drawFood(time);
+        snakes.slice().sort((a, b) => a.length - b.length).forEach(drawSnake);
+        drawBursts(delta);
+        requestAnimationFrame(tick);
+      }
+
+      window.addEventListener("resize", resize);
+      window.addEventListener("mousemove", setPointer);
+      window.addEventListener("touchstart", setPointer, { passive: true });
+      window.addEventListener("touchmove", setPointer, { passive: true });
+      playButton.addEventListener("click", resetGame);
+
+      resize();
+      camera = { x: world.width / 2, y: world.height / 2 };
+      requestAnimationFrame(tick);
+    </script>
+    <script src="../../assets/site.js"></script>
+  </body>
+</html>
