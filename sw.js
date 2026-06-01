@@ -10,6 +10,7 @@ const CACHE_PATHS = [
   "./projects/index.html",
   "./gallery/index.html",
   "./map/index.html",
+  "./install/index.html",
   "./launch/index.html",
   "./privacy/index.html",
   "./parents/index.html",

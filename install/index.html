@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Запуск сайта Яна Единорог</title>
-    <meta name="description" content="План запуска сайта Яна Единорог на GitHub Pages и домене.">
+    <title>Установка — Яна Единорог</title>
+    <meta name="description" content="Как установить сайт Яна Единорог как приложение и пользоваться основными страницами после загрузки.">
     <meta name="theme-color" content="#ff72ad">
     <link rel="icon" type="image/png" href="../assets/yana-unicorn-logo.png">
     <style>
@@ -104,7 +104,8 @@
       }
 
       .nav a:hover,
-      .nav a:focus-visible {
+      .nav a:focus-visible,
+      .nav a[aria-current="page"] {
         border-color: var(--line);
         background: #fff;
       }
@@ -132,9 +133,9 @@
       }
 
       .hero {
-        min-height: 500px;
+        min-height: 440px;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(320px, .82fr);
+        grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr);
         gap: 28px;
         align-items: center;
         padding: 42px 0 18px;
@@ -169,7 +170,7 @@
       }
 
       .lead {
-        max-width: 650px;
+        max-width: 680px;
         margin-top: 18px;
         color: var(--muted);
         font-size: 20px;
@@ -199,8 +200,8 @@
       }
 
       .hero-card,
-      .launch-card,
-      .panel {
+      .install-card,
+      .offline-card {
         border: 3px solid var(--line);
         border-radius: 8px;
         background: rgba(255, 253, 247, .94);
@@ -208,8 +209,8 @@
       }
 
       .hero-card,
-      .launch-card,
-      .panel {
+      .install-card,
+      .offline-card {
         display: grid;
         gap: 14px;
         padding: 18px;
@@ -240,39 +241,32 @@
 
       .section-title p,
       .hero-card p,
-      .launch-card p,
-      .panel p,
-      .panel li {
+      .install-card p,
+      .offline-card p,
+      .install-card li,
+      .offline-card li {
         color: var(--muted);
         font-weight: 800;
         line-height: 1.45;
       }
 
-      .launch-grid,
-      .panel-grid {
+      .install-grid,
+      .offline-grid {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 16px;
       }
 
-      .status.done {
-        color: #0d6b49;
-        background: rgba(66, 201, 149, .2);
-      }
-
-      .status.wait {
-        color: #7b4d00;
-        background: rgba(255, 212, 92, .32);
-      }
-
-      ol {
+      ol,
+      ul {
         margin: 0;
         padding-left: 20px;
       }
 
-      code {
-        font-family: "Courier New", monospace;
-        font-weight: 900;
+      .link-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
       }
 
       footer {
@@ -303,8 +297,8 @@
 
       @media (max-width: 860px) {
         .hero,
-        .launch-grid,
-        .panel-grid {
+        .install-grid,
+        .offline-grid {
           grid-template-columns: 1fr;
         }
 
@@ -334,103 +328,103 @@
         </a>
         <nav class="nav" aria-label="Навигация">
           <a href="../index.html">Главная</a>
+          <a href="../start/index.html">Старт</a>
           <a href="../games/index.html">Игры</a>
-          <a href="../school/index.html">Школа</a>
-          <a href="../schedule/index.html">План</a>
-          <a href="../gallery/index.html">Галерея</a>
-          <a href="../privacy/index.html">Приватность</a>
-          <a href="../parents/index.html">Родителям</a>
-          <a href="../install/index.html">Установка</a>
-          <a href="../updates/index.html">Обновления</a>
+          <a href="../map/index.html">Карта</a>
+          <a href="../launch/index.html">Запуск</a>
+          <a href="../install/index.html" aria-current="page">Установка</a>
         </nav>
       </div>
     </header>
 
     <main id="content" class="shell">
-      <section class="hero" aria-label="Запуск сайта">
+      <section class="hero" aria-label="Установка сайта">
         <div>
-          <span class="tag">План запуска</span>
-          <h1>Сайт готовится к публикации</h1>
-          <p class="lead">Локальная версия уже собрана как портал. Осталось отправить актуальную ветку в GitHub, включить GitHub Pages и, когда будет адрес домена, подключить его.</p>
+          <span class="tag">Сайт как приложение</span>
+          <h1>Как установить сайт</h1>
+          <p class="lead">Сайт подготовлен как маленькое веб-приложение: его можно открыть на телефоне или компьютере, добавить на главный экран и быстрее возвращаться к играм, школе и плану.</p>
           <div class="hero-actions">
-            <a class="button" href="https://github.com/panscer-arch/Yana/tree/games-publish" target="_blank" rel="noreferrer">Открыть GitHub</a>
-            <a class="button secondary" href="../index.html#publish">Раздел публикации</a>
-            <a class="button secondary" href="../parents/index.html">Для родителей</a>
-            <a class="button secondary" href="../install/index.html">Установка</a>
-            <a class="button secondary" href="../updates/index.html">Что нового</a>
+            <a class="button" href="#how">Инструкция</a>
+            <a class="button secondary" href="../start/index.html">Открыть старт</a>
           </div>
         </div>
 
         <aside class="hero-card">
           <img src="../assets/yana-unicorn-logo.png" alt="">
-          <h2>Текущий статус</h2>
-          <p>Файлы сайта, manifest, sitemap, robots.txt, 404 и .nojekyll подготовлены. Терминалу нужна авторизация GitHub для отправки коммитов.</p>
+          <h2>Что уже готово</h2>
+          <p>Есть manifest, иконка, service worker и кэш основных страниц. После первого открытия сайт быстрее загружает главные разделы.</p>
         </aside>
       </section>
 
-      <section aria-labelledby="checklist-title">
+      <section id="how" aria-labelledby="how-title">
         <div class="section-title">
-          <h2 id="checklist-title">Чеклист запуска</h2>
-          <p>Что уже готово и что осталось сделать перед доменом.</p>
+          <h2 id="how-title">Как добавить на экран</h2>
+          <p>Короткие шаги для разных устройств.</p>
         </div>
 
-        <div class="launch-grid">
-          <article class="launch-card">
-            <span class="status done">Готово локально</span>
-            <h3>Сайт собран</h3>
-            <p>Главная, игры, школа, проекты, галерея, дневник, 404, sitemap и manifest находятся в одной структуре.</p>
+        <div class="install-grid">
+          <article class="install-card">
+            <span class="status">Телефон или планшет</span>
+            <h3>Через браузер</h3>
+            <ol>
+              <li>Открой сайт в браузере.</li>
+              <li>Нажми кнопку “Поделиться” или меню браузера.</li>
+              <li>Выбери “На экран Домой” или “Установить приложение”.</li>
+              <li>Открой сайт с новой иконки “Яна”.</li>
+            </ol>
           </article>
 
-          <article class="launch-card">
-            <span class="status wait">Нужен вход</span>
-            <h3>Отправить в GitHub</h3>
-            <p>Команда <code>git push origin games-publish</code> готова, но текущий терминал не получил логин GitHub.</p>
-          </article>
-
-          <article class="launch-card">
-            <span class="status wait">После push</span>
-            <h3>Включить Pages</h3>
-            <p>В настройках репозитория выбрать ветку <code>games-publish</code> и папку root для публикации.</p>
+          <article class="install-card">
+            <span class="status">Компьютер</span>
+            <h3>Через адресную строку</h3>
+            <ol>
+              <li>Открой сайт в Chrome, Edge или другом браузере с установкой веб-приложений.</li>
+              <li>Найди значок установки рядом с адресной строкой или в меню.</li>
+              <li>Подтверди установку.</li>
+              <li>Запускай сайт как отдельное приложение.</li>
+            </ol>
           </article>
         </div>
       </section>
 
-      <section aria-labelledby="domain-title">
+      <section aria-labelledby="offline-title">
         <div class="section-title">
-          <h2 id="domain-title">Домен</h2>
-          <p>Когда будет выбран красивый адрес, его можно подключить отдельным шагом.</p>
+          <h2 id="offline-title">Что работает после загрузки</h2>
+          <p>Офлайн-кэш помогает, но первый раз сайт всё равно нужно открыть с интернетом.</p>
         </div>
 
-        <div class="panel-grid">
-          <article class="panel">
-            <h3>1. Выбрать адрес</h3>
-            <p>Например, короткое имя для сайта Яны. Пока адрес не выбран, файл <code>CNAME</code> не создаём.</p>
+        <div class="offline-grid">
+          <article class="offline-card">
+            <h3>Кэшируются</h3>
+            <ul>
+              <li>Главная, быстрый старт и карта сайта.</li>
+              <li>Игры, школа, план недели и галерея.</li>
+              <li>Запуск, приватность, родительский гид и обновления.</li>
+              <li>Логотип, главная картинка и manifest.</li>
+            </ul>
           </article>
 
-          <article class="panel">
-            <h3>2. Добавить CNAME</h3>
-            <p>После выбора домена на сайт добавляется файл <code>CNAME</code> с этим адресом.</p>
-          </article>
-
-          <article class="panel">
-            <h3>3. Проверить Pages</h3>
-            <p>После настройки DNS GitHub Pages должен открыть сайт уже по домену.</p>
+          <article class="offline-card">
+            <h3>Важно помнить</h3>
+            <p>Если сайт обновился, браузер может взять новую версию не мгновенно. Обычно помогает закрыть вкладку и открыть сайт заново.</p>
+            <div class="link-row">
+              <a class="mini-button" href="../map/index.html">Карта сайта</a>
+              <a class="mini-button secondary" href="../updates/index.html">Обновления</a>
+            </div>
           </article>
         </div>
       </section>
     </main>
 
     <footer>
-      <p>Страница запуска помогает не потерять последние шаги перед публикацией.</p>
+      <p>Страница установки объясняет, как пользоваться сайтом как приложением.</p>
       <nav aria-label="Быстрые ссылки в подвале">
         <a href="../index.html">Главная</a>
+        <a href="../start/index.html">Старт</a>
         <a href="../games/index.html">Игры</a>
-        <a href="../school/index.html">Школа</a>
-        <a href="../schedule/index.html">План</a>
-        <a href="../gallery/index.html">Галерея</a>
-        <a href="../privacy/index.html">Приватность</a>
+        <a href="../map/index.html">Карта</a>
+        <a href="../launch/index.html">Запуск</a>
         <a href="../parents/index.html">Родителям</a>
-        <a href="../install/index.html">Установка</a>
         <a href="../updates/index.html">Обновления</a>
       </nav>
     </footer>
