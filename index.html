@@ -762,6 +762,12 @@
         gap: 12px;
       }
 
+      .site-map {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+      }
+
       .journal-grid {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(280px, .75fr);
@@ -986,6 +992,42 @@
         line-height: 1.35;
       }
 
+      .site-map-card {
+        min-height: 178px;
+        display: grid;
+        align-content: start;
+        gap: 10px;
+        padding: 16px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .94);
+        box-shadow: var(--shadow);
+      }
+
+      .site-map-card h3 {
+        font-size: 20px;
+      }
+
+      .site-map-card p {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.35;
+      }
+
+      .site-map-card a {
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 0 10px;
+        border-radius: 8px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--violet), #6647d8);
+        font-size: 14px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+
       footer {
         padding: 28px 0 44px;
         color: var(--muted);
@@ -1015,6 +1057,7 @@
         .cards,
         .today-panel,
         .ideas-box,
+        .site-map,
         .studio-grid,
         .launch-grid,
         .journal-grid {
@@ -1052,6 +1095,7 @@
 
         .cards,
         .ideas-box,
+        .site-map,
         .studio-grid,
         .launch-grid,
         .journal-grid,
@@ -1351,6 +1395,50 @@
           <a class="idea idea-link" href="games/index.html#next-games"><strong>Скины и герои</strong><span>Коллекция персонажей для игр.</span></a>
           <a class="idea idea-link" href="school/index.html"><strong>Школьные тренажеры</strong><span>Русский язык, чтение, задачи и диктанты.</span></a>
           <a class="idea idea-link" href="gallery/index.html"><strong>Галерея</strong><span>Картинки, рисунки и скриншоты игр.</span></a>
+        </div>
+      </section>
+
+      <section id="map" aria-labelledby="map-title">
+        <div class="section-title">
+          <h2 id="map-title">Карта сайта</h2>
+          <p>Все важные места портала в одном спокойном списке.</p>
+        </div>
+
+        <div class="site-map">
+          <article class="site-map-card">
+            <h3>Играть</h3>
+            <p>Готовая игра, лаборатория идей, будущие карты и скины.</p>
+            <a href="games/index.html">Игры</a>
+            <a href="games/cat-chase/index.html">Кошачья погоня</a>
+          </article>
+
+          <article class="site-map-card">
+            <h3>Учиться</h3>
+            <p>Математика на главной, школьная комната, чтение и задачи.</p>
+            <a href="#learn">Математика</a>
+            <a href="school/index.html">Школа</a>
+          </article>
+
+          <article class="site-map-card">
+            <h3>Планировать</h3>
+            <p>План недели, отметки выполненных дел и дневник идей.</p>
+            <a href="schedule/index.html">План недели</a>
+            <a href="#journal">Дневник</a>
+          </article>
+
+          <article class="site-map-card">
+            <h3>Создавать</h3>
+            <p>Веб-проекты, галерея работ и направления для новых идей.</p>
+            <a href="projects/index.html">Проекты</a>
+            <a href="gallery/index.html">Галерея</a>
+          </article>
+
+          <article class="site-map-card">
+            <h3>Запускать</h3>
+            <p>Публикация, GitHub Pages, домен и проверка готовности.</p>
+            <a href="launch/index.html">Запуск</a>
+            <a href="#publish">Публикация</a>
+          </article>
         </div>
       </section>
 
