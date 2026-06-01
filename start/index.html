@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Родителям — Яна Единорог</title>
-    <meta name="description" content="Короткий гид для родителей по сайту Яна Единорог: игры, обучение, план недели, безопасность, публикация и следующие шаги.">
+    <title>Быстрый старт — Яна Единорог</title>
+    <meta name="description" content="Быстрый старт по сайту Яна Единорог: что открыть первым, как играть, учиться, отмечать план и добавлять новые идеи.">
     <meta name="theme-color" content="#ff72ad">
     <link rel="icon" type="image/png" href="../assets/yana-unicorn-logo.png">
     <style>
@@ -142,7 +142,7 @@
       }
 
       .tag,
-      .status {
+      .step-number {
         width: fit-content;
         min-height: 34px;
         display: inline-flex;
@@ -200,8 +200,8 @@
       }
 
       .hero-card,
-      .guide-card,
-      .route-card {
+      .step-card,
+      .daily-card {
         border: 3px solid var(--line);
         border-radius: 8px;
         background: rgba(255, 253, 247, .94);
@@ -209,8 +209,8 @@
       }
 
       .hero-card,
-      .guide-card,
-      .route-card {
+      .step-card,
+      .daily-card {
         display: grid;
         gap: 14px;
         padding: 18px;
@@ -241,47 +241,35 @@
 
       .section-title p,
       .hero-card p,
-      .guide-card p,
-      .route-card p,
-      .guide-card li,
-      .route-card li {
+      .step-card p,
+      .daily-card p,
+      .daily-card li {
         color: var(--muted);
         font-weight: 800;
         line-height: 1.45;
       }
 
-      .guide-grid {
+      .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .daily-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 16px;
-      }
-
-      .route-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-      }
-
-      .status.ready {
-        color: #0d6b49;
-        background: rgba(66, 201, 149, .2);
-      }
-
-      .status.wait {
-        color: #7b4d00;
-        background: rgba(255, 212, 92, .32);
-      }
-
-      ul,
-      ol {
-        margin: 0;
-        padding-left: 20px;
       }
 
       .link-row {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
       }
 
       footer {
@@ -310,10 +298,10 @@
         text-decoration: none;
       }
 
-      @media (max-width: 860px) {
+      @media (max-width: 920px) {
         .hero,
-        .guide-grid,
-        .route-grid {
+        .steps-grid,
+        .daily-grid {
           grid-template-columns: 1fr;
         }
 
@@ -343,149 +331,133 @@
         </a>
         <nav class="nav" aria-label="Навигация">
           <a href="../index.html">Главная</a>
-          <a href="../start/index.html">Старт</a>
           <a href="../games/index.html">Игры</a>
           <a href="../school/index.html">Школа</a>
           <a href="../schedule/index.html">План</a>
-          <a href="../launch/index.html">Запуск</a>
-          <a href="../privacy/index.html">Приватность</a>
-          <a href="../parents/index.html" aria-current="page">Родителям</a>
+          <a href="../projects/index.html">Проекты</a>
+          <a href="../gallery/index.html">Галерея</a>
+          <a href="../start/index.html" aria-current="page">Старт</a>
         </nav>
       </div>
     </header>
 
     <main id="content" class="shell">
-      <section class="hero" aria-label="Гид для родителей">
+      <section class="hero" aria-label="Быстрый старт">
         <div>
-          <span class="tag">Гид для взрослых</span>
-          <h1>Что уже есть на сайте Яны</h1>
-          <p class="lead">Эта страница помогает быстро понять, где игры, где обучение, как хранится прогресс, что готово к публикации и какие шаги остались до домена.</p>
+          <span class="tag">Быстрый старт</span>
+          <h1>С чего начать сегодня</h1>
+          <p class="lead">Это короткая дорожка по сайту: открыть игру, решить математику, отметить план, записать новую идею и спокойно продолжить делать свои проекты.</p>
           <div class="hero-actions">
-            <a class="button" href="#overview">Краткий обзор</a>
-            <a class="button secondary" href="../start/index.html">Старт для Яны</a>
-            <a class="button secondary" href="../launch/index.html">Запуск сайта</a>
+            <a class="button" href="#steps">Открыть маршрут</a>
+            <a class="button secondary" href="../games/cat-chase/index.html">Сразу играть</a>
           </div>
         </div>
 
         <aside class="hero-card">
           <img src="../assets/yana-unicorn-logo.png" alt="">
-          <h2>Главная идея</h2>
-          <p>Сайт задуман как личная детская мастерская: Яна играет, учится, придумывает проекты и постепенно пополняет свой веб-портал.</p>
+          <h2>Главное</h2>
+          <p>Не нужно каждый раз искать всё заново. Эта страница ведёт по сайту как маленькое меню дня.</p>
         </aside>
       </section>
 
-      <section id="overview" aria-labelledby="overview-title">
+      <section id="steps" aria-labelledby="steps-title">
         <div class="section-title">
-          <h2 id="overview-title">Краткий обзор</h2>
-          <p>Самые важные зоны сайта, чтобы быстро проверить результат и показать его семье.</p>
+          <h2 id="steps-title">Маршрут на день</h2>
+          <p>Четыре быстрых шага, чтобы сайт был полезен каждый день.</p>
         </div>
 
-        <div class="guide-grid">
-          <article class="guide-card">
-            <span class="status ready">Игры</span>
-            <h3>Витрина и “Кошачья погоня”</h3>
-            <p>Готовая игра открывается с главной, а отдельная лаборатория хранит идеи для новых игр, карт, героев и наград.</p>
+        <div class="steps-grid">
+          <article class="step-card">
+            <span class="step-number">1</span>
+            <h3>Поиграть</h3>
+            <p>Открой “Кошачью погоню” или витрину игр, если хочется посмотреть идеи новых игр.</p>
             <div class="link-row">
-              <a class="mini-button" href="../games/index.html">Игры</a>
-              <a class="mini-button secondary" href="../games/cat-chase/index.html">Играть</a>
+              <a class="mini-button" href="../games/cat-chase/index.html">Играть</a>
+              <a class="mini-button secondary" href="../games/index.html">Игры</a>
             </div>
           </article>
 
-          <article class="guide-card">
-            <span class="status ready">Учёба</span>
-            <h3>Математика и школа</h3>
-            <p>На главной есть тренажёр примеров, цель на 10 правильных ответов, таблица умножения и отдельная школьная комната.</p>
+          <article class="step-card">
+            <span class="step-number">2</span>
+            <h3>Решить математику</h3>
+            <p>На главной можно выбрать действие, сложность, вид примера и набрать 10 правильных ответов.</p>
             <div class="link-row">
               <a class="mini-button" href="../index.html#learn">Математика</a>
-              <a class="mini-button secondary" href="../school/index.html">Школа</a>
             </div>
           </article>
 
-          <article class="guide-card">
-            <span class="status ready">Режим дня</span>
-            <h3>План недели</h3>
-            <p>Расписание по дням недели можно отмечать чекбоксами. Прогресс сохраняется в этом браузере и подходит для печати.</p>
+          <article class="step-card">
+            <span class="step-number">3</span>
+            <h3>Отметить план</h3>
+            <p>В расписании есть чекбоксы. Можно отмечать дела по дням и потом распечатать неделю.</p>
             <div class="link-row">
               <a class="mini-button" href="../schedule/index.html">План</a>
             </div>
           </article>
+
+          <article class="step-card">
+            <span class="step-number">4</span>
+            <h3>Записать идею</h3>
+            <p>В дневнике на главной можно оставить идею новой игры, проекта, карты или школьного тренажёра.</p>
+            <div class="link-row">
+              <a class="mini-button" href="../index.html#journal">Дневник</a>
+            </div>
+          </article>
         </div>
       </section>
 
-      <section aria-labelledby="safety-title">
+      <section aria-labelledby="daily-title">
         <div class="section-title">
-          <h2 id="safety-title">Безопасность и данные</h2>
-          <p>Что важно знать перед публикацией и использованием сайта дома.</p>
+          <h2 id="daily-title">Что делать дальше</h2>
+          <p>Три спокойных направления, чтобы сайт продолжал расти.</p>
         </div>
 
-        <div class="route-grid">
-          <article class="route-card">
-            <span class="status ready">Локально</span>
-            <h3>Что хранится в браузере</h3>
+        <div class="daily-grid">
+          <article class="daily-card">
+            <h3>Для игр</h3>
             <ul>
-              <li>Счёт математического тренажёра.</li>
-              <li>Отметки плана недели.</li>
-              <li>Записи дневника идей на главной.</li>
+              <li>Придумать новую карту.</li>
+              <li>Добавить новый скин.</li>
+              <li>Записать идею в дневник.</li>
             </ul>
-            <p>Эти данные не отправляются на сервер самим сайтом и очищаются на странице приватности.</p>
+          </article>
+
+          <article class="daily-card">
+            <h3>Для школы</h3>
+            <ul>
+              <li>Решить 10 примеров.</li>
+              <li>Повторить таблицу умножения.</li>
+              <li>Открыть школьную комнату.</li>
+            </ul>
+          </article>
+
+          <article class="daily-card">
+            <h3>Для публикации</h3>
+            <ul>
+              <li>Проверить страницу обновлений.</li>
+              <li>Посмотреть план запуска.</li>
+              <li>Показать сайт родителям.</li>
+            </ul>
             <div class="link-row">
-              <a class="mini-button" href="../privacy/index.html">Приватность</a>
+              <a class="mini-button" href="../updates/index.html">Обновления</a>
+              <a class="mini-button secondary" href="../parents/index.html">Родителям</a>
             </div>
-          </article>
-
-          <article class="route-card">
-            <span class="status wait">Перед доменом</span>
-            <h3>Публикация</h3>
-            <ol>
-              <li>Отправить ветку <strong>games-publish</strong> в GitHub.</li>
-              <li>Включить GitHub Pages для репозитория.</li>
-              <li>Проверить публичную ссылку.</li>
-              <li>Подключить домен, когда будет выбран адрес.</li>
-            </ol>
-            <div class="link-row">
-              <a class="mini-button" href="../launch/index.html">План запуска</a>
-              <a class="mini-button secondary" href="../updates/index.html">Обновления</a>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section aria-labelledby="next-title">
-        <div class="section-title">
-          <h2 id="next-title">Как доводить дальше</h2>
-          <p>Практичные направления, которые помогут сайту расти без хаоса.</p>
-        </div>
-
-        <div class="guide-grid">
-          <article class="guide-card">
-            <h3>Добавлять игры</h3>
-            <p>Каждую новую игру лучше класть в отдельную папку внутри <strong>games</strong>, а потом добавлять карточку в витрину.</p>
-          </article>
-
-          <article class="guide-card">
-            <h3>Расширять обучение</h3>
-            <p>Следующие тренажёры можно добавлять по школьным темам: русский язык, чтение, задачи, диктанты и таблица умножения.</p>
-          </article>
-
-          <article class="guide-card">
-            <h3>Сохранять понятность</h3>
-            <p>После каждого крупного шага полезно обновлять журнал изменений и запускать проверку сайта перед публикацией.</p>
           </article>
         </div>
       </section>
     </main>
 
     <footer>
-      <p>Гид для родителей помогает быстро увидеть смысл сайта и следующие шаги.</p>
+      <p>Быстрый старт помогает Яне сразу понять, куда нажимать дальше.</p>
       <nav aria-label="Быстрые ссылки в подвале">
         <a href="../index.html">Главная</a>
-        <a href="../start/index.html">Старт</a>
         <a href="../games/index.html">Игры</a>
         <a href="../school/index.html">Школа</a>
         <a href="../schedule/index.html">План</a>
-        <a href="../launch/index.html">Запуск</a>
-        <a href="../privacy/index.html">Приватность</a>
+        <a href="../projects/index.html">Проекты</a>
+        <a href="../gallery/index.html">Галерея</a>
         <a href="../updates/index.html">Обновления</a>
+        <a href="../parents/index.html">Родителям</a>
       </nav>
     </footer>
   </body>
