@@ -3,21 +3,21 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Командная тактическая арена для 2-10 игроков: две команды, укрытия, бластеры и зона захвата.">
-    <meta name="theme-color" content="#161629">
-    <title>10 друзей: Арена</title>
+    <meta name="description" content="Командная арена для 2-10 игроков: две команды, укрытия, тренировочные бластеры и зона захвата.">
+    <meta name="theme-color" content="#0b1220">
+    <title>Тактическая арена</title>
     <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
     <style>
       :root {
-        --bg: #10111f;
-        --panel: rgba(255, 255, 255, .9);
-        --ink: #252235;
-        --muted: #625d76;
-        --pink: #ff72ad;
-        --blue: #54b8ff;
-        --mint: #42c995;
-        --gold: #ffd45c;
-        --line: rgba(37, 34, 53, .14);
+        --bg: #0b1220;
+        --panel: rgba(15, 23, 42, .9);
+        --ink: #f8fafc;
+        --muted: #9fb0c9;
+        --red: #ff4d5f;
+        --blue: #38bdf8;
+        --mint: #34d399;
+        --gold: #f8c84e;
+        --line: rgba(148, 163, 184, .22);
       }
 
       * {
@@ -34,10 +34,12 @@
         color: var(--ink);
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         background:
-          radial-gradient(circle at 18% 20%, rgba(255, 212, 92, .34), transparent 28%),
-          radial-gradient(circle at 82% 18%, rgba(84, 184, 255, .28), transparent 30%),
-          radial-gradient(circle at 70% 82%, rgba(255, 114, 173, .28), transparent 30%),
-          linear-gradient(135deg, #fff8fb, #eaf7ff 50%, #f4fff6);
+          linear-gradient(90deg, rgba(56, 189, 248, .08) 1px, transparent 1px),
+          linear-gradient(0deg, rgba(56, 189, 248, .06) 1px, transparent 1px),
+          radial-gradient(circle at 18% 16%, rgba(56, 189, 248, .2), transparent 34%),
+          radial-gradient(circle at 86% 18%, rgba(255, 77, 95, .15), transparent 32%),
+          linear-gradient(135deg, #08111f, #111827 54%, #07111e);
+        background-size: 46px 46px, 46px 46px, auto, auto, auto;
       }
 
       a {
@@ -62,7 +64,7 @@
         padding: 10px 14px;
         border-radius: 8px;
         color: white;
-        background: var(--pink);
+        background: var(--red);
         font-weight: 900;
         transform: translateY(-140%);
         transition: transform 160ms ease;
@@ -99,13 +101,14 @@
         color: var(--ink);
         text-decoration: none;
         font-weight: 900;
-        background: rgba(255, 255, 255, .72);
-        box-shadow: 0 8px 24px rgba(37, 34, 53, .08);
+        background: rgba(15, 23, 42, .78);
+        border: 1px solid var(--line);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, .22);
       }
 
       .brand {
         color: white;
-        background: linear-gradient(135deg, var(--pink), #8e67ff);
+        background: linear-gradient(135deg, var(--red), #7c3aed);
       }
 
       .portal-bar nav,
@@ -129,21 +132,21 @@
         overflow: hidden;
         border: 2px solid var(--line);
         border-radius: 8px;
-        background: rgba(255, 255, 255, .58);
-        box-shadow: 0 20px 70px rgba(37, 34, 53, .14);
+        background: rgba(8, 13, 24, .82);
+        box-shadow: 0 26px 80px rgba(0, 0, 0, .34);
       }
 
       .hud {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 1px;
-        background: var(--line);
+        background: rgba(148, 163, 184, .16);
       }
 
       .hud div {
         min-width: 0;
         padding: 10px 12px;
-        background: rgba(255, 255, 255, .88);
+        background: rgba(15, 23, 42, .92);
       }
 
       .hud span {
@@ -164,7 +167,7 @@
         display: block;
         width: 100%;
         aspect-ratio: 16 / 10;
-        background: #fcfeff;
+        background: #0f172a;
         touch-action: none;
       }
 
@@ -178,7 +181,8 @@
         border-radius: 8px;
         padding: 14px;
         background: var(--panel);
-        box-shadow: 0 14px 40px rgba(37, 34, 53, .1);
+        box-shadow: 0 18px 52px rgba(0, 0, 0, .28);
+        backdrop-filter: blur(14px);
       }
 
       .panel h1,
@@ -214,8 +218,8 @@
         border-radius: 8px;
         color: white;
         font-weight: 950;
-        background: linear-gradient(135deg, var(--pink), #8e67ff);
-        box-shadow: 0 12px 24px rgba(142, 103, 255, .2);
+        background: linear-gradient(135deg, var(--red), #7c3aed);
+        box-shadow: 0 14px 30px rgba(255, 77, 95, .2);
       }
 
       .ghost-button {
@@ -224,7 +228,7 @@
         border-radius: 8px;
         color: var(--ink);
         font-weight: 900;
-        background: white;
+        background: rgba(15, 23, 42, .72);
       }
 
       .players {
@@ -241,15 +245,15 @@
         padding: 8px;
         border: 1px solid var(--line);
         border-radius: 8px;
-        background: rgba(255, 255, 255, .72);
+        background: rgba(2, 6, 23, .42);
       }
 
       .dot {
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        border: 3px solid white;
-        box-shadow: 0 4px 12px rgba(37, 34, 53, .18);
+        border: 3px solid rgba(248, 250, 252, .86);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .28);
       }
 
       .player-row strong,
@@ -268,7 +272,7 @@
         border-radius: 8px;
         color: white;
         font-weight: 950;
-        background: var(--pink);
+        background: linear-gradient(135deg, var(--red), #7c3aed);
       }
 
       .pads {
@@ -284,7 +288,7 @@
         overflow: hidden;
         border: 2px solid var(--line);
         border-radius: 8px;
-        background: rgba(255, 255, 255, .74);
+        background: rgba(15, 23, 42, .64);
         touch-action: none;
         user-select: none;
       }
@@ -378,8 +382,8 @@
 
       <aside class="controls">
         <section class="panel">
-          <h1>Командная арена</h1>
-          <p>Выбирайте от 2 до 10 живых игроков. Делитесь на розовую и синюю команды, прячьтесь за блоками, удерживайте центр и стреляйте мягкими бластерами.</p>
+          <h1>Тактическая арена</h1>
+          <p>Выбирайте от 2 до 10 живых игроков. Делитесь на красную и синюю команды, занимайте укрытия, удерживайте центр и играйте тренировочными бластерами.</p>
           <div class="setup">
             <button class="big-button" id="startButton" type="button">Старт</button>
             <button class="ghost-button" id="resetButton" type="button">Заново</button>
@@ -427,8 +431,8 @@
 
       const world = { width: 1120, height: 700 };
       const keys = new Set();
-      const colors = ["#ff4f9a", "#42a5ff", "#36c978", "#ffd45c", "#9b72ff", "#ff8b3d", "#16c7d4", "#ef5d7a", "#7ab800", "#725cff"];
-      const names = ["Роза", "Небо", "Лайм", "Солнце", "Ирис", "Огонёк", "Бирюза", "Карамель", "Листик", "Космос"];
+      const colors = ["#ff4d5f", "#38bdf8", "#ff7886", "#67d8ff", "#d43c4f", "#169bd7", "#ff9aa5", "#7dd3fc", "#b91c35", "#0ea5e9"];
+      const names = ["Альфа", "Браво", "Чарли", "Дельта", "Эхо", "Фокс", "Гамма", "Норд", "Вега", "Шторм"];
       const keyboardMaps = [
         { up: "KeyW", down: "KeyS", left: "KeyA", right: "KeyD", fire: "Space", label: "WASD + Space" },
         { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", fire: "Enter", label: "стрелки + Enter" },
@@ -441,7 +445,8 @@
       let crates = [];
       let bullets = [];
       let obstacles = [];
-      let teamScores = { pink: 0, blue: 0 };
+      let effects = [];
+      let teamScores = { red: 0, blue: 0 };
       let capture = { x: world.width / 2, y: world.height / 2, radius: 72, owner: null, progress: 0 };
       let running = false;
       let timeLeft = 90;
@@ -454,12 +459,12 @@
 
       function makePlayer(index) {
         const angle = (Math.PI * 2 * index) / playerCount;
-        const team = index % 2 === 0 ? "pink" : "blue";
+        const team = index % 2 === 0 ? "red" : "blue";
         return {
           id: index + 1,
           name: names[index],
           team,
-          color: team === "pink" ? colors[index] : colors[index],
+          color: colors[index],
           x: world.width / 2 + Math.cos(angle) * 210,
           y: world.height / 2 + Math.sin(angle) * 210,
           vx: 0,
@@ -490,18 +495,23 @@
 
       function makeObstacles() {
         obstacles = [
-          { x: 205, y: 164, w: 126, h: 46 },
-          { x: 790, y: 164, w: 126, h: 46 },
-          { x: 486, y: 318, w: 148, h: 56 },
-          { x: 180, y: 514, w: 150, h: 48 },
-          { x: 790, y: 514, w: 150, h: 48 }
+          { x: 126, y: 112, w: 150, h: 42, type: "crate" },
+          { x: 844, y: 112, w: 150, h: 42, type: "crate" },
+          { x: 238, y: 250, w: 70, h: 152, type: "wall" },
+          { x: 812, y: 250, w: 70, h: 152, type: "wall" },
+          { x: 458, y: 300, w: 204, h: 54, type: "mid" },
+          { x: 126, y: 546, w: 150, h: 42, type: "crate" },
+          { x: 844, y: 546, w: 150, h: 42, type: "crate" },
+          { x: 458, y: 116, w: 54, h: 92, type: "wall" },
+          { x: 608, y: 492, w: 54, h: 92, type: "wall" }
         ];
       }
 
       function resetGame() {
         players = Array.from({ length: playerCount }, (_, index) => makePlayer(index));
         bullets = [];
-        teamScores = { pink: 0, blue: 0 };
+        effects = [];
+        teamScores = { red: 0, blue: 0 };
         capture = { x: world.width / 2, y: world.height / 2, radius: 72, owner: null, progress: 0 };
         spawnCrates(8 + playerCount);
         makeObstacles();
@@ -650,6 +660,7 @@
             || bullet.y > world.height
             || obstacles.some((block) => pointRect(bullet, block));
           if (blocked) {
+            effects.push({ x: bullet.x, y: bullet.y, color: bullet.color, life: 0.18, size: 9, type: "hit" });
             bullets.splice(i, 1);
             continue;
           }
@@ -669,15 +680,22 @@
             target.invulnerable = 0.35;
             target.vx += Math.cos(Math.atan2(target.y - bullet.y, target.x - bullet.x)) * 120;
             target.vy += Math.sin(Math.atan2(target.y - bullet.y, target.x - bullet.x)) * 120;
-            if (target.hp <= 0) {
-              if (shooter) {
-                shooter.score += 3;
-                teamScores[shooter.team] += 2;
-              }
-              respawn(target);
+          if (target.hp <= 0) {
+            if (shooter) {
+              shooter.score += 3;
+              teamScores[shooter.team] += 2;
             }
+            effects.push({ x: target.x, y: target.y, color: target.color, life: 0.42, size: 26, type: "tag" });
+            respawn(target);
+          }
+            effects.push({ x: bullet.x, y: bullet.y, color: bullet.color, life: 0.22, size: 14, type: "hit" });
             bullets.splice(i, 1);
           }
+        }
+        for (let i = effects.length - 1; i >= 0; i -= 1) {
+          effects[i].life -= delta;
+          effects[i].size += delta * 52;
+          if (effects[i].life <= 0) effects.splice(i, 1);
         }
       }
 
@@ -726,26 +744,33 @@
         ctx.save();
         ctx.translate(crate.x, crate.y);
         ctx.rotate(crate.spin);
-        ctx.fillStyle = crate.value > 3 ? "#ff8b3d" : "#ffd45c";
-        ctx.strokeStyle = "#6a4300";
+        ctx.fillStyle = crate.value > 3 ? "#f8c84e" : "#38bdf8";
+        ctx.strokeStyle = "rgba(248,250,252,.86)";
         ctx.lineWidth = 2;
-        ctx.fillRect(-14, -14, 28, 28);
-        ctx.strokeRect(-14, -14, 28, 28);
-        ctx.fillStyle = "#6a4300";
-        ctx.fillRect(-3, -12, 6, 24);
-        ctx.fillRect(-12, -3, 24, 6);
+        ctx.beginPath();
+        ctx.roundRect(-14, -14, 28, 28, 4);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "rgba(15,23,42,.72)";
+        ctx.fillRect(-10, -3, 20, 6);
+        ctx.fillRect(-3, -10, 6, 20);
         ctx.restore();
       }
 
       function drawBullet(bullet) {
         ctx.save();
+        const angle = Math.atan2(bullet.vy, bullet.vx);
+        ctx.translate(bullet.x, bullet.y);
+        ctx.rotate(angle);
+        const trail = ctx.createLinearGradient(-24, 0, 8, 0);
+        trail.addColorStop(0, "rgba(255,255,255,0)");
+        trail.addColorStop(1, bullet.color);
+        ctx.fillStyle = trail;
+        ctx.fillRect(-24, -2, 30, 4);
         ctx.fillStyle = bullet.color;
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(bullet.x, bullet.y, 7, 0, Math.PI * 2);
+        ctx.roundRect(0, -4, 14, 8, 4);
         ctx.fill();
-        ctx.stroke();
         ctx.restore();
       }
 
@@ -753,12 +778,12 @@
         if (player.respawnTimer > 0) {
           ctx.save();
           ctx.globalAlpha = 0.65;
-          ctx.strokeStyle = player.team === "pink" ? "#ff72ad" : "#54b8ff";
+          ctx.strokeStyle = player.team === "red" ? "#ff4d5f" : "#38bdf8";
           ctx.lineWidth = 4;
           ctx.beginPath();
           ctx.arc(player.x, player.y, 30 + Math.sin(performance.now() / 90) * 4, 0, Math.PI * 2);
           ctx.stroke();
-          ctx.fillStyle = "#252235";
+          ctx.fillStyle = "#f8fafc";
           ctx.font = "900 13px system-ui";
           ctx.textAlign = "center";
           ctx.fillText("респавн", player.x, player.y - 38);
@@ -770,35 +795,48 @@
         if (player.invulnerable > 0 && Math.floor(player.invulnerable * 18) % 2 === 0) {
           ctx.globalAlpha = 0.45;
         }
-        ctx.fillStyle = player.color;
-        ctx.strokeStyle = player.team === "pink" ? "#ff72ad" : "#54b8ff";
-        ctx.lineWidth = 5;
+        ctx.rotate(player.angle);
+        ctx.shadowColor = "rgba(0,0,0,.36)";
+        ctx.shadowBlur = 16;
+        ctx.shadowOffsetY = 8;
+        ctx.fillStyle = "rgba(2,6,23,.92)";
+        ctx.strokeStyle = player.team === "red" ? "#ff4d5f" : "#38bdf8";
+        ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
+        ctx.ellipse(-2, 0, player.radius + 3, player.radius - 2, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = "rgba(255,255,255,.92)";
+        ctx.shadowColor = "transparent";
+        ctx.fillStyle = player.color;
         ctx.beginPath();
-        ctx.arc(-7, -5, 4, 0, Math.PI * 2);
-        ctx.arc(8, -5, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "#252235";
-        ctx.beginPath();
-        ctx.arc(-6, -5, 2, 0, Math.PI * 2);
-        ctx.arc(9, -5, 2, 0, Math.PI * 2);
+        ctx.moveTo(17, 0);
+        ctx.lineTo(-8, -13);
+        ctx.lineTo(-5, 13);
+        ctx.closePath();
         ctx.fill();
 
-        ctx.fillStyle = "rgba(37,34,53,.88)";
-        ctx.font = "900 13px system-ui";
+        ctx.fillStyle = "#cbd5e1";
+        ctx.beginPath();
+        ctx.roundRect(7, -5, 30, 10, 4);
+        ctx.fill();
+
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(player.x, player.y);
+        ctx.fillStyle = "rgba(2,6,23,.86)";
+        ctx.beginPath();
+        ctx.roundRect(-25, -42, 50, 7, 4);
+        ctx.fill();
+        ctx.fillStyle = player.hp > 2 ? "#34d399" : "#ff4d5f";
+        ctx.beginPath();
+        ctx.roundRect(-25, -42, 50 * (player.hp / 5), 7, 4);
+        ctx.fill();
+        ctx.fillStyle = "#f8fafc";
+        ctx.font = "900 12px system-ui";
         ctx.textAlign = "center";
-        ctx.fillText(String(player.id), 0, 33);
-
-        ctx.rotate(player.angle);
-        ctx.fillStyle = "#252235";
-        ctx.fillRect(10, -5, 24, 10);
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(26, -3, 8, 6);
+        ctx.fillText(player.id, 0, 39);
         ctx.restore();
       }
 
@@ -806,35 +844,42 @@
         ctx.save();
         ctx.beginPath();
         ctx.arc(capture.x, capture.y, capture.radius, 0, Math.PI * 2);
-        ctx.fillStyle = capture.owner === "pink"
-          ? "rgba(255, 114, 173, .18)"
+        ctx.fillStyle = capture.owner === "red"
+          ? "rgba(255, 77, 95, .2)"
           : capture.owner === "blue"
-            ? "rgba(84, 184, 255, .18)"
-            : "rgba(255, 212, 92, .16)";
-        ctx.strokeStyle = capture.owner === "pink" ? "#ff72ad" : capture.owner === "blue" ? "#54b8ff" : "#ffd45c";
+            ? "rgba(56, 189, 248, .2)"
+            : "rgba(248, 200, 78, .12)";
+        ctx.strokeStyle = capture.owner === "red" ? "#ff4d5f" : capture.owner === "blue" ? "#38bdf8" : "#f8c84e";
         ctx.lineWidth = 5;
         ctx.fill();
         ctx.stroke();
 
-        ctx.strokeStyle = "#252235";
+        ctx.strokeStyle = "#f8fafc";
         ctx.lineWidth = 8;
         ctx.beginPath();
         ctx.arc(capture.x, capture.y, capture.radius + 12, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (capture.progress / 100));
         ctx.stroke();
-        ctx.fillStyle = "#252235";
-        ctx.font = "900 18px system-ui";
+        ctx.fillStyle = "#f8fafc";
+        ctx.font = "900 16px system-ui";
         ctx.textAlign = "center";
-        ctx.fillText("ЦЕНТР", capture.x, capture.y + 6);
+        ctx.fillText("ТОЧКА", capture.x, capture.y + 5);
         ctx.restore();
       }
 
       function draw() {
         ctx.clearRect(0, 0, world.width, world.height);
-        ctx.fillStyle = "#fbfeff";
+        ctx.fillStyle = "#101827";
         ctx.fillRect(0, 0, world.width, world.height);
 
-        ctx.strokeStyle = "rgba(84,184,255,.18)";
-        ctx.lineWidth = 2;
+        const floor = ctx.createLinearGradient(0, 0, world.width, world.height);
+        floor.addColorStop(0, "#111827");
+        floor.addColorStop(0.5, "#162033");
+        floor.addColorStop(1, "#0b1220");
+        ctx.fillStyle = floor;
+        ctx.fillRect(0, 0, world.width, world.height);
+
+        ctx.strokeStyle = "rgba(148,163,184,.12)";
+        ctx.lineWidth = 1;
         for (let x = 0; x < world.width; x += 56) {
           ctx.beginPath();
           ctx.moveTo(x, 0);
@@ -848,38 +893,93 @@
           ctx.stroke();
         }
 
-        ctx.fillStyle = "rgba(255,114,173,.12)";
+        ctx.fillStyle = "rgba(255,77,95,.15)";
+        ctx.fillRect(0, 0, 132, world.height);
+        ctx.fillStyle = "rgba(56,189,248,.14)";
+        ctx.fillRect(world.width - 132, 0, 132, world.height);
+        ctx.fillStyle = "rgba(248,200,78,.1)";
         ctx.fillRect(0, 0, world.width, 46);
+        ctx.strokeStyle = "rgba(248,250,252,.3)";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([18, 18]);
+        ctx.beginPath();
+        ctx.moveTo(world.width / 2, 46);
+        ctx.lineTo(world.width / 2, world.height);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = "rgba(2,6,23,.45)";
+        ctx.fillRect(0, 0, world.width, 46);
+        ctx.fillStyle = "#f8fafc";
+        ctx.font = "900 16px system-ui";
+        ctx.textAlign = "left";
+        ctx.fillText("RED BASE", 24, 29);
+        ctx.textAlign = "right";
+        ctx.fillText("BLUE BASE", world.width - 24, 29);
+
         drawCapture();
         drawObstacles();
         crates.forEach(drawCrate);
         bullets.forEach(drawBullet);
+        effects.forEach(drawEffect);
         players.forEach(drawPlayer);
 
         if (!running) {
           const winner = [...players].sort((a, b) => b.score - a.score)[0];
-          ctx.fillStyle = "rgba(255,255,255,.82)";
+          ctx.fillStyle = "rgba(2,6,23,.84)";
           ctx.fillRect(0, 0, world.width, world.height);
-          ctx.fillStyle = "#252235";
+          ctx.fillStyle = "#f8fafc";
           ctx.textAlign = "center";
           ctx.font = "900 52px system-ui";
-          ctx.fillText(timeLeft <= 0 ? "Финиш!" : "Готовы играть?", world.width / 2, world.height / 2 - 32);
+          ctx.fillText(timeLeft <= 0 ? "Раунд завершён" : "Тактическая арена", world.width / 2, world.height / 2 - 32);
           ctx.font = "800 24px system-ui";
-          const text = timeLeft <= 0 && winner ? `Победил игрок ${winner.id}: ${winner.name}` : "Выберите игроков и нажмите Старт";
+          const text = timeLeft <= 0 && winner ? `Лучший игрок ${winner.id}: ${winner.name}` : "Выберите игроков и нажмите Старт";
           ctx.fillText(text, world.width / 2, world.height / 2 + 12);
         }
       }
 
       function drawObstacles() {
         for (const block of obstacles) {
-          ctx.fillStyle = "rgba(37,34,53,.82)";
-          ctx.strokeStyle = "rgba(255,255,255,.9)";
-          ctx.lineWidth = 4;
+          const gradient = ctx.createLinearGradient(block.x, block.y, block.x, block.y + block.h);
+          gradient.addColorStop(0, block.type === "crate" ? "#475569" : "#334155");
+          gradient.addColorStop(1, "#111827");
+          ctx.fillStyle = gradient;
+          ctx.strokeStyle = "rgba(203,213,225,.52)";
+          ctx.lineWidth = 2;
+          ctx.shadowColor = "rgba(0,0,0,.38)";
+          ctx.shadowBlur = 14;
+          ctx.shadowOffsetY = 8;
           ctx.beginPath();
           ctx.roundRect(block.x, block.y, block.w, block.h, 8);
           ctx.fill();
           ctx.stroke();
+          ctx.shadowColor = "transparent";
+          ctx.strokeStyle = "rgba(248,250,252,.14)";
+          ctx.lineWidth = 1;
+          for (let x = block.x + 18; x < block.x + block.w; x += 28) {
+            ctx.beginPath();
+            ctx.moveTo(x, block.y + 6);
+            ctx.lineTo(x, block.y + block.h - 6);
+            ctx.stroke();
+          }
         }
+      }
+
+      function drawEffect(effect) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, effect.life / 0.42);
+        ctx.strokeStyle = effect.color;
+        ctx.lineWidth = effect.type === "tag" ? 5 : 3;
+        ctx.beginPath();
+        ctx.arc(effect.x, effect.y, effect.size, 0, Math.PI * 2);
+        ctx.stroke();
+        if (effect.type === "hit") {
+          ctx.fillStyle = "rgba(248,250,252,.9)";
+          ctx.beginPath();
+          ctx.arc(effect.x, effect.y, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
       }
 
       function loop(now) {
@@ -895,15 +995,15 @@
         playersCountEl.textContent = playerCount;
         roundTimeEl.textContent = Math.ceil(timeLeft);
         starsLeftEl.textContent = bullets.length;
-        leaderNameEl.textContent = `${Math.floor(teamScores.pink)} : ${Math.floor(teamScores.blue)}`;
+        leaderNameEl.textContent = `${Math.floor(teamScores.red)} : ${Math.floor(teamScores.blue)}`;
       }
 
       function renderScores() {
         scoreList.innerHTML = players
           .map((player) => {
             const control = keyboardMaps[player.id - 1]?.label || "панель";
-            const team = player.team === "pink" ? "Розовые" : "Синие";
-            const state = player.respawnTimer > 0 ? `респавн ${Math.ceil(player.respawnTimer)}` : `❤ ${player.hp} · ${player.ammo}`;
+            const team = player.team === "red" ? "Красные" : "Синие";
+            const state = player.respawnTimer > 0 ? `респавн ${Math.ceil(player.respawnTimer)}` : `HP ${player.hp} · ${player.ammo}`;
             return `<div class="player-row">
               <i class="dot" style="background:${player.color}"></i>
               <div><strong>${player.id}. ${player.name}</strong><span>${team} · ${control} · ${state}</span></div>
