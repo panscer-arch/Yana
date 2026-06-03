@@ -3,21 +3,21 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Командная арена для 2-10 игроков: две команды, укрытия, тренировочные бластеры и зона захвата.">
-    <meta name="theme-color" content="#0b1220">
-    <title>Тактическая арена</title>
+    <meta name="description" content="Реалистичная тактическая арена для 2-10 игроков: команды, укрытия, тренировочные бластеры и зона захвата.">
+    <meta name="theme-color" content="#111315">
+    <title>Тактический полигон</title>
     <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
     <style>
       :root {
-        --bg: #0b1220;
-        --panel: rgba(15, 23, 42, .9);
-        --ink: #f8fafc;
-        --muted: #9fb0c9;
-        --red: #ff4d5f;
-        --blue: #38bdf8;
-        --mint: #34d399;
-        --gold: #f8c84e;
-        --line: rgba(148, 163, 184, .22);
+        --bg: #111315;
+        --panel: rgba(18, 20, 22, .92);
+        --ink: #f3f0e8;
+        --muted: #a9a293;
+        --red: #c94134;
+        --blue: #2f7ca8;
+        --mint: #7b8a58;
+        --gold: #c59b4a;
+        --line: rgba(218, 210, 190, .18);
       }
 
       * {
@@ -34,12 +34,12 @@
         color: var(--ink);
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         background:
-          linear-gradient(90deg, rgba(56, 189, 248, .08) 1px, transparent 1px),
-          linear-gradient(0deg, rgba(56, 189, 248, .06) 1px, transparent 1px),
-          radial-gradient(circle at 18% 16%, rgba(56, 189, 248, .2), transparent 34%),
-          radial-gradient(circle at 86% 18%, rgba(255, 77, 95, .15), transparent 32%),
-          linear-gradient(135deg, #08111f, #111827 54%, #07111e);
-        background-size: 46px 46px, 46px 46px, auto, auto, auto;
+          linear-gradient(90deg, rgba(218, 210, 190, .05) 1px, transparent 1px),
+          linear-gradient(0deg, rgba(218, 210, 190, .04) 1px, transparent 1px),
+          radial-gradient(circle at 16% 12%, rgba(129, 119, 96, .16), transparent 30%),
+          radial-gradient(circle at 84% 22%, rgba(47, 124, 168, .12), transparent 32%),
+          linear-gradient(135deg, #0e1011, #1b1e1f 54%, #101214);
+        background-size: 64px 64px, 64px 64px, auto, auto, auto;
       }
 
       a {
@@ -108,7 +108,7 @@
 
       .brand {
         color: white;
-        background: linear-gradient(135deg, var(--red), #7c3aed);
+        background: linear-gradient(135deg, #2b2d2f, #56514a);
       }
 
       .portal-bar nav,
@@ -132,7 +132,7 @@
         overflow: hidden;
         border: 2px solid var(--line);
         border-radius: 8px;
-        background: rgba(8, 13, 24, .82);
+        background: rgba(13, 14, 15, .86);
         box-shadow: 0 26px 80px rgba(0, 0, 0, .34);
       }
 
@@ -146,7 +146,7 @@
       .hud div {
         min-width: 0;
         padding: 10px 12px;
-        background: rgba(15, 23, 42, .92);
+        background: rgba(20, 22, 23, .94);
       }
 
       .hud span {
@@ -167,7 +167,7 @@
         display: block;
         width: 100%;
         aspect-ratio: 16 / 10;
-        background: #0f172a;
+        background: #17191a;
         touch-action: none;
       }
 
@@ -218,8 +218,8 @@
         border-radius: 8px;
         color: white;
         font-weight: 950;
-        background: linear-gradient(135deg, var(--red), #7c3aed);
-        box-shadow: 0 14px 30px rgba(255, 77, 95, .2);
+        background: linear-gradient(135deg, #b44736, #60543f);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, .28);
       }
 
       .ghost-button {
@@ -228,7 +228,7 @@
         border-radius: 8px;
         color: var(--ink);
         font-weight: 900;
-        background: rgba(15, 23, 42, .72);
+        background: rgba(22, 24, 25, .76);
       }
 
       .players {
@@ -245,7 +245,7 @@
         padding: 8px;
         border: 1px solid var(--line);
         border-radius: 8px;
-        background: rgba(2, 6, 23, .42);
+        background: rgba(10, 11, 12, .46);
       }
 
       .dot {
@@ -272,7 +272,7 @@
         border-radius: 8px;
         color: white;
         font-weight: 950;
-        background: linear-gradient(135deg, var(--red), #7c3aed);
+        background: linear-gradient(135deg, #b44736, #60543f);
       }
 
       .pads {
@@ -288,7 +288,7 @@
         overflow: hidden;
         border: 2px solid var(--line);
         border-radius: 8px;
-        background: rgba(15, 23, 42, .64);
+        background: rgba(22, 24, 25, .72);
         touch-action: none;
         user-select: none;
       }
@@ -382,7 +382,7 @@
 
       <aside class="controls">
         <section class="panel">
-          <h1>Тактическая арена</h1>
+          <h1>Тактический полигон</h1>
           <p>Выбирайте от 2 до 10 живых игроков. Делитесь на красную и синюю команды, занимайте укрытия, удерживайте центр и играйте тренировочными бластерами.</p>
           <div class="setup">
             <button class="big-button" id="startButton" type="button">Старт</button>
@@ -431,7 +431,7 @@
 
       const world = { width: 1120, height: 700 };
       const keys = new Set();
-      const colors = ["#ff4d5f", "#38bdf8", "#ff7886", "#67d8ff", "#d43c4f", "#169bd7", "#ff9aa5", "#7dd3fc", "#b91c35", "#0ea5e9"];
+      const colors = ["#b94b3e", "#39789b", "#a23e34", "#2f6584", "#8f3a31", "#28536e", "#c26050", "#4d88aa", "#7f3028", "#24607f"];
       const names = ["Альфа", "Браво", "Чарли", "Дельта", "Эхо", "Фокс", "Гамма", "Норд", "Вега", "Шторм"];
       const keyboardMaps = [
         { up: "KeyW", down: "KeyS", left: "KeyA", right: "KeyD", fire: "Space", label: "WASD + Space" },
@@ -744,16 +744,26 @@
         ctx.save();
         ctx.translate(crate.x, crate.y);
         ctx.rotate(crate.spin);
-        ctx.fillStyle = crate.value > 3 ? "#f8c84e" : "#38bdf8";
-        ctx.strokeStyle = "rgba(248,250,252,.86)";
+        const box = ctx.createLinearGradient(-14, -14, 14, 14);
+        box.addColorStop(0, crate.value > 3 ? "#7f6540" : "#39454c");
+        box.addColorStop(1, crate.value > 3 ? "#3e3324" : "#20272b");
+        ctx.fillStyle = box;
+        ctx.strokeStyle = "rgba(226,218,198,.55)";
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.roundRect(-14, -14, 28, 28, 4);
+        ctx.roundRect(-16, -16, 32, 32, 3);
         ctx.fill();
         ctx.stroke();
-        ctx.fillStyle = "rgba(15,23,42,.72)";
-        ctx.fillRect(-10, -3, 20, 6);
-        ctx.fillRect(-3, -10, 6, 20);
+        ctx.strokeStyle = "rgba(0,0,0,.42)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-14, -4);
+        ctx.lineTo(14, -4);
+        ctx.moveTo(-14, 7);
+        ctx.lineTo(14, 7);
+        ctx.stroke();
+        ctx.fillStyle = crate.value > 3 ? "#c59b4a" : "#91a0a6";
+        ctx.fillRect(-5, -13, 10, 5);
         ctx.restore();
       }
 
@@ -762,14 +772,15 @@
         const angle = Math.atan2(bullet.vy, bullet.vx);
         ctx.translate(bullet.x, bullet.y);
         ctx.rotate(angle);
-        const trail = ctx.createLinearGradient(-24, 0, 8, 0);
+        const trail = ctx.createLinearGradient(-34, 0, 8, 0);
         trail.addColorStop(0, "rgba(255,255,255,0)");
-        trail.addColorStop(1, bullet.color);
+        trail.addColorStop(0.7, "rgba(245,202,112,.42)");
+        trail.addColorStop(1, "#f5ca70");
         ctx.fillStyle = trail;
-        ctx.fillRect(-24, -2, 30, 4);
-        ctx.fillStyle = bullet.color;
+        ctx.fillRect(-34, -1.5, 40, 3);
+        ctx.fillStyle = "#f5ca70";
         ctx.beginPath();
-        ctx.roundRect(0, -4, 14, 8, 4);
+        ctx.roundRect(0, -3, 12, 6, 3);
         ctx.fill();
         ctx.restore();
       }
@@ -796,44 +807,61 @@
           ctx.globalAlpha = 0.45;
         }
         ctx.rotate(player.angle);
-        ctx.shadowColor = "rgba(0,0,0,.36)";
-        ctx.shadowBlur = 16;
-        ctx.shadowOffsetY = 8;
-        ctx.fillStyle = "rgba(2,6,23,.92)";
-        ctx.strokeStyle = player.team === "red" ? "#ff4d5f" : "#38bdf8";
-        ctx.lineWidth = 4;
+        const teamColor = player.team === "red" ? "#b44736" : "#39789b";
+        ctx.shadowColor = "rgba(0,0,0,.48)";
+        ctx.shadowBlur = 18;
+        ctx.shadowOffsetY = 10;
+        ctx.fillStyle = "#222528";
+        ctx.strokeStyle = "rgba(226,218,198,.22)";
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.ellipse(-2, 0, player.radius + 3, player.radius - 2, 0, 0, Math.PI * 2);
+        ctx.ellipse(-4, 0, player.radius + 1, player.radius - 3, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
         ctx.shadowColor = "transparent";
-        ctx.fillStyle = player.color;
+        ctx.fillStyle = "#35393b";
         ctx.beginPath();
-        ctx.moveTo(17, 0);
-        ctx.lineTo(-8, -13);
-        ctx.lineTo(-5, 13);
-        ctx.closePath();
+        ctx.roundRect(-20, -10, 30, 20, 6);
         ctx.fill();
 
-        ctx.fillStyle = "#cbd5e1";
+        ctx.fillStyle = "#181a1b";
         ctx.beginPath();
-        ctx.roundRect(7, -5, 30, 10, 4);
+        ctx.arc(12, 0, 11, 0, Math.PI * 2);
         ctx.fill();
+
+        ctx.strokeStyle = teamColor;
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(-15, -13);
+        ctx.lineTo(-5, -13);
+        ctx.moveTo(-15, 13);
+        ctx.lineTo(-5, 13);
+        ctx.stroke();
+
+        ctx.fillStyle = "#111315";
+        ctx.strokeStyle = "#514b3d";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(8, -4, 34, 8, 3);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#2b2d2f";
+        ctx.fillRect(31, -7, 8, 14);
 
         ctx.restore();
 
         ctx.save();
         ctx.translate(player.x, player.y);
-        ctx.fillStyle = "rgba(2,6,23,.86)";
+        ctx.fillStyle = "rgba(10,11,12,.86)";
         ctx.beginPath();
         ctx.roundRect(-25, -42, 50, 7, 4);
         ctx.fill();
-        ctx.fillStyle = player.hp > 2 ? "#34d399" : "#ff4d5f";
+        ctx.fillStyle = player.hp > 2 ? "#7b8a58" : "#b44736";
         ctx.beginPath();
         ctx.roundRect(-25, -42, 50 * (player.hp / 5), 7, 4);
         ctx.fill();
-        ctx.fillStyle = "#f8fafc";
+        ctx.fillStyle = "#f3f0e8";
         ctx.font = "900 12px system-ui";
         ctx.textAlign = "center";
         ctx.fillText(player.id, 0, 39);
@@ -845,22 +873,22 @@
         ctx.beginPath();
         ctx.arc(capture.x, capture.y, capture.radius, 0, Math.PI * 2);
         ctx.fillStyle = capture.owner === "red"
-          ? "rgba(255, 77, 95, .2)"
+          ? "rgba(180, 71, 54, .16)"
           : capture.owner === "blue"
-            ? "rgba(56, 189, 248, .2)"
-            : "rgba(248, 200, 78, .12)";
-        ctx.strokeStyle = capture.owner === "red" ? "#ff4d5f" : capture.owner === "blue" ? "#38bdf8" : "#f8c84e";
-        ctx.lineWidth = 5;
+            ? "rgba(57, 120, 155, .18)"
+            : "rgba(197, 155, 74, .1)";
+        ctx.strokeStyle = capture.owner === "red" ? "#b44736" : capture.owner === "blue" ? "#39789b" : "#c59b4a";
+        ctx.lineWidth = 3;
         ctx.fill();
         ctx.stroke();
 
-        ctx.strokeStyle = "#f8fafc";
-        ctx.lineWidth = 8;
+        ctx.strokeStyle = "rgba(243,240,232,.78)";
+        ctx.lineWidth = 6;
         ctx.beginPath();
         ctx.arc(capture.x, capture.y, capture.radius + 12, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (capture.progress / 100));
         ctx.stroke();
-        ctx.fillStyle = "#f8fafc";
-        ctx.font = "900 16px system-ui";
+        ctx.fillStyle = "rgba(243,240,232,.8)";
+        ctx.font = "900 15px system-ui";
         ctx.textAlign = "center";
         ctx.fillText("ТОЧКА", capture.x, capture.y + 5);
         ctx.restore();
@@ -868,49 +896,51 @@
 
       function draw() {
         ctx.clearRect(0, 0, world.width, world.height);
-        ctx.fillStyle = "#101827";
+        ctx.fillStyle = "#17191a";
         ctx.fillRect(0, 0, world.width, world.height);
 
         const floor = ctx.createLinearGradient(0, 0, world.width, world.height);
-        floor.addColorStop(0, "#111827");
-        floor.addColorStop(0.5, "#162033");
-        floor.addColorStop(1, "#0b1220");
+        floor.addColorStop(0, "#242629");
+        floor.addColorStop(0.5, "#181a1b");
+        floor.addColorStop(1, "#101112");
         ctx.fillStyle = floor;
         ctx.fillRect(0, 0, world.width, world.height);
 
-        ctx.strokeStyle = "rgba(148,163,184,.12)";
+        ctx.strokeStyle = "rgba(226,218,198,.08)";
         ctx.lineWidth = 1;
-        for (let x = 0; x < world.width; x += 56) {
+        for (let x = 0; x < world.width; x += 70) {
           ctx.beginPath();
           ctx.moveTo(x, 0);
           ctx.lineTo(x, world.height);
           ctx.stroke();
         }
-        for (let y = 44; y < world.height; y += 56) {
+        for (let y = 46; y < world.height; y += 70) {
           ctx.beginPath();
           ctx.moveTo(0, y);
           ctx.lineTo(world.width, y);
           ctx.stroke();
         }
 
-        ctx.fillStyle = "rgba(255,77,95,.15)";
+        drawFloorWear();
+
+        ctx.fillStyle = "rgba(180,71,54,.1)";
         ctx.fillRect(0, 0, 132, world.height);
-        ctx.fillStyle = "rgba(56,189,248,.14)";
+        ctx.fillStyle = "rgba(57,120,155,.1)";
         ctx.fillRect(world.width - 132, 0, 132, world.height);
-        ctx.fillStyle = "rgba(248,200,78,.1)";
+        ctx.fillStyle = "rgba(197,155,74,.08)";
         ctx.fillRect(0, 0, world.width, 46);
-        ctx.strokeStyle = "rgba(248,250,252,.3)";
-        ctx.lineWidth = 3;
-        ctx.setLineDash([18, 18]);
+        ctx.strokeStyle = "rgba(197,155,74,.32)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([22, 16]);
         ctx.beginPath();
         ctx.moveTo(world.width / 2, 46);
         ctx.lineTo(world.width / 2, world.height);
         ctx.stroke();
         ctx.setLineDash([]);
 
-        ctx.fillStyle = "rgba(2,6,23,.45)";
+        ctx.fillStyle = "rgba(10,11,12,.52)";
         ctx.fillRect(0, 0, world.width, 46);
-        ctx.fillStyle = "#f8fafc";
+        ctx.fillStyle = "rgba(243,240,232,.86)";
         ctx.font = "900 16px system-ui";
         ctx.textAlign = "left";
         ctx.fillText("RED BASE", 24, 29);
@@ -926,25 +956,54 @@
 
         if (!running) {
           const winner = [...players].sort((a, b) => b.score - a.score)[0];
-          ctx.fillStyle = "rgba(2,6,23,.84)";
+          ctx.fillStyle = "rgba(10,11,12,.86)";
           ctx.fillRect(0, 0, world.width, world.height);
-          ctx.fillStyle = "#f8fafc";
+          ctx.fillStyle = "#f3f0e8";
           ctx.textAlign = "center";
           ctx.font = "900 52px system-ui";
-          ctx.fillText(timeLeft <= 0 ? "Раунд завершён" : "Тактическая арена", world.width / 2, world.height / 2 - 32);
+          ctx.fillText(timeLeft <= 0 ? "Раунд завершён" : "Тактический полигон", world.width / 2, world.height / 2 - 32);
           ctx.font = "800 24px system-ui";
           const text = timeLeft <= 0 && winner ? `Лучший игрок ${winner.id}: ${winner.name}` : "Выберите игроков и нажмите Старт";
           ctx.fillText(text, world.width / 2, world.height / 2 + 12);
         }
       }
 
+      function drawFloorWear() {
+        ctx.save();
+        ctx.globalAlpha = 0.22;
+        const stains = [
+          [180, 190, 92, 34], [420, 554, 130, 42], [762, 210, 150, 44],
+          [950, 502, 116, 38], [550, 390, 190, 58], [296, 82, 88, 24]
+        ];
+        for (const [x, y, w, h] of stains) {
+          ctx.fillStyle = "rgba(0,0,0,.34)";
+          ctx.beginPath();
+          ctx.ellipse(x, y, w, h, -0.25, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 0.28;
+        ctx.strokeStyle = "rgba(226,218,198,.18)";
+        ctx.lineWidth = 2;
+        const cracks = [
+          [[86, 430], [142, 414], [194, 452], [256, 438]],
+          [[676, 112], [708, 154], [752, 142], [826, 188]],
+          [[356, 646], [398, 604], [470, 618], [520, 584]]
+        ];
+        for (const crack of cracks) {
+          ctx.beginPath();
+          crack.forEach(([x, y], index) => index ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
       function drawObstacles() {
         for (const block of obstacles) {
           const gradient = ctx.createLinearGradient(block.x, block.y, block.x, block.y + block.h);
-          gradient.addColorStop(0, block.type === "crate" ? "#475569" : "#334155");
-          gradient.addColorStop(1, "#111827");
+          gradient.addColorStop(0, block.type === "crate" ? "#5d5448" : "#4a4d4e");
+          gradient.addColorStop(1, block.type === "crate" ? "#2d2822" : "#202224");
           ctx.fillStyle = gradient;
-          ctx.strokeStyle = "rgba(203,213,225,.52)";
+          ctx.strokeStyle = "rgba(226,218,198,.28)";
           ctx.lineWidth = 2;
           ctx.shadowColor = "rgba(0,0,0,.38)";
           ctx.shadowBlur = 14;
@@ -954,7 +1013,7 @@
           ctx.fill();
           ctx.stroke();
           ctx.shadowColor = "transparent";
-          ctx.strokeStyle = "rgba(248,250,252,.14)";
+          ctx.strokeStyle = "rgba(226,218,198,.1)";
           ctx.lineWidth = 1;
           for (let x = block.x + 18; x < block.x + block.w; x += 28) {
             ctx.beginPath();
@@ -968,7 +1027,7 @@
       function drawEffect(effect) {
         ctx.save();
         ctx.globalAlpha = Math.max(0, effect.life / 0.42);
-        ctx.strokeStyle = effect.color;
+        ctx.strokeStyle = effect.type === "hit" ? "#e9bd62" : effect.color;
         ctx.lineWidth = effect.type === "tag" ? 5 : 3;
         ctx.beginPath();
         ctx.arc(effect.x, effect.y, effect.size, 0, Math.PI * 2);
