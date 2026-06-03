@@ -382,15 +382,15 @@
 
       <aside class="controls">
         <section class="panel">
-          <h1>Тактический полигон</h1>
-          <p>Выбирайте от 2 до 10 живых игроков. Делитесь на красную и синюю команды, занимайте укрытия, удерживайте центр и играйте тренировочными бластерами.</p>
+          <h1>3D-полигон</h1>
+          <p>Теперь это вид от игрока: заходите на полигон, цельтесь в центр экрана, двигайтесь по укрытиям и стреляйте тренировочными бластерами.</p>
           <div class="setup">
             <button class="big-button" id="startButton" type="button">Старт</button>
             <button class="ghost-button" id="resetButton" type="button">Заново</button>
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
           </div>
-          <p>Клавиатура: 1 WASD+Space, 2 стрелки+Enter, 3 IJKL+U, 4 TFGH+R. Свои по своим не попадают. Центр даёт командные очки.</p>
+          <p>Игрок 1: WASD, Q/E поворот, Space выстрел. Можно кликнуть по полю и водить мышкой, чтобы целиться. Остальные игроки работают как раньше.</p>
         </section>
 
         <section class="panel">
@@ -464,6 +464,7 @@
       let timeLeft = 90;
       let lastTime = 0;
       let animationId = 0;
+      const camera = { projection: 680, horizon: 314, fov: Math.PI / 2.4 };
 
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
       const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -555,6 +556,24 @@
       }
 
       function directionFor(player) {
+        if (player.id === 1) {
+          let forward = 0;
+          let side = 0;
+          if (keys.has("KeyW")) forward += 1;
+          if (keys.has("KeyS")) forward -= 1;
+          if (keys.has("KeyA")) side -= 1;
+          if (keys.has("KeyD")) side += 1;
+          side += player.pad.x;
+          forward -= player.pad.y;
+          const length = Math.hypot(side, forward);
+          if (!length) return { x: 0, y: 0 };
+          const nx = side / length;
+          const ny = forward / length;
+          return {
+            x: Math.cos(player.angle) * ny + Math.cos(player.angle + Math.PI / 2) * nx,
+            y: Math.sin(player.angle) * ny + Math.sin(player.angle + Math.PI / 2) * nx
+          };
+        }
         let dx = player.pad.x;
         let dy = player.pad.y;
         const map = keyboardMaps[player.id - 1];
@@ -581,7 +600,11 @@
           }
 
           const dir = directionFor(player);
-          if (dir.x || dir.y) player.angle = Math.atan2(dir.y, dir.x);
+          if ((dir.x || dir.y) && player.id !== 1) player.angle = Math.atan2(dir.y, dir.x);
+          if (player.id === 1) {
+            if (keys.has("KeyQ")) player.angle -= delta * 2.6;
+            if (keys.has("KeyE")) player.angle += delta * 2.6;
+          }
           const speed = 330;
           player.vx += dir.x * speed * delta * 4.2;
           player.vy += dir.y * speed * delta * 4.2;
@@ -949,8 +972,296 @@
         ctx.restore();
       }
 
+      function cameraPoint(point, cam) {
+        const dx = point.x - cam.x;
+        const dy = point.y - cam.y;
+        const cos = Math.cos(cam.angle);
+        const sin = Math.sin(cam.angle);
+        return {
+          depth: dx * cos + dy * sin,
+          side: -dx * sin + dy * cos
+        };
+      }
+
+      function projectPoint(point, cam) {
+        const view = cameraPoint(point, cam);
+        if (view.depth < 22) return null;
+        const x = world.width / 2 + (view.side / view.depth) * camera.projection;
+        const scale = camera.projection / view.depth;
+        return { x, y: camera.horizon, scale, depth: view.depth, side: view.side };
+      }
+
+      function drawFirstPerson() {
+        const cam = players[0];
+        if (!cam) return;
+        drawFpsRoom(cam);
+
+        const renderables = [
+          ...obstacles.map((item) => ({ kind: "block", item, depth: cameraPoint({ x: item.x + item.w / 2, y: item.y + item.h / 2 }, cam).depth })),
+          ...crates.map((item) => ({ kind: "crate", item, depth: cameraPoint(item, cam).depth })),
+          ...players.filter((item) => item.id !== cam.id && item.respawnTimer <= 0).map((item) => ({ kind: "enemy", item, depth: cameraPoint(item, cam).depth }))
+        ].filter((item) => item.depth > 20).sort((a, b) => b.depth - a.depth);
+
+        for (const renderable of renderables) {
+          if (renderable.kind === "block") drawFpsBlock(renderable.item, cam);
+          if (renderable.kind === "crate") drawFpsPickup(renderable.item, cam);
+          if (renderable.kind === "enemy") drawFpsEnemy(renderable.item, cam);
+        }
+
+        effects.forEach((effect) => drawFpsEffect(effect, cam));
+        drawFpsWeapon(cam);
+        drawFpsHud(cam);
+        drawMiniMap(cam);
+      }
+
+      function drawFpsRoom(cam) {
+        const sky = ctx.createLinearGradient(0, 0, 0, camera.horizon);
+        sky.addColorStop(0, "#0b0d0f");
+        sky.addColorStop(0.45, "#1b1d1e");
+        sky.addColorStop(1, "#2b2b28");
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, world.width, camera.horizon);
+
+        const floor = ctx.createLinearGradient(0, camera.horizon, 0, world.height);
+        floor.addColorStop(0, "#393936");
+        floor.addColorStop(0.38, "#252624");
+        floor.addColorStop(1, "#101111");
+        ctx.fillStyle = floor;
+        ctx.fillRect(0, camera.horizon, world.width, world.height - camera.horizon);
+
+        ctx.strokeStyle = "rgba(230,220,190,.08)";
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 18; i += 1) {
+          const y = camera.horizon + Math.pow(i / 17, 1.7) * (world.height - camera.horizon);
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(world.width, y);
+          ctx.stroke();
+        }
+        for (let i = -9; i <= 9; i += 1) {
+          ctx.beginPath();
+          ctx.moveTo(world.width / 2 + i * 42, camera.horizon);
+          ctx.lineTo(world.width / 2 + i * 180, world.height);
+          ctx.stroke();
+        }
+
+        const leftGlow = ctx.createRadialGradient(170, 130, 12, 170, 130, 360);
+        leftGlow.addColorStop(0, "rgba(197,155,74,.16)");
+        leftGlow.addColorStop(1, "rgba(197,155,74,0)");
+        ctx.fillStyle = leftGlow;
+        ctx.fillRect(0, 0, world.width, world.height);
+
+        const rightGlow = ctx.createRadialGradient(910, 170, 12, 910, 170, 330);
+        rightGlow.addColorStop(0, "rgba(80,120,150,.12)");
+        rightGlow.addColorStop(1, "rgba(80,120,150,0)");
+        ctx.fillStyle = rightGlow;
+        ctx.fillRect(0, 0, world.width, world.height);
+      }
+
+      function drawFpsBlock(block, cam) {
+        const center = { x: block.x + block.w / 2, y: block.y + block.h / 2 };
+        const projected = projectPoint(center, cam);
+        if (!projected || Math.abs(projected.side / projected.depth) > 1.35) return;
+        const size = Math.max(block.w, block.h);
+        const width = clamp(size * projected.scale * 1.85, 18, 360);
+        const height = clamp((block.type === "container" ? 130 : block.type === "sandbags" ? 86 : 150) * projected.scale, 22, 330);
+        const x = projected.x - width / 2;
+        const y = camera.horizon + 76 * projected.scale - height;
+
+        const shade = clamp(1 - projected.depth / 950, 0.18, 0.84);
+        const gradient = ctx.createLinearGradient(x, y, x + width, y + height);
+        gradient.addColorStop(0, `rgba(${block.type === "container" ? "112,92,68" : "84,86,82"},${shade})`);
+        gradient.addColorStop(0.55, `rgba(${block.type === "sandbags" ? "110,101,79" : "62,64,62"},${shade + 0.08})`);
+        gradient.addColorStop(1, `rgba(22,23,22,${shade + 0.1})`);
+        ctx.fillStyle = gradient;
+        ctx.strokeStyle = "rgba(226,218,198,.22)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(x, y, width, height, block.type === "sandbags" ? 18 : 6);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(0,0,0,.34)";
+        ctx.lineWidth = 3;
+        const lines = block.type === "container" ? 7 : 3;
+        for (let i = 1; i < lines; i += 1) {
+          const lx = x + (width / lines) * i;
+          ctx.beginPath();
+          ctx.moveTo(lx, y + 8);
+          ctx.lineTo(lx, y + height - 8);
+          ctx.stroke();
+        }
+      }
+
+      function drawFpsPickup(crate, cam) {
+        const projected = projectPoint(crate, cam);
+        if (!projected || Math.abs(projected.side / projected.depth) > 1.25) return;
+        const size = clamp(46 * projected.scale, 8, 70);
+        const x = projected.x - size / 2;
+        const y = camera.horizon + 110 * projected.scale - size;
+        ctx.fillStyle = crate.value > 3 ? "#8a6a38" : "#46565f";
+        ctx.strokeStyle = "rgba(238,229,204,.45)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(x, y, size, size, 4);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      function drawFpsEnemy(enemy, cam) {
+        const projected = projectPoint(enemy, cam);
+        if (!projected || Math.abs(projected.side / projected.depth) > 1.08) return;
+        const height = clamp(150 * projected.scale, 26, 250);
+        const width = height * 0.42;
+        const x = projected.x - width / 2;
+        const y = camera.horizon + 94 * projected.scale - height;
+        const teamColor = enemy.team === "red" ? "#b44736" : "#39789b";
+
+        ctx.fillStyle = "rgba(0,0,0,.28)";
+        ctx.beginPath();
+        ctx.ellipse(projected.x, y + height + 9, width * 0.9, 10 * projected.scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#202322";
+        ctx.strokeStyle = "rgba(226,218,198,.22)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(x + width * 0.12, y + height * 0.25, width * 0.76, height * 0.48, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#121414";
+        ctx.beginPath();
+        ctx.arc(projected.x, y + height * 0.16, width * 0.34, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = teamColor;
+        ctx.lineWidth = Math.max(2, 5 * projected.scale);
+        ctx.beginPath();
+        ctx.moveTo(x + width * 0.2, y + height * 0.34);
+        ctx.lineTo(x + width * 0.8, y + height * 0.34);
+        ctx.stroke();
+
+        ctx.strokeStyle = "#151615";
+        ctx.lineWidth = Math.max(3, 9 * projected.scale);
+        ctx.beginPath();
+        ctx.moveTo(projected.x + width * 0.22, y + height * 0.39);
+        ctx.lineTo(projected.x + width * 0.82, y + height * 0.34);
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(10,11,12,.8)";
+        ctx.fillRect(projected.x - width * 0.42, y - 14, width * 0.84, 6);
+        ctx.fillStyle = enemy.hp > 2 ? "#7b8a58" : "#b44736";
+        ctx.fillRect(projected.x - width * 0.42, y - 14, width * 0.84 * (enemy.hp / 5), 6);
+      }
+
+      function drawFpsEffect(effect, cam) {
+        const projected = projectPoint(effect, cam);
+        if (!projected) return;
+        const size = clamp(effect.size * projected.scale * 2.6, 5, 80);
+        ctx.globalAlpha = Math.max(0, effect.life / 0.42);
+        ctx.strokeStyle = "#e9bd62";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(projected.x, camera.horizon + 88 * projected.scale, size, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+
+      function drawFpsWeapon(cam) {
+        const bob = running ? Math.sin(performance.now() / 120) * 5 : 0;
+        ctx.save();
+        ctx.translate(world.width / 2 + 250, world.height - 116 + bob);
+        ctx.rotate(-0.08);
+        ctx.fillStyle = "rgba(0,0,0,.35)";
+        ctx.beginPath();
+        ctx.ellipse(-20, 62, 180, 28, 0, 0, Math.PI * 2);
+        ctx.fill();
+        const gun = ctx.createLinearGradient(-150, -20, 130, 30);
+        gun.addColorStop(0, "#111315");
+        gun.addColorStop(0.55, "#333735");
+        gun.addColorStop(1, "#0d0e0f");
+        ctx.fillStyle = gun;
+        ctx.strokeStyle = "rgba(226,218,198,.18)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(-142, -30, 236, 46, 8);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#090a0a";
+        ctx.beginPath();
+        ctx.roundRect(52, -43, 92, 20, 5);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.roundRect(-48, 8, 54, 72, 8);
+        ctx.fill();
+        ctx.fillStyle = "#514b3d";
+        ctx.fillRect(98, -18, 58, 12);
+        ctx.restore();
+
+        ctx.strokeStyle = "rgba(243,240,232,.84)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(world.width / 2 - 18, camera.horizon);
+        ctx.lineTo(world.width / 2 - 6, camera.horizon);
+        ctx.moveTo(world.width / 2 + 6, camera.horizon);
+        ctx.lineTo(world.width / 2 + 18, camera.horizon);
+        ctx.moveTo(world.width / 2, camera.horizon - 18);
+        ctx.lineTo(world.width / 2, camera.horizon - 6);
+        ctx.moveTo(world.width / 2, camera.horizon + 6);
+        ctx.lineTo(world.width / 2, camera.horizon + 18);
+        ctx.stroke();
+      }
+
+      function drawFpsHud(cam) {
+        ctx.fillStyle = "rgba(10,11,12,.64)";
+        ctx.beginPath();
+        ctx.roundRect(26, world.height - 88, 210, 58, 8);
+        ctx.fill();
+        ctx.fillStyle = "#f3f0e8";
+        ctx.font = "900 18px system-ui";
+        ctx.fillText(`HP ${cam.hp}`, 42, world.height - 54);
+        ctx.fillText(`AMMO ${cam.ammo}`, 128, world.height - 54);
+      }
+
+      function drawMiniMap(cam) {
+        const x = world.width - 174;
+        const y = 62;
+        const s = 0.13;
+        ctx.save();
+        ctx.fillStyle = "rgba(10,11,12,.72)";
+        ctx.beginPath();
+        ctx.roundRect(x, y, 148, 98, 8);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(226,218,198,.22)";
+        ctx.stroke();
+        obstacles.forEach((block) => {
+          ctx.fillStyle = "rgba(226,218,198,.22)";
+          ctx.fillRect(x + block.x * s, y + block.y * s, Math.max(2, block.w * s), Math.max(2, block.h * s));
+        });
+        players.forEach((player) => {
+          ctx.fillStyle = player.id === cam.id ? "#f3f0e8" : player.team === "red" ? "#b44736" : "#39789b";
+          ctx.beginPath();
+          ctx.arc(x + player.x * s, y + player.y * s, player.id === cam.id ? 4 : 3, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.restore();
+      }
+
       function draw() {
         ctx.clearRect(0, 0, world.width, world.height);
+        drawFirstPerson();
+        if (!running) {
+          ctx.fillStyle = "rgba(10,11,12,.58)";
+          ctx.fillRect(0, 0, world.width, world.height);
+          ctx.fillStyle = "#f3f0e8";
+          ctx.textAlign = "center";
+          ctx.font = "900 52px system-ui";
+          ctx.fillText(timeLeft <= 0 ? "Раунд завершён" : "3D-полигон", world.width / 2, world.height / 2 - 32);
+          ctx.font = "800 24px system-ui";
+          ctx.fillText(timeLeft <= 0 ? "Нажмите Заново или Старт" : "Кликни по полю, нажми Старт и целься мышкой", world.width / 2, world.height / 2 + 12);
+        }
+        return;
         ctx.fillStyle = "#17191a";
         ctx.fillRect(0, 0, world.width, world.height);
 
@@ -1312,6 +1623,17 @@
       });
 
       window.addEventListener("keyup", (event) => keys.delete(event.code));
+      canvas.addEventListener("click", () => {
+        if (document.pointerLockElement !== canvas && canvas.requestPointerLock) {
+          canvas.requestPointerLock();
+        }
+        if (players[0]) shoot(players[0]);
+      });
+      document.addEventListener("mousemove", (event) => {
+        if (document.pointerLockElement === canvas && players[0]) {
+          players[0].angle += event.movementX * 0.0032;
+        }
+      });
       startButton.addEventListener("click", startGame);
       resetButton.addEventListener("click", resetGame);
       plusButton.addEventListener("click", addPlayer);
