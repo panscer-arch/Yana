@@ -379,7 +379,7 @@
           <div><span>Снаряды</span><strong id="starsLeft">0</strong></div>
           <div><span>Команды</span><strong id="leaderName">0 : 0</strong></div>
         </div>
-        <canvas id="arena" width="1120" height="700"></canvas>
+        <canvas id="arena" width="1120" height="700" tabindex="0"></canvas>
       </section>
 
       <aside class="controls">
@@ -392,7 +392,7 @@
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
           </div>
-          <p>WASD — движение, мышь — прицел, Space или клик — выстрел, R — перезарядка, V — камера от первого/третьего лица.</p>
+          <p>Нажми Старт или кликни по игре. Ходить можно WASD или стрелками, мышь — прицел, Space/клик — выстрел, R — перезарядка, V — камера.</p>
         </section>
 
         <section class="panel">
@@ -796,6 +796,7 @@
 
       function startGame() {
         state.running = true;
+        canvas.focus();
         requestAimLock();
       }
 
@@ -846,10 +847,10 @@
         const yaw = state.yaw;
         forward.set(Math.sin(yaw), 0, -Math.cos(yaw)).normalize();
         right.set(Math.cos(yaw), 0, Math.sin(yaw)).normalize();
-        if (keys.has("KeyW")) move.add(forward);
-        if (keys.has("KeyS")) move.sub(forward);
-        if (keys.has("KeyD")) move.add(right);
-        if (keys.has("KeyA")) move.sub(right);
+        if (keys.has("KeyW") || keys.has("ArrowUp")) move.add(forward);
+        if (keys.has("KeyS") || keys.has("ArrowDown")) move.sub(forward);
+        if (keys.has("KeyD") || keys.has("ArrowRight")) move.add(right);
+        if (keys.has("KeyA") || keys.has("ArrowLeft")) move.sub(right);
         if (move.lengthSq() > 0) move.normalize();
         const speed = keys.has("ShiftLeft") ? 6.8 : 4.6;
         player.velocity.lerp(move.multiplyScalar(speed), 1 - Math.pow(0.0008, delta));
@@ -1060,7 +1061,7 @@
 
       function renderPads() {
         padsEl.innerHTML = "";
-        const labels = ["WASD + мышь", "V камера", "R перезарядка", "Space огонь"];
+        const labels = ["WASD/стрелки", "мышь прицел", "R перезарядка", "Space огонь"];
         labels.forEach((label, index) => {
           const pad = document.createElement("div");
           pad.className = "pad";
@@ -1098,6 +1099,7 @@
         state.pitch = clamp(state.pitch - event.movementY * 0.0018, -0.72, 0.62);
       });
       canvas.addEventListener("click", () => {
+        canvas.focus();
         requestAimLock();
         if (!state.running) startGame();
         shoot();
