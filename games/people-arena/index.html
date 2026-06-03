@@ -433,6 +433,18 @@
       const keys = new Set();
       const colors = ["#b94b3e", "#39789b", "#a23e34", "#2f6584", "#8f3a31", "#28536e", "#c26050", "#4d88aa", "#7f3028", "#24607f"];
       const names = ["Альфа", "Браво", "Чарли", "Дельта", "Эхо", "Фокс", "Гамма", "Норд", "Вега", "Шторм"];
+      const floorSpecks = Array.from({ length: 280 }, (_, index) => ({
+        x: (index * 97) % world.width,
+        y: 48 + ((index * 53) % (world.height - 58)),
+        r: 0.6 + ((index * 17) % 13) / 10,
+        a: 0.06 + ((index * 23) % 11) / 100
+      }));
+      const props = [
+        { x: 78, y: 92, type: "barrel" }, { x: 102, y: 92, type: "barrel" },
+        { x: 1020, y: 608, type: "barrel" }, { x: 1044, y: 608, type: "barrel" },
+        { x: 378, y: 138, type: "target" }, { x: 742, y: 558, type: "target" },
+        { x: 548, y: 96, type: "lamp" }, { x: 548, y: 626, type: "lamp" }
+      ];
       const keyboardMaps = [
         { up: "KeyW", down: "KeyS", left: "KeyA", right: "KeyD", fire: "Space", label: "WASD + Space" },
         { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", fire: "Enter", label: "стрелки + Enter" },
@@ -495,15 +507,17 @@
 
       function makeObstacles() {
         obstacles = [
-          { x: 126, y: 112, w: 150, h: 42, type: "crate" },
-          { x: 844, y: 112, w: 150, h: 42, type: "crate" },
-          { x: 238, y: 250, w: 70, h: 152, type: "wall" },
-          { x: 812, y: 250, w: 70, h: 152, type: "wall" },
-          { x: 458, y: 300, w: 204, h: 54, type: "mid" },
-          { x: 126, y: 546, w: 150, h: 42, type: "crate" },
-          { x: 844, y: 546, w: 150, h: 42, type: "crate" },
-          { x: 458, y: 116, w: 54, h: 92, type: "wall" },
-          { x: 608, y: 492, w: 54, h: 92, type: "wall" }
+          { x: 118, y: 112, w: 168, h: 46, type: "container" },
+          { x: 834, y: 112, w: 168, h: 46, type: "container" },
+          { x: 226, y: 246, w: 82, h: 158, type: "concrete" },
+          { x: 812, y: 246, w: 82, h: 158, type: "concrete" },
+          { x: 452, y: 302, w: 216, h: 58, type: "sandbags" },
+          { x: 118, y: 542, w: 168, h: 46, type: "container" },
+          { x: 834, y: 542, w: 168, h: 46, type: "container" },
+          { x: 452, y: 112, w: 58, h: 102, type: "concrete" },
+          { x: 610, y: 486, w: 58, h: 102, type: "concrete" },
+          { x: 356, y: 438, w: 148, h: 38, type: "barrier" },
+          { x: 616, y: 224, w: 148, h: 38, type: "barrier" }
         ];
       }
 
@@ -789,12 +803,12 @@
         if (player.respawnTimer > 0) {
           ctx.save();
           ctx.globalAlpha = 0.65;
-          ctx.strokeStyle = player.team === "red" ? "#ff4d5f" : "#38bdf8";
+          ctx.strokeStyle = player.team === "red" ? "#b44736" : "#39789b";
           ctx.lineWidth = 4;
           ctx.beginPath();
           ctx.arc(player.x, player.y, 30 + Math.sin(performance.now() / 90) * 4, 0, Math.PI * 2);
           ctx.stroke();
-          ctx.fillStyle = "#f8fafc";
+          ctx.fillStyle = "#f3f0e8";
           ctx.font = "900 13px system-ui";
           ctx.textAlign = "center";
           ctx.fillText("респавн", player.x, player.y - 38);
@@ -808,46 +822,87 @@
         }
         ctx.rotate(player.angle);
         const teamColor = player.team === "red" ? "#b44736" : "#39789b";
-        ctx.shadowColor = "rgba(0,0,0,.48)";
-        ctx.shadowBlur = 18;
-        ctx.shadowOffsetY = 10;
-        ctx.fillStyle = "#222528";
-        ctx.strokeStyle = "rgba(226,218,198,.22)";
+
+        ctx.fillStyle = "rgba(0,0,0,.32)";
+        ctx.beginPath();
+        ctx.ellipse(-6, 6, 30, 18, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        ctx.strokeStyle = "#1f2222";
+        ctx.lineWidth = 9;
+        ctx.beginPath();
+        ctx.moveTo(-13, -8);
+        ctx.lineTo(-28, -16);
+        ctx.moveTo(-13, 8);
+        ctx.lineTo(-28, 16);
+        ctx.stroke();
+
+        ctx.strokeStyle = "#2f3432";
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(-8, -10);
+        ctx.lineTo(9, -18);
+        ctx.moveTo(-8, 10);
+        ctx.lineTo(9, 18);
+        ctx.stroke();
+
+        ctx.fillStyle = "#272a29";
+        ctx.strokeStyle = "rgba(226,218,198,.2)";
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.ellipse(-4, 0, player.radius + 1, player.radius - 3, 0, 0, Math.PI * 2);
+        ctx.roundRect(-22, -14, 34, 28, 10);
         ctx.fill();
         ctx.stroke();
 
-        ctx.shadowColor = "transparent";
-        ctx.fillStyle = "#35393b";
+        const vest = ctx.createLinearGradient(-18, -12, 10, 12);
+        vest.addColorStop(0, "#3a3f3b");
+        vest.addColorStop(1, "#151716");
+        ctx.fillStyle = vest;
         ctx.beginPath();
-        ctx.roundRect(-20, -10, 30, 20, 6);
+        ctx.roundRect(-18, -10, 27, 20, 7);
         ctx.fill();
 
-        ctx.fillStyle = "#181a1b";
+        ctx.fillStyle = "#161817";
+        ctx.strokeStyle = "rgba(226,218,198,.18)";
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(12, 0, 11, 0, Math.PI * 2);
+        ctx.ellipse(12, 0, 13, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(226,218,198,.16)";
+        ctx.beginPath();
+        ctx.roundRect(14, -5, 8, 10, 3);
         ctx.fill();
 
         ctx.strokeStyle = teamColor;
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.moveTo(-15, -13);
-        ctx.lineTo(-5, -13);
-        ctx.moveTo(-15, 13);
-        ctx.lineTo(-5, 13);
+        ctx.moveTo(-19, -13);
+        ctx.lineTo(-6, -13);
+        ctx.moveTo(-19, 13);
+        ctx.lineTo(-6, 13);
         ctx.stroke();
 
-        ctx.fillStyle = "#111315";
+        ctx.strokeStyle = "#101112";
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(6, -6);
+        ctx.lineTo(36, -4);
+        ctx.stroke();
         ctx.strokeStyle = "#514b3d";
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.roundRect(8, -4, 34, 8, 3);
-        ctx.fill();
+        ctx.moveTo(8, -6);
+        ctx.lineTo(42, -4);
         ctx.stroke();
-        ctx.fillStyle = "#2b2d2f";
-        ctx.fillRect(31, -7, 8, 14);
+        ctx.fillStyle = "#111315";
+        ctx.beginPath();
+        ctx.roundRect(25, -9, 10, 10, 2);
+        ctx.fill();
 
         ctx.restore();
 
@@ -899,27 +954,8 @@
         ctx.fillStyle = "#17191a";
         ctx.fillRect(0, 0, world.width, world.height);
 
-        const floor = ctx.createLinearGradient(0, 0, world.width, world.height);
-        floor.addColorStop(0, "#242629");
-        floor.addColorStop(0.5, "#181a1b");
-        floor.addColorStop(1, "#101112");
-        ctx.fillStyle = floor;
-        ctx.fillRect(0, 0, world.width, world.height);
-
-        ctx.strokeStyle = "rgba(226,218,198,.08)";
-        ctx.lineWidth = 1;
-        for (let x = 0; x < world.width; x += 70) {
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, world.height);
-          ctx.stroke();
-        }
-        for (let y = 46; y < world.height; y += 70) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(world.width, y);
-          ctx.stroke();
-        }
+        drawConcreteFloor();
+        drawMapArchitecture();
 
         drawFloorWear();
 
@@ -948,11 +984,13 @@
         ctx.fillText("BLUE BASE", world.width - 24, 29);
 
         drawCapture();
+        drawProps();
         drawObstacles();
         crates.forEach(drawCrate);
         bullets.forEach(drawBullet);
         effects.forEach(drawEffect);
         players.forEach(drawPlayer);
+        drawLighting();
 
         if (!running) {
           const winner = [...players].sort((a, b) => b.score - a.score)[0];
@@ -966,6 +1004,49 @@
           const text = timeLeft <= 0 && winner ? `Лучший игрок ${winner.id}: ${winner.name}` : "Выберите игроков и нажмите Старт";
           ctx.fillText(text, world.width / 2, world.height / 2 + 12);
         }
+      }
+
+      function drawConcreteFloor() {
+        const floor = ctx.createLinearGradient(0, 0, world.width, world.height);
+        floor.addColorStop(0, "#2b2c2b");
+        floor.addColorStop(0.45, "#1b1d1d");
+        floor.addColorStop(1, "#121313");
+        ctx.fillStyle = floor;
+        ctx.fillRect(0, 0, world.width, world.height);
+
+        ctx.strokeStyle = "rgba(226,218,198,.08)";
+        ctx.lineWidth = 1;
+        for (let x = 0; x < world.width; x += 140) {
+          for (let y = 46; y < world.height; y += 140) {
+            ctx.strokeRect(x, y, 140, 140);
+          }
+        }
+
+        for (const speck of floorSpecks) {
+          ctx.fillStyle = `rgba(226,218,198,${speck.a})`;
+          ctx.beginPath();
+          ctx.arc(speck.x, speck.y, speck.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function drawMapArchitecture() {
+        ctx.save();
+        ctx.fillStyle = "#0f1010";
+        ctx.fillRect(0, 46, 20, world.height - 46);
+        ctx.fillRect(world.width - 20, 46, 20, world.height - 46);
+        ctx.fillRect(0, world.height - 20, world.width, 20);
+
+        ctx.strokeStyle = "rgba(226,218,198,.22)";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(20, 48, world.width - 40, world.height - 68);
+
+        ctx.fillStyle = "rgba(197,155,74,.28)";
+        for (let x = 28; x < world.width - 28; x += 46) {
+          ctx.fillRect(x, 54, 24, 5);
+          ctx.fillRect(x, world.height - 33, 24, 5);
+        }
+        ctx.restore();
       }
 
       function drawFloorWear() {
@@ -997,31 +1078,147 @@
         ctx.restore();
       }
 
+      function drawProps() {
+        for (const prop of props) {
+          if (prop.type === "barrel") drawBarrel(prop);
+          if (prop.type === "target") drawTarget(prop);
+          if (prop.type === "lamp") drawLamp(prop);
+        }
+      }
+
+      function drawBarrel(prop) {
+        ctx.save();
+        ctx.translate(prop.x, prop.y);
+        ctx.shadowColor = "rgba(0,0,0,.45)";
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 7;
+        const barrel = ctx.createRadialGradient(-5, -7, 2, 0, 0, 18);
+        barrel.addColorStop(0, "#6f7a7b");
+        barrel.addColorStop(0.55, "#364044");
+        barrel.addColorStop(1, "#171a1b");
+        ctx.fillStyle = barrel;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 17, 19, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(226,218,198,.28)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(0,0,0,.44)";
+        ctx.beginPath();
+        ctx.moveTo(-13, -6);
+        ctx.lineTo(13, -6);
+        ctx.moveTo(-13, 7);
+        ctx.lineTo(13, 7);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawTarget(prop) {
+        ctx.save();
+        ctx.translate(prop.x, prop.y);
+        ctx.fillStyle = "#1b1c1d";
+        ctx.strokeStyle = "rgba(226,218,198,.24)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(-24, -16, 48, 32, 4);
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = "#8b3a30";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, 10, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = "#c59b4a";
+        ctx.beginPath();
+        ctx.arc(0, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawLamp(prop) {
+        const glow = ctx.createRadialGradient(prop.x, prop.y, 8, prop.x, prop.y, 150);
+        glow.addColorStop(0, "rgba(197,155,74,.2)");
+        glow.addColorStop(1, "rgba(197,155,74,0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(prop.x, prop.y, 150, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#c59b4a";
+        ctx.fillRect(prop.x - 14, prop.y - 3, 28, 6);
+      }
+
       function drawObstacles() {
         for (const block of obstacles) {
           const gradient = ctx.createLinearGradient(block.x, block.y, block.x, block.y + block.h);
-          gradient.addColorStop(0, block.type === "crate" ? "#5d5448" : "#4a4d4e");
-          gradient.addColorStop(1, block.type === "crate" ? "#2d2822" : "#202224");
+          gradient.addColorStop(0, block.type === "container" ? "#6a5b49" : block.type === "sandbags" ? "#726850" : "#595b58");
+          gradient.addColorStop(1, block.type === "container" ? "#2d2822" : block.type === "sandbags" ? "#302d24" : "#222322");
           ctx.fillStyle = gradient;
           ctx.strokeStyle = "rgba(226,218,198,.28)";
           ctx.lineWidth = 2;
-          ctx.shadowColor = "rgba(0,0,0,.38)";
-          ctx.shadowBlur = 14;
-          ctx.shadowOffsetY = 8;
+          ctx.shadowColor = "rgba(0,0,0,.48)";
+          ctx.shadowBlur = 16;
+          ctx.shadowOffsetX = 8;
+          ctx.shadowOffsetY = 11;
           ctx.beginPath();
-          ctx.roundRect(block.x, block.y, block.w, block.h, 8);
+          ctx.roundRect(block.x, block.y, block.w, block.h, block.type === "sandbags" ? 18 : 6);
           ctx.fill();
           ctx.stroke();
           ctx.shadowColor = "transparent";
-          ctx.strokeStyle = "rgba(226,218,198,.1)";
-          ctx.lineWidth = 1;
-          for (let x = block.x + 18; x < block.x + block.w; x += 28) {
-            ctx.beginPath();
-            ctx.moveTo(x, block.y + 6);
-            ctx.lineTo(x, block.y + block.h - 6);
-            ctx.stroke();
+          if (block.type === "sandbags") {
+            drawSandbags(block);
+          } else if (block.type === "container") {
+            drawContainerLines(block);
+          } else {
+            drawConcreteLines(block);
           }
         }
+      }
+
+      function drawContainerLines(block) {
+        ctx.strokeStyle = "rgba(226,218,198,.13)";
+        ctx.lineWidth = 2;
+        for (let x = block.x + 18; x < block.x + block.w; x += 28) {
+          ctx.beginPath();
+          ctx.moveTo(x, block.y + 6);
+          ctx.lineTo(x, block.y + block.h - 6);
+          ctx.stroke();
+        }
+        ctx.fillStyle = "rgba(0,0,0,.24)";
+        ctx.fillRect(block.x + 10, block.y + 9, block.w - 20, 4);
+      }
+
+      function drawConcreteLines(block) {
+        ctx.strokeStyle = "rgba(0,0,0,.32)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(block.x + 10, block.y + 18);
+        ctx.lineTo(block.x + block.w - 12, block.y + 14);
+        ctx.moveTo(block.x + 12, block.y + block.h - 20);
+        ctx.lineTo(block.x + block.w - 10, block.y + block.h - 15);
+        ctx.stroke();
+        ctx.fillStyle = "rgba(226,218,198,.08)";
+        ctx.fillRect(block.x + 8, block.y + 8, block.w - 16, 5);
+      }
+
+      function drawSandbags(block) {
+        ctx.strokeStyle = "rgba(0,0,0,.24)";
+        ctx.lineWidth = 2;
+        for (let x = block.x + 12; x < block.x + block.w - 8; x += 30) {
+          ctx.beginPath();
+          ctx.ellipse(x + 10, block.y + block.h / 2, 18, 15, -0.12, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+
+      function drawLighting() {
+        ctx.save();
+        const vignette = ctx.createRadialGradient(world.width / 2, world.height / 2, 180, world.width / 2, world.height / 2, 660);
+        vignette.addColorStop(0, "rgba(0,0,0,0)");
+        vignette.addColorStop(0.72, "rgba(0,0,0,.14)");
+        vignette.addColorStop(1, "rgba(0,0,0,.46)");
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, world.width, world.height);
+        ctx.restore();
       }
 
       function drawEffect(effect) {
