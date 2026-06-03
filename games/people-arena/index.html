@@ -477,7 +477,7 @@
         teamScore: 0,
         enemyScore: 0,
         player: {
-          position: new THREE.Vector3(0, 1.75, 13.6),
+          position: new THREE.Vector3(-5.2, 1.75, 13.4),
           velocity: new THREE.Vector3(),
           hp: 100,
           ammo: 30,
@@ -495,7 +495,9 @@
       let muzzleLight;
       let crosshair;
       let statusLine;
+      let movePad;
       let scoreRenderTimer = 0;
+      const virtualMove = { forward: 0, side: 0 };
 
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
       const rand = (min, max) => Math.random() * (max - min) + min;
@@ -589,6 +591,58 @@
           pointerEvents: "none"
         });
         stage.appendChild(statusLine);
+
+        movePad = document.createElement("div");
+        movePad.setAttribute("aria-label", "Кнопки движения");
+        Object.assign(movePad.style, {
+          position: "absolute",
+          right: "18px",
+          bottom: "16px",
+          width: "132px",
+          display: "grid",
+          gridTemplateColumns: "44px 44px 44px",
+          gridTemplateRows: "38px 38px 38px",
+          gap: "5px",
+          pointerEvents: "auto"
+        });
+        const padItems = [
+          { label: "", dir: "" }, { label: "▲", dir: "up" }, { label: "", dir: "" },
+          { label: "◀", dir: "left" }, { label: "▼", dir: "down" }, { label: "▶", dir: "right" }
+        ];
+        padItems.forEach((item) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = item.label;
+          button.dataset.dir = item.dir;
+          Object.assign(button.style, {
+            minHeight: "38px",
+            border: "1px solid rgba(218,210,190,.26)",
+            borderRadius: "8px",
+            color: "#f3f0e8",
+            background: item.dir ? "rgba(10,11,12,.72)" : "transparent",
+            font: "900 18px system-ui",
+            visibility: item.dir ? "visible" : "hidden"
+          });
+          const set = (value) => {
+            if (item.dir === "up") virtualMove.forward = value;
+            if (item.dir === "down") virtualMove.forward = -value;
+            if (item.dir === "right") virtualMove.side = value;
+            if (item.dir === "left") virtualMove.side = -value;
+          };
+          button.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            canvas.focus();
+            if (!state.running) startGame();
+            button.setPointerCapture(event.pointerId);
+            set(1);
+          });
+          const clear = () => set(0);
+          button.addEventListener("pointerup", clear);
+          button.addEventListener("pointercancel", clear);
+          button.addEventListener("pointerleave", clear);
+          movePad.appendChild(button);
+        });
+        stage.appendChild(movePad);
       }
 
       function addBox({ x, y = 0, z, w, h, d, material, cast = true, receive = true, collider = true, name = "" }) {
@@ -782,7 +836,7 @@
         state.shots = 0;
         state.yaw = 0;
         state.pitch = 0;
-        state.player.position.set(0, 1.75, 13.6);
+        state.player.position.set(-5.2, 1.75, 13.4);
         state.player.velocity.set(0, 0, 0);
         state.player.hp = 100;
         state.player.ammo = 30;
@@ -832,13 +886,15 @@
 
       function updatePlayer(delta) {
         const player = state.player;
-        if (keys.has("KeyQ")) state.yaw += delta * 1.9;
-        if (keys.has("KeyE")) state.yaw -= delta * 1.9;
-        if (keys.has("KeyV")) {
+        if (keys.has("KeyQ") || keys.has("q") || keys.has("й")) state.yaw += delta * 1.9;
+        if (keys.has("KeyE") || keys.has("e") || keys.has("у")) state.yaw -= delta * 1.9;
+        if (keys.has("KeyV") || keys.has("v") || keys.has("м")) {
           keys.delete("KeyV");
+          keys.delete("v");
+          keys.delete("м");
           state.view = state.view === "first" ? "third" : "first";
         }
-        if (keys.has("KeyR") && player.reload <= 0 && player.ammo < 30) player.reload = 1.15;
+        if ((keys.has("KeyR") || keys.has("r") || keys.has("к")) && player.reload <= 0 && player.ammo < 30) player.reload = 1.15;
         if (player.reload > 0) {
           player.reload -= delta;
           if (player.reload <= 0) player.ammo = 30;
@@ -847,12 +903,12 @@
         const yaw = state.yaw;
         forward.set(Math.sin(yaw), 0, -Math.cos(yaw)).normalize();
         right.set(Math.cos(yaw), 0, Math.sin(yaw)).normalize();
-        if (keys.has("KeyW") || keys.has("ArrowUp")) move.add(forward);
-        if (keys.has("KeyS") || keys.has("ArrowDown")) move.sub(forward);
-        if (keys.has("KeyD") || keys.has("ArrowRight")) move.add(right);
-        if (keys.has("KeyA") || keys.has("ArrowLeft")) move.sub(right);
+        if (keys.has("KeyW") || keys.has("w") || keys.has("ц") || keys.has("ArrowUp") || virtualMove.forward > 0) move.add(forward);
+        if (keys.has("KeyS") || keys.has("s") || keys.has("ы") || keys.has("ArrowDown") || virtualMove.forward < 0) move.sub(forward);
+        if (keys.has("KeyD") || keys.has("d") || keys.has("в") || keys.has("ArrowRight") || virtualMove.side > 0) move.add(right);
+        if (keys.has("KeyA") || keys.has("a") || keys.has("ф") || keys.has("ArrowLeft") || virtualMove.side < 0) move.sub(right);
         if (move.lengthSq() > 0) move.normalize();
-        const speed = keys.has("ShiftLeft") ? 6.8 : 4.6;
+        const speed = (keys.has("ShiftLeft") || keys.has("Shift")) ? 8.2 : 6.2;
         player.velocity.lerp(move.multiplyScalar(speed), 1 - Math.pow(0.0008, delta));
         const next = player.position.clone().addScaledVector(player.velocity, delta);
         next.x = clamp(next.x, -world.w / 2 + 1.2, world.w / 2 - 1.2);
@@ -862,7 +918,7 @@
         state.recoil = Math.max(0, state.recoil - delta * 5.5);
         muzzleLight.intensity = Math.max(0, muzzleLight.intensity - delta * 35);
         state.bob += delta * player.velocity.length() * 2.6;
-        if (keys.has("Space")) shoot();
+        if (keys.has("Space") || keys.has(" ")) shoot();
         playerModel.group.position.set(player.position.x, 0, player.position.z);
         playerModel.group.rotation.y = state.yaw + Math.PI;
         playerModel.group.visible = state.view === "third";
@@ -1090,9 +1146,13 @@
 
       window.addEventListener("keydown", (event) => {
         keys.add(event.code);
+        keys.add(event.key.toLowerCase());
         if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.code)) event.preventDefault();
       });
-      window.addEventListener("keyup", (event) => keys.delete(event.code));
+      window.addEventListener("keyup", (event) => {
+        keys.delete(event.code);
+        keys.delete(event.key.toLowerCase());
+      });
       document.addEventListener("mousemove", (event) => {
         if (document.pointerLockElement !== canvas) return;
         state.yaw -= event.movementX * 0.0024;
@@ -1117,6 +1177,7 @@
       buildArena();
       resetGame();
       resizeRenderer();
+      window.__arenaDebug = state;
       loop();
     </script>
 
