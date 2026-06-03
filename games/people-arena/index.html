@@ -385,14 +385,14 @@
       <aside class="controls">
         <section class="panel">
           <h1>3D-полигон</h1>
-          <p>Теперь это вид от игрока: заходите на полигон, цельтесь в центр экрана, двигайтесь по укрытиям и стреляйте тренировочными бластерами.</p>
+          <p>Дневной разрушенный город: заходите вместе с настоящими игроками, бегайте между домами, цельтесь в центр экрана и стреляйте тренировочными бластерами.</p>
           <div class="setup">
             <button class="big-button" id="startButton" type="button">Старт</button>
             <button class="ghost-button" id="resetButton" type="button">Заново</button>
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
           </div>
-          <p>Нажми Старт или кликни по игре. Ходить можно WASD или стрелками, мышь — прицел, Space/клик — выстрел, R — перезарядка, V — камера.</p>
+          <p>Нажми Старт или кликни по игре. WASD/стрелки — ходьба, мышь — прицел, Space/клик — выстрел, R — перезарядка, V — камера. Онлайн-игроки подключаются с этого же сайта.</p>
         </section>
 
         <section class="panel">
@@ -449,8 +449,8 @@
       renderer.toneMappingExposure = 1.35;
 
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x0f1112);
-      scene.fog = new THREE.FogExp2(0x111315, 0.035);
+      scene.background = new THREE.Color(0x8fc7e8);
+      scene.fog = new THREE.FogExp2(0xbfd5da, 0.018);
 
       const camera = new THREE.PerspectiveCamera(72, 16 / 10, 0.08, 140);
       scene.add(camera);
@@ -488,6 +488,7 @@
 
       const colliders = [];
       const enemies = [];
+      const remotePlayers = new Map();
       const tracers = [];
       const sparks = [];
       let playerModel;
@@ -497,6 +498,10 @@
       let statusLine;
       let movePad;
       let scoreRenderTimer = 0;
+      let networkSocket;
+      let networkId = "";
+      let networkTimer = 0;
+      let onlineStatus = "онлайн: подключение...";
       const virtualMove = { forward: 0, side: 0 };
 
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -551,6 +556,9 @@
         metal: new THREE.MeshStandardMaterial({ map: metalTexture, roughness: 0.58, metalness: 0.34 }),
         crate: new THREE.MeshStandardMaterial({ map: crateTexture, roughness: 0.75, metalness: 0.08 }),
         concrete: new THREE.MeshStandardMaterial({ color: 0x555752, roughness: 0.95, metalness: 0.02 }),
+        asphalt: new THREE.MeshStandardMaterial({ color: 0x4d4b43, roughness: 0.96, metalness: 0.01 }),
+        plaster: new THREE.MeshStandardMaterial({ color: 0xb8aa8b, roughness: 0.9, metalness: 0.02 }),
+        brick: new THREE.MeshStandardMaterial({ color: 0x8b5940, roughness: 0.88, metalness: 0.02 }),
         sand: new THREE.MeshStandardMaterial({ color: 0x766d55, roughness: 0.98, metalness: 0.01 }),
         red: new THREE.MeshStandardMaterial({ color: 0x9f3f34, roughness: 0.55, metalness: 0.12 }),
         blue: new THREE.MeshStandardMaterial({ color: 0x356f90, roughness: 0.55, metalness: 0.12 }),
@@ -664,11 +672,11 @@
         tracers.length = 0;
         sparks.length = 0;
 
-        const hemi = new THREE.HemisphereLight(0xd7e3ee, 0x3c3020, 1.05);
+        const hemi = new THREE.HemisphereLight(0xdff4ff, 0x8b7a56, 1.45);
         scene.add(hemi);
 
-        const key = new THREE.DirectionalLight(0xfff0d0, 3.6);
-        key.position.set(-8, 13, 7);
+        const key = new THREE.DirectionalLight(0xfff2c2, 4.8);
+        key.position.set(-15, 19, 10);
         key.castShadow = true;
         key.shadow.mapSize.set(2048, 2048);
         key.shadow.camera.near = 1;
@@ -679,31 +687,30 @@
         key.shadow.camera.bottom = -25;
         scene.add(key);
 
-        const blueLamp = new THREE.PointLight(0x6eb6ff, 12, 25, 1.55);
-        blueLamp.position.set(15, 5, -10);
-        blueLamp.castShadow = true;
-        scene.add(blueLamp);
-
-        const amberLamp = new THREE.PointLight(0xffc46b, 11, 24, 1.6);
-        amberLamp.position.set(-14, 5, 11);
-        amberLamp.castShadow = true;
-        scene.add(amberLamp);
+        const sunGlow = new THREE.Mesh(
+          new THREE.SphereGeometry(2.2, 32, 18),
+          new THREE.MeshBasicMaterial({ color: 0xffef9a })
+        );
+        sunGlow.position.set(-22, 18, -18);
+        scene.add(sunGlow);
 
         muzzleLight = new THREE.PointLight(0xffbf63, 0, 7, 2);
         scene.add(muzzleLight);
 
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(world.w, world.d, 1, 1), materials.floor);
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(world.w, world.d, 1, 1), materials.asphalt);
         floor.rotation.x = -Math.PI / 2;
         floor.receiveShadow = true;
         scene.add(floor);
 
-        addBox({ x: 0, z: -world.d / 2, w: world.w, h: 5.8, d: 0.7, material: materials.wall, collider: true, cast: false });
-        addBox({ x: 0, z: world.d / 2, w: world.w, h: 5.8, d: 0.7, material: materials.wall, collider: true, cast: false });
-        addBox({ x: -world.w / 2, z: 0, w: 0.7, h: 5.8, d: world.d, material: materials.wall, collider: true, cast: false });
-        addBox({ x: world.w / 2, z: 0, w: 0.7, h: 5.8, d: world.d, material: materials.wall, collider: true, cast: false });
+        addBox({ x: 0, z: -world.d / 2, w: world.w, h: 2.2, d: 0.7, material: materials.concrete, collider: true, cast: false });
+        addBox({ x: 0, z: world.d / 2, w: world.w, h: 2.2, d: 0.7, material: materials.concrete, collider: true, cast: false });
+        addBox({ x: -world.w / 2, z: 0, w: 0.7, h: 2.2, d: world.d, material: materials.concrete, collider: true, cast: false });
+        addBox({ x: world.w / 2, z: 0, w: 0.7, h: 2.2, d: world.d, material: materials.concrete, collider: true, cast: false });
 
-        addBox({ x: -11, z: -8, w: 5.8, h: 2.7, d: 1.7, material: materials.metal });
-        addBox({ x: 11, z: 8, w: 5.8, h: 2.7, d: 1.7, material: materials.metal });
+        addRuinedHouse(-12, -8, 7, 6, 5.4, materials.plaster);
+        addRuinedHouse(12, 8, 7, 6, 5.2, materials.brick);
+        addRuinedHouse(-14, 7, 5.8, 5.2, 4.4, materials.brick);
+        addRuinedHouse(14, -8, 5.8, 5.2, 4.2, materials.plaster);
         addBox({ x: 8, z: -8.8, w: 2.1, h: 2.5, d: 5.4, material: materials.concrete });
         addBox({ x: -8, z: 8.8, w: 2.1, h: 2.5, d: 5.4, material: materials.concrete });
         addBox({ x: 0, z: 0, w: 6.2, h: 1.45, d: 2.1, material: materials.sand });
@@ -711,6 +718,10 @@
         addBox({ x: 1.6, z: 12.4, w: 2.4, h: 2.9, d: 3.4, material: materials.concrete });
         addBox({ x: -14.4, z: 2.4, w: 4.3, h: 1.6, d: 1.5, material: materials.crate });
         addBox({ x: 14.4, z: -2.4, w: 4.3, h: 1.6, d: 1.5, material: materials.crate });
+        addRoadLines();
+        addRubble(-5, -5);
+        addRubble(5, 5);
+        addRubble(0, -9);
 
         for (const [x, z] of [[-17, -13], [-15.8, -13], [16, 13], [17.2, 13], [17.2, 11.8]]) addBarrel(x, z);
         addTarget(-5.4, -14.6);
@@ -731,6 +742,46 @@
         body.receiveShadow = true;
         scene.add(body);
         colliders.push({ x, z, w: 1.05, d: 1.05 });
+      }
+
+      function addRuinedHouse(x, z, w, d, h, material) {
+        addBox({ x, z: z - d / 2, w, h, d: 0.38, material, collider: true });
+        addBox({ x: x - w / 2, z, w: 0.38, h: h * 0.86, d, material, collider: true });
+        addBox({ x: x + w / 2, z: z + d * 0.12, w: 0.38, h: h * 0.62, d: d * 0.76, material, collider: true });
+        addBox({ x: x - w * 0.18, z: z + d / 2, w: w * 0.45, h: h * 0.52, d: 0.38, material, collider: true });
+        const roof = addBox({ x: x + w * 0.18, y: h * 0.78, z: z - d * 0.12, w: w * 0.42, h: 0.32, d: d * 0.62, material: materials.concrete, collider: false });
+        roof.rotation.z = rand(-0.08, 0.08);
+        const windowMaterial = materials.black;
+        for (const [wx, wz, wy] of [[x - w / 2 - 0.02, z - 1.1, 2.2], [x - w / 2 - 0.02, z + 1.1, 3.5], [x + w / 2 + 0.02, z, 2.1]]) {
+          const window = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.9, 0.9), windowMaterial);
+          window.position.set(wx, wy, wz);
+          window.castShadow = false;
+          scene.add(window);
+        }
+      }
+
+      function addRoadLines() {
+        const paint = new THREE.MeshBasicMaterial({ color: 0xe8d68a });
+        for (let z = -13; z <= 13; z += 4) {
+          const line = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.012, 1.8), paint);
+          line.position.set(0, 0.018, z);
+          line.receiveShadow = false;
+          scene.add(line);
+        }
+      }
+
+      function addRubble(x, z) {
+        for (let i = 0; i < 12; i += 1) {
+          const stone = new THREE.Mesh(
+            new THREE.BoxGeometry(rand(0.18, 0.55), rand(0.08, 0.28), rand(0.18, 0.55)),
+            Math.random() > 0.5 ? materials.concrete : materials.brick
+          );
+          stone.position.set(x + rand(-1.8, 1.8), stone.geometry.parameters.height / 2, z + rand(-1.4, 1.4));
+          stone.rotation.set(rand(-0.4, 0.4), rand(0, Math.PI), rand(-0.4, 0.4));
+          stone.castShadow = true;
+          stone.receiveShadow = true;
+          scene.add(stone);
+        }
       }
 
       function addTarget(x, z) {
@@ -827,6 +878,95 @@
         }
       }
 
+      function connectArena() {
+        const scheme = location.protocol === "https:" ? "wss" : "ws";
+        const host = location.protocol === "file:"
+          ? "barbarpatapim.com"
+          : location.hostname === "127.0.0.1" || location.hostname === "localhost"
+            ? `${location.hostname}:8099`
+            : location.host;
+        try {
+          networkSocket = new WebSocket(`${scheme}://${host}/arena-ws/`);
+        } catch {
+          onlineStatus = "онлайн: не подключено";
+          return;
+        }
+        networkSocket.addEventListener("open", () => {
+          onlineStatus = "онлайн: подключено";
+        });
+        networkSocket.addEventListener("message", (event) => {
+          const message = JSON.parse(event.data);
+          if (message.type === "welcome") {
+            networkId = message.id;
+            for (const peer of message.peers || []) upsertRemotePlayer(peer);
+          }
+          if (message.type === "peer") upsertRemotePlayer(message);
+          if (message.type === "leave") removeRemotePlayer(message.id);
+        });
+        networkSocket.addEventListener("close", () => {
+          onlineStatus = "онлайн: переподключение...";
+          setTimeout(connectArena, 1800);
+        });
+        networkSocket.addEventListener("error", () => {
+          onlineStatus = "онлайн: ошибка";
+        });
+      }
+
+      function upsertRemotePlayer(peer) {
+        if (!peer || !peer.id || peer.id === networkId) return;
+        let remote = remotePlayers.get(peer.id);
+        if (!remote) {
+          const model = createSoldier(remotePlayers.size % 2 ? "blue" : "red");
+          scene.add(model.group);
+          remote = { id: peer.id, model, state: peer, lastSeen: performance.now() };
+          remotePlayers.set(peer.id, remote);
+        }
+        remote.state = peer;
+        remote.lastSeen = performance.now();
+      }
+
+      function removeRemotePlayer(id) {
+        const remote = remotePlayers.get(id);
+        if (!remote) return;
+        scene.remove(remote.model.group);
+        remotePlayers.delete(id);
+      }
+
+      function updateRemotePlayers(delta) {
+        const now = performance.now();
+        for (const [id, remote] of remotePlayers) {
+          if (now - remote.lastSeen > 8000) {
+            removeRemotePlayer(id);
+            continue;
+          }
+          const target = new THREE.Vector3(remote.state.x, 0, remote.state.z);
+          remote.model.group.position.lerp(target, 1 - Math.pow(0.001, delta));
+          remote.model.group.rotation.y = remote.state.yaw + Math.PI;
+          animateSoldier(remote.model, delta, 2.2);
+          if (remote.state.firing && Math.random() > 0.8) {
+            const origin = remote.model.group.position.clone().add(new THREE.Vector3(0, 1.35, 0));
+            const end = origin.clone().add(new THREE.Vector3(Math.sin(remote.state.yaw), 0, -Math.cos(remote.state.yaw)).multiplyScalar(12));
+            addTracer(origin, end, 0xf5ca70);
+          }
+        }
+      }
+
+      function sendNetworkState(delta) {
+        networkTimer -= delta;
+        if (!networkSocket || networkSocket.readyState !== WebSocket.OPEN || networkTimer > 0) return;
+        networkTimer = 0.05;
+        networkSocket.send(JSON.stringify({
+          type: "state",
+          name: "Игрок",
+          x: state.player.position.x,
+          z: state.player.position.z,
+          yaw: state.yaw,
+          hp: state.player.hp,
+          score: state.score,
+          firing: state.recoil > 0.6
+        }));
+      }
+
       function resetGame() {
         state.running = false;
         state.timeLeft = 120;
@@ -872,6 +1012,8 @@
         }
         updatePlayer(delta);
         updateEnemies(delta);
+        updateRemotePlayers(delta);
+        sendNetworkState(delta);
         updateTracers(delta);
         updateSparks(delta);
         updateCamera();
@@ -1097,7 +1239,7 @@
         roundTimeEl.textContent = Math.ceil(state.timeLeft);
         starsLeftEl.textContent = state.player.reload > 0 ? "..." : state.player.ammo;
         leaderNameEl.textContent = `${state.teamScore} : ${state.enemyScore}`;
-        statusLine.textContent = `HP ${state.player.hp} | AMMO ${state.player.ammo}${state.view === "third" ? " | 3rd person" : ""}`;
+        statusLine.textContent = `HP ${state.player.hp} | AMMO ${state.player.ammo} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
       }
 
       function renderScores() {
@@ -1111,6 +1253,11 @@
             <i class="dot" style="background:${enemy.team === "red" ? "#b44736" : "#39789b"}"></i>
             <div><strong>${enemy.id}. ${enemy.name}</strong><span>${enemy.team === "red" ? "Красные" : "Синие"} | ${enemy.respawn > 0 ? "респавн" : `HP ${enemy.hp}`}</span></div>
             <button type="button" data-fire="${enemy.id}" aria-label="Статус игрок ${enemy.id}">${enemy.score}</button>
+          </div>`).join("")}
+          ${[...remotePlayers.values()].map((remote, index) => `<div class="player-row">
+            <i class="dot" style="background:#c59b4a"></i>
+            <div><strong>Онлайн ${index + 1}</strong><span>настоящий игрок | HP ${remote.state.hp || 100}</span></div>
+            <button type="button" aria-label="Онлайн игрок">${remote.state.score || 0}</button>
           </div>`).join("")}
         `;
       }
@@ -1175,9 +1322,11 @@
 
       setupDomOverlay();
       buildArena();
+      connectArena();
       resetGame();
       resizeRenderer();
       window.__arenaDebug = state;
+      window.__arenaDebugRemoteCount = () => remotePlayers.size;
       loop();
     </script>
 
