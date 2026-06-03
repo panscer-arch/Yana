@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Живая аренная стрелялка для 2-10 игроков без ботов: бластеры, укрытия, здоровье и очки за попадания.">
+    <meta name="description" content="Командная тактическая арена для 2-10 игроков: две команды, укрытия, бластеры и зона захвата.">
     <meta name="theme-color" content="#161629">
     <title>10 друзей: Арена</title>
     <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
@@ -371,22 +371,22 @@
           <div><span>Игроки</span><strong id="playersCount">2</strong></div>
           <div><span>Раунд</span><strong id="roundTime">90</strong></div>
           <div><span>Снаряды</span><strong id="starsLeft">0</strong></div>
-          <div><span>Лидер</span><strong id="leaderName">-</strong></div>
+          <div><span>Команды</span><strong id="leaderName">0 : 0</strong></div>
         </div>
         <canvas id="arena" width="1120" height="700"></canvas>
       </section>
 
       <aside class="controls">
         <section class="panel">
-          <h1>10 друзей: Арена</h1>
-          <p>Выбирайте от 2 до 10 живых игроков. Двигайтесь, прячьтесь за блоками, стреляйте мягкими бластерами и набирайте очки за попадания.</p>
+          <h1>Командная арена</h1>
+          <p>Выбирайте от 2 до 10 живых игроков. Делитесь на розовую и синюю команды, прячьтесь за блоками, удерживайте центр и стреляйте мягкими бластерами.</p>
           <div class="setup">
             <button class="big-button" id="startButton" type="button">Старт</button>
             <button class="ghost-button" id="resetButton" type="button">Заново</button>
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
           </div>
-          <p>Клавиатура: 1 WASD+Space, 2 стрелки+Enter, 3 IJKL+U, 4 TFGH+R. Остальные игроки двигаются панелями и стреляют кнопкой в счёте.</p>
+          <p>Клавиатура: 1 WASD+Space, 2 стрелки+Enter, 3 IJKL+U, 4 TFGH+R. Свои по своим не попадают. Центр даёт командные очки.</p>
         </section>
 
         <section class="panel">
@@ -441,6 +441,8 @@
       let crates = [];
       let bullets = [];
       let obstacles = [];
+      let teamScores = { pink: 0, blue: 0 };
+      let capture = { x: world.width / 2, y: world.height / 2, radius: 72, owner: null, progress: 0 };
       let running = false;
       let timeLeft = 90;
       let lastTime = 0;
@@ -452,10 +454,12 @@
 
       function makePlayer(index) {
         const angle = (Math.PI * 2 * index) / playerCount;
+        const team = index % 2 === 0 ? "pink" : "blue";
         return {
           id: index + 1,
           name: names[index],
-          color: colors[index],
+          team,
+          color: team === "pink" ? colors[index] : colors[index],
           x: world.width / 2 + Math.cos(angle) * 210,
           y: world.height / 2 + Math.sin(angle) * 210,
           vx: 0,
@@ -466,6 +470,7 @@
           ammo: 12,
           cooldown: 0,
           invulnerable: 0,
+          respawnTimer: 0,
           angle,
           pad: { x: 0, y: 0, pointer: null }
         };
@@ -496,6 +501,8 @@
       function resetGame() {
         players = Array.from({ length: playerCount }, (_, index) => makePlayer(index));
         bullets = [];
+        teamScores = { pink: 0, blue: 0 };
+        capture = { x: world.width / 2, y: world.height / 2, radius: 72, owner: null, progress: 0 };
         spawnCrates(8 + playerCount);
         makeObstacles();
         timeLeft = 90;
@@ -544,6 +551,11 @@
         if (timeLeft <= 0) running = false;
 
         for (const player of players) {
+          if (player.respawnTimer > 0) {
+            player.respawnTimer = Math.max(0, player.respawnTimer - delta);
+            continue;
+          }
+
           const dir = directionFor(player);
           if (dir.x || dir.y) player.angle = Math.atan2(dir.y, dir.x);
           const speed = 330;
@@ -575,8 +587,25 @@
         }
 
         updateBullets(delta);
+        updateCapture(delta);
         if (crates.length < 5) spawnCrates(7 + playerCount);
         updateHud();
+      }
+
+      function updateCapture(delta) {
+        const inside = players.filter((player) => player.respawnTimer <= 0 && distance(player, capture) < capture.radius + player.radius);
+        const teams = new Set(inside.map((player) => player.team));
+        if (teams.size !== 1) return;
+        const team = [...teams][0];
+        if (capture.owner !== team) {
+          capture.owner = team;
+          capture.progress = 0;
+        }
+        capture.progress = Math.min(100, capture.progress + delta * (18 + inside.length * 8));
+        if (capture.progress >= 100) {
+          teamScores[team] += 1;
+          capture.progress = 0;
+        }
       }
 
       function moveWithWalls(player, delta) {
@@ -625,16 +654,26 @@
             continue;
           }
 
-          const target = players.find((player) => player.id !== bullet.owner && player.invulnerable <= 0 && distance(player, bullet) < player.radius + 6);
+          const shooter = players.find((player) => player.id === bullet.owner);
+          const target = players.find((player) => {
+            if (!shooter) return false;
+            return player.id !== bullet.owner
+              && player.team !== shooter.team
+              && player.respawnTimer <= 0
+              && player.invulnerable <= 0
+              && distance(player, bullet) < player.radius + 6;
+          });
           if (target) {
-            const shooter = players.find((player) => player.id === bullet.owner);
             if (shooter) shooter.score += 1;
             target.hp -= 1;
             target.invulnerable = 0.35;
             target.vx += Math.cos(Math.atan2(target.y - bullet.y, target.x - bullet.x)) * 120;
             target.vy += Math.sin(Math.atan2(target.y - bullet.y, target.x - bullet.x)) * 120;
             if (target.hp <= 0) {
-              if (shooter) shooter.score += 3;
+              if (shooter) {
+                shooter.score += 3;
+                teamScores[shooter.team] += 2;
+              }
               respawn(target);
             }
             bullets.splice(i, 1);
@@ -649,6 +688,7 @@
         player.hp = 5;
         player.ammo = 12;
         player.invulnerable = 1.2;
+        player.respawnTimer = 2.5;
         player.vx = 0;
         player.vy = 0;
       }
@@ -710,13 +750,28 @@
       }
 
       function drawPlayer(player) {
+        if (player.respawnTimer > 0) {
+          ctx.save();
+          ctx.globalAlpha = 0.65;
+          ctx.strokeStyle = player.team === "pink" ? "#ff72ad" : "#54b8ff";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(player.x, player.y, 30 + Math.sin(performance.now() / 90) * 4, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fillStyle = "#252235";
+          ctx.font = "900 13px system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText("респавн", player.x, player.y - 38);
+          ctx.restore();
+          return;
+        }
         ctx.save();
         ctx.translate(player.x, player.y);
         if (player.invulnerable > 0 && Math.floor(player.invulnerable * 18) % 2 === 0) {
           ctx.globalAlpha = 0.45;
         }
         ctx.fillStyle = player.color;
-        ctx.strokeStyle = "white";
+        ctx.strokeStyle = player.team === "pink" ? "#ff72ad" : "#54b8ff";
         ctx.lineWidth = 5;
         ctx.beginPath();
         ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
@@ -747,6 +802,32 @@
         ctx.restore();
       }
 
+      function drawCapture() {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(capture.x, capture.y, capture.radius, 0, Math.PI * 2);
+        ctx.fillStyle = capture.owner === "pink"
+          ? "rgba(255, 114, 173, .18)"
+          : capture.owner === "blue"
+            ? "rgba(84, 184, 255, .18)"
+            : "rgba(255, 212, 92, .16)";
+        ctx.strokeStyle = capture.owner === "pink" ? "#ff72ad" : capture.owner === "blue" ? "#54b8ff" : "#ffd45c";
+        ctx.lineWidth = 5;
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = "#252235";
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.arc(capture.x, capture.y, capture.radius + 12, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (capture.progress / 100));
+        ctx.stroke();
+        ctx.fillStyle = "#252235";
+        ctx.font = "900 18px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText("ЦЕНТР", capture.x, capture.y + 6);
+        ctx.restore();
+      }
+
       function draw() {
         ctx.clearRect(0, 0, world.width, world.height);
         ctx.fillStyle = "#fbfeff";
@@ -769,6 +850,7 @@
 
         ctx.fillStyle = "rgba(255,114,173,.12)";
         ctx.fillRect(0, 0, world.width, 46);
+        drawCapture();
         drawObstacles();
         crates.forEach(drawCrate);
         bullets.forEach(drawBullet);
@@ -810,20 +892,21 @@
       }
 
       function updateHud() {
-        const leader = [...players].sort((a, b) => b.score - a.score)[0];
         playersCountEl.textContent = playerCount;
         roundTimeEl.textContent = Math.ceil(timeLeft);
         starsLeftEl.textContent = bullets.length;
-        leaderNameEl.textContent = leader ? `${leader.id}: ${leader.score}` : "-";
+        leaderNameEl.textContent = `${Math.floor(teamScores.pink)} : ${Math.floor(teamScores.blue)}`;
       }
 
       function renderScores() {
         scoreList.innerHTML = players
           .map((player) => {
             const control = keyboardMaps[player.id - 1]?.label || "панель";
+            const team = player.team === "pink" ? "Розовые" : "Синие";
+            const state = player.respawnTimer > 0 ? `респавн ${Math.ceil(player.respawnTimer)}` : `❤ ${player.hp} · ${player.ammo}`;
             return `<div class="player-row">
               <i class="dot" style="background:${player.color}"></i>
-              <div><strong>${player.id}. ${player.name}</strong><span>${control} · ❤ ${player.hp} · ${player.ammo}</span></div>
+              <div><strong>${player.id}. ${player.name}</strong><span>${team} · ${control} · ${state}</span></div>
               <button type="button" data-fire="${player.id}" aria-label="Огонь игрок ${player.id}">${player.score}</button>
             </div>`;
           })
