@@ -511,6 +511,7 @@
       const rand = (min, max) => Math.random() * (max - min) + min;
       const wrapAngle = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle));
       const rotateToward = (current, target, amount) => current + wrapAngle(target - current) * amount;
+      const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 
       function makeNoiseTexture(base, fleck, size = 256, scale = 1) {
         const c = document.createElement("canvas");
@@ -1548,9 +1549,10 @@
           const distance = toPlayer.length();
           enemy.think -= delta;
           if (enemy.think <= 0 || group.position.distanceTo(enemy.target) < 1.1) {
-            if (distance < 18) {
-              const chase = Math.random() > 0.38;
-              enemy.target.copy(playerPos).add(new THREE.Vector3(chase ? rand(-1.8, 1.8) : rand(-6, 6), 0, chase ? rand(-1.8, 1.8) : rand(-6, 6)));
+            const target = chooseEnemyTarget(enemy);
+            if (target.distance < 22) {
+              const chase = Math.random() > 0.32;
+              enemy.target.copy(target.position).add(new THREE.Vector3(chase ? rand(-1.5, 1.5) : rand(-5, 5), 0, chase ? rand(-1.5, 1.5) : rand(-5, 5)));
             } else enemy.target.set(rand(-20, 20), 0, rand(-16, 16));
             enemy.think = rand(0.55, 1.15);
           }
@@ -1576,25 +1578,57 @@
             enemy.model.walk += delta * enemy.speed * 4;
           }
           enemy.cooldown -= delta;
-          if (state.running && distance < 21 && enemy.cooldown <= 0) {
-            enemy.cooldown = rand(0.65, 1.45);
-            const aimYaw = Math.atan2(toPlayer.x, toPlayer.z) + Math.PI;
-            group.rotation.y = rotateToward(group.rotation.y, aimYaw, 0.45);
-            enemyShoot(enemy);
+          if (state.running && enemy.cooldown <= 0) {
+            const target = chooseEnemyTarget(enemy);
+            const aimVector = target.position.clone().sub(group.position);
+            if (target.distance < 24) {
+              enemy.cooldown = rand(0.5, 1.15);
+              const aimYaw = Math.atan2(aimVector.x, aimVector.z) + Math.PI;
+              group.rotation.y = rotateToward(group.rotation.y, aimYaw, 0.55);
+              enemyShoot(enemy, target);
+            } else {
+              enemy.cooldown = rand(0.2, 0.45);
+            }
           }
           animateSoldier(enemy.model, delta, enemy.speed);
         }
       }
 
-      function enemyShoot(enemy) {
+      function chooseEnemyTarget(enemy) {
+        const livingEnemies = enemies.filter((other) => other !== enemy && other.respawn <= 0);
+        let target = { type: "player", position: state.player.position, distance: distance2D(enemy.model.group.position, state.player.position) };
+        for (const other of livingEnemies) {
+          const dist = distance2D(enemy.model.group.position, other.model.group.position);
+          if (dist < target.distance && Math.random() > 0.28) {
+            target = { type: "enemy", enemy: other, position: other.model.group.position, distance: dist };
+          }
+        }
+        if (target.distance > 24 && livingEnemies.length > 0) {
+          const other = livingEnemies[Math.floor(Math.random() * livingEnemies.length)];
+          target = { type: "enemy", enemy: other, position: other.model.group.position, distance: distance2D(enemy.model.group.position, other.model.group.position) };
+        }
+        return target;
+      }
+
+      function enemyShoot(enemy, targetInfo = { type: "player", position: state.player.position }) {
         const origin = enemy.model.group.position.clone().add(new THREE.Vector3(0, 1.35, 0));
-        const target = state.player.position.clone().add(new THREE.Vector3(rand(-0.25, 0.25), rand(-0.15, 0.2), rand(-0.25, 0.25)));
+        const target = targetInfo.position.clone().add(new THREE.Vector3(rand(-0.25, 0.25), rand(0.1, 0.65), rand(-0.25, 0.25)));
         addTracer(origin, target, 0xffb866);
         addSpark(target, 0xffb866);
         addSpark(origin, 0xffe0a0);
         if (Math.random() > 0.28) {
-          state.player.hp = Math.max(0, state.player.hp - 7);
-          state.enemyScore += 1;
+          if (targetInfo.type === "enemy" && targetInfo.enemy) {
+            targetInfo.enemy.hp -= 24;
+            enemy.score += 1;
+            if (targetInfo.enemy.hp <= 0) {
+              enemy.score += 2;
+              targetInfo.enemy.respawn = 2.4;
+              targetInfo.enemy.model.group.visible = false;
+            }
+          } else {
+            state.player.hp = Math.max(0, state.player.hp - 7);
+            state.enemyScore += 1;
+          }
         }
       }
 
@@ -1823,7 +1857,7 @@
         aimDrag.moved = false;
       });
       window.addEventListener("pointerup", (event) => {
-        if (aimDrag.active && event.target === canvas && event.button === 0 && aimDrag.wasRunning && !aimDrag.moved) {
+        if (aimDrag.active && event.button === 0 && aimDrag.wasRunning && !aimDrag.moved) {
           shoot();
         }
         aimDrag.active = false;
