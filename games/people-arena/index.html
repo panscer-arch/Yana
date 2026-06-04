@@ -1110,7 +1110,7 @@
         player.cooldown = Math.max(0, player.cooldown - delta);
         state.recoil = Math.max(0, state.recoil - delta * 5.5);
         muzzleLight.intensity = Math.max(0, muzzleLight.intensity - delta * 35);
-        state.bob += delta * player.velocity.length() * 2.6;
+        state.bob += delta * player.velocity.length() * 1.55;
         if (keys.has("Space") || keys.has(" ")) shoot();
         playerModel.group.position.set(player.position.x, 0, player.position.z);
         playerModel.group.rotation.y = state.yaw + Math.PI;
@@ -1257,21 +1257,24 @@
 
       function updateCamera() {
         const player = state.player;
-        const bobY = Math.sin(state.bob * 8) * 0.025 * Math.min(player.velocity.length(), 5);
+        const walkSpeed = Math.min(player.velocity.length(), 5);
+        const weaponBobY = Math.sin(state.bob * 5) * 0.006 * walkSpeed;
+        const weaponBobX = Math.sin(state.bob * 2.5) * 0.004 * walkSpeed;
         const recoilPitch = state.recoil * 0.055;
         if (state.view === "third") {
           const back = new THREE.Vector3(-Math.sin(state.yaw), 0.25, Math.cos(state.yaw)).multiplyScalar(5.4);
           camera.position.copy(player.position).add(new THREE.Vector3(0, 1.25, 0)).add(back);
           camera.lookAt(player.position.x, player.position.y + 0.65, player.position.z);
         } else {
-          camera.position.copy(player.position).add(new THREE.Vector3(0, bobY, 0));
+          camera.position.copy(player.position);
           camera.rotation.order = "YXZ";
           camera.rotation.y = state.yaw;
           camera.rotation.x = state.pitch - recoilPitch;
-          camera.rotation.z = Math.sin(state.bob * 4) * 0.008 * Math.min(player.velocity.length(), 5);
+          camera.rotation.z = 0;
         }
         weapon.visible = state.view === "first";
-        weapon.position.y = -0.32 + bobY * 1.8 - state.recoil * 0.04;
+        weapon.position.x = 0.36 + weaponBobX;
+        weapon.position.y = -0.32 + weaponBobY - state.recoil * 0.04;
         weapon.position.z = -0.72 + state.recoil * 0.12;
       }
 
