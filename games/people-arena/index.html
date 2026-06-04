@@ -631,7 +631,12 @@
         suit: new THREE.MeshStandardMaterial({ color: 0x232625, roughness: 0.72, metalness: 0.18 }),
         black: new THREE.MeshStandardMaterial({ color: 0x0c0d0d, roughness: 0.34, metalness: 0.58 }),
         glass: new THREE.MeshStandardMaterial({ color: 0x87a9b5, roughness: 0.04, metalness: 0.02, transparent: true, opacity: 0.38, emissive: 0x132333, emissiveIntensity: 0.18 }),
-        darkGlass: new THREE.MeshStandardMaterial({ color: 0x101719, roughness: 0.12, metalness: 0.08, transparent: true, opacity: 0.84, emissive: 0x071018, emissiveIntensity: 0.12 })
+        darkGlass: new THREE.MeshStandardMaterial({ color: 0x101719, roughness: 0.12, metalness: 0.08, transparent: true, opacity: 0.84, emissive: 0x071018, emissiveIntensity: 0.12 }),
+        skin: new THREE.MeshStandardMaterial({ color: 0xc6a08a, roughness: 0.72, metalness: 0.02 }),
+        fabric: new THREE.MeshStandardMaterial({ color: 0x4b4a46, roughness: 0.9, metalness: 0.03 }),
+        helmet: new THREE.MeshStandardMaterial({ color: 0x6d6a5e, roughness: 0.44, metalness: 0.28 }),
+        strap: new THREE.MeshStandardMaterial({ color: 0x1b1b1a, roughness: 0.82, metalness: 0.08 }),
+        eye: new THREE.MeshStandardMaterial({ color: 0x6f9fc1, roughness: 0.24, metalness: 0.02, emissive: 0x122334, emissiveIntensity: 0.1 })
       };
       const contactShadowMaterial = new THREE.MeshBasicMaterial({
         color: 0x070807,
@@ -1022,18 +1027,54 @@
         const colorMaterial = team === "red" ? materials.red : materials.blue;
         const group = new THREE.Group();
         const parts = {};
-        parts.body = new THREE.Mesh(new THREE.CapsuleGeometry(0.34, 0.72, 5, 10), materials.suit);
-        parts.body.position.y = 1.18;
-        parts.vest = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.72, 0.28), colorMaterial);
-        parts.vest.position.set(0, 1.18, -0.03);
-        parts.head = new THREE.Mesh(new THREE.SphereGeometry(0.27, 18, 14), materials.black);
+        parts.body = new THREE.Mesh(new THREE.CapsuleGeometry(0.34, 0.78, 7, 14), materials.suit);
+        parts.body.position.y = 1.13;
+        parts.vest = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.76, 0.34), materials.fabric);
+        parts.vest.position.set(0, 1.2, -0.02);
+        parts.vestPlate = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.52, 0.06), colorMaterial);
+        parts.vestPlate.position.set(0, 1.22, -0.22);
+        parts.neck = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.22, 0.22, 18), materials.fabric);
+        parts.neck.position.y = 1.62;
+        parts.head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 28, 18), materials.skin);
+        parts.head.scale.set(0.92, 1.05, 0.88);
         parts.head.position.y = 1.88;
-        parts.visor = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.12, 0.07), materials.glass);
-        parts.visor.position.set(0, 1.9, -0.22);
+        parts.mask = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.25, 0.09), materials.fabric);
+        parts.mask.position.set(0, 1.8, -0.23);
+        parts.mask.rotation.x = -0.08;
+        parts.eyeSlit = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.12, 0.045), materials.skin);
+        parts.eyeSlit.position.set(0, 1.94, -0.245);
+        parts.leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 8), materials.eye);
+        parts.rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 8), materials.eye);
+        parts.leftEye.scale.set(1.35, 0.72, 0.55);
+        parts.rightEye.scale.set(1.35, 0.72, 0.55);
+        parts.leftEye.position.set(-0.095, 1.95, -0.27);
+        parts.rightEye.position.set(0.095, 1.95, -0.27);
+        parts.helmet = new THREE.Mesh(new THREE.SphereGeometry(0.33, 28, 14, 0, Math.PI * 2, 0, Math.PI * 0.62), materials.helmet);
+        parts.helmet.scale.set(1.03, 0.82, 1.02);
+        parts.helmet.position.y = 1.99;
+        parts.helmetPlate = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.11, 0.09), materials.helmet);
+        parts.helmetPlate.position.set(0, 2.16, -0.24);
+        parts.helmetPlate.rotation.x = -0.2;
+        parts.helmetBrim = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.055, 0.16), materials.helmet);
+        parts.helmetBrim.position.set(0, 2.02, -0.24);
+        parts.helmetBrim.rotation.x = -0.1;
+        parts.leftEar = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.08, 18), materials.black);
+        parts.rightEar = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.08, 18), materials.black);
+        parts.leftEar.position.set(-0.32, 1.93, -0.02);
+        parts.rightEar.position.set(0.32, 1.93, -0.02);
+        parts.leftEar.rotation.z = Math.PI / 2;
+        parts.rightEar.rotation.z = Math.PI / 2;
+        parts.mic = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.025, 0.34), materials.black);
+        parts.mic.position.set(-0.22, 1.78, -0.26);
+        parts.mic.rotation.y = -0.65;
+        parts.leftShoulder = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.18, 0.34), materials.fabric);
+        parts.rightShoulder = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.18, 0.34), materials.fabric);
+        parts.leftShoulder.position.set(-0.49, 1.42, -0.02);
+        parts.rightShoulder.position.set(0.49, 1.42, -0.02);
         parts.leftArm = makeLimb(0.13, 0.62, materials.suit);
         parts.rightArm = makeLimb(0.13, 0.62, materials.suit);
-        parts.leftArm.position.set(-0.48, 1.2, -0.02);
-        parts.rightArm.position.set(0.48, 1.2, -0.02);
+        parts.leftArm.position.set(-0.52, 1.11, -0.02);
+        parts.rightArm.position.set(0.52, 1.11, -0.02);
         parts.leftArm.rotation.z = 0.18;
         parts.rightArm.rotation.z = -0.18;
         parts.leftLeg = makeLimb(0.15, 0.76, materials.suit);
@@ -1042,12 +1083,47 @@
         parts.rightLeg.position.set(0.2, 0.42, 0);
         parts.rifle = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.12, 0.84), materials.black);
         parts.rifle.position.set(0.34, 1.18, -0.46);
+        parts.leftStrap = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.88, 0.045), materials.strap);
+        parts.rightStrap = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.88, 0.045), materials.strap);
+        parts.leftStrap.position.set(-0.22, 1.25, -0.23);
+        parts.rightStrap.position.set(0.22, 1.25, -0.23);
+        parts.leftStrap.rotation.z = -0.12;
+        parts.rightStrap.rotation.z = 0.12;
+        parts.belt = new THREE.Mesh(new THREE.BoxGeometry(0.78, 0.08, 0.36), materials.strap);
+        parts.belt.position.set(0, 0.82, -0.01);
         parts.shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 0.86), contactShadowMaterial.clone());
         parts.shadow.material.opacity = 0.28;
         parts.shadow.rotation.x = -Math.PI / 2;
         parts.shadow.position.y = 0.025;
         parts.shadow.renderOrder = -1;
-        group.add(parts.shadow, parts.body, parts.vest, parts.head, parts.visor, parts.leftArm, parts.rightArm, parts.leftLeg, parts.rightLeg, parts.rifle);
+        group.add(
+          parts.shadow,
+          parts.body,
+          parts.vest,
+          parts.vestPlate,
+          parts.neck,
+          parts.head,
+          parts.mask,
+          parts.eyeSlit,
+          parts.leftEye,
+          parts.rightEye,
+          parts.helmet,
+          parts.helmetPlate,
+          parts.helmetBrim,
+          parts.leftEar,
+          parts.rightEar,
+          parts.mic,
+          parts.leftShoulder,
+          parts.rightShoulder,
+          parts.leftArm,
+          parts.rightArm,
+          parts.leftLeg,
+          parts.rightLeg,
+          parts.rifle,
+          parts.leftStrap,
+          parts.rightStrap,
+          parts.belt
+        );
         group.traverse((node) => {
           if (node.isMesh) {
             if (node === parts.shadow) {
@@ -1417,7 +1493,13 @@
         model.parts.rightLeg.rotation.x = -swing;
         model.parts.leftArm.rotation.x = -swing * 0.65;
         model.parts.rightArm.rotation.x = swing * 0.45;
-        model.parts.body.position.y = 1.18 + Math.abs(Math.sin(model.walk * 2)) * 0.018 * speed;
+        const lift = Math.abs(Math.sin(model.walk * 2)) * 0.012 * speed;
+        model.parts.body.position.y = 1.13 + lift;
+        model.parts.vest.position.y = 1.2 + lift;
+        model.parts.vestPlate.position.y = 1.22 + lift;
+        model.parts.leftStrap.position.y = 1.25 + lift;
+        model.parts.rightStrap.position.y = 1.25 + lift;
+        model.parts.belt.position.y = 0.82 + lift * 0.6;
       }
 
       function updateCamera() {
