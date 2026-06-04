@@ -444,6 +444,7 @@
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.shadowMap.autoUpdate = true;
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.48;
@@ -594,6 +595,12 @@
         glass: new THREE.MeshStandardMaterial({ color: 0x87a9b5, roughness: 0.04, metalness: 0.02, transparent: true, opacity: 0.38, emissive: 0x132333, emissiveIntensity: 0.18 }),
         darkGlass: new THREE.MeshStandardMaterial({ color: 0x101719, roughness: 0.12, metalness: 0.08, transparent: true, opacity: 0.84, emissive: 0x071018, emissiveIntensity: 0.12 })
       };
+      const contactShadowMaterial = new THREE.MeshBasicMaterial({
+        color: 0x070807,
+        transparent: true,
+        opacity: 0.32,
+        depthWrite: false
+      });
 
       function setupDomOverlay() {
         crosshair = document.createElement("div");
@@ -704,6 +711,16 @@
         return mesh;
       }
 
+      function addContactShadow(x, z, w, d, opacity = 0.28, y = 0.021) {
+        const shadow = new THREE.Mesh(new THREE.PlaneGeometry(w, d), contactShadowMaterial.clone());
+        shadow.material.opacity = opacity;
+        shadow.rotation.x = -Math.PI / 2;
+        shadow.position.set(x, y, z);
+        shadow.renderOrder = -1;
+        scene.add(shadow);
+        return shadow;
+      }
+
       function buildArena() {
         scene.clear();
         scene.add(camera);
@@ -712,19 +729,22 @@
         tracers.length = 0;
         sparks.length = 0;
 
-        const hemi = new THREE.HemisphereLight(0xdff4ff, 0x8b7a56, 1.45);
+        const hemi = new THREE.HemisphereLight(0xdff4ff, 0x806f50, 1.12);
         scene.add(hemi);
 
-        const key = new THREE.DirectionalLight(0xfff2c2, 4.8);
+        const key = new THREE.DirectionalLight(0xfff2c2, 5.35);
         key.position.set(-15, 19, 10);
         key.castShadow = true;
-        key.shadow.mapSize.set(2048, 2048);
+        key.shadow.mapSize.set(3072, 3072);
         key.shadow.camera.near = 1;
         key.shadow.camera.far = 60;
         key.shadow.camera.left = -25;
         key.shadow.camera.right = 25;
         key.shadow.camera.top = 25;
         key.shadow.camera.bottom = -25;
+        key.shadow.bias = -0.00012;
+        key.shadow.normalBias = 0.035;
+        key.shadow.radius = 3;
         scene.add(key);
 
         const rim = new THREE.DirectionalLight(0x8fd6ff, 1.15);
@@ -746,6 +766,7 @@
         floor.rotation.x = -Math.PI / 2;
         floor.receiveShadow = true;
         scene.add(floor);
+        addContactShadow(0, 0, world.w * 0.86, world.d * 0.82, 0.1);
 
         addBox({ x: 0, z: -world.d / 2, w: world.w, h: 2.2, d: 0.7, material: materials.concrete, collider: true, cast: false });
         addBox({ x: 0, z: world.d / 2, w: world.w, h: 2.2, d: 0.7, material: materials.concrete, collider: true, cast: false });
@@ -757,12 +778,19 @@
         addRuinedHouse(-14, 7, 5.8, 5.2, 4.4, materials.brick);
         addRuinedHouse(14, -8, 5.8, 5.2, 4.2, materials.plaster);
         addBox({ x: 8, z: -8.8, w: 2.1, h: 2.5, d: 5.4, material: materials.concrete });
+        addContactShadow(8, -8.8, 2.8, 6.1, 0.26);
         addBox({ x: -8, z: 8.8, w: 2.1, h: 2.5, d: 5.4, material: materials.concrete });
+        addContactShadow(-8, 8.8, 2.8, 6.1, 0.26);
         addBox({ x: 0, z: 0, w: 6.2, h: 1.45, d: 2.1, material: materials.sand });
+        addContactShadow(0, 0, 6.8, 2.7, 0.24);
         addBox({ x: -1.6, z: -12.4, w: 2.4, h: 2.9, d: 3.4, material: materials.concrete });
+        addContactShadow(-1.6, -12.4, 3, 4, 0.25);
         addBox({ x: 1.6, z: 12.4, w: 2.4, h: 2.9, d: 3.4, material: materials.concrete });
+        addContactShadow(1.6, 12.4, 3, 4, 0.25);
         addBox({ x: -14.4, z: 2.4, w: 4.3, h: 1.6, d: 1.5, material: materials.crate });
+        addContactShadow(-14.4, 2.4, 4.8, 2.1, 0.25);
         addBox({ x: 14.4, z: -2.4, w: 4.3, h: 1.6, d: 1.5, material: materials.crate });
+        addContactShadow(14.4, -2.4, 4.8, 2.1, 0.25);
         addRoadLines();
         addRubble(-5, -5);
         addRubble(5, 5);
@@ -786,10 +814,12 @@
         body.castShadow = true;
         body.receiveShadow = true;
         scene.add(body);
+        addContactShadow(x, z, 1.05, 1.05, 0.34);
         colliders.push({ x, z, w: 1.05, d: 1.05 });
       }
 
       function addRuinedHouse(x, z, w, d, h, material) {
+        addContactShadow(x, z, w + 1.2, d + 1.1, 0.3);
         addBox({ x, z: z - d / 2, w, h, d: 0.38, material, collider: true });
         addBox({ x: x - w / 2, z, w: 0.38, h: h * 0.86, d, material, collider: true });
         addBox({ x: x + w / 2, z: z + d * 0.12, w: 0.38, h: h * 0.62, d: d * 0.76, material, collider: true });
@@ -943,9 +973,19 @@
         parts.rightLeg.position.set(0.2, 0.42, 0);
         parts.rifle = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.12, 0.84), materials.black);
         parts.rifle.position.set(0.34, 1.18, -0.46);
-        group.add(parts.body, parts.vest, parts.head, parts.visor, parts.leftArm, parts.rightArm, parts.leftLeg, parts.rightLeg, parts.rifle);
+        parts.shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 0.86), contactShadowMaterial.clone());
+        parts.shadow.material.opacity = 0.28;
+        parts.shadow.rotation.x = -Math.PI / 2;
+        parts.shadow.position.y = 0.025;
+        parts.shadow.renderOrder = -1;
+        group.add(parts.shadow, parts.body, parts.vest, parts.head, parts.visor, parts.leftArm, parts.rightArm, parts.leftLeg, parts.rightLeg, parts.rifle);
         group.traverse((node) => {
           if (node.isMesh) {
+            if (node === parts.shadow) {
+              node.castShadow = false;
+              node.receiveShadow = false;
+              return;
+            }
             node.castShadow = true;
             node.receiveShadow = true;
           }
