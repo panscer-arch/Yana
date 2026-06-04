@@ -568,6 +568,43 @@
         return texture;
       }
 
+      function makeSkyTexture() {
+        const c = document.createElement("canvas");
+        c.width = 1024;
+        c.height = 512;
+        const g = c.getContext("2d");
+        const sky = g.createLinearGradient(0, 0, 0, c.height);
+        sky.addColorStop(0, "#5aa8df");
+        sky.addColorStop(0.46, "#94cfee");
+        sky.addColorStop(0.74, "#d7edf5");
+        sky.addColorStop(1, "#f3dfbd");
+        g.fillStyle = sky;
+        g.fillRect(0, 0, c.width, c.height);
+
+        for (let i = 0; i < 18; i += 1) {
+          const x = rand(40, c.width - 40);
+          const y = rand(90, 260);
+          const width = rand(90, 210);
+          const height = rand(18, 42);
+          const cloud = g.createRadialGradient(x, y, 0, x, y, width * 0.55);
+          cloud.addColorStop(0, "rgba(255,255,255,.42)");
+          cloud.addColorStop(0.52, "rgba(255,255,255,.2)");
+          cloud.addColorStop(1, "rgba(255,255,255,0)");
+          g.fillStyle = cloud;
+          g.beginPath();
+          g.ellipse(x, y, width, height, 0, 0, Math.PI * 2);
+          g.fill();
+        }
+
+        g.fillStyle = "rgba(120,118,90,.2)";
+        g.fillRect(0, 388, c.width, 18);
+        const texture = new THREE.CanvasTexture(c);
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.ClampToEdgeWrapping;
+        return texture;
+      }
+
       const floorTexture = makeNoiseTexture("#3c3b36", "230,220,190", 384, 1.4);
       floorTexture.repeat.set(11, 9);
       const wallTexture = makeNoiseTexture("#303331", "190,184,165", 320, 1);
@@ -577,6 +614,7 @@
       const crateTexture = makeNoiseTexture("#5d4b37", "240,214,170", 256, 1);
       crateTexture.repeat.set(1.5, 1);
       const glareTexture = makeGlareTexture();
+      const skyTexture = makeSkyTexture();
 
       const materials = {
         floor: new THREE.MeshStandardMaterial({ map: floorTexture, roughness: 0.92, metalness: 0.02 }),
@@ -729,6 +767,8 @@
         tracers.length = 0;
         sparks.length = 0;
 
+        addSkyDome();
+
         const hemi = new THREE.HemisphereLight(0xdff4ff, 0x806f50, 1.12);
         scene.add(hemi);
 
@@ -806,6 +846,35 @@
         camera.add(weapon);
 
         spawnEnemies();
+      }
+
+      function addSkyDome() {
+        const sky = new THREE.Mesh(
+          new THREE.SphereGeometry(95, 48, 24),
+          new THREE.MeshBasicMaterial({
+            map: skyTexture,
+            side: THREE.BackSide,
+            fog: false,
+            depthWrite: false
+          })
+        );
+        sky.position.set(0, 6, 0);
+        sky.rotation.y = -0.35;
+        sky.renderOrder = -20;
+        scene.add(sky);
+
+        const haze = new THREE.Mesh(
+          new THREE.CylinderGeometry(80, 80, 10, 48, 1, true),
+          new THREE.MeshBasicMaterial({
+            color: 0xd9e6df,
+            transparent: true,
+            opacity: 0.16,
+            side: THREE.BackSide,
+            depthWrite: false
+          })
+        );
+        haze.position.y = 3.5;
+        scene.add(haze);
       }
 
       function addBarrel(x, z) {
