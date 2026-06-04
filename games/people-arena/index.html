@@ -509,6 +509,8 @@
 
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
       const rand = (min, max) => Math.random() * (max - min) + min;
+      const wrapAngle = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle));
+      const rotateToward = (current, target, amount) => current + wrapAngle(target - current) * amount;
 
       function makeNoiseTexture(base, fleck, size = 256, scale = 1) {
         const c = document.createElement("canvas");
@@ -675,15 +677,15 @@
         wood: new THREE.MeshStandardMaterial({ color: 0x6b4931, roughness: 0.74, metalness: 0.02 }),
         leaf: new THREE.MeshStandardMaterial({ color: 0x3e7c36, roughness: 0.72, metalness: 0.01 }),
         sand: new THREE.MeshStandardMaterial({ color: 0x766d55, roughness: 0.98, metalness: 0.01 }),
-        red: new THREE.MeshStandardMaterial({ color: 0x9f3f34, roughness: 0.55, metalness: 0.12 }),
-        blue: new THREE.MeshStandardMaterial({ color: 0x356f90, roughness: 0.55, metalness: 0.12 }),
-        suit: new THREE.MeshStandardMaterial({ color: 0x232625, roughness: 0.72, metalness: 0.18 }),
+        red: new THREE.MeshStandardMaterial({ color: 0x7f3a32, roughness: 0.66, metalness: 0.1 }),
+        blue: new THREE.MeshStandardMaterial({ color: 0x2f5364, roughness: 0.68, metalness: 0.1 }),
+        suit: new THREE.MeshStandardMaterial({ color: 0x2d302e, roughness: 0.82, metalness: 0.12 }),
         black: new THREE.MeshStandardMaterial({ color: 0x0c0d0d, roughness: 0.34, metalness: 0.58 }),
         glass: new THREE.MeshStandardMaterial({ color: 0x87a9b5, roughness: 0.04, metalness: 0.02, transparent: true, opacity: 0.38, emissive: 0x132333, emissiveIntensity: 0.18 }),
         darkGlass: new THREE.MeshStandardMaterial({ color: 0x101719, roughness: 0.12, metalness: 0.08, transparent: true, opacity: 0.84, emissive: 0x071018, emissiveIntensity: 0.12 }),
         skin: new THREE.MeshStandardMaterial({ color: 0xc6a08a, roughness: 0.72, metalness: 0.02 }),
-        fabric: new THREE.MeshStandardMaterial({ color: 0x4b4a46, roughness: 0.9, metalness: 0.03 }),
-        helmet: new THREE.MeshStandardMaterial({ color: 0x6d6a5e, roughness: 0.44, metalness: 0.28 }),
+        fabric: new THREE.MeshStandardMaterial({ color: 0x3f403c, roughness: 0.92, metalness: 0.03 }),
+        helmet: new THREE.MeshStandardMaterial({ color: 0x5e5d55, roughness: 0.52, metalness: 0.22 }),
         strap: new THREE.MeshStandardMaterial({ color: 0x1b1b1a, roughness: 0.82, metalness: 0.08 }),
         eye: new THREE.MeshStandardMaterial({ color: 0x6f9fc1, roughness: 0.24, metalness: 0.02, emissive: 0x122334, emissiveIntensity: 0.1 })
       };
@@ -1301,6 +1303,7 @@
             target: new THREE.Vector3(rand(-9, 9), 0, rand(-8, 8)),
             speed: rand(1.4, 2.1),
             cooldown: rand(0.4, 2.2),
+            think: rand(0.4, 1.2),
             stuck: 0,
             respawn: 0
           });
@@ -1524,8 +1527,12 @@
           const group = enemy.model.group;
           const toPlayer = temp.copy(playerPos).sub(group.position);
           const distance = toPlayer.length();
-          if (distance < 11) enemy.target.copy(playerPos).add(new THREE.Vector3(rand(-5, 5), 0, rand(-5, 5)));
-          else if (group.position.distanceTo(enemy.target) < 1.1) enemy.target.set(rand(-12, 12), 0, rand(-10, 10));
+          enemy.think -= delta;
+          if (enemy.think <= 0 || group.position.distanceTo(enemy.target) < 1.1) {
+            if (distance < 11) enemy.target.copy(playerPos).add(new THREE.Vector3(rand(-4, 4), 0, rand(-4, 4)));
+            else enemy.target.set(rand(-12, 12), 0, rand(-10, 10));
+            enemy.think = rand(0.9, 1.8);
+          }
           const dir = enemy.target.clone().sub(group.position);
           dir.y = 0;
           if (dir.lengthSq() > 0.01) {
@@ -1536,14 +1543,15 @@
               enemy.stuck = 0;
             } else {
               enemy.stuck += delta;
-              enemy.target.set(rand(-12, 12), 0, rand(-10, 10));
+              if (enemy.think > 0.25) enemy.think = 0.25;
               if (enemy.stuck > 0.7) {
                 group.position.x = clamp(group.position.x + rand(-0.6, 0.6), -world.w / 2 + 2, world.w / 2 - 2);
                 group.position.z = clamp(group.position.z + rand(-0.6, 0.6), -world.d / 2 + 2, world.d / 2 - 2);
                 enemy.stuck = 0;
               }
             }
-            group.rotation.y = Math.atan2(dir.x, dir.z);
+            const desiredYaw = Math.atan2(dir.x, dir.z);
+            group.rotation.y = rotateToward(group.rotation.y, desiredYaw, 1 - Math.pow(0.01, delta));
             enemy.model.walk += delta * enemy.speed * 4;
           }
           enemy.cooldown -= delta;
@@ -1607,6 +1615,7 @@
         enemy.model.group.position.set(x, 0, z);
         enemy.hp = 100;
         enemy.stuck = 0;
+        enemy.think = rand(0.5, 1.2);
         enemy.target.set(rand(-10, 10), 0, rand(-8, 8));
         enemy.model.group.visible = true;
       }
