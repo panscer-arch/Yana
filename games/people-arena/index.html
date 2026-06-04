@@ -466,7 +466,7 @@
       const world = { w: 42, d: 34 };
       const state = {
         running: false,
-        playerCount: 1,
+        playerCount: 4,
         timeLeft: 120,
         view: "first",
         yaw: 0,
@@ -1284,7 +1284,7 @@
       function spawnEnemies() {
         enemies.forEach((enemy) => scene.remove(enemy.model.group));
         enemies.length = 0;
-        const spots = [[-12, -11], [12, -11], [-15, 5], [15, 5], [-6, -3], [7, 3], [-3, 13], [10, 12], [-17, -2]];
+        const spots = [[-8, -1], [8, 1], [-6, 8], [6, -8], [0, 6], [0, -6], [-14, 0], [14, 0], [3, 10]];
         for (let i = 0; i < state.playerCount - 1; i += 1) {
           const [x, z] = spots[i % spots.length];
           const model = createSoldier(i % 2 ? "blue" : "red");
@@ -1298,9 +1298,10 @@
             model,
             hp: 100,
             score: 0,
-            target: new THREE.Vector3(x, 0, z),
+            target: new THREE.Vector3(rand(-9, 9), 0, rand(-8, 8)),
             speed: rand(1.4, 2.1),
             cooldown: rand(0.4, 2.2),
+            stuck: 0,
             respawn: 0
           });
         }
@@ -1480,8 +1481,8 @@
         }
         const move = new THREE.Vector3();
         const yaw = state.yaw;
-        forward.set(Math.sin(yaw), 0, -Math.cos(yaw)).normalize();
-        right.set(Math.cos(yaw), 0, Math.sin(yaw)).normalize();
+        forward.set(-Math.sin(yaw), 0, -Math.cos(yaw)).normalize();
+        right.set(Math.cos(yaw), 0, -Math.sin(yaw)).normalize();
         if (keys.has("KeyW") || keys.has("w") || keys.has("ц") || keys.has("ArrowUp") || virtualMove.forward > 0) move.add(forward);
         if (keys.has("KeyS") || keys.has("s") || keys.has("ы") || keys.has("ArrowDown") || virtualMove.forward < 0) move.sub(forward);
         if (keys.has("KeyD") || keys.has("d") || keys.has("в") || virtualMove.side > 0) move.add(right);
@@ -1524,13 +1525,24 @@
           const toPlayer = temp.copy(playerPos).sub(group.position);
           const distance = toPlayer.length();
           if (distance < 11) enemy.target.copy(playerPos).add(new THREE.Vector3(rand(-5, 5), 0, rand(-5, 5)));
-          else if (group.position.distanceTo(enemy.target) < 1.1) enemy.target.set(rand(-16, 16), 0, rand(-12, 12));
+          else if (group.position.distanceTo(enemy.target) < 1.1) enemy.target.set(rand(-12, 12), 0, rand(-10, 10));
           const dir = enemy.target.clone().sub(group.position);
           dir.y = 0;
           if (dir.lengthSq() > 0.01) {
             dir.normalize();
             const next = group.position.clone().addScaledVector(dir, enemy.speed * delta);
-            if (!hitsCollider(next.x, next.z, 0.52)) group.position.copy(next);
+            if (!hitsCollider(next.x, next.z, 0.52)) {
+              group.position.copy(next);
+              enemy.stuck = 0;
+            } else {
+              enemy.stuck += delta;
+              enemy.target.set(rand(-12, 12), 0, rand(-10, 10));
+              if (enemy.stuck > 0.7) {
+                group.position.x = clamp(group.position.x + rand(-0.6, 0.6), -world.w / 2 + 2, world.w / 2 - 2);
+                group.position.z = clamp(group.position.z + rand(-0.6, 0.6), -world.d / 2 + 2, world.d / 2 - 2);
+                enemy.stuck = 0;
+              }
+            }
             group.rotation.y = Math.atan2(dir.x, dir.z);
             enemy.model.walk += delta * enemy.speed * 4;
           }
@@ -1590,10 +1602,12 @@
       }
 
       function respawnEnemy(enemy) {
-        const spots = [[-14, -11], [14, -11], [-15, 8], [15, 8], [0, -13], [0, 13]];
+        const spots = [[-8, -1], [8, 1], [-6, 8], [6, -8], [0, 6], [0, -6], [-10, 4], [10, -4]];
         const [x, z] = spots[Math.floor(Math.random() * spots.length)];
         enemy.model.group.position.set(x, 0, z);
         enemy.hp = 100;
+        enemy.stuck = 0;
+        enemy.target.set(rand(-10, 10), 0, rand(-8, 8));
         enemy.model.group.visible = true;
       }
 
