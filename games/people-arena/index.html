@@ -447,7 +447,7 @@
       renderer.shadowMap.autoUpdate = true;
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.48;
+      renderer.toneMappingExposure = 1.08;
 
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x8fc7e8);
@@ -466,7 +466,7 @@
       const world = { w: 42, d: 34 };
       const state = {
         running: false,
-        playerCount: 4,
+        playerCount: 1,
         timeLeft: 120,
         view: "first",
         yaw: 0,
@@ -851,7 +851,7 @@
         );
         sunGlow.position.set(-22, 18, -18);
         scene.add(sunGlow);
-        addGlare(-22, 18, -18, 5.8, 0.58);
+        addGlare(-22, 18, -18, 3.6, 0.16);
 
         muzzleLight = new THREE.PointLight(0xffbf63, 0, 7, 2);
         scene.add(muzzleLight);
@@ -978,7 +978,7 @@
           }
         });
         scene.add(frame);
-        addGlare(x + 0.08, y + 0.18, z - 0.05, 0.28, 0.18);
+        addGlare(x + 0.08, y + 0.18, z - 0.05, 0.2, 0.08);
       }
 
       function addBalcony(x, z, y, width) {
@@ -1042,7 +1042,7 @@
           window.position.set(wx, wy, wz);
           window.castShadow = false;
           scene.add(window);
-          addGlare(wx, wy + 0.22, wz, rand(0.28, 0.48), 0.24);
+          addGlare(wx, wy + 0.22, wz, rand(0.18, 0.3), 0.08);
         }
         addBrokenEdges(x, z, w, d, h, material);
         addRebar(x, z, w, d, h);
@@ -1424,12 +1424,12 @@
       }
 
       function addPlayer() {
-        state.playerCount = clamp(state.playerCount + 1, 2, 10);
+        state.playerCount = clamp(state.playerCount + 1, 1, 10);
         resetGame();
       }
 
       function removePlayer() {
-        state.playerCount = clamp(state.playerCount - 1, 2, 10);
+        state.playerCount = clamp(state.playerCount - 1, 1, 10);
         resetGame();
       }
 
@@ -1457,8 +1457,16 @@
 
       function updatePlayer(delta) {
         const player = state.player;
-        if (keys.has("KeyQ") || keys.has("q") || keys.has("й") || keys.has("ArrowLeft")) state.yaw += delta * 2.35;
-        if (keys.has("KeyE") || keys.has("e") || keys.has("у") || keys.has("ArrowRight")) state.yaw -= delta * 2.35;
+        if (keys.has("KeyQ") || keys.has("q") || keys.has("й") || keys.has("ArrowLeft")) state.yaw += delta * 1.55;
+        if (keys.has("KeyE") || keys.has("e") || keys.has("у") || keys.has("ArrowRight")) state.yaw -= delta * 1.55;
+        if (keys.has("KeyF") || keys.has("f") || keys.has("а")) {
+          keys.delete("KeyF");
+          keys.delete("f");
+          keys.delete("а");
+          state.yaw = 0;
+          state.pitch = 0;
+          player.velocity.set(0, 0, 0);
+        }
         if (keys.has("KeyV") || keys.has("v") || keys.has("м")) {
           keys.delete("KeyV");
           keys.delete("v");
