@@ -480,6 +480,7 @@
         player: {
           position: new THREE.Vector3(-5.2, 1.75, 13.4),
           velocity: new THREE.Vector3(),
+          eyeHeight: 1.75,
           hp: 100,
           ammo: 30,
           cooldown: 0,
@@ -533,6 +534,47 @@
             y += rand(-24, 24);
             g.lineTo(x, y);
           }
+          g.stroke();
+        }
+        const texture = new THREE.CanvasTexture(c);
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.anisotropy = 4;
+        return texture;
+      }
+
+      function makeTileTexture() {
+        const c = document.createElement("canvas");
+        c.width = 512;
+        c.height = 512;
+        const g = c.getContext("2d");
+        g.fillStyle = "#cfa782";
+        g.fillRect(0, 0, c.width, c.height);
+        const tile = 64;
+        for (let y = 0; y < c.height; y += tile) {
+          for (let x = 0; x < c.width; x += tile) {
+            const shade = rand(-14, 14);
+            g.fillStyle = `rgb(${207 + shade}, ${167 + shade * 0.6}, ${130 + shade * 0.45})`;
+            g.fillRect(x + 1, y + 1, tile - 2, tile - 2);
+            g.fillStyle = "rgba(255,255,255,.08)";
+            g.fillRect(x + 8, y + 8, tile - 18, 4);
+            g.fillStyle = "rgba(70,45,30,.08)";
+            g.fillRect(x + 7, y + tile - 10, tile - 18, 5);
+          }
+        }
+        g.strokeStyle = "rgba(70,48,35,.32)";
+        g.lineWidth = 2;
+        for (let x = 0; x <= c.width; x += tile) {
+          g.beginPath();
+          g.moveTo(x, 0);
+          g.lineTo(x, c.height);
+          g.stroke();
+        }
+        for (let y = 0; y <= c.height; y += tile) {
+          g.beginPath();
+          g.moveTo(0, y);
+          g.lineTo(c.width, y);
           g.stroke();
         }
         const texture = new THREE.CanvasTexture(c);
@@ -613,6 +655,8 @@
       metalTexture.repeat.set(2, 1);
       const crateTexture = makeNoiseTexture("#5d4b37", "240,214,170", 256, 1);
       crateTexture.repeat.set(1.5, 1);
+      const tileTexture = makeTileTexture();
+      tileTexture.repeat.set(8, 7);
       const glareTexture = makeGlareTexture();
       const skyTexture = makeSkyTexture();
 
@@ -623,8 +667,13 @@
         crate: new THREE.MeshStandardMaterial({ map: crateTexture, roughness: 0.75, metalness: 0.08 }),
         concrete: new THREE.MeshStandardMaterial({ color: 0x555752, roughness: 0.95, metalness: 0.02 }),
         asphalt: new THREE.MeshStandardMaterial({ color: 0x4d4b43, roughness: 0.96, metalness: 0.01 }),
+        tile: new THREE.MeshStandardMaterial({ map: tileTexture, roughness: 0.82, metalness: 0.01 }),
         plaster: new THREE.MeshStandardMaterial({ color: 0xb8aa8b, roughness: 0.9, metalness: 0.02 }),
         brick: new THREE.MeshStandardMaterial({ color: 0x8b5940, roughness: 0.88, metalness: 0.02 }),
+        warmWall: new THREE.MeshStandardMaterial({ color: 0xc8976e, roughness: 0.86, metalness: 0.01 }),
+        paleWall: new THREE.MeshStandardMaterial({ color: 0xe0d5c9, roughness: 0.8, metalness: 0.01 }),
+        wood: new THREE.MeshStandardMaterial({ color: 0x6b4931, roughness: 0.74, metalness: 0.02 }),
+        leaf: new THREE.MeshStandardMaterial({ color: 0x3e7c36, roughness: 0.72, metalness: 0.01 }),
         sand: new THREE.MeshStandardMaterial({ color: 0x766d55, roughness: 0.98, metalness: 0.01 }),
         red: new THREE.MeshStandardMaterial({ color: 0x9f3f34, roughness: 0.55, metalness: 0.12 }),
         blue: new THREE.MeshStandardMaterial({ color: 0x356f90, roughness: 0.55, metalness: 0.12 }),
@@ -807,41 +856,31 @@
         muzzleLight = new THREE.PointLight(0xffbf63, 0, 7, 2);
         scene.add(muzzleLight);
 
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(world.w, world.d, 1, 1), materials.asphalt);
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(world.w, world.d, 1, 1), materials.tile);
         floor.rotation.x = -Math.PI / 2;
         floor.receiveShadow = true;
         scene.add(floor);
         addContactShadow(0, 0, world.w * 0.86, world.d * 0.82, 0.1);
 
-        addBox({ x: 0, z: -world.d / 2, w: world.w, h: 2.2, d: 0.7, material: materials.concrete, collider: true, cast: false });
-        addBox({ x: 0, z: world.d / 2, w: world.w, h: 2.2, d: 0.7, material: materials.concrete, collider: true, cast: false });
-        addBox({ x: -world.w / 2, z: 0, w: 0.7, h: 2.2, d: world.d, material: materials.concrete, collider: true, cast: false });
-        addBox({ x: world.w / 2, z: 0, w: 0.7, h: 2.2, d: world.d, material: materials.concrete, collider: true, cast: false });
+        addCourtyardWalls();
+        addCourtyardBuilding(-13.5, -9.3, 9, 4.2, 4.8, materials.warmWall);
+        addCourtyardBuilding(12.4, 8.2, 10, 4.8, 5.6, materials.paleWall);
+        addCourtyardBuilding(-13.2, 7.8, 7, 4.6, 4.2, materials.warmWall);
+        addCourtyardBuilding(13.6, -7.6, 6.8, 4.4, 4.5, materials.warmWall);
+        addBox({ x: 0, z: -10.6, w: 5.2, h: 2.2, d: 0.34, material: materials.wood });
+        addContactShadow(0, -10.6, 5.8, 0.9, 0.18);
+        addBox({ x: -3.8, z: 2.2, w: 5.5, h: 1.25, d: 1.35, material: materials.warmWall });
+        addContactShadow(-3.8, 2.2, 6.1, 1.9, 0.18);
+        addBox({ x: 5.4, z: -2.4, w: 4.2, h: 1.45, d: 1.4, material: materials.paleWall });
+        addContactShadow(5.4, -2.4, 4.8, 2, 0.18);
+        addPalm(-17.2, -11.8);
+        addPalm(16.8, 11.6);
+        addPalm(-16.2, 11.2);
+        addPlanter(-8.4, -12.2);
+        addPlanter(9.8, 11.4);
+        addPlanter(16.4, -2.2);
 
-        addRuinedHouse(-12, -8, 7, 6, 5.4, materials.plaster);
-        addRuinedHouse(12, 8, 7, 6, 5.2, materials.brick);
-        addRuinedHouse(-14, 7, 5.8, 5.2, 4.4, materials.brick);
-        addRuinedHouse(14, -8, 5.8, 5.2, 4.2, materials.plaster);
-        addBox({ x: 8, z: -8.8, w: 2.1, h: 2.5, d: 5.4, material: materials.concrete });
-        addContactShadow(8, -8.8, 2.8, 6.1, 0.26);
-        addBox({ x: -8, z: 8.8, w: 2.1, h: 2.5, d: 5.4, material: materials.concrete });
-        addContactShadow(-8, 8.8, 2.8, 6.1, 0.26);
-        addBox({ x: 0, z: 0, w: 6.2, h: 1.45, d: 2.1, material: materials.sand });
-        addContactShadow(0, 0, 6.8, 2.7, 0.24);
-        addBox({ x: -1.6, z: -12.4, w: 2.4, h: 2.9, d: 3.4, material: materials.concrete });
-        addContactShadow(-1.6, -12.4, 3, 4, 0.25);
-        addBox({ x: 1.6, z: 12.4, w: 2.4, h: 2.9, d: 3.4, material: materials.concrete });
-        addContactShadow(1.6, 12.4, 3, 4, 0.25);
-        addBox({ x: -14.4, z: 2.4, w: 4.3, h: 1.6, d: 1.5, material: materials.crate });
-        addContactShadow(-14.4, 2.4, 4.8, 2.1, 0.25);
-        addBox({ x: 14.4, z: -2.4, w: 4.3, h: 1.6, d: 1.5, material: materials.crate });
-        addContactShadow(14.4, -2.4, 4.8, 2.1, 0.25);
-        addRoadLines();
-        addRubble(-5, -5);
-        addRubble(5, 5);
-        addRubble(0, -9);
-
-        for (const [x, z] of [[-17, -13], [-15.8, -13], [16, 13], [17.2, 13], [17.2, 11.8]]) addBarrel(x, z);
+        for (const [x, z] of [[-11.2, 1.8], [10.2, -12.2], [0.8, 9.8], [-16.4, -2.8]]) addBarrel(x, z);
         addTarget(-5.4, -14.6);
         addTarget(5.4, 14.6);
 
@@ -880,6 +919,103 @@
         );
         haze.position.y = 3.5;
         scene.add(haze);
+      }
+
+      function addCourtyardWalls() {
+        addBox({ x: 0, z: -world.d / 2, w: world.w, h: 3.2, d: 0.7, material: materials.warmWall, collider: true, cast: true });
+        addBox({ x: 0, z: world.d / 2, w: world.w, h: 3.0, d: 0.7, material: materials.warmWall, collider: true, cast: true });
+        addBox({ x: -world.w / 2, z: 0, w: 0.7, h: 3.1, d: world.d, material: materials.warmWall, collider: true, cast: true });
+        addBox({ x: world.w / 2, z: 0, w: 0.7, h: 3.1, d: world.d, material: materials.warmWall, collider: true, cast: true });
+        for (const [x, z, r] of [[-18.5, -13.6, 0], [18.2, 13.4, Math.PI], [-18.5, 13.1, 0], [18.4, -13.2, Math.PI]]) {
+          addWallCap(x, z, r);
+        }
+      }
+
+      function addWallCap(x, z, rotationY = 0) {
+        const group = new THREE.Group();
+        group.position.set(x, 2.9, z);
+        group.rotation.y = rotationY;
+        const cap = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.28, 0.55), materials.paleWall);
+        const trim = new THREE.Mesh(new THREE.BoxGeometry(3.9, 0.12, 0.72), materials.warmWall);
+        trim.position.y = 0.22;
+        group.add(cap, trim);
+        group.traverse((node) => {
+          if (node.isMesh) {
+            node.castShadow = true;
+            node.receiveShadow = true;
+          }
+        });
+        scene.add(group);
+      }
+
+      function addCourtyardBuilding(x, z, w, d, h, material) {
+        addContactShadow(x, z, w + 1.2, d + 1.1, 0.25);
+        addBox({ x, z, w, h, d, material, collider: true });
+        addBox({ x, y: h - 0.05, z, w: w + 0.4, h: 0.18, d: d + 0.35, material: materials.paleWall, collider: false });
+        const frontZ = z - d / 2 - 0.04;
+        addBox({ x, y: 0.15, z: frontZ - 0.04, w: w * 0.38, h: 2.0, d: 0.09, material: materials.wood, collider: false });
+        addArchedWindow(x - w * 0.27, frontZ, h * 0.58);
+        addArchedWindow(x + w * 0.27, frontZ, h * 0.58);
+        addBalcony(x, frontZ - 0.14, h * 0.66, w * 0.44);
+      }
+
+      function addArchedWindow(x, z, y) {
+        const frame = new THREE.Group();
+        frame.position.set(x, y, z);
+        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.82, 0.055), materials.darkGlass);
+        const top = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.035, 8, 24, Math.PI), materials.paleWall);
+        top.position.y = 0.39;
+        top.rotation.z = Math.PI;
+        const left = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.8, 0.08), materials.paleWall);
+        const rightPost = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.8, 0.08), materials.paleWall);
+        left.position.set(-0.34, -0.02, 0);
+        rightPost.position.set(0.34, -0.02, 0);
+        frame.add(glass, top, left, rightPost);
+        frame.traverse((node) => {
+          if (node.isMesh) {
+            node.castShadow = true;
+            node.receiveShadow = true;
+          }
+        });
+        scene.add(frame);
+        addGlare(x + 0.08, y + 0.18, z - 0.05, 0.28, 0.18);
+      }
+
+      function addBalcony(x, z, y, width) {
+        addBox({ x, y: y - 0.08, z: z - 0.12, w: width, h: 0.12, d: 0.42, material: materials.paleWall, collider: false });
+        for (let i = 0; i < 7; i += 1) {
+          addBox({ x: x - width * 0.42 + i * (width * 0.14), y, z: z - 0.36, w: 0.05, h: 0.48, d: 0.05, material: materials.wood, collider: false });
+        }
+      }
+
+      function addPlanter(x, z) {
+        addBox({ x, z, w: 1.05, h: 0.36, d: 0.8, material: materials.wood, collider: true });
+        addContactShadow(x, z, 1.3, 1.0, 0.2);
+        for (let i = 0; i < 5; i += 1) {
+          const leaf = new THREE.Mesh(new THREE.BoxGeometry(0.16, rand(0.35, 0.65), 0.08), materials.leaf);
+          leaf.position.set(x + rand(-0.34, 0.34), 0.58, z + rand(-0.25, 0.25));
+          leaf.rotation.set(rand(-0.45, 0.45), rand(0, Math.PI), rand(-0.45, 0.45));
+          leaf.castShadow = true;
+          scene.add(leaf);
+        }
+      }
+
+      function addPalm(x, z) {
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 2.4, 10), materials.wood);
+        trunk.position.set(x, 1.2, z);
+        trunk.rotation.z = rand(-0.12, 0.12);
+        trunk.castShadow = true;
+        trunk.receiveShadow = true;
+        scene.add(trunk);
+        for (let i = 0; i < 9; i += 1) {
+          const leaf = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.08, rand(1.2, 1.9)), materials.leaf);
+          leaf.position.set(x, 2.5 + rand(-0.05, 0.12), z);
+          leaf.rotation.y = (i / 9) * Math.PI * 2;
+          leaf.rotation.x = rand(0.28, 0.55);
+          leaf.translateZ(0.55);
+          leaf.castShadow = true;
+          scene.add(leaf);
+        }
       }
 
       function addBarrel(x, z) {
@@ -1270,6 +1406,7 @@
         state.pitch = 0;
         state.player.position.set(-5.2, 1.75, 13.4);
         state.player.velocity.set(0, 0, 0);
+        state.player.eyeHeight = 1.75;
         state.player.hp = 100;
         state.player.ammo = 30;
         state.player.cooldown = 0;
@@ -1342,7 +1479,11 @@
         if (keys.has("KeyD") || keys.has("d") || keys.has("в") || virtualMove.side > 0) move.add(right);
         if (keys.has("KeyA") || keys.has("a") || keys.has("ф") || virtualMove.side < 0) move.sub(right);
         if (move.lengthSq() > 0) move.normalize();
-        const speed = (keys.has("ShiftLeft") || keys.has("Shift")) ? 8.2 : 6.2;
+        const crouching = keys.has("ControlLeft") || keys.has("ControlRight") || keys.has("KeyC") || keys.has("c") || keys.has("с");
+        const targetHeight = crouching ? 1.08 : 1.75;
+        player.eyeHeight += (targetHeight - player.eyeHeight) * (1 - Math.pow(0.00008, delta));
+        player.position.y = player.eyeHeight;
+        const speed = crouching ? 3.3 : (keys.has("ShiftLeft") || keys.has("Shift") ? 8.2 : 6.2);
         player.velocity.lerp(move.multiplyScalar(speed), 1 - Math.pow(0.0008, delta));
         const next = player.position.clone().addScaledVector(player.velocity, delta);
         next.x = clamp(next.x, -world.w / 2 + 1.2, world.w / 2 - 1.2);
