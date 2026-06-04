@@ -463,7 +463,7 @@
       const right = new THREE.Vector3();
       const temp = new THREE.Vector3();
 
-      const world = { w: 42, d: 34 };
+      const world = { w: 62, d: 48 };
       const state = {
         running: false,
         playerCount: 4,
@@ -865,24 +865,28 @@
         addContactShadow(0, 0, world.w * 0.86, world.d * 0.82, 0.1);
 
         addCourtyardWalls();
-        addCourtyardBuilding(-13.5, -9.3, 9, 4.2, 4.8, materials.warmWall);
-        addCourtyardBuilding(12.4, 8.2, 10, 4.8, 5.6, materials.paleWall);
-        addCourtyardBuilding(-13.2, 7.8, 7, 4.6, 4.2, materials.warmWall);
-        addCourtyardBuilding(13.6, -7.6, 6.8, 4.4, 4.5, materials.warmWall);
-        addBox({ x: 0, z: -10.6, w: 5.2, h: 2.2, d: 0.34, material: materials.wood });
-        addContactShadow(0, -10.6, 5.8, 0.9, 0.18);
-        addBox({ x: -3.8, z: 2.2, w: 5.5, h: 1.25, d: 1.35, material: materials.warmWall });
-        addContactShadow(-3.8, 2.2, 6.1, 1.9, 0.18);
-        addBox({ x: 5.4, z: -2.4, w: 4.2, h: 1.45, d: 1.4, material: materials.paleWall });
-        addContactShadow(5.4, -2.4, 4.8, 2, 0.18);
-        addPalm(-17.2, -11.8);
-        addPalm(16.8, 11.6);
-        addPalm(-16.2, 11.2);
-        addPlanter(-8.4, -12.2);
-        addPlanter(9.8, 11.4);
-        addPlanter(16.4, -2.2);
+        addCourtyardBuilding(-22, -13.5, 10.5, 4.8, 5.2, materials.warmWall);
+        addCourtyardBuilding(21, 13.2, 11.5, 5.2, 5.8, materials.paleWall);
+        addCourtyardBuilding(-22, 13.2, 8.5, 5.2, 4.6, materials.warmWall);
+        addCourtyardBuilding(22, -12.8, 8.2, 4.8, 4.7, materials.warmWall);
+        addCourtyardBuilding(0, 18.8, 12, 4.4, 4.2, materials.paleWall);
+        addBox({ x: 0, z: -17.5, w: 7.2, h: 2.3, d: 0.34, material: materials.wood });
+        addContactShadow(0, -17.5, 7.8, 0.9, 0.18);
+        addCover(-9.5, 2.8, 6.4, 1.3, materials.warmWall);
+        addCover(9.2, -3.2, 5.8, 1.35, materials.paleWall);
+        addCover(-2.5, -8.8, 4.8, 1.1, materials.wood);
+        addCover(4.5, 9.6, 4.2, 1.1, materials.wood);
+        addPalm(-26.2, -17.8);
+        addPalm(26.8, 17.4);
+        addPalm(-25.4, 17.2);
+        addPalm(24.2, -3.2);
+        addPlanter(-14.4, -18.2);
+        addPlanter(15.8, 17.4);
+        addPlanter(25.4, -6.2);
+        addPlanter(-4.4, 15.2);
 
-        for (const [x, z] of [[-11.2, 1.8], [10.2, -12.2], [0.8, 9.8], [-16.4, -2.8]]) addBarrel(x, z);
+        for (const [x, z] of [[-16.2, 1.8], [16.2, -15.2], [0.8, 12.8], [-24.4, -2.8], [21.5, 5.5]]) addBarrel(x, z);
+        for (const [x, z, kind] of [[-6, -15, "ammo"], [12, 10, "health"], [-18, 8, "ammo"], [18, -6, "health"]]) addSupplyCrate(x, z, kind);
         addTarget(-5.4, -14.6);
         addTarget(5.4, 14.6);
 
@@ -1000,6 +1004,21 @@
           leaf.castShadow = true;
           scene.add(leaf);
         }
+      }
+
+      function addCover(x, z, w, h, material) {
+        addBox({ x, z, w, h, d: 1.25, material, collider: true });
+        addBox({ x: x - w * 0.28, y: h, z: z - 0.08, w: w * 0.22, h: 0.22, d: 1.4, material: materials.paleWall, collider: false });
+        addBox({ x: x + w * 0.22, y: h, z: z + 0.1, w: w * 0.28, h: 0.18, d: 1.35, material: materials.paleWall, collider: false });
+        addContactShadow(x, z, w + 0.6, 1.9, 0.2);
+      }
+
+      function addSupplyCrate(x, z, kind) {
+        const material = kind === "health" ? materials.red : materials.blue;
+        addBox({ x, z, w: 1.1, h: 0.55, d: 0.95, material: materials.crate, collider: true });
+        addBox({ x, y: 0.58, z, w: 0.72, h: 0.08, d: 0.1, material, collider: false });
+        addBox({ x, y: 0.58, z, w: 0.1, h: 0.08, d: 0.62, material, collider: false });
+        addContactShadow(x, z, 1.4, 1.2, 0.22);
       }
 
       function addPalm(x, z) {
@@ -1286,7 +1305,7 @@
       function spawnEnemies() {
         enemies.forEach((enemy) => scene.remove(enemy.model.group));
         enemies.length = 0;
-        const spots = [[-8, -1], [8, 1], [-6, 8], [6, -8], [0, 6], [0, -6], [-14, 0], [14, 0], [3, 10]];
+        const spots = [[-14, -5], [14, 5], [-9, 13], [9, -13], [0, 10], [0, -10], [-22, 0], [22, 0], [5, 16]];
         for (let i = 0; i < state.playerCount - 1; i += 1) {
           const [x, z] = spots[i % spots.length];
           const model = createSoldier(i % 2 ? "blue" : "red");
@@ -1300,9 +1319,9 @@
             model,
             hp: 100,
             score: 0,
-            target: new THREE.Vector3(rand(-9, 9), 0, rand(-8, 8)),
-            speed: rand(1.4, 2.1),
-            cooldown: rand(0.4, 2.2),
+            target: new THREE.Vector3(rand(-16, 16), 0, rand(-14, 14)),
+            speed: rand(2.0, 2.8),
+            cooldown: rand(0.25, 1.1),
             think: rand(0.4, 1.2),
             stuck: 0,
             respawn: 0
@@ -1529,9 +1548,11 @@
           const distance = toPlayer.length();
           enemy.think -= delta;
           if (enemy.think <= 0 || group.position.distanceTo(enemy.target) < 1.1) {
-            if (distance < 11) enemy.target.copy(playerPos).add(new THREE.Vector3(rand(-4, 4), 0, rand(-4, 4)));
-            else enemy.target.set(rand(-12, 12), 0, rand(-10, 10));
-            enemy.think = rand(0.9, 1.8);
+            if (distance < 18) {
+              const chase = Math.random() > 0.38;
+              enemy.target.copy(playerPos).add(new THREE.Vector3(chase ? rand(-1.8, 1.8) : rand(-6, 6), 0, chase ? rand(-1.8, 1.8) : rand(-6, 6)));
+            } else enemy.target.set(rand(-20, 20), 0, rand(-16, 16));
+            enemy.think = rand(0.55, 1.15);
           }
           const dir = enemy.target.clone().sub(group.position);
           dir.y = 0;
@@ -1543,20 +1564,22 @@
               enemy.stuck = 0;
             } else {
               enemy.stuck += delta;
-              if (enemy.think > 0.25) enemy.think = 0.25;
+              if (enemy.think > 0.18) enemy.think = 0.18;
               if (enemy.stuck > 0.7) {
-                group.position.x = clamp(group.position.x + rand(-0.6, 0.6), -world.w / 2 + 2, world.w / 2 - 2);
-                group.position.z = clamp(group.position.z + rand(-0.6, 0.6), -world.d / 2 + 2, world.d / 2 - 2);
+                group.position.x = clamp(group.position.x + rand(-1.1, 1.1), -world.w / 2 + 2, world.w / 2 - 2);
+                group.position.z = clamp(group.position.z + rand(-1.1, 1.1), -world.d / 2 + 2, world.d / 2 - 2);
                 enemy.stuck = 0;
               }
             }
-            const desiredYaw = Math.atan2(dir.x, dir.z);
+            const desiredYaw = Math.atan2(dir.x, dir.z) + Math.PI;
             group.rotation.y = rotateToward(group.rotation.y, desiredYaw, 1 - Math.pow(0.01, delta));
             enemy.model.walk += delta * enemy.speed * 4;
           }
           enemy.cooldown -= delta;
-          if (state.running && distance < 13 && enemy.cooldown <= 0) {
-            enemy.cooldown = rand(1.0, 2.4);
+          if (state.running && distance < 21 && enemy.cooldown <= 0) {
+            enemy.cooldown = rand(0.65, 1.45);
+            const aimYaw = Math.atan2(toPlayer.x, toPlayer.z) + Math.PI;
+            group.rotation.y = rotateToward(group.rotation.y, aimYaw, 0.45);
             enemyShoot(enemy);
           }
           animateSoldier(enemy.model, delta, enemy.speed);
@@ -1568,8 +1591,9 @@
         const target = state.player.position.clone().add(new THREE.Vector3(rand(-0.25, 0.25), rand(-0.15, 0.2), rand(-0.25, 0.25)));
         addTracer(origin, target, 0xffb866);
         addSpark(target, 0xffb866);
-        if (Math.random() > 0.42) {
-          state.player.hp = Math.max(0, state.player.hp - 5);
+        addSpark(origin, 0xffe0a0);
+        if (Math.random() > 0.28) {
+          state.player.hp = Math.max(0, state.player.hp - 7);
           state.enemyScore += 1;
         }
       }
@@ -1610,13 +1634,13 @@
       }
 
       function respawnEnemy(enemy) {
-        const spots = [[-8, -1], [8, 1], [-6, 8], [6, -8], [0, 6], [0, -6], [-10, 4], [10, -4]];
+        const spots = [[-14, -5], [14, 5], [-9, 13], [9, -13], [0, 10], [0, -10], [-22, 0], [22, 0]];
         const [x, z] = spots[Math.floor(Math.random() * spots.length)];
         enemy.model.group.position.set(x, 0, z);
         enemy.hp = 100;
         enemy.stuck = 0;
         enemy.think = rand(0.5, 1.2);
-        enemy.target.set(rand(-10, 10), 0, rand(-8, 8));
+        enemy.target.set(rand(-18, 18), 0, rand(-14, 14));
         enemy.model.group.visible = true;
       }
 
