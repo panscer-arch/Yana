@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Реалистичная тактическая арена для 2-10 игроков: команды, укрытия, тренировочные бластеры и зона захвата.">
+    <meta name="description" content="Суперстрелялка для всей семьи: большая 3D-арена, укрытия, боты, командные перестрелки и запасы.">
     <meta name="theme-color" content="#111315">
-    <title>Тактический полигон</title>
+    <title>Суперстрелялка для всей семьи</title>
     <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
     <style>
       :root {
@@ -384,15 +384,15 @@
 
       <aside class="controls">
         <section class="panel">
-          <h1>3D-полигон</h1>
-          <p>Дневной разрушенный город: заходите вместе с настоящими игроками, бегайте между домами, цельтесь в центр экрана и стреляйте тренировочными бластерами.</p>
+          <h1>Суперстрелялка</h1>
+          <p>Большая семейная 3D-арена: боты бегают, выбирают цели, стреляют друг в друга и в игрока, а на карте лежат запасы патронов и аптечки.</p>
           <div class="setup">
             <button class="big-button" id="startButton" type="button">Старт</button>
             <button class="ghost-button" id="resetButton" type="button">Заново</button>
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
           </div>
-          <p>Нажми Старт или кликни по игре. WASD/стрелки — ходьба, мышь — прицел, Space/клик — выстрел, R — перезарядка, V — камера. Онлайн-игроки подключаются с этого же сайта.</p>
+          <p>WASD/стрелки — ходьба, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, V — камера.</p>
         </section>
 
         <section class="panel">
@@ -493,6 +493,7 @@
       const remotePlayers = new Map();
       const tracers = [];
       const sparks = [];
+      const supplyCrates = [];
       let playerModel;
       let weapon;
       let muzzleLight;
@@ -823,6 +824,7 @@
         enemies.length = 0;
         tracers.length = 0;
         sparks.length = 0;
+        supplyCrates.length = 0;
 
         addSkyDome();
 
@@ -1016,10 +1018,11 @@
 
       function addSupplyCrate(x, z, kind) {
         const material = kind === "health" ? materials.red : materials.blue;
-        addBox({ x, z, w: 1.1, h: 0.55, d: 0.95, material: materials.crate, collider: true });
-        addBox({ x, y: 0.58, z, w: 0.72, h: 0.08, d: 0.1, material, collider: false });
-        addBox({ x, y: 0.58, z, w: 0.1, h: 0.08, d: 0.62, material, collider: false });
+        const base = addBox({ x, z, w: 1.1, h: 0.55, d: 0.95, material: materials.crate, collider: true });
+        const stripeA = addBox({ x, y: 0.58, z, w: 0.72, h: 0.08, d: 0.1, material, collider: false });
+        const stripeB = addBox({ x, y: 0.58, z, w: 0.1, h: 0.08, d: 0.62, material, collider: false });
         addContactShadow(x, z, 1.4, 1.2, 0.22);
+        supplyCrates.push({ x, z, kind, cooldown: 0, meshes: [base, stripeA, stripeB] });
       }
 
       function addPalm(x, z) {
@@ -1465,6 +1468,7 @@
         }
         updatePlayer(delta);
         updateEnemies(delta);
+        updateSupplies(delta);
         updateRemotePlayers(delta);
         sendNetworkState(delta);
         updateTracers(delta);
@@ -1594,6 +1598,27 @@
         }
       }
 
+      function updateSupplies(delta) {
+        for (const crate of supplyCrates) {
+          if (crate.cooldown > 0) {
+            crate.cooldown -= delta;
+            if (crate.cooldown <= 0) crate.meshes.forEach((mesh) => { mesh.visible = true; });
+            continue;
+          }
+          if (distance2D(state.player.position, crate) < 1.35) {
+            if (crate.kind === "ammo") {
+              state.player.ammo = 30;
+              state.player.reload = 0;
+            } else {
+              state.player.hp = Math.min(100, state.player.hp + 32);
+            }
+            crate.cooldown = 9;
+            crate.meshes.forEach((mesh) => { mesh.visible = false; });
+            addSpark(new THREE.Vector3(crate.x, 0.7, crate.z), crate.kind === "ammo" ? 0x8ed8ff : 0xff9b8f);
+          }
+        }
+      }
+
       function chooseEnemyTarget(enemy) {
         const livingEnemies = enemies.filter((other) => other !== enemy && other.respawn <= 0);
         let target = { type: "player", position: state.player.position, distance: distance2D(enemy.model.group.position, state.player.position) };
@@ -1633,7 +1658,12 @@
       }
 
       function shoot() {
-        if (!state.running || state.player.cooldown > 0 || state.player.reload > 0 || state.player.ammo <= 0) return;
+        if (!state.running) startGame();
+        if (state.player.cooldown > 0 || state.player.reload > 0) return;
+        if (state.player.ammo <= 0) {
+          state.player.reload = 1.15;
+          return;
+        }
         state.player.cooldown = 0.13;
         state.player.ammo -= 1;
         state.shots += 1;
@@ -1683,7 +1713,7 @@
         const material = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.95 });
         const line = new THREE.Line(geometry, material);
         scene.add(line);
-        tracers.push({ line, life: 0.075 });
+        tracers.push({ line, life: 0.11 });
       }
 
       function addSpark(position, color) {
@@ -1696,7 +1726,7 @@
       function updateTracers(delta) {
         for (let i = tracers.length - 1; i >= 0; i -= 1) {
           tracers[i].life -= delta;
-          tracers[i].line.material.opacity = Math.max(0, tracers[i].life / 0.075);
+          tracers[i].line.material.opacity = Math.max(0, tracers[i].life / 0.11);
           if (tracers[i].life <= 0) {
             scene.remove(tracers[i].line);
             tracers.splice(i, 1);
