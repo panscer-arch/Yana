@@ -1,4 +1,4 @@
-const CACHE_NAME = "yana-unicorn-v1";
+const CACHE_NAME = "yana-unicorn-v2";
 const CACHE_PATHS = [
   "./",
   "./index.html",
@@ -51,6 +51,22 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
+
+  const wantsHtml = request.mode === "navigate" || request.headers.get("accept")?.includes("text/html");
+  if (wantsHtml) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (!response || response.status !== 200) return response;
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          return response;
+        })
+        .catch(() => caches.match(request)
+          .then((cached) => cached || caches.match(new URL("./index.html", self.registration.scope).toString())))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(request)
