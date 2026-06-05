@@ -463,11 +463,11 @@
       const right = new THREE.Vector3();
       const temp = new THREE.Vector3();
 
-      const world = { w: 62, d: 48 };
+      const world = { w: 92, d: 70 };
       const state = {
         running: false,
         playerCount: 4,
-        timeLeft: 120,
+        timeLeft: 180,
         view: "first",
         yaw: 0,
         pitch: 0,
@@ -477,6 +477,7 @@
         score: 0,
         teamScore: 0,
         enemyScore: 0,
+        lostSoundPlayed: false,
         player: {
           position: new THREE.Vector3(-5.2, 1.75, 13.4),
           velocity: new THREE.Vector3(),
@@ -505,6 +506,7 @@
       let networkId = "";
       let networkTimer = 0;
       let onlineStatus = "онлайн: подключение...";
+      let audioContext;
       const virtualMove = { forward: 0, side: 0 };
       const aimDrag = { active: false, x: 0, y: 0, moved: false, wasRunning: false };
 
@@ -513,6 +515,45 @@
       const wrapAngle = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle));
       const rotateToward = (current, target, amount) => current + wrapAngle(target - current) * amount;
       const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
+
+      function getAudio() {
+        if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioContext.state === "suspended") audioContext.resume();
+        return audioContext;
+      }
+
+      function playTone({ frequency = 220, duration = 0.12, type = "square", gain = 0.08, slide = 1 }) {
+        try {
+          const audio = getAudio();
+          const osc = audio.createOscillator();
+          const amp = audio.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(frequency, audio.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(Math.max(40, frequency * slide), audio.currentTime + duration);
+          amp.gain.setValueAtTime(gain, audio.currentTime);
+          amp.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + duration);
+          osc.connect(amp);
+          amp.connect(audio.destination);
+          osc.start();
+          osc.stop(audio.currentTime + duration);
+        } catch {
+          // Audio can be unavailable in some browsers until a user gesture.
+        }
+      }
+
+      function playShotSound(isEnemy = false) {
+        playTone({ frequency: isEnemy ? 150 : 190, duration: 0.085, type: "sawtooth", gain: isEnemy ? 0.045 : 0.07, slide: 0.45 });
+        setTimeout(() => playTone({ frequency: 70, duration: 0.06, type: "square", gain: isEnemy ? 0.025 : 0.04, slide: 0.8 }), 12);
+      }
+
+      function playHitSound() {
+        playTone({ frequency: 520, duration: 0.055, type: "triangle", gain: 0.045, slide: 0.55 });
+      }
+
+      function playLoseSound() {
+        playTone({ frequency: 180, duration: 0.28, type: "sawtooth", gain: 0.08, slide: 0.35 });
+        setTimeout(() => playTone({ frequency: 90, duration: 0.35, type: "sawtooth", gain: 0.06, slide: 0.5 }), 160);
+      }
 
       function makeNoiseTexture(base, fleck, size = 256, scale = 1) {
         const c = document.createElement("canvas");
@@ -803,7 +844,7 @@
         mesh.receiveShadow = receive;
         mesh.name = name;
         scene.add(mesh);
-        if (collider) colliders.push({ x, z, w: w + 0.25, d: d + 0.25 });
+        if (collider) colliders.push({ x, y, z, w: w + 0.25, h, d: d + 0.25 });
         return mesh;
       }
 
@@ -868,30 +909,39 @@
         addContactShadow(0, 0, world.w * 0.86, world.d * 0.82, 0.1);
 
         addCourtyardWalls();
-        addCourtyardBuilding(-22, -13.5, 10.5, 4.8, 5.2, materials.warmWall);
-        addCourtyardBuilding(21, 13.2, 11.5, 5.2, 5.8, materials.paleWall);
-        addCourtyardBuilding(-22, 13.2, 8.5, 5.2, 4.6, materials.warmWall);
-        addCourtyardBuilding(22, -12.8, 8.2, 4.8, 4.7, materials.warmWall);
-        addCourtyardBuilding(0, 18.8, 12, 4.4, 4.2, materials.paleWall);
-        addBox({ x: 0, z: -17.5, w: 7.2, h: 2.3, d: 0.34, material: materials.wood });
-        addContactShadow(0, -17.5, 7.8, 0.9, 0.18);
-        addCover(-9.5, 2.8, 6.4, 1.3, materials.warmWall);
-        addCover(9.2, -3.2, 5.8, 1.35, materials.paleWall);
-        addCover(-2.5, -8.8, 4.8, 1.1, materials.wood);
-        addCover(4.5, 9.6, 4.2, 1.1, materials.wood);
-        addPalm(-26.2, -17.8);
-        addPalm(26.8, 17.4);
-        addPalm(-25.4, 17.2);
-        addPalm(24.2, -3.2);
-        addPlanter(-14.4, -18.2);
-        addPlanter(15.8, 17.4);
-        addPlanter(25.4, -6.2);
-        addPlanter(-4.4, 15.2);
+        addCourtyardBuilding(-34, -22, 12, 5.5, 5.4, materials.warmWall);
+        addCourtyardBuilding(33, 21, 13, 5.5, 6.2, materials.paleWall);
+        addCourtyardBuilding(-34, 21, 10, 5.2, 4.8, materials.warmWall);
+        addCourtyardBuilding(34, -22, 10, 5.1, 5.0, materials.warmWall);
+        addCourtyardBuilding(0, 28, 16, 4.8, 4.5, materials.paleWall);
+        addCourtyardBuilding(0, -29, 13, 4.6, 4.8, materials.warmWall);
+        addBox({ x: 0, z: -27.5, w: 9.2, h: 2.4, d: 0.34, material: materials.wood });
+        addContactShadow(0, -27.5, 9.8, 0.9, 0.18);
+        addCover(-18.5, 4.8, 7.4, 1.45, materials.warmWall);
+        addCover(18.2, -5.2, 6.8, 1.5, materials.paleWall);
+        addCover(-4.5, -13.8, 5.8, 1.2, materials.wood);
+        addCover(6.5, 14.6, 5.2, 1.2, materials.wood);
+        addCover(-25.5, -7.5, 5.6, 1.4, materials.paleWall);
+        addCover(27.5, 8.4, 6.2, 1.4, materials.warmWall);
+        addTrashCover(-10, 0);
+        addTrashCover(12, 3);
+        addTrashCover(-2, 21);
+        addTrashCover(4, -22);
+        addPalm(-38.2, -26.8);
+        addPalm(38.8, 26.4);
+        addPalm(-37.4, 26.2);
+        addPalm(36.2, -8.2);
+        addPalm(-20.5, 29.4);
+        addPlanter(-24.4, -27.2);
+        addPlanter(25.8, 27.4);
+        addPlanter(37.4, -10.2);
+        addPlanter(-4.4, 24.2);
+        addPlanter(6.6, -27.5);
 
-        for (const [x, z] of [[-16.2, 1.8], [16.2, -15.2], [0.8, 12.8], [-24.4, -2.8], [21.5, 5.5]]) addBarrel(x, z);
-        for (const [x, z, kind] of [[-6, -15, "ammo"], [12, 10, "health"], [-18, 8, "ammo"], [18, -6, "health"]]) addSupplyCrate(x, z, kind);
-        addTarget(-5.4, -14.6);
-        addTarget(5.4, 14.6);
+        for (const [x, z] of [[-26.2, 1.8], [26.2, -22.2], [0.8, 20.8], [-36.4, -4.8], [33.5, 8.5], [-8, -30], [17, 26]]) addBarrel(x, z);
+        for (const [x, z, kind] of [[-8, -25, "ammo"], [18, 16, "health"], [-28, 12, "ammo"], [29, -10, "health"], [3, 27, "ammo"], [-18, -8, "health"]]) addSupplyCrate(x, z, kind);
+        addTarget(-9.4, -24.6);
+        addTarget(9.4, 24.6);
 
         playerModel = createSoldier("blue", true);
         scene.add(playerModel.group);
@@ -1014,6 +1064,24 @@
         addBox({ x: x - w * 0.28, y: h, z: z - 0.08, w: w * 0.22, h: 0.22, d: 1.4, material: materials.paleWall, collider: false });
         addBox({ x: x + w * 0.22, y: h, z: z + 0.1, w: w * 0.28, h: 0.18, d: 1.35, material: materials.paleWall, collider: false });
         addContactShadow(x, z, w + 0.6, 1.9, 0.2);
+      }
+
+      function addTrashCover(x, z) {
+        addBox({ x, z, w: 3.8, h: 1.18, d: 1.8, material: materials.concrete, collider: true });
+        addBox({ x: x - 1.25, y: 1.12, z: z + 0.15, w: 1.2, h: 0.42, d: 1.25, material: materials.crate, collider: true });
+        addBox({ x: x + 1.15, y: 1.02, z: z - 0.2, w: 1.05, h: 0.38, d: 1.05, material: materials.wood, collider: true });
+        for (let i = 0; i < 5; i += 1) {
+          const stone = new THREE.Mesh(
+            new THREE.BoxGeometry(rand(0.35, 0.9), rand(0.18, 0.45), rand(0.3, 0.75)),
+            Math.random() > 0.45 ? materials.concrete : materials.warmWall
+          );
+          stone.position.set(x + rand(-2.1, 2.1), 1.35 + rand(0, 0.25), z + rand(-1.0, 1.0));
+          stone.rotation.set(rand(-0.4, 0.4), rand(0, Math.PI), rand(-0.3, 0.3));
+          stone.castShadow = true;
+          stone.receiveShadow = true;
+          scene.add(stone);
+        }
+        addContactShadow(x, z, 4.5, 2.4, 0.24);
       }
 
       function addSupplyCrate(x, z, kind) {
@@ -1309,7 +1377,7 @@
       function spawnEnemies() {
         enemies.forEach((enemy) => scene.remove(enemy.model.group));
         enemies.length = 0;
-        const spots = [[-14, -5], [14, 5], [-9, 13], [9, -13], [0, 10], [0, -10], [-22, 0], [22, 0], [5, 16]];
+        const spots = [[-24, -8], [24, 8], [-16, 20], [16, -20], [0, 18], [0, -18], [-34, 0], [34, 0], [8, 26]];
         for (let i = 0; i < state.playerCount - 1; i += 1) {
           const [x, z] = spots[i % spots.length];
           const model = createSoldier(i % 2 ? "blue" : "red");
@@ -1323,7 +1391,7 @@
             model,
             hp: 100,
             score: 0,
-            target: new THREE.Vector3(rand(-16, 16), 0, rand(-14, 14)),
+            target: new THREE.Vector3(rand(-26, 26), 0, rand(-22, 22)),
             speed: rand(2.0, 2.8),
             cooldown: rand(0.25, 1.1),
             think: rand(0.4, 1.2),
@@ -1424,14 +1492,15 @@
 
       function resetGame() {
         state.running = false;
-        state.timeLeft = 120;
+        state.timeLeft = 180;
         state.score = 0;
         state.teamScore = 0;
         state.enemyScore = 0;
+        state.lostSoundPlayed = false;
         state.shots = 0;
         state.yaw = 0;
         state.pitch = 0;
-        state.player.position.set(-5.2, 1.75, 13.4);
+        state.player.position.set(-8, 1.75, 24);
         state.player.velocity.set(0, 0, 0);
         state.player.eyeHeight = 1.75;
         state.player.hp = 100;
@@ -1464,7 +1533,13 @@
         resizeRenderer();
         if (state.running) {
           state.timeLeft = Math.max(0, state.timeLeft - delta);
-          if (state.timeLeft <= 0 || state.player.hp <= 0) state.running = false;
+          if (state.timeLeft <= 0 || state.player.hp <= 0) {
+            if (state.player.hp <= 0 && !state.lostSoundPlayed) {
+              playLoseSound();
+              state.lostSoundPlayed = true;
+            }
+            state.running = false;
+          }
         }
         updatePlayer(delta);
         updateEnemies(delta);
@@ -1539,6 +1614,36 @@
         return colliders.some((box) => Math.abs(x - box.x) < box.w / 2 + radius && Math.abs(z - box.z) < box.d / 2 + radius);
       }
 
+      function segmentIntersectsBox2D(a, b, box) {
+        const minX = box.x - box.w / 2;
+        const maxX = box.x + box.w / 2;
+        const minZ = box.z - box.d / 2;
+        const maxZ = box.z + box.d / 2;
+        let tMin = 0;
+        let tMax = 1;
+        const dx = b.x - a.x;
+        const dz = b.z - a.z;
+        for (const [p, q] of [[-dx, a.x - minX], [dx, maxX - a.x], [-dz, a.z - minZ], [dz, maxZ - a.z]]) {
+          if (Math.abs(p) < 0.00001) {
+            if (q < 0) return false;
+          } else {
+            const t = q / p;
+            if (p < 0) tMin = Math.max(tMin, t);
+            else tMax = Math.min(tMax, t);
+            if (tMin > tMax) return false;
+          }
+        }
+        return true;
+      }
+
+      function hasLineOfSight(from, to, targetHeight = 1.45) {
+        for (const box of colliders) {
+          if (box.h < targetHeight * 0.72) continue;
+          if (segmentIntersectsBox2D(from, to, box)) return false;
+        }
+        return true;
+      }
+
       function updateEnemies(delta) {
         const playerPos = state.player.position;
         for (const enemy of enemies) {
@@ -1585,7 +1690,8 @@
           if (state.running && enemy.cooldown <= 0) {
             const target = chooseEnemyTarget(enemy);
             const aimVector = target.position.clone().sub(group.position);
-            if (target.distance < 24) {
+            const targetHeight = target.type === "player" ? state.player.eyeHeight : 1.65;
+            if (target.distance < 30 && hasLineOfSight(group.position, target.position, targetHeight)) {
               enemy.cooldown = rand(0.5, 1.15);
               const aimYaw = Math.atan2(aimVector.x, aimVector.z) + Math.PI;
               group.rotation.y = rotateToward(group.rotation.y, aimYaw, 0.55);
@@ -1641,17 +1747,20 @@
         addTracer(origin, target, 0xffb866);
         addSpark(target, 0xffb866);
         addSpark(origin, 0xffe0a0);
-        if (Math.random() > 0.28) {
+        playShotSound(true);
+        if (Math.random() > 0.2) {
           if (targetInfo.type === "enemy" && targetInfo.enemy) {
             targetInfo.enemy.hp -= 24;
             enemy.score += 1;
             if (targetInfo.enemy.hp <= 0) {
+              playHitSound();
               enemy.score += 2;
               targetInfo.enemy.respawn = 2.4;
               targetInfo.enemy.model.group.visible = false;
             }
           } else {
-            state.player.hp = Math.max(0, state.player.hp - 7);
+            state.player.hp = Math.max(0, state.player.hp - 13);
+            playHitSound();
             state.enemyScore += 1;
           }
         }
@@ -1668,6 +1777,7 @@
         state.player.ammo -= 1;
         state.shots += 1;
         state.recoil = 1;
+        playShotSound(false);
         muzzleLight.intensity = 22;
         muzzleLight.position.copy(camera.position);
         raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
@@ -1698,13 +1808,13 @@
       }
 
       function respawnEnemy(enemy) {
-        const spots = [[-14, -5], [14, 5], [-9, 13], [9, -13], [0, 10], [0, -10], [-22, 0], [22, 0]];
+        const spots = [[-24, -8], [24, 8], [-16, 20], [16, -20], [0, 18], [0, -18], [-34, 0], [34, 0]];
         const [x, z] = spots[Math.floor(Math.random() * spots.length)];
         enemy.model.group.position.set(x, 0, z);
         enemy.hp = 100;
         enemy.stuck = 0;
         enemy.think = rand(0.5, 1.2);
-        enemy.target.set(rand(-18, 18), 0, rand(-14, 14));
+        enemy.target.set(rand(-26, 26), 0, rand(-22, 22));
         enemy.model.group.visible = true;
       }
 
@@ -1800,7 +1910,9 @@
         roundTimeEl.textContent = Math.ceil(state.timeLeft);
         starsLeftEl.textContent = state.player.reload > 0 ? "..." : state.player.ammo;
         leaderNameEl.textContent = `${state.teamScore} : ${state.enemyScore}`;
-        statusLine.textContent = `HP ${state.player.hp} | AMMO ${state.player.ammo} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
+        statusLine.textContent = state.player.hp <= 0
+          ? "Вас убили. Нажми Заново или Старт для нового раунда."
+          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
       }
 
       function renderScores() {
