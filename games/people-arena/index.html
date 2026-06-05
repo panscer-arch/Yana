@@ -377,7 +377,7 @@
           <div><span>Игроки</span><strong id="playersCount">2</strong></div>
           <div><span>Раунд</span><strong id="roundTime">90</strong></div>
           <div><span>Снаряды</span><strong id="starsLeft">0</strong></div>
-          <div><span>Команды</span><strong id="leaderName">0 : 0</strong></div>
+          <div><span>Фраги</span><strong id="leaderName">0</strong></div>
         </div>
         <canvas id="arena" width="1120" height="700" tabindex="0"></canvas>
       </section>
@@ -475,7 +475,6 @@
         bob: 0,
         shots: 0,
         score: 0,
-        teamScore: 0,
         enemyScore: 0,
         lostSoundPlayed: false,
         damageFlash: 0,
@@ -729,6 +728,9 @@
         sand: new THREE.MeshStandardMaterial({ color: 0x766d55, roughness: 0.98, metalness: 0.01 }),
         red: new THREE.MeshStandardMaterial({ color: 0x7f3a32, roughness: 0.66, metalness: 0.1 }),
         blue: new THREE.MeshStandardMaterial({ color: 0x2f5364, roughness: 0.68, metalness: 0.1 }),
+        armorA: new THREE.MeshStandardMaterial({ color: 0x5b594f, roughness: 0.9, metalness: 0.04 }),
+        armorB: new THREE.MeshStandardMaterial({ color: 0x4b514a, roughness: 0.88, metalness: 0.04 }),
+        armorC: new THREE.MeshStandardMaterial({ color: 0x655746, roughness: 0.88, metalness: 0.04 }),
         suit: new THREE.MeshStandardMaterial({ color: 0x2d302e, roughness: 0.82, metalness: 0.12 }),
         black: new THREE.MeshStandardMaterial({ color: 0x0c0d0d, roughness: 0.34, metalness: 0.58 }),
         glass: new THREE.MeshStandardMaterial({ color: 0x87a9b5, roughness: 0.04, metalness: 0.02, transparent: true, opacity: 0.38, emissive: 0x132333, emissiveIntensity: 0.18 }),
@@ -1026,7 +1028,7 @@
         addTarget(-9.4, -24.6);
         addTarget(9.4, 24.6);
 
-        playerModel = createSoldier("blue", true);
+        playerModel = createSoldier("b", true);
         scene.add(playerModel.group);
         weapon = createWeapon();
         camera.add(weapon);
@@ -1340,16 +1342,22 @@
         return group;
       }
 
-      function createSoldier(team, isPlayer = false) {
-        const colorMaterial = team === "red" ? materials.red : materials.blue;
+      function createSoldier(style = "a", isPlayer = false) {
+        const armorMaterial = style === "b" ? materials.armorB : style === "c" ? materials.armorC : materials.armorA;
         const group = new THREE.Group();
         const parts = {};
         parts.body = new THREE.Mesh(new THREE.CapsuleGeometry(0.34, 0.78, 7, 14), materials.suit);
         parts.body.position.y = 1.13;
-        parts.vest = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.76, 0.34), materials.fabric);
+        parts.vest = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.76, 0.34), armorMaterial);
         parts.vest.position.set(0, 1.2, -0.02);
-        parts.vestPlate = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.52, 0.06), colorMaterial);
+        parts.vestPlate = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.52, 0.06), materials.fabric);
         parts.vestPlate.position.set(0, 1.22, -0.22);
+        parts.leftPouch = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.22, 0.08), materials.strap);
+        parts.midPouch = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.24, 0.08), materials.strap);
+        parts.rightPouch = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.22, 0.08), materials.strap);
+        parts.leftPouch.position.set(-0.22, 1.05, -0.27);
+        parts.midPouch.position.set(0, 1.03, -0.27);
+        parts.rightPouch.position.set(0.22, 1.05, -0.27);
         parts.neck = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.22, 0.22, 18), materials.fabric);
         parts.neck.position.y = 1.62;
         parts.head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 28, 18), materials.skin);
@@ -1418,6 +1426,9 @@
           parts.body,
           parts.vest,
           parts.vestPlate,
+          parts.leftPouch,
+          parts.midPouch,
+          parts.rightPouch,
           parts.neck,
           parts.head,
           parts.mask,
@@ -1453,7 +1464,7 @@
           }
         });
         group.visible = !isPlayer;
-        return { group, parts, team, hp: 100, alive: true, cooldown: rand(0.4, 1.8), walk: rand(0, 10), isPlayer };
+        return { group, parts, style, hp: 100, alive: true, cooldown: rand(0.4, 1.8), walk: rand(0, 10), isPlayer };
       }
 
       function makeLimb(radius, length, material) {
@@ -1468,14 +1479,14 @@
         const spots = [[-24, -8], [24, 8], [-16, 20], [16, -20], [0, 18], [0, -18], [-34, 0], [34, 0], [8, 26]];
         for (let i = 0; i < state.playerCount - 1; i += 1) {
           const [x, z] = spots[i % spots.length];
-          const model = createSoldier(i % 2 ? "blue" : "red");
+          const model = createSoldier(["a", "b", "c"][i % 3]);
           model.group.position.set(x, 0, z);
           model.group.rotation.y = rand(-Math.PI, Math.PI);
           scene.add(model.group);
           enemies.push({
             id: i + 2,
             name: ["Браво", "Чарли", "Дельта", "Эхо", "Фокс", "Гамма", "Норд", "Вега", "Шторм"][i] || `Игрок ${i + 2}`,
-            team: i % 2 ? "blue" : "red",
+            style: ["a", "b", "c"][i % 3],
             model,
             hp: 100,
             score: 0,
@@ -1527,7 +1538,7 @@
         if (!peer || !peer.id || peer.id === networkId) return;
         let remote = remotePlayers.get(peer.id);
         if (!remote) {
-          const model = createSoldier(remotePlayers.size % 2 ? "blue" : "red");
+          const model = createSoldier(["a", "b", "c"][remotePlayers.size % 3]);
           scene.add(model.group);
           remote = { id: peer.id, model, state: peer, lastSeen: performance.now() };
           remotePlayers.set(peer.id, remote);
@@ -1582,7 +1593,6 @@
         state.running = false;
         state.timeLeft = 180;
         state.score = 0;
-        state.teamScore = 0;
         state.enemyScore = 0;
         state.lostSoundPlayed = false;
         state.damageFlash = 0;
@@ -1897,7 +1907,6 @@
             addDust(hit.point, 0xd1b184, 6);
             if (enemy.hp <= 0) {
               state.score += 3;
-              state.teamScore += 1;
               enemy.respawn = 2.6;
               enemy.model.group.visible = false;
             }
@@ -2023,6 +2032,9 @@
         model.parts.body.position.y = 1.13 + lift;
         model.parts.vest.position.y = 1.2 + lift;
         model.parts.vestPlate.position.y = 1.22 + lift;
+        model.parts.leftPouch.position.y = 1.05 + lift;
+        model.parts.midPouch.position.y = 1.03 + lift;
+        model.parts.rightPouch.position.y = 1.05 + lift;
         model.parts.leftStrap.position.y = 1.25 + lift;
         model.parts.rightStrap.position.y = 1.25 + lift;
         model.parts.belt.position.y = 0.82 + lift * 0.6;
@@ -2069,7 +2081,7 @@
         playersCountEl.textContent = state.playerCount;
         roundTimeEl.textContent = Math.ceil(state.timeLeft);
         starsLeftEl.textContent = state.player.reload > 0 ? "..." : state.player.ammo;
-        leaderNameEl.textContent = `${state.teamScore} : ${state.enemyScore}`;
+        leaderNameEl.textContent = `${state.score}`;
         statusLine.textContent = state.player.hp <= 0
           ? "Вас убили. Нажми Заново или Старт для нового раунда."
           : `HP ${state.player.hp} | AMMO ${state.player.ammo} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
@@ -2078,13 +2090,13 @@
       function renderScores() {
         scoreList.innerHTML = `
           <div class="player-row">
-            <i class="dot" style="background:#39789b"></i>
-            <div><strong>1. Вы</strong><span>Синие | ${state.view === "first" ? "1st person" : "3rd person"} | HP ${state.player.hp}</span></div>
+            <i class="dot" style="background:#8a806d"></i>
+            <div><strong>1. Вы</strong><span>${state.view === "first" ? "1st person" : "3rd person"} | HP ${state.player.hp}</span></div>
             <button type="button" data-fire="1" aria-label="Огонь игрок 1">${state.score}</button>
           </div>
           ${enemies.map((enemy) => `<div class="player-row">
-            <i class="dot" style="background:${enemy.team === "red" ? "#b44736" : "#39789b"}"></i>
-            <div><strong>${enemy.id}. ${enemy.name}</strong><span>${enemy.team === "red" ? "Красные" : "Синие"} | ${enemy.respawn > 0 ? "респавн" : `HP ${enemy.hp}`}</span></div>
+            <i class="dot" style="background:${enemy.style === "b" ? "#5f695f" : enemy.style === "c" ? "#77644d" : "#7a776b"}"></i>
+            <div><strong>${enemy.id}. ${enemy.name}</strong><span>${enemy.respawn > 0 ? "респавн" : `HP ${enemy.hp}`}</span></div>
             <button type="button" data-fire="${enemy.id}" aria-label="Статус игрок ${enemy.id}">${enemy.score}</button>
           </div>`).join("")}
           ${[...remotePlayers.values()].map((remote, index) => `<div class="player-row">
