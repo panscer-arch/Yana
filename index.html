@@ -374,6 +374,53 @@
         text-decoration: none;
       }
 
+      .play-spotlight {
+        display: grid;
+        gap: 16px;
+        margin: 24px 0 8px;
+        padding: 18px;
+        border: 3px solid rgba(36, 31, 53, .16);
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, rgba(36, 31, 53, .88), rgba(72, 63, 97, .9)),
+          var(--ink);
+        color: #fff;
+        box-shadow: var(--shadow);
+      }
+
+      .play-spotlight-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .play-spotlight h2 {
+        font-size: clamp(28px, 4vw, 46px);
+      }
+
+      .play-spotlight p {
+        max-width: 680px;
+        color: rgba(255, 255, 255, .78);
+        font-weight: 800;
+        line-height: 1.4;
+      }
+
+      .play-frame {
+        width: 100%;
+        min-height: min(680px, 74vh);
+        border: 3px solid rgba(255, 255, 255, .28);
+        border-radius: 8px;
+        background: #111;
+        box-shadow: 0 16px 0 rgba(0, 0, 0, .22);
+      }
+
+      .play-spotlight .mini-button {
+        background: linear-gradient(180deg, var(--sun), var(--orange));
+        color: #241f35;
+      }
+
       section {
         scroll-margin-top: 92px;
       }
@@ -1220,7 +1267,7 @@
             <a class="button secondary" href="start/index.html">Быстрый старт</a>
           </div>
           <div class="quick-stats" aria-label="Что есть на сайте">
-            <div><strong>3</strong><span>места для игр</span></div>
+            <div><strong>5</strong><span>готовых игр</span></div>
             <div><strong>5</strong><span>режимов математики</span></div>
             <div><strong>1</strong><span>раздел проектов</span></div>
           </div>
@@ -1261,6 +1308,18 @@
           <strong>10:00</strong>
           <p>Codex, веб-кодинг, создание игр.</p>
         </article>
+      </section>
+
+      <section class="play-spotlight" aria-labelledby="super-shooter-title">
+        <div class="play-spotlight-head">
+          <div>
+            <span class="status ready">Игра прямо на сайте</span>
+            <h2 id="super-shooter-title">Суперстрелялка для всей семьи</h2>
+            <p>Реалистичная 3D-арена открывается прямо здесь. Для Atlas используй отдельную кнопку, чтобы браузер взял свежую серверную версию.</p>
+          </div>
+          <a class="mini-button" href="https://barbarpatapim.com/games/people-arena/index.html?v=f7e1598">Открыть в Atlas</a>
+        </div>
+        <iframe class="play-frame" src="games/people-arena/index.html" title="Суперстрелялка для всей семьи" loading="lazy"></iframe>
       </section>
 
       <section id="games" aria-labelledby="games-title">
