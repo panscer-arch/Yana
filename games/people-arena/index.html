@@ -392,7 +392,7 @@
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
           </div>
-          <p>WASD/стрелки — ходьба, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, V — камера.</p>
+          <p>WASD/стрелки — ходьба, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, H — аптечка из рюкзака. Подойди к раненому, чтобы спасти.</p>
         </section>
 
         <section class="panel">
@@ -475,6 +475,7 @@
         bob: 0,
         shots: 0,
         score: 0,
+        rescues: 0,
         enemyScore: 0,
         lostSoundPlayed: false,
         damageFlash: 0,
@@ -487,7 +488,9 @@
           hp: 100,
           ammo: 30,
           cooldown: 0,
-          reload: 0
+          reload: 0,
+          medkits: 0,
+          ammoPacks: 0
         }
       };
 
@@ -498,6 +501,7 @@
       const sparks = [];
       const dustPuffs = [];
       const supplyCrates = [];
+      const woundedAllies = [];
       let playerModel;
       let weapon;
       let muzzleLight;
@@ -946,6 +950,7 @@
         sparks.length = 0;
         dustPuffs.length = 0;
         supplyCrates.length = 0;
+        woundedAllies.length = 0;
 
         addSkyDome();
 
@@ -1025,6 +1030,8 @@
 
         for (const [x, z] of [[-26.2, 1.8], [26.2, -22.2], [0.8, 20.8], [-36.4, -4.8], [33.5, 8.5], [-8, -30], [17, 26]]) addBarrel(x, z);
         for (const [x, z, kind] of [[-8, -25, "ammo"], [18, 16, "health"], [-28, 12, "ammo"], [29, -10, "health"], [3, 27, "ammo"], [-18, -8, "health"]]) addSupplyCrate(x, z, kind);
+        addWoundedAlly(-12, 18);
+        addWoundedAlly(22, -18);
         addTarget(-9.4, -24.6);
         addTarget(9.4, 24.6);
 
@@ -1180,6 +1187,32 @@
         const stripeB = addBox({ x, y: 0.58, z, w: 0.1, h: 0.08, d: 0.62, material, collider: false });
         addContactShadow(x, z, 1.4, 1.2, 0.22);
         supplyCrates.push({ x, z, kind, cooldown: 0, meshes: [base, stripeA, stripeB] });
+      }
+
+      function addWoundedAlly(x, z) {
+        const group = new THREE.Group();
+        group.position.set(x, 0, z);
+        const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.24, 0.58, 5, 10), materials.fabric);
+        body.position.set(0, 0.55, 0);
+        body.rotation.z = Math.PI / 2;
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 14, 10), materials.skin);
+        head.position.set(0.48, 0.56, 0);
+        const pack = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.28, 0.38), materials.armorC);
+        pack.position.set(-0.15, 0.34, -0.08);
+        const crossA = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.035, 0.04), materials.red);
+        const crossB = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.32, 0.04), materials.red);
+        crossA.position.set(-0.15, 0.5, -0.29);
+        crossB.position.set(-0.15, 0.5, -0.29);
+        group.add(body, head, pack, crossA, crossB);
+        group.traverse((node) => {
+          if (node.isMesh) {
+            node.castShadow = true;
+            node.receiveShadow = true;
+          }
+        });
+        scene.add(group);
+        addContactShadow(x, z, 1.2, 0.8, 0.3);
+        woundedAllies.push({ x, z, group, rescued: false });
       }
 
       function addPalm(x, z) {
@@ -1593,6 +1626,7 @@
         state.running = false;
         state.timeLeft = 180;
         state.score = 0;
+        state.rescues = 0;
         state.enemyScore = 0;
         state.lostSoundPlayed = false;
         state.damageFlash = 0;
@@ -1606,6 +1640,8 @@
         state.player.eyeHeight = 1.75;
         state.player.hp = 100;
         state.player.ammo = 30;
+        state.player.medkits = 0;
+        state.player.ammoPacks = 0;
         state.player.cooldown = 0;
         state.player.reload = 0;
         spawnEnemies();
@@ -1645,6 +1681,7 @@
         updatePlayer(delta);
         updateEnemies(delta);
         updateSupplies(delta);
+        updateWoundedAllies();
         updateRemotePlayers(delta);
         sendNetworkState(delta);
         updateTracers(delta);
@@ -1680,6 +1717,15 @@
           state.view = state.view === "first" ? "third" : "first";
         }
         if ((keys.has("KeyR") || keys.has("r") || keys.has("к")) && player.reload <= 0 && player.ammo < 30) player.reload = 1.15;
+        if ((keys.has("KeyH") || keys.has("h") || keys.has("р")) && player.medkits > 0 && player.hp < 100) {
+          keys.delete("KeyH");
+          keys.delete("h");
+          keys.delete("р");
+          player.medkits -= 1;
+          player.hp = Math.min(100, player.hp + 38);
+          state.damageFlash = 0;
+          addSpark(player.position.clone().add(new THREE.Vector3(0, 0.5, 0)), 0x9fffc2);
+        }
         if (player.reload > 0) {
           player.reload -= delta;
           if (player.reload <= 0) player.ammo = 30;
@@ -1818,13 +1864,31 @@
             if (crate.kind === "ammo") {
               state.player.ammo = 30;
               state.player.reload = 0;
+              state.player.ammoPacks += 1;
             } else {
               state.player.hp = Math.min(100, state.player.hp + 32);
+              state.player.medkits += 1;
             }
             crate.cooldown = 9;
             crate.meshes.forEach((mesh) => { mesh.visible = false; });
             addSpark(new THREE.Vector3(crate.x, 0.7, crate.z), crate.kind === "ammo" ? 0x8ed8ff : 0xff9b8f);
             addDust(new THREE.Vector3(crate.x, 0.45, crate.z), crate.kind === "ammo" ? 0x9bd6ff : 0xffa096, 8);
+          }
+        }
+      }
+
+      function updateWoundedAllies() {
+        for (const ally of woundedAllies) {
+          if (ally.rescued) continue;
+          if (distance2D(state.player.position, ally) < 1.55) {
+            ally.rescued = true;
+            ally.group.visible = false;
+            state.rescues += 1;
+            state.player.medkits += 1;
+            state.score += 1;
+            addSpark(new THREE.Vector3(ally.x, 0.8, ally.z), 0x9fffc2);
+            addDust(new THREE.Vector3(ally.x, 0.5, ally.z), 0xa8e8bc, 8);
+            playHitSound();
           }
         }
       }
@@ -2084,14 +2148,14 @@
         leaderNameEl.textContent = `${state.score}`;
         statusLine.textContent = state.player.hp <= 0
           ? "Вас убили. Нажми Заново или Старт для нового раунда."
-          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
+          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
       }
 
       function renderScores() {
         scoreList.innerHTML = `
           <div class="player-row">
             <i class="dot" style="background:#8a806d"></i>
-            <div><strong>1. Вы</strong><span>${state.view === "first" ? "1st person" : "3rd person"} | HP ${state.player.hp}</span></div>
+            <div><strong>1. Вы</strong><span>${state.view === "first" ? "1st person" : "3rd person"} | HP ${state.player.hp} | спасено ${state.rescues}</span></div>
             <button type="button" data-fire="1" aria-label="Огонь игрок 1">${state.score}</button>
           </div>
           ${enemies.map((enemy) => `<div class="player-row">
