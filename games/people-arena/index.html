@@ -478,6 +478,8 @@
         rescues: 0,
         enemyScore: 0,
         lostSoundPlayed: false,
+        downed: false,
+        downedTimer: 0,
         damageFlash: 0,
         hitMarker: 0,
         deathFlash: 0,
@@ -486,6 +488,7 @@
           velocity: new THREE.Vector3(),
           eyeHeight: 1.75,
           hp: 100,
+          downedHp: 0,
           ammo: 30,
           cooldown: 0,
           reload: 0,
@@ -828,7 +831,7 @@
           background: "radial-gradient(circle at 50% 45%, rgba(210,0,0,.74), rgba(70,0,0,.9) 48%, rgba(0,0,0,.94) 78%)",
           transition: "opacity 180ms ease"
         });
-        deathOverlay.innerHTML = '<div style="width:min(280px,70vw);aspect-ratio:1;border:7px solid rgba(255,255,255,.9);border-radius:50%;display:grid;place-items:center;background:rgba(170,0,0,.7);box-shadow:0 0 90px rgba(255,0,0,.8)"><div style="font-size:104px;line-height:1">✕</div></div>';
+        deathOverlay.innerHTML = '<div id="deathCard" style="width:min(350px,82vw);min-height:270px;border:7px solid rgba(255,255,255,.9);border-radius:24px;display:grid;place-items:center;padding:22px;background:rgba(170,0,0,.72);box-shadow:0 0 90px rgba(255,0,0,.8);text-align:center"><div id="deathIcon" style="font-size:104px;line-height:1">✕</div><strong id="deathTitle" style="font-size:34px;line-height:1;margin-top:8px">Ты умер</strong><span id="deathHint" style="font-size:15px;font-weight:900;color:#ffe5e5;margin-top:8px">Нажми Заново</span></div>';
         stage.appendChild(deathOverlay);
 
         movePad = document.createElement("div");
@@ -1203,7 +1206,17 @@
         const crossB = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.32, 0.04), materials.red);
         crossA.position.set(-0.15, 0.5, -0.29);
         crossB.position.set(-0.15, 0.5, -0.29);
-        group.add(body, head, pack, crossA, crossB);
+        const helpA = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.08, 0.08), materials.red);
+        const helpB = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.55, 0.08), materials.red);
+        helpA.position.set(0, 1.25, 0);
+        helpB.position.set(0, 1.25, 0);
+        const zone = new THREE.Mesh(
+          new THREE.RingGeometry(0.72, 0.9, 28),
+          new THREE.MeshBasicMaterial({ color: 0xff6a6a, transparent: true, opacity: 0.42, side: THREE.DoubleSide })
+        );
+        zone.rotation.x = -Math.PI / 2;
+        zone.position.y = 0.035;
+        group.add(body, head, pack, crossA, crossB, helpA, helpB, zone);
         group.traverse((node) => {
           if (node.isMesh) {
             node.castShadow = true;
@@ -1212,7 +1225,7 @@
         });
         scene.add(group);
         addContactShadow(x, z, 1.2, 0.8, 0.3);
-        woundedAllies.push({ x, z, group, rescued: false });
+        woundedAllies.push({ x, z, group, zone, helpA, helpB, rescued: false, pulse: rand(0, Math.PI) });
       }
 
       function addPalm(x, z) {
@@ -1629,6 +1642,8 @@
         state.rescues = 0;
         state.enemyScore = 0;
         state.lostSoundPlayed = false;
+        state.downed = false;
+        state.downedTimer = 0;
         state.damageFlash = 0;
         state.hitMarker = 0;
         state.deathFlash = 0;
@@ -1639,6 +1654,7 @@
         state.player.velocity.set(0, 0, 0);
         state.player.eyeHeight = 1.75;
         state.player.hp = 100;
+        state.player.downedHp = 0;
         state.player.ammo = 30;
         state.player.medkits = 0;
         state.player.ammoPacks = 0;
@@ -1670,11 +1686,23 @@
         resizeRenderer();
         if (state.running) {
           state.timeLeft = Math.max(0, state.timeLeft - delta);
-          if (state.timeLeft <= 0 || state.player.hp <= 0) {
-            if (state.player.hp <= 0 && !state.lostSoundPlayed) {
+          if (state.player.hp <= 0 && !state.downed && !state.lostSoundPlayed) {
+            state.downed = true;
+            state.downedTimer = 18;
+            state.player.downedHp = 18;
+            state.player.velocity.set(0, 0, 0);
+            state.damageFlash = 1;
+            playLoseSound();
+          }
+          if (state.downed) {
+            state.downedTimer = Math.max(0, state.downedTimer - delta);
+            state.player.downedHp = Math.ceil(state.downedTimer);
+            if (state.downedTimer <= 0 && !state.lostSoundPlayed) {
               playLoseSound();
               state.lostSoundPlayed = true;
             }
+          }
+          if (state.timeLeft <= 0 || (state.downed && state.downedTimer <= 0)) {
             state.running = false;
           }
         }
@@ -1722,9 +1750,24 @@
           keys.delete("h");
           keys.delete("р");
           player.medkits -= 1;
-          player.hp = Math.min(100, player.hp + 38);
+          if (state.downed) {
+            state.downed = false;
+            state.downedTimer = 0;
+            state.deathFlash = 0;
+            player.hp = 42;
+          } else {
+            player.hp = Math.min(100, player.hp + 38);
+          }
           state.damageFlash = 0;
           addSpark(player.position.clone().add(new THREE.Vector3(0, 0.5, 0)), 0x9fffc2);
+        }
+        if (state.downed) {
+          player.velocity.set(0, 0, 0);
+          player.eyeHeight += (0.72 - player.eyeHeight) * (1 - Math.pow(0.00008, delta));
+          player.position.y = player.eyeHeight;
+          state.recoil = Math.max(0, state.recoil - delta * 5.5);
+          muzzleLight.intensity = Math.max(0, muzzleLight.intensity - delta * 35);
+          return;
         }
         if (player.reload > 0) {
           player.reload -= delta;
@@ -1880,6 +1923,14 @@
       function updateWoundedAllies() {
         for (const ally of woundedAllies) {
           if (ally.rescued) continue;
+          ally.pulse += 0.08;
+          const pulse = 1 + Math.sin(ally.pulse) * 0.12;
+          ally.zone.scale.setScalar(pulse);
+          ally.zone.material.opacity = 0.28 + Math.max(0, Math.sin(ally.pulse)) * 0.28;
+          ally.helpA.scale.setScalar(1 + Math.max(0, Math.sin(ally.pulse)) * 0.22);
+          ally.helpB.scale.setScalar(1 + Math.max(0, Math.sin(ally.pulse)) * 0.22);
+          ally.helpA.rotation.y += 0.018;
+          ally.helpB.rotation.y = ally.helpA.rotation.y;
           if (distance2D(state.player.position, ally) < 1.55) {
             ally.rescued = true;
             ally.group.visible = false;
@@ -1927,7 +1978,7 @@
               targetInfo.enemy.respawn = 2.4;
               targetInfo.enemy.model.group.visible = false;
             }
-          } else {
+          } else if (!state.downed) {
             state.player.hp = Math.max(0, state.player.hp - 13);
             state.damageFlash = 1;
             playHitSound();
@@ -1938,6 +1989,7 @@
 
       function shoot() {
         if (!state.running) startGame();
+        if (state.downed) return;
         if (state.player.cooldown > 0 || state.player.reload > 0) return;
         if (state.player.ammo <= 0) {
           state.player.reload = 1.15;
@@ -2075,13 +2127,29 @@
       function updateScreenEffects(delta) {
         state.damageFlash = Math.max(0, state.damageFlash - delta * 1.8);
         state.hitMarker = Math.max(0, state.hitMarker - delta * 5.2);
-        state.deathFlash = state.player.hp <= 0 ? Math.min(1, state.deathFlash + delta * 3.5) : Math.max(0, state.deathFlash - delta * 4);
+        const finallyDead = state.downed && state.downedTimer <= 0;
+        state.deathFlash = state.downed ? Math.min(finallyDead ? 1 : 0.78, state.deathFlash + delta * 2.8) : Math.max(0, state.deathFlash - delta * 4);
         if (damageOverlay) damageOverlay.style.opacity = String(Math.max(state.damageFlash, state.player.hp > 0 && state.player.hp < 28 ? 0.38 : 0));
         if (hitMarkerEl) {
           hitMarkerEl.style.opacity = String(Math.min(1, state.hitMarker));
           hitMarkerEl.style.transform = `translate(-50%, -50%) scale(${0.8 + state.hitMarker * 0.35})`;
         }
-        if (deathOverlay) deathOverlay.style.opacity = String(state.deathFlash);
+        if (deathOverlay) {
+          const deathCard = document.getElementById("deathCard");
+          const deathIcon = document.getElementById("deathIcon");
+          const deathTitle = document.getElementById("deathTitle");
+          const deathHint = document.getElementById("deathHint");
+          deathOverlay.style.opacity = String(state.deathFlash);
+          if (deathCard && deathIcon && deathTitle && deathHint) {
+            deathIcon.textContent = finallyDead ? "✕" : "+";
+            deathTitle.textContent = finallyDead ? "Ты умер" : "Ты ранен";
+            deathHint.textContent = finallyDead
+              ? "Нажми Заново"
+              : `H - аптечка, осталось ${Math.ceil(state.downedTimer)} сек`;
+            deathCard.style.background = finallyDead ? "rgba(170,0,0,.72)" : "rgba(130,0,0,.62)";
+            deathCard.style.boxShadow = finallyDead ? "0 0 90px rgba(255,0,0,.8)" : "0 0 90px rgba(255,40,40,.65)";
+          }
+        }
       }
 
       function animateSoldier(model, delta, speed) {
@@ -2146,16 +2214,19 @@
         roundTimeEl.textContent = Math.ceil(state.timeLeft);
         starsLeftEl.textContent = state.player.reload > 0 ? "..." : state.player.ammo;
         leaderNameEl.textContent = `${state.score}`;
-        statusLine.textContent = state.player.hp <= 0
-          ? "Вас убили. Нажми Заново или Старт для нового раунда."
-          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
+        const nearWounded = woundedAllies.some((ally) => !ally.rescued && distance2D(state.player.position, ally) < 3);
+        statusLine.textContent = state.downed
+          ? (state.downedTimer > 0
+            ? `ТЫ РАНЕН | H аптечка (${state.player.medkits}) | осталось ${Math.ceil(state.downedTimer)} сек`
+            : "ТЫ УМЕР | Нажми Заново или Старт для нового раунда")
+          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
       }
 
       function renderScores() {
         scoreList.innerHTML = `
           <div class="player-row">
             <i class="dot" style="background:#8a806d"></i>
-            <div><strong>1. Вы</strong><span>${state.view === "first" ? "1st person" : "3rd person"} | HP ${state.player.hp} | спасено ${state.rescues}</span></div>
+            <div><strong>1. Вы</strong><span>${state.downed ? `ранен | ${Math.ceil(state.downedTimer)} сек` : `${state.view === "first" ? "1st person" : "3rd person"} | HP ${state.player.hp}`} | спасено ${state.rescues}</span></div>
             <button type="button" data-fire="1" aria-label="Огонь игрок 1">${state.score}</button>
           </div>
           ${enemies.map((enemy) => `<div class="player-row">
