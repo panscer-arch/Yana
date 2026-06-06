@@ -392,7 +392,7 @@
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
           </div>
-          <p>WASD/стрелки — ходьба, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, H — аптечка из рюкзака. Подойди к раненому, чтобы спасти.</p>
+          <p>WASD/стрелки — ходьба, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, H — аптечка или сердечко спасения. Подойди к раненому, чтобы спасти.</p>
         </section>
 
         <section class="panel">
@@ -493,6 +493,7 @@
           cooldown: 0,
           reload: 0,
           medkits: 0,
+          hearts: 1,
           ammoPacks: 0
         }
       };
@@ -1657,6 +1658,7 @@
         state.player.downedHp = 0;
         state.player.ammo = 30;
         state.player.medkits = 0;
+        state.player.hearts = 1;
         state.player.ammoPacks = 0;
         state.player.cooldown = 0;
         state.player.reload = 0;
@@ -1692,6 +1694,10 @@
             state.player.downedHp = 18;
             state.player.velocity.set(0, 0, 0);
             state.damageFlash = 1;
+            enemies.forEach((enemy) => {
+              enemy.target.set(rand(-22, 22), 0, rand(-18, 18));
+              enemy.think = 0;
+            });
             playLoseSound();
           }
           if (state.downed) {
@@ -1745,21 +1751,30 @@
           state.view = state.view === "first" ? "third" : "first";
         }
         if ((keys.has("KeyR") || keys.has("r") || keys.has("к")) && player.reload <= 0 && player.ammo < 30) player.reload = 1.15;
-        if ((keys.has("KeyH") || keys.has("h") || keys.has("р")) && player.medkits > 0 && player.hp < 100) {
+        if ((keys.has("KeyH") || keys.has("h") || keys.has("р")) && (state.downed || player.hp < 100)) {
           keys.delete("KeyH");
           keys.delete("h");
           keys.delete("р");
-          player.medkits -= 1;
           if (state.downed) {
-            state.downed = false;
-            state.downedTimer = 0;
-            state.deathFlash = 0;
-            player.hp = 42;
-          } else {
+            if (player.medkits > 0 || player.hearts > 0) {
+              if (player.medkits > 0) player.medkits -= 1;
+              else player.hearts -= 1;
+              state.downed = false;
+              state.downedTimer = 0;
+              state.deathFlash = 0;
+              player.hp = 52;
+              player.eyeHeight = 1.25;
+              state.damageFlash = 0;
+              addSpark(player.position.clone().add(new THREE.Vector3(0, 0.5, 0)), 0x9fffc2);
+              addDust(player.position.clone().add(new THREE.Vector3(0, 0.25, 0)), 0xa8e8bc, 12);
+              playHitSound();
+            }
+          } else if (player.medkits > 0) {
+            player.medkits -= 1;
             player.hp = Math.min(100, player.hp + 38);
+            state.damageFlash = 0;
+            addSpark(player.position.clone().add(new THREE.Vector3(0, 0.5, 0)), 0x9fffc2);
           }
-          state.damageFlash = 0;
-          addSpark(player.position.clone().add(new THREE.Vector3(0, 0.5, 0)), 0x9fffc2);
         }
         if (state.downed) {
           player.velocity.set(0, 0, 0);
@@ -1946,7 +1961,9 @@
 
       function chooseEnemyTarget(enemy) {
         const livingEnemies = enemies.filter((other) => other !== enemy && other.respawn <= 0);
-        let target = { type: "player", position: state.player.position, distance: distance2D(enemy.model.group.position, state.player.position) };
+        let target = state.downed && livingEnemies.length > 0
+          ? { type: "enemy", enemy: livingEnemies[0], position: livingEnemies[0].model.group.position, distance: distance2D(enemy.model.group.position, livingEnemies[0].model.group.position) }
+          : { type: "player", position: state.player.position, distance: distance2D(enemy.model.group.position, state.player.position) };
         for (const other of livingEnemies) {
           const dist = distance2D(enemy.model.group.position, other.model.group.position);
           if (dist < target.distance && Math.random() > 0.28) {
@@ -2145,7 +2162,9 @@
             deathTitle.textContent = finallyDead ? "Ты умер" : "Ты ранен";
             deathHint.textContent = finallyDead
               ? "Нажми Заново"
-              : `H - аптечка, осталось ${Math.ceil(state.downedTimer)} сек`;
+              : (state.player.medkits > 0 || state.player.hearts > 0
+                ? `H - вылечиться, сердечки ${state.player.hearts}, аптечки ${state.player.medkits}, ${Math.ceil(state.downedTimer)} сек`
+                : `Нужно сердечко или аптечка, осталось ${Math.ceil(state.downedTimer)} сек`);
             deathCard.style.background = finallyDead ? "rgba(170,0,0,.72)" : "rgba(130,0,0,.62)";
             deathCard.style.boxShadow = finallyDead ? "0 0 90px rgba(255,0,0,.8)" : "0 0 90px rgba(255,40,40,.65)";
           }
@@ -2217,9 +2236,9 @@
         const nearWounded = woundedAllies.some((ally) => !ally.rescued && distance2D(state.player.position, ally) < 3);
         statusLine.textContent = state.downed
           ? (state.downedTimer > 0
-            ? `ТЫ РАНЕН | H аптечка (${state.player.medkits}) | осталось ${Math.ceil(state.downedTimer)} сек`
+            ? `ТЫ РАНЕН | H вылечиться | сердечки ${state.player.hearts}, аптечки ${state.player.medkits} | осталось ${Math.ceil(state.downedTimer)} сек`
             : "ТЫ УМЕР | Нажми Заново или Старт для нового раунда")
-          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
+          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | РЮКЗАК сердечки ${state.player.hearts}, аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
       }
 
       function renderScores() {
