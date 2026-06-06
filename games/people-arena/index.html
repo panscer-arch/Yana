@@ -392,7 +392,7 @@
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
           </div>
-          <p>WASD/стрелки — ходьба, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, H — аптечка или сердечко спасения. Подойди к раненому, чтобы спасти.</p>
+          <p>WASD/стрелки — ходьба, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, H — аптечка для лечения и возрождения. Подойди к раненому, чтобы спасти.</p>
         </section>
 
         <section class="panel">
@@ -489,11 +489,11 @@
           eyeHeight: 1.75,
           hp: 100,
           downedHp: 0,
+          crouching: false,
           ammo: 30,
           cooldown: 0,
           reload: 0,
           medkits: 0,
-          hearts: 1,
           ammoPacks: 0
         }
       };
@@ -1570,6 +1570,11 @@
             for (const peer of message.peers || []) upsertRemotePlayer(peer);
           }
           if (message.type === "peer") upsertRemotePlayer(message);
+          if (message.type === "hit" && message.targetId === networkId && !state.downed) {
+            state.player.hp = Math.max(0, state.player.hp - message.damage);
+            state.damageFlash = 1;
+            playHitSound();
+          }
           if (message.type === "leave") removeRemotePlayer(message.id);
         });
         networkSocket.addEventListener("close", () => {
@@ -1611,6 +1616,7 @@
           const target = new THREE.Vector3(remote.state.x, 0, remote.state.z);
           remote.model.group.position.lerp(target, 1 - Math.pow(0.001, delta));
           remote.model.group.rotation.y = remote.state.yaw + Math.PI;
+          remote.model.group.scale.y = remote.state.crouching ? 0.7 : 1;
           animateSoldier(remote.model, delta, 2.2);
           if (remote.state.firing && Math.random() > 0.8) {
             const origin = remote.model.group.position.clone().add(new THREE.Vector3(0, 1.35, 0));
@@ -1631,6 +1637,7 @@
           z: state.player.position.z,
           yaw: state.yaw,
           hp: state.player.hp,
+          crouching: state.player.crouching,
           score: state.score,
           firing: state.recoil > 0.6
         }));
@@ -1656,9 +1663,9 @@
         state.player.eyeHeight = 1.75;
         state.player.hp = 100;
         state.player.downedHp = 0;
+        state.player.crouching = false;
         state.player.ammo = 30;
         state.player.medkits = 0;
-        state.player.hearts = 1;
         state.player.ammoPacks = 0;
         state.player.cooldown = 0;
         state.player.reload = 0;
@@ -1690,8 +1697,8 @@
           state.timeLeft = Math.max(0, state.timeLeft - delta);
           if (state.player.hp <= 0 && !state.downed && !state.lostSoundPlayed) {
             state.downed = true;
-            state.downedTimer = 18;
-            state.player.downedHp = 18;
+            state.downedTimer = state.player.medkits > 0 ? 8 : 0;
+            state.player.downedHp = Math.ceil(state.downedTimer);
             state.player.velocity.set(0, 0, 0);
             state.damageFlash = 1;
             enemies.forEach((enemy) => {
@@ -1699,6 +1706,7 @@
               enemy.think = 0;
             });
             playLoseSound();
+            if (state.downedTimer <= 0) state.lostSoundPlayed = true;
           }
           if (state.downed) {
             state.downedTimer = Math.max(0, state.downedTimer - delta);
@@ -1756,9 +1764,8 @@
           keys.delete("h");
           keys.delete("р");
           if (state.downed) {
-            if (player.medkits > 0 || player.hearts > 0) {
-              if (player.medkits > 0) player.medkits -= 1;
-              else player.hearts -= 1;
+            if (player.medkits > 0) {
+              player.medkits -= 1;
               state.downed = false;
               state.downedTimer = 0;
               state.deathFlash = 0;
@@ -1798,6 +1805,7 @@
         if (keys.has("KeyA") || keys.has("a") || keys.has("ф") || virtualMove.side < 0) move.sub(right);
         if (move.lengthSq() > 0) move.normalize();
         const crouching = keys.has("ControlLeft") || keys.has("ControlRight") || keys.has("KeyC") || keys.has("c") || keys.has("с");
+        player.crouching = crouching;
         const targetHeight = crouching ? 1.08 : 1.75;
         player.eyeHeight += (targetHeight - player.eyeHeight) * (1 - Math.pow(0.00008, delta));
         player.position.y = player.eyeHeight;
@@ -1979,6 +1987,14 @@
 
       function enemyShoot(enemy, targetInfo = { type: "player", position: state.player.position }) {
         const origin = enemy.model.group.position.clone().add(new THREE.Vector3(0, 1.35, 0));
+        if (targetInfo.type === "player" && state.player.crouching) {
+          const missTarget = state.player.position.clone().add(new THREE.Vector3(rand(-0.18, 0.18), 0.95, rand(-0.18, 0.18)));
+          addTracer(origin, missTarget, 0xffb866);
+          addSpark(origin, 0xffe0a0);
+          playShotSound(true);
+          enemy.cooldown = Math.max(enemy.cooldown, rand(0.35, 0.7));
+          return;
+        }
         const target = targetInfo.position.clone().add(new THREE.Vector3(rand(-0.25, 0.25), rand(0.1, 0.65), rand(-0.25, 0.25)));
         addTracer(origin, target, 0xffb866);
         addSpark(target, 0xffb866);
@@ -2021,18 +2037,30 @@
         muzzleLight.position.copy(camera.position);
         addSpark(camera.position.clone().add(camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(0.9)), 0xffe1a2);
         raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-        const enemyMeshes = [];
-        for (const enemy of enemies) enemy.model.group.traverse((node) => node.isMesh && enemyMeshes.push(node));
-        const hit = raycaster.intersectObjects(enemyMeshes, false)[0];
+        const targetMeshes = [];
+        for (const enemy of enemies) {
+          enemy.model.group.traverse((node) => {
+            if (node.isMesh) {
+              node.userData.enemyTarget = enemy;
+              targetMeshes.push(node);
+            }
+          });
+        }
+        for (const remote of remotePlayers.values()) {
+          remote.model.group.traverse((node) => {
+            if (node.isMesh) {
+              node.userData.remoteTarget = remote;
+              targetMeshes.push(node);
+            }
+          });
+        }
+        const hit = raycaster.intersectObjects(targetMeshes, false)[0];
         const start = camera.position.clone();
         let end = start.clone().add(camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(42));
         if (hit) {
           end = hit.point.clone();
-          const enemy = enemies.find((item) => {
-            let found = false;
-            item.model.group.traverse((node) => { if (node === hit.object) found = true; });
-            return found;
-          });
+          const enemy = hit.object.userData.enemyTarget;
+          const remote = hit.object.userData.remoteTarget;
           if (enemy && enemy.respawn <= 0) {
             enemy.hp -= hit.object === enemy.model.parts.head ? 55 : 28;
             state.hitMarker = 1;
@@ -2043,6 +2071,12 @@
               enemy.respawn = 2.6;
               enemy.model.group.visible = false;
             }
+          } else if (remote && networkSocket && networkSocket.readyState === WebSocket.OPEN) {
+            const damage = hit.object === remote.model.parts.head ? 55 : 28;
+            state.hitMarker = 1;
+            addSpark(hit.point, 0xf5ca70);
+            addDust(hit.point, 0xd1b184, 6);
+            networkSocket.send(JSON.stringify({ type: "hit", targetId: remote.id, damage }));
           }
         }
         addTracer(start, end, 0xf5ca70);
@@ -2162,9 +2196,7 @@
             deathTitle.textContent = finallyDead ? "Ты умер" : "Ты ранен";
             deathHint.textContent = finallyDead
               ? "Нажми Заново"
-              : (state.player.medkits > 0 || state.player.hearts > 0
-                ? `H - вылечиться, сердечки ${state.player.hearts}, аптечки ${state.player.medkits}, ${Math.ceil(state.downedTimer)} сек`
-                : `Нужно сердечко или аптечка, осталось ${Math.ceil(state.downedTimer)} сек`);
+              : `H - аптечка (${state.player.medkits}), ${Math.ceil(state.downedTimer)} сек`;
             deathCard.style.background = finallyDead ? "rgba(170,0,0,.72)" : "rgba(130,0,0,.62)";
             deathCard.style.boxShadow = finallyDead ? "0 0 90px rgba(255,0,0,.8)" : "0 0 90px rgba(255,40,40,.65)";
           }
@@ -2236,9 +2268,9 @@
         const nearWounded = woundedAllies.some((ally) => !ally.rescued && distance2D(state.player.position, ally) < 3);
         statusLine.textContent = state.downed
           ? (state.downedTimer > 0
-            ? `ТЫ РАНЕН | H вылечиться | сердечки ${state.player.hearts}, аптечки ${state.player.medkits} | осталось ${Math.ceil(state.downedTimer)} сек`
+            ? `ТЫ РАНЕН | H вылечиться аптечкой (${state.player.medkits}) | осталось ${Math.ceil(state.downedTimer)} сек`
             : "ТЫ УМЕР | Нажми Заново или Старт для нового раунда")
-          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | РЮКЗАК сердечки ${state.player.hearts}, аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
+          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
       }
 
       function renderScores() {

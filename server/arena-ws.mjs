@@ -96,11 +96,19 @@ server.on("upgrade", (req, socket) => {
             z: Number(message.z) || 0,
             yaw: Number(message.yaw) || 0,
             hp: Number(message.hp) || 100,
+            crouching: Boolean(message.crouching),
             score: Number(message.score) || 0,
             firing: Boolean(message.firing),
             t: Date.now()
           };
           broadcast(client.state, id);
+        } else if (message.type === "hit") {
+          broadcast({
+            type: "hit",
+            from: id,
+            targetId: String(message.targetId || ""),
+            damage: Math.max(0, Math.min(100, Number(message.damage) || 0))
+          }, id);
         }
       } catch {
         // Ignore malformed client messages.
