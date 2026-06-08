@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Котёнок: Забота</title>
-    <meta name="description" content="Игра ухода за реалистичным котёнком: кормить, одевать на прогулку, гулять с поводком, умывать и укладывать спать.">
+    <meta name="description" content="Игра ухода за реалистичным котёнком: кормить, гулять с поводком, купать и укладывать спать.">
     <meta name="theme-color" content="#d9b58f">
     <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
     <style>
@@ -125,6 +125,12 @@
           linear-gradient(180deg, #9cdbff 0 48%, #8ed77e 49% 100%);
       }
 
+      .room.bathing {
+        background:
+          radial-gradient(circle at 18% 16%, rgba(255,255,255,.8) 0 8%, transparent 9%),
+          linear-gradient(180deg, #dff5fb 0 54%, #b9d9e2 55% 100%);
+      }
+
       .room button {
         padding: 0;
         border: 0;
@@ -206,7 +212,15 @@
       .room.outside .toy,
       .room.outside .label-bowl,
       .room.outside .label-bed,
-      .room.outside .label-toy {
+      .room.outside .label-toy,
+      .room.bathing .bowl,
+      .room.bathing .bed,
+      .room.bathing .toy,
+      .room.bathing .walk-zone,
+      .room.bathing .label-bowl,
+      .room.bathing .label-bed,
+      .room.bathing .label-toy,
+      .room.bathing .label-walk {
         opacity: 0;
         pointer-events: none;
       }
@@ -359,6 +373,24 @@
         transition: left .55s ease, bottom .55s ease;
       }
 
+      .room.bathing .kitten-wrap::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 24px;
+        z-index: 4;
+        width: min(430px, 82vw);
+        height: 124px;
+        border-radius: 45% 45% 70px 70px;
+        background:
+          radial-gradient(circle at 28% 24%, rgba(255,255,255,.9) 0 7%, transparent 8%),
+          radial-gradient(circle at 62% 32%, rgba(255,255,255,.82) 0 6%, transparent 7%),
+          linear-gradient(180deg, rgba(126,211,232,.82), rgba(70,164,199,.66));
+        transform: translateX(-50%);
+        animation: water-wave .9s ease-in-out infinite;
+        pointer-events: none;
+      }
+
       .kitten {
         position: relative;
         width: 280px;
@@ -382,6 +414,40 @@
       .kitten.eating .mouth {
         height: 34px;
         border-bottom-width: 5px;
+      }
+
+      .kitten.bathing {
+        animation: bath-shiver .35s ease-in-out infinite;
+      }
+
+      .kitten.bathing .mouth {
+        width: 58px;
+        height: 16px;
+        border-top: 4px solid rgba(68,43,34,.7);
+        border-bottom: 0;
+        border-radius: 50% 50% 0 0;
+      }
+
+      .kitten.bathing .paw {
+        animation: scratch .45s ease-in-out infinite alternate;
+      }
+
+      .kitten.bathing.calm {
+        animation: none;
+      }
+
+      .kitten.bathing.calm .paw {
+        animation: none;
+      }
+
+      @keyframes bath-shiver {
+        0%, 100% { transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1)) rotate(-1deg); }
+        50% { transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1)) rotate(1deg); }
+      }
+
+      @keyframes scratch {
+        from { transform: translateY(0) rotate(-7deg); }
+        to { transform: translateY(-16px) rotate(12deg); }
       }
 
       @keyframes eat-nod {
@@ -562,89 +628,165 @@
       .paw.left { left: 79px; }
       .paw.right { right: 79px; }
 
-      .harness {
-        position: absolute;
-        left: 74px;
-        bottom: 128px;
-        width: 138px;
-        height: 68px;
-        opacity: var(--harness-opacity, 0);
-        transition: opacity .2s ease;
-      }
-
-      .harness::before,
-      .harness::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        height: 14px;
-        border-radius: 999px;
-        background: linear-gradient(90deg, #2e7ec8, #62b8ee);
-      }
-
-      .harness::before { top: 8px; transform: rotate(11deg); }
-      .harness::after { bottom: 12px; transform: rotate(-8deg); }
-
-      .harness .collar {
-        position: absolute;
-        left: 16px;
-        right: 16px;
-        top: -52px;
-        height: 15px;
-        border-radius: 999px;
-        background: linear-gradient(90deg, #1d65a4, #79c9ff);
-        box-shadow: 0 3px 0 rgba(37,29,24,.14);
-      }
-
-      .harness .ring {
-        position: absolute;
-        right: 15px;
-        top: -44px;
-        width: 19px;
-        height: 19px;
-        border: 4px solid #f1c15d;
-        border-radius: 50%;
-        background: transparent;
-      }
-
       .leash {
         position: absolute;
-        left: 190px;
-        bottom: 206px;
-        width: 210px;
-        height: 6px;
+        left: 184px;
+        bottom: 219px;
+        width: 235px;
+        height: 2px;
         border: 0;
         border-radius: 999px;
-        background: linear-gradient(90deg, #1d5f98, #4ea7dc);
-        background: transparent;
+        background: linear-gradient(90deg, rgba(95, 66, 42, .92), rgba(160, 112, 68, .5));
         opacity: var(--leash-opacity, 0);
-        transform: rotate(-24deg);
+        transform: rotate(-23deg);
         transform-origin: left center;
+        transition: opacity .2s ease;
+        box-shadow: 0 1px 0 rgba(255,255,255,.48);
+        pointer-events: none;
       }
 
       .leash::before {
         content: "";
         position: absolute;
-        left: 0;
-        top: 0;
-        width: 210px;
-        height: 6px;
-        border-radius: 999px;
-        background: linear-gradient(90deg, #1d5f98, #4ea7dc);
-        box-shadow: 0 3px 0 rgba(37,29,24,.12);
+        left: -5px;
+        top: -3px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #6f4b31;
       }
 
       .leash::after {
         content: "";
         position: absolute;
-        right: -20px;
-        top: -7px;
-        width: 38px;
-        height: 18px;
-        border: 5px solid #285b8f;
+        right: -18px;
+        top: -5px;
+        width: 24px;
+        height: 10px;
+        border: 2px solid rgba(95, 66, 42, .74);
         border-radius: 999px;
         background: transparent;
+      }
+
+      .bath-scene {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: none;
+        pointer-events: none;
+      }
+
+      .room.bathing .bath-scene {
+        display: block;
+      }
+
+      .bathtub {
+        position: absolute;
+        left: 50%;
+        bottom: 28px;
+        width: min(560px, 86%);
+        height: 210px;
+        border-radius: 42px 42px 80px 80px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.92), rgba(228,244,248,.96)),
+          #eaf8fb;
+        box-shadow: inset 0 -20px 0 rgba(77,121,137,.12), 0 18px 0 rgba(37,29,24,.12);
+        transform: translateX(-50%);
+      }
+
+      .bathtub::before {
+        content: "";
+        position: absolute;
+        left: 22px;
+        right: 22px;
+        top: 38px;
+        height: 72px;
+        border-radius: 999px;
+        background:
+          radial-gradient(circle at 24% 36%, rgba(255,255,255,.92) 0 7%, transparent 8%),
+          radial-gradient(circle at 54% 28%, rgba(255,255,255,.82) 0 5%, transparent 6%),
+          linear-gradient(180deg, rgba(126,211,232,.82), rgba(70,164,199,.72));
+        animation: water-wave .9s ease-in-out infinite;
+      }
+
+      .bathtub::after {
+        content: "";
+        position: absolute;
+        right: 58px;
+        top: -72px;
+        width: 88px;
+        height: 98px;
+        border: 9px solid rgba(92,119,132,.55);
+        border-left: 0;
+        border-bottom: 0;
+        border-radius: 0 40px 0 0;
+      }
+
+      .bath-stream {
+        position: absolute;
+        right: 104px;
+        top: 70px;
+        width: 13px;
+        height: 112px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, rgba(162,231,249,.82), rgba(89,182,218,.22));
+        animation: water-fall .5s linear infinite;
+      }
+
+      .bath-hiss,
+      .bath-scratches,
+      .calm-button {
+        position: absolute;
+        z-index: 5;
+      }
+
+      .bath-hiss {
+        left: 16%;
+        top: 125px;
+        padding: 10px 13px;
+        border: 3px solid rgba(37,29,24,.12);
+        border-radius: 8px;
+        background: rgba(255,255,255,.82);
+        font-weight: 900;
+        transform: rotate(-4deg);
+      }
+
+      .bath-scratches {
+        right: 18%;
+        top: 230px;
+        width: 110px;
+        height: 80px;
+        background:
+          linear-gradient(110deg, transparent 0 45%, rgba(111,63,47,.72) 46% 49%, transparent 50%),
+          linear-gradient(100deg, transparent 0 41%, rgba(111,63,47,.62) 42% 45%, transparent 46%),
+          linear-gradient(120deg, transparent 0 52%, rgba(111,63,47,.58) 53% 56%, transparent 57%);
+        opacity: var(--scratch-opacity, 0);
+      }
+
+      .calm-button {
+        right: 24px;
+        bottom: 250px;
+        display: none;
+        min-height: 52px;
+        padding: 0 14px;
+        color: #fff;
+        background: linear-gradient(180deg, #e98191, #a94758);
+        pointer-events: auto;
+      }
+
+      .room.bathing .calm-button {
+        display: inline-flex;
+        align-items: center;
+      }
+
+      @keyframes water-wave {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(5px); }
+      }
+
+      @keyframes water-fall {
+        from { opacity: .45; transform: translateY(-5px); }
+        to { opacity: .95; transform: translateY(6px); }
       }
 
       .action-bubble {
@@ -793,6 +935,13 @@
         <div class="window" aria-hidden="true"></div>
         <div class="park-tree" aria-hidden="true"></div>
         <div class="park-path" aria-hidden="true"></div>
+        <div class="bath-scene" aria-hidden="true">
+          <div class="bathtub"></div>
+          <div class="bath-stream"></div>
+          <div class="bath-hiss">Ш-ш-ш!</div>
+          <div class="bath-scratches"></div>
+        </div>
+        <button class="calm-button" type="button" data-action="calm">Тише, тише, котик</button>
         <div class="action-bubble" id="bubble">Котёнок ждёт заботы.</div>
         <button class="bowl" id="bowl" type="button" data-action="feed" aria-label="Покормить котёнка"></button>
         <span class="hint-label label-bowl">корм</span>
@@ -818,7 +967,6 @@
               <div class="whiskers right"></div>
             </div>
             <div class="dirt" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-            <div class="harness"><span class="collar"></span><span class="ring"></span></div>
             <div class="leash"></div>
             <div class="paw left"></div>
             <div class="paw right"></div>
@@ -834,13 +982,13 @@
         <div class="stats" id="stats"></div>
         <div class="actions">
           <button type="button" data-action="feed">Кормить</button>
-          <button type="button" data-action="dress">Одеть</button>
+          <button type="button" data-action="dress">Поводок</button>
           <button type="button" data-action="walk">Гулять</button>
           <button type="button" data-action="sleep">Спать</button>
-          <button type="button" data-action="wash">Умыть</button>
+          <button type="button" data-action="wash">В ванну</button>
           <button type="button" data-action="play">Играть</button>
         </div>
-        <div class="move-help" id="moveHelp">На улице: WASD или стрелки, чтобы гулять с поводком.</div>
+        <div class="move-help" id="moveHelp">На улице: WASD или стрелки, чтобы гулять с поводком-ниточкой.</div>
         <div class="log" id="log">Можно нажимать не только кнопки: миска кормит, мячик играет, лежанка укладывает, дверь ведёт гулять, котёнка можно гладить.</div>
       </aside>
     </main>
@@ -875,6 +1023,8 @@
         sleeping: false,
         outside: false,
         eating: false,
+        bathing: false,
+        bathCalm: false,
         x: 50,
         y: 42
       };
@@ -905,11 +1055,14 @@
           </div>
         `).join("");
         room.classList.toggle("outside", state.outside);
+        room.classList.toggle("bathing", state.bathing);
         kitten.classList.toggle("sleeping", state.sleeping);
         kitten.classList.toggle("eating", state.eating);
+        kitten.classList.toggle("bathing", state.bathing);
+        kitten.classList.toggle("calm", state.bathCalm);
         moveHelp.classList.toggle("visible", state.outside);
-        document.documentElement.style.setProperty("--harness-opacity", state.dressed ? "1" : "0");
         document.documentElement.style.setProperty("--leash-opacity", state.outside || state.dressed ? "1" : "0");
+        document.documentElement.style.setProperty("--scratch-opacity", state.bathing && !state.bathCalm ? ".9" : "0");
         document.documentElement.style.setProperty("--sleep-drop", state.sleeping ? "36px" : "0");
         document.documentElement.style.setProperty("--kitten-scale", state.sleeping ? ".94" : "1");
         document.documentElement.style.setProperty("--dirt-opacity", String(clamp(100 - state.clean) / 100));
@@ -927,6 +1080,10 @@
 
       function act(action) {
         state.sleeping = false;
+        if (state.bathing && action !== "calm") {
+          setMessage("Сначала успокой котёнка кнопкой «Тише, тише, котик».");
+          return;
+        }
         if (action === "feed") {
           if (state.outside) {
             setMessage("Сначала вернись домой: корм стоит в комнате.");
@@ -946,8 +1103,8 @@
         }
         if (action === "dress") {
           state.dressed = !state.dressed;
-          change({ warmth: state.dressed ? 18 : -8, happiness: state.dressed ? 6 : 2 });
-          setMessage(state.dressed ? "Шлейка и мягкая кофточка надеты. Можно гулять." : "Одежду сняли, котёнку стало свободнее.");
+          change({ warmth: state.dressed ? 4 : -2, happiness: state.dressed ? 5 : 2 });
+          setMessage(state.dressed ? "Тонкая ниточка-поводок готова: без ремней, просто аккуратная прогулка." : "Ниточку сняли, котёнку свободно.");
         }
         if (action === "walk") {
           if (state.outside) {
@@ -959,14 +1116,14 @@
             return;
           }
           if (!state.dressed) {
-            setMessage("Сначала надень шлейку: без поводка котёнка нельзя выводить.");
+            setMessage("Сначала прикрепи тонкую ниточку-поводок: без неё котёнка нельзя выводить.");
             return;
           }
           state.outside = true;
           state.x = 52;
           state.y = 58;
           change({ happiness: 22, energy: -18, hunger: -12, clean: -22, warmth: -5 });
-          setMessage("Ты вышла на улицу. Двигайся WASD или стрелками и гуляй с поводком.");
+          setMessage("Ты вышла на улицу. Двигайся WASD или стрелками и гуляй с тонкой ниточкой.");
         }
         if (action === "sleep") {
           state.sleeping = true;
@@ -974,8 +1131,28 @@
           setMessage("Котёнок свернулся на лежанке и спит.");
         }
         if (action === "wash") {
-          change({ clean: 28, happiness: -3, warmth: -4 });
-          setMessage("Котёнка аккуратно умыли тёплой салфеткой.");
+          if (state.outside) {
+            setMessage("Сначала вернись домой: ванна стоит в комнате.");
+            return;
+          }
+          state.bathing = true;
+          state.bathCalm = false;
+          state.x = 50;
+          state.y = 54;
+          change({ happiness: -7, warmth: -5 });
+          setMessage("Котёнка положили в ванну. Вода включилась, он шипит и царапается. Нажми «Тише, тише, котик».");
+        }
+        if (action === "calm") {
+          if (state.bathCalm) return;
+          state.bathCalm = true;
+          render();
+          setMessage("Тише, тише, котик... Кошечка успокаивается, можно аккуратно смыть грязь.");
+          setTimeout(() => {
+            state.bathing = false;
+            state.bathCalm = false;
+            change({ clean: 40, happiness: 8, warmth: -2 });
+            setMessage("Купание закончено: котёнок мокрый, чистый и уже почти мурчит.");
+          }, 1000);
         }
         if (action === "play") {
           change({ happiness: 20, energy: -12, hunger: -8 });
