@@ -118,6 +118,13 @@
           var(--paper);
       }
 
+      .room.outside {
+        background:
+          radial-gradient(circle at 78% 16%, #fff4a4 0 8%, transparent 9%),
+          radial-gradient(ellipse at 18% 24%, rgba(255,255,255,.8) 0 10%, transparent 11%),
+          linear-gradient(180deg, #9cdbff 0 48%, #8ed77e 49% 100%);
+      }
+
       .room button {
         padding: 0;
         border: 0;
@@ -140,6 +147,41 @@
         box-shadow: inset 0 0 0 2px rgba(37,29,24,.1), 0 8px 0 rgba(37,29,24,.08);
       }
 
+      .park-tree,
+      .park-path {
+        position: absolute;
+        display: none;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .room.outside .park-tree,
+      .room.outside .park-path {
+        display: block;
+      }
+
+      .park-tree {
+        left: 42px;
+        bottom: 115px;
+        width: 118px;
+        height: 190px;
+        background:
+          radial-gradient(circle at 52% 25%, #4fa65a 0 32%, transparent 33%),
+          radial-gradient(circle at 34% 40%, #5dbc69 0 25%, transparent 26%),
+          radial-gradient(circle at 70% 43%, #459b52 0 28%, transparent 29%),
+          linear-gradient(90deg, transparent 41%, #8a5a32 42% 58%, transparent 59%);
+      }
+
+      .park-path {
+        right: -60px;
+        bottom: -10px;
+        width: 72%;
+        height: 180px;
+        border-radius: 50% 0 0 0;
+        background: rgba(217, 188, 138, .68);
+        transform: rotate(-5deg);
+      }
+
       .rug {
         position: absolute;
         bottom: 22px;
@@ -157,6 +199,16 @@
       .walk-zone {
         position: absolute;
         z-index: 2;
+      }
+
+      .room.outside .bowl,
+      .room.outside .bed,
+      .room.outside .toy,
+      .room.outside .label-bowl,
+      .room.outside .label-bed,
+      .room.outside .label-toy {
+        opacity: 0;
+        pointer-events: none;
       }
 
       .bowl {
@@ -244,6 +296,25 @@
         box-shadow: inset 0 -10px 0 rgba(99,76,50,.1), 0 8px 0 rgba(37,29,24,.08);
       }
 
+      .room.outside .walk-zone {
+        right: 24px;
+        top: 24px;
+        width: 116px;
+        height: 54px;
+        border-radius: 8px;
+        background: rgba(255,255,255,.82);
+      }
+
+      .room.outside .walk-zone::after {
+        content: "домой";
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        color: var(--ink);
+        font-weight: 900;
+      }
+
       .walk-zone::before {
         content: "";
         position: absolute;
@@ -276,12 +347,16 @@
       .label-walk { right: 32px; top: 384px; }
 
       .kitten-wrap {
-        position: relative;
+        position: absolute;
         z-index: 3;
+        left: var(--cat-x, 50%);
+        bottom: var(--cat-y, 42px);
         width: min(430px, 76vw);
         height: 430px;
         display: grid;
         place-items: end center;
+        transform: translateX(-50%);
+        transition: left .55s ease, bottom .55s ease;
       }
 
       .kitten {
@@ -298,6 +373,20 @@
 
       .kitten.pet {
         animation: pet-wiggle .42s ease;
+      }
+
+      .kitten.eating .head {
+        animation: eat-nod .55s ease-in-out infinite;
+      }
+
+      .kitten.eating .mouth {
+        height: 34px;
+        border-bottom-width: 5px;
+      }
+
+      @keyframes eat-nod {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(14px); }
       }
 
       @keyframes pet-wiggle {
@@ -521,24 +610,36 @@
 
       .leash {
         position: absolute;
-        left: 200px;
-        bottom: 192px;
-        width: 190px;
-        height: 82px;
-        border-top: 6px solid #285b8f;
-        border-right: 6px solid #285b8f;
-        border-radius: 0 82px 0 0;
+        left: 190px;
+        bottom: 206px;
+        width: 210px;
+        height: 6px;
+        border: 0;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #1d5f98, #4ea7dc);
         background: transparent;
         opacity: var(--leash-opacity, 0);
-        transform: rotate(-18deg);
+        transform: rotate(-24deg);
         transform-origin: left center;
+      }
+
+      .leash::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 210px;
+        height: 6px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #1d5f98, #4ea7dc);
+        box-shadow: 0 3px 0 rgba(37,29,24,.12);
       }
 
       .leash::after {
         content: "";
         position: absolute;
-        right: -16px;
-        top: 70px;
+        right: -20px;
+        top: -7px;
         width: 38px;
         height: 18px;
         border: 5px solid #285b8f;
@@ -639,6 +740,21 @@
         line-height: 1.35;
       }
 
+      .move-help {
+        display: none;
+        min-height: 36px;
+        align-items: center;
+        padding: 0 10px;
+        border-radius: 8px;
+        background: rgba(121, 199, 164, .22);
+        color: #315941;
+        font-weight: 900;
+      }
+
+      .move-help.visible {
+        display: inline-flex;
+      }
+
       footer {
         padding: 0 0 28px;
         color: var(--muted);
@@ -675,6 +791,8 @@
     <main id="content">
       <section class="room" aria-label="Комната котёнка">
         <div class="window" aria-hidden="true"></div>
+        <div class="park-tree" aria-hidden="true"></div>
+        <div class="park-path" aria-hidden="true"></div>
         <div class="action-bubble" id="bubble">Котёнок ждёт заботы.</div>
         <button class="bowl" id="bowl" type="button" data-action="feed" aria-label="Покормить котёнка"></button>
         <span class="hint-label label-bowl">корм</span>
@@ -722,6 +840,7 @@
           <button type="button" data-action="wash">Умыть</button>
           <button type="button" data-action="play">Играть</button>
         </div>
+        <div class="move-help" id="moveHelp">На улице: WASD или стрелки, чтобы гулять с поводком.</div>
         <div class="log" id="log">Можно нажимать не только кнопки: миска кормит, мячик играет, лежанка укладывает, дверь ведёт гулять, котёнка можно гладить.</div>
       </aside>
     </main>
@@ -738,10 +857,14 @@
 
     <script>
       const kitten = document.querySelector("#kitten");
+      const kittenWrap = document.querySelector(".kitten-wrap");
+      const room = document.querySelector(".room");
       const statsEl = document.querySelector("#stats");
       const logEl = document.querySelector("#log");
       const bubble = document.querySelector("#bubble");
       const bowl = document.querySelector("#bowl");
+      const moveHelp = document.querySelector("#moveHelp");
+      const keys = new Set();
       const state = {
         hunger: 58,
         energy: 72,
@@ -750,7 +873,10 @@
         clean: 76,
         dressed: false,
         sleeping: false,
-        outside: false
+        outside: false,
+        eating: false,
+        x: 50,
+        y: 42
       };
       const labels = {
         hunger: "Сытость",
@@ -778,12 +904,17 @@
             <div class="bar"><i style="width:${state[key]}%"></i></div>
           </div>
         `).join("");
+        room.classList.toggle("outside", state.outside);
         kitten.classList.toggle("sleeping", state.sleeping);
+        kitten.classList.toggle("eating", state.eating);
+        moveHelp.classList.toggle("visible", state.outside);
         document.documentElement.style.setProperty("--harness-opacity", state.dressed ? "1" : "0");
-        document.documentElement.style.setProperty("--leash-opacity", state.outside ? "1" : "0");
+        document.documentElement.style.setProperty("--leash-opacity", state.outside || state.dressed ? "1" : "0");
         document.documentElement.style.setProperty("--sleep-drop", state.sleeping ? "36px" : "0");
         document.documentElement.style.setProperty("--kitten-scale", state.sleeping ? ".94" : "1");
         document.documentElement.style.setProperty("--dirt-opacity", String(clamp(100 - state.clean) / 100));
+        kittenWrap.style.setProperty("--cat-x", `${state.x}%`);
+        kittenWrap.style.setProperty("--cat-y", `${state.y}px`);
         bowl.style.setProperty("--food-opacity", state.hunger < 70 ? ".85" : ".2");
       }
 
@@ -797,8 +928,21 @@
       function act(action) {
         state.sleeping = false;
         if (action === "feed") {
-          change({ hunger: 28, happiness: 8, clean: -4 });
-          setMessage("Котёнок поел корм и довольно облизывается.");
+          if (state.outside) {
+            setMessage("Сначала вернись домой: корм стоит в комнате.");
+            return;
+          }
+          state.x = 15;
+          state.y = 42;
+          state.eating = true;
+          render();
+          setMessage("Котёнок подошёл к миске: ам-ам-ам...");
+          setTimeout(() => {
+            change({ hunger: 28, happiness: 8, clean: -4 });
+            setMessage("Ам-ам-ам! Котёнок поел корм и довольно облизывается.");
+            state.eating = false;
+            render();
+          }, 1300);
         }
         if (action === "dress") {
           state.dressed = !state.dressed;
@@ -806,14 +950,23 @@
           setMessage(state.dressed ? "Шлейка и мягкая кофточка надеты. Можно гулять." : "Одежду сняли, котёнку стало свободнее.");
         }
         if (action === "walk") {
+          if (state.outside) {
+            state.outside = false;
+            state.x = 50;
+            state.y = 42;
+            change({ warmth: 5, energy: -3 });
+            setMessage("Котёнок вернулся домой и снял лапки с дорожки.");
+            return;
+          }
           if (!state.dressed) {
             setMessage("Сначала надень шлейку: без поводка котёнка нельзя выводить.");
             return;
           }
           state.outside = true;
+          state.x = 52;
+          state.y = 58;
           change({ happiness: 22, energy: -18, hunger: -12, clean: -22, warmth: -5 });
-          setMessage("Прогулка удалась: котёнок нюхает траву и идёт рядом на поводке.");
-          setTimeout(() => { state.outside = false; render(); }, 1600);
+          setMessage("Ты вышла на улицу. Двигайся WASD или стрелками и гуляй с поводком.");
         }
         if (action === "sleep") {
           state.sleeping = true;
@@ -841,6 +994,38 @@
         button.addEventListener("click", () => act(button.dataset.action));
       });
 
+      window.addEventListener("keydown", (event) => {
+        keys.add(event.code);
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"].includes(event.code)) event.preventDefault();
+      });
+
+      window.addEventListener("keyup", (event) => {
+        keys.delete(event.code);
+      });
+
+      function moveLoop() {
+        if (state.outside && !state.sleeping) {
+          const left = keys.has("ArrowLeft") || keys.has("KeyA");
+          const right = keys.has("ArrowRight") || keys.has("KeyD");
+          const up = keys.has("ArrowUp") || keys.has("KeyW");
+          const down = keys.has("ArrowDown") || keys.has("KeyS");
+          const speed = 0.42;
+          if (left) state.x -= speed;
+          if (right) state.x += speed;
+          if (up) state.y += speed * 2.3;
+          if (down) state.y -= speed * 2.3;
+          state.x = clamp(state.x, 24, 76);
+          state.y = clamp(state.y, 34, 160);
+          if (left || right || up || down) {
+            state.energy = clamp(state.energy - 0.035);
+            state.happiness = clamp(state.happiness + 0.018);
+            state.clean = clamp(state.clean - 0.018);
+            render();
+          }
+        }
+        requestAnimationFrame(moveLoop);
+      }
+
       setInterval(() => {
         if (state.sleeping) change({ energy: 2, hunger: -0.8, warmth: 0.8 });
         else change({ hunger: -1.2, energy: -0.6, happiness: -0.5, clean: -0.4 });
@@ -848,6 +1033,7 @@
       }, 4200);
 
       render();
+      moveLoop();
     </script>
     <script src="../../assets/site.js"></script>
   </body>
