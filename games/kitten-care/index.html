@@ -417,6 +417,18 @@
         border-bottom-width: 5px;
       }
 
+      .kitten.playing .head {
+        animation: play-head .65s ease-in-out infinite;
+      }
+
+      .kitten.playing .paw.left {
+        animation: play-paw-left .38s ease-in-out infinite alternate;
+      }
+
+      .kitten.playing .paw.right {
+        animation: play-paw-right .42s ease-in-out infinite alternate;
+      }
+
       .kitten.bathing {
         animation: bath-shiver .35s ease-in-out infinite;
       }
@@ -431,14 +443,6 @@
 
       .kitten.bathing .paw {
         animation: scratch .45s ease-in-out infinite alternate;
-      }
-
-      .kitten.bathing.calm {
-        animation: none;
-      }
-
-      .kitten.bathing.calm .paw {
-        animation: none;
       }
 
       .soap-bubbles {
@@ -465,6 +469,21 @@
       @keyframes scratch {
         from { transform: translateY(0) rotate(-7deg); }
         to { transform: translateY(-16px) rotate(12deg); }
+      }
+
+      @keyframes play-head {
+        0%, 100% { transform: translateY(0) rotate(-2deg); }
+        50% { transform: translateY(8px) rotate(3deg); }
+      }
+
+      @keyframes play-paw-left {
+        from { transform: translate(0, 0) rotate(-8deg); }
+        to { transform: translate(-28px, -34px) rotate(-28deg); }
+      }
+
+      @keyframes play-paw-right {
+        from { transform: translate(0, 0) rotate(7deg); }
+        to { transform: translate(26px, -30px) rotate(25deg); }
       }
 
       @keyframes eat-nod {
@@ -702,13 +721,13 @@
         left: 50%;
         bottom: 28px;
         width: min(620px, 90%);
-        height: 230px;
+        height: 250px;
         border-radius: 42px 42px 80px 80px;
         background:
-          linear-gradient(180deg, rgba(255,255,255,.98) 0 18%, rgba(224,242,247,.98) 19% 100%),
+          linear-gradient(180deg, rgba(255,255,255,.98) 0 14%, rgba(224,242,247,.98) 15% 100%),
           #eaf8fb;
         border: 6px solid rgba(255,255,255,.85);
-        box-shadow: inset 0 -24px 0 rgba(77,121,137,.13), 0 18px 0 rgba(37,29,24,.12);
+        box-shadow: inset 0 -34px 0 rgba(77,121,137,.13), 0 18px 0 rgba(37,29,24,.12);
         transform: translateX(-50%);
       }
 
@@ -739,18 +758,33 @@
 
       .bath-water {
         position: absolute;
-        left: 26px;
-        right: 26px;
-        top: 62px;
-        height: 96px;
-        border-radius: 42px 42px 56px 56px;
+        left: 24px;
+        right: 24px;
+        top: 72px;
+        height: 118px;
+        border-radius: 34px 34px 62px 62px;
         background:
-          radial-gradient(circle at 18% 34%, rgba(255,255,255,.95) 0 6%, transparent 7%),
-          radial-gradient(circle at 41% 24%, rgba(255,255,255,.85) 0 5%, transparent 6%),
-          radial-gradient(circle at 72% 38%, rgba(255,255,255,.78) 0 6%, transparent 7%),
-          linear-gradient(180deg, rgba(139,224,244,.94), rgba(54,158,198,.75));
-        box-shadow: inset 0 -14px 0 rgba(30,104,139,.12);
+          radial-gradient(circle at 18% 26%, rgba(255,255,255,.95) 0 5%, transparent 6%),
+          radial-gradient(circle at 38% 22%, rgba(255,255,255,.85) 0 4%, transparent 5%),
+          radial-gradient(circle at 74% 34%, rgba(255,255,255,.78) 0 5%, transparent 6%),
+          linear-gradient(180deg, rgba(128,219,243,.98), rgba(47,145,190,.82));
+        box-shadow: inset 0 -18px 0 rgba(30,104,139,.16), 0 7px 0 rgba(255,255,255,.42);
         animation: water-wave .9s ease-in-out infinite;
+      }
+
+      .bath-front {
+        position: absolute;
+        left: -6px;
+        right: -6px;
+        bottom: -6px;
+        height: 126px;
+        border-radius: 0 0 80px 80px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98), rgba(218,241,248,.98)),
+          #e8f8fb;
+        border: 6px solid rgba(255,255,255,.88);
+        border-top: 0;
+        box-shadow: inset 0 -20px 0 rgba(77,121,137,.11);
       }
 
       .bath-foam {
@@ -784,8 +818,7 @@
 
       .bath-hiss,
       .bath-scratches,
-      .bath-tool,
-      .calm-button {
+      .bath-tool {
         position: absolute;
         z-index: 5;
       }
@@ -813,17 +846,6 @@
         opacity: var(--scratch-opacity, 0);
       }
 
-      .calm-button {
-        right: 24px;
-        bottom: 250px;
-        display: none;
-        min-height: 52px;
-        padding: 0 14px;
-        color: #fff;
-        background: linear-gradient(180deg, #e98191, #a94758);
-        pointer-events: auto;
-      }
-
       .bath-tool {
         left: 24px;
         display: none;
@@ -843,8 +865,7 @@
         background: linear-gradient(180deg, #72b78e, #3f8360);
       }
 
-      .room.bathing:not(.bath-calm) .calm-button,
-      .room.bathing.bath-calm:not(.bath-soapy) .soap-button,
+      .room.bathing:not(.bath-soapy) .soap-button,
       .room.bathing.bath-soapy .shower-button {
         display: inline-flex;
         align-items: center;
@@ -1010,14 +1031,14 @@
           <div class="bathtub">
             <div class="bath-water"></div>
             <div class="bath-foam"></div>
+            <div class="bath-front"></div>
           </div>
           <div class="bath-stream"></div>
-          <div class="bath-hiss">Ш-ш-ш!</div>
+          <div class="bath-hiss">ШШШШ!</div>
           <div class="bath-scratches"></div>
         </div>
         <button class="bath-tool soap-button" type="button" data-action="soap">Мыло</button>
         <button class="bath-tool shower-button" type="button" data-action="rinse">Душ</button>
-        <button class="calm-button" type="button" data-action="calm">Тише, тише, котик</button>
         <div class="action-bubble" id="bubble">Котёнок ждёт заботы.</div>
         <button class="bowl" id="bowl" type="button" data-action="feed" aria-label="Покормить котёнка"></button>
         <span class="hint-label label-bowl">корм</span>
@@ -1101,8 +1122,8 @@
         sleeping: false,
         outside: false,
         eating: false,
+        playing: false,
         bathing: false,
-        bathCalm: false,
         bathSoapy: false,
         bathRinsing: false,
         x: 50,
@@ -1134,23 +1155,42 @@
 
       function playHiss() {
         const context = getAudioContext();
-        const duration = .75;
+        const duration = 1.15;
         const buffer = context.createBuffer(1, context.sampleRate * duration, context.sampleRate);
         const data = buffer.getChannelData(0);
         for (let index = 0; index < data.length; index += 1) {
-          data[index] = (Math.random() * 2 - 1) * (1 - index / data.length);
+          const time = index / context.sampleRate;
+          const pulse = .68 + Math.sin(time * 54) * .18 + Math.sin(time * 117) * .08;
+          const fadeIn = Math.min(1, time / .08);
+          const fadeOut = Math.min(1, (duration - time) / .28);
+          data[index] = (Math.random() * 2 - 1) * pulse * fadeIn * fadeOut;
         }
         const source = context.createBufferSource();
-        const filter = context.createBiquadFilter();
+        const hissFilter = context.createBiquadFilter();
+        const mouthFilter = context.createBiquadFilter();
         const gain = context.createGain();
+        const growl = context.createOscillator();
+        const growlGain = context.createGain();
         source.buffer = buffer;
-        filter.type = "highpass";
-        filter.frequency.value = 1600;
+        hissFilter.type = "highpass";
+        hissFilter.frequency.value = 3400;
+        mouthFilter.type = "bandpass";
+        mouthFilter.frequency.value = 6500;
+        mouthFilter.Q.value = 1.8;
         gain.gain.setValueAtTime(.0001, context.currentTime);
-        gain.gain.exponentialRampToValueAtTime(.18, context.currentTime + .04);
+        gain.gain.exponentialRampToValueAtTime(.22, context.currentTime + .05);
         gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + duration);
-        source.connect(filter).connect(gain).connect(context.destination);
+        growl.type = "sawtooth";
+        growl.frequency.setValueAtTime(96, context.currentTime);
+        growl.frequency.exponentialRampToValueAtTime(72, context.currentTime + duration);
+        growlGain.gain.setValueAtTime(.0001, context.currentTime);
+        growlGain.gain.exponentialRampToValueAtTime(.035, context.currentTime + .08);
+        growlGain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + duration);
+        source.connect(hissFilter).connect(mouthFilter).connect(gain).connect(context.destination);
+        growl.connect(growlGain).connect(context.destination);
         source.start();
+        growl.start();
+        growl.stop(context.currentTime + duration);
       }
 
       function playShower() {
@@ -1183,16 +1223,15 @@
         `).join("");
         room.classList.toggle("outside", state.outside);
         room.classList.toggle("bathing", state.bathing);
-        room.classList.toggle("bath-calm", state.bathCalm);
         room.classList.toggle("bath-soapy", state.bathSoapy);
         kitten.classList.toggle("sleeping", state.sleeping);
         kitten.classList.toggle("eating", state.eating);
+        kitten.classList.toggle("playing", state.playing);
         kitten.classList.toggle("bathing", state.bathing);
-        kitten.classList.toggle("calm", state.bathCalm);
         kitten.classList.toggle("soapy", state.bathSoapy);
         moveHelp.classList.toggle("visible", state.outside);
         document.documentElement.style.setProperty("--leash-opacity", state.outside || state.dressed ? "1" : "0");
-        document.documentElement.style.setProperty("--scratch-opacity", state.bathing && !state.bathCalm ? ".9" : "0");
+        document.documentElement.style.setProperty("--scratch-opacity", state.bathing && !state.bathRinsing ? ".9" : "0");
         document.documentElement.style.setProperty("--soap-opacity", state.bathSoapy ? "1" : "0");
         document.documentElement.style.setProperty("--shower-opacity", state.bathRinsing ? "1" : ".35");
         document.documentElement.style.setProperty("--sleep-drop", state.sleeping ? "36px" : "0");
@@ -1212,8 +1251,8 @@
 
       function act(action) {
         state.sleeping = false;
-        if (state.bathing && !["calm", "soap", "rinse"].includes(action)) {
-          setMessage("Сначала закончи купание: успокой котёнка, намыль и смой пену душем.");
+        if (state.bathing && !["soap", "rinse"].includes(action)) {
+          setMessage("Сначала закончи купание: намыль котёнка и смой пену душем.");
           return;
         }
         if (action === "feed") {
@@ -1268,31 +1307,19 @@
             return;
           }
           state.bathing = true;
-          state.bathCalm = false;
           state.bathSoapy = false;
           state.bathRinsing = false;
           state.x = 50;
-          state.y = 54;
+          state.y = 34;
           change({ happiness: -7, warmth: -5 });
           playHiss();
-          setMessage("Котёнка положили прямо в воду. Он шипит и царапается. Нажми «Тише, тише, котик».");
-        }
-        if (action === "calm") {
-          if (state.bathCalm) return;
-          state.bathCalm = true;
-          playHiss();
-          render();
-          setMessage("Кошечка ещё фыркает, но успокоилась. Теперь нажми «Мыло», чтобы намылить шерсть.");
+          setMessage("Котёнка положили прямо в ванну с водой. Он шипит: шшшш! Теперь нажми «Мыло».");
         }
         if (action === "soap") {
-          if (!state.bathCalm) {
-            playHiss();
-            setMessage("Сначала успокой кошечку, а то она шипит на воду.");
-            return;
-          }
           state.bathSoapy = true;
+          playHiss();
           change({ clean: 12, happiness: -2 });
-          setMessage("Мыло на шерсти: появилась пена. Теперь нажми «Душ», чтобы всё смыть.");
+          setMessage("Мыло на шерсти: появилась пена, а кошечка недовольно шипит. Теперь нажми «Душ».");
         }
         if (action === "rinse") {
           if (!state.bathSoapy) {
@@ -1305,7 +1332,6 @@
           setMessage("Душ смывает мыло и грязь. Вода льётся прямо в ванну.");
           setTimeout(() => {
             state.bathing = false;
-            state.bathCalm = false;
             state.bathSoapy = false;
             state.bathRinsing = false;
             change({ clean: 45, happiness: 9, warmth: -2 });
@@ -1313,8 +1339,21 @@
           }, 1100);
         }
         if (action === "play") {
-          change({ happiness: 20, energy: -12, hunger: -8 });
-          setMessage("Котёнок гоняет мячик и смешно прыгает.");
+          if (state.outside) {
+            setMessage("Игрушка дома. Вернись в комнату, чтобы поиграть.");
+            return;
+          }
+          state.x = 28;
+          state.y = 42;
+          state.playing = true;
+          render();
+          setMessage("Котёнок подбежал к мячику и быстро бьёт его лапками.");
+          setTimeout(() => {
+            change({ happiness: 20, energy: -12, hunger: -8 });
+            state.playing = false;
+            render();
+            setMessage("Мячик укатился, котёнок довольный и готов ещё играть.");
+          }, 1500);
         }
         if (action === "pet") {
           kitten.classList.remove("pet");
