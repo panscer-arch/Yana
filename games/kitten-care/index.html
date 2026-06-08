@@ -118,6 +118,14 @@
           var(--paper);
       }
 
+      .room button {
+        padding: 0;
+        border: 0;
+        font: inherit;
+        color: inherit;
+        box-shadow: none;
+      }
+
       .window {
         position: absolute;
         top: 28px;
@@ -145,7 +153,8 @@
 
       .bowl,
       .bed,
-      .toy {
+      .toy,
+      .walk-zone {
         position: absolute;
         z-index: 2;
       }
@@ -158,6 +167,23 @@
         border-radius: 12px 12px 42px 42px;
         background: linear-gradient(#f07c8d, #b94860);
         box-shadow: inset 0 8px 0 rgba(255,255,255,.28), 0 10px 0 rgba(37,29,24,.1);
+      }
+
+      .bowl,
+      .bed,
+      .toy,
+      .walk-zone,
+      .kitten {
+        cursor: pointer;
+      }
+
+      .bowl:focus-visible,
+      .bed:focus-visible,
+      .toy:focus-visible,
+      .walk-zone:focus-visible,
+      .kitten:focus-visible {
+        outline: 4px solid rgba(46, 126, 200, .35);
+        outline-offset: 4px;
       }
 
       .bowl::before {
@@ -205,6 +231,50 @@
         box-shadow: 0 7px 0 rgba(37,29,24,.12);
       }
 
+      .walk-zone {
+        right: 30px;
+        top: 190px;
+        width: 130px;
+        height: 188px;
+        border: 4px solid rgba(255,255,255,.82);
+        border-radius: 70px 70px 8px 8px;
+        background:
+          radial-gradient(circle at 52% 76%, rgba(255,255,255,.6) 0 12%, transparent 13%),
+          linear-gradient(180deg, rgba(118,188,126,.32), rgba(89,147,89,.16));
+        box-shadow: inset 0 -10px 0 rgba(99,76,50,.1), 0 8px 0 rgba(37,29,24,.08);
+      }
+
+      .walk-zone::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: rgba(255,255,255,.7);
+      }
+
+      .hint-label {
+        position: absolute;
+        z-index: 5;
+        min-height: 28px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 9px;
+        border: 2px solid rgba(37,29,24,.12);
+        border-radius: 8px;
+        background: rgba(255,255,255,.82);
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 900;
+        pointer-events: none;
+      }
+
+      .label-bowl { left: 8%; bottom: 122px; }
+      .label-toy { left: 22%; bottom: 132px; }
+      .label-bed { right: 8%; bottom: 160px; }
+      .label-walk { right: 32px; top: 384px; }
+
       .kitten-wrap {
         position: relative;
         z-index: 3;
@@ -218,9 +288,22 @@
         position: relative;
         width: 280px;
         height: 330px;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
         transform-origin: 50% 100%;
         transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1));
         transition: transform .35s ease;
+      }
+
+      .kitten.pet {
+        animation: pet-wiggle .42s ease;
+      }
+
+      @keyframes pet-wiggle {
+        0%, 100% { transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1)) rotate(0deg); }
+        35% { transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1)) rotate(-2deg); }
+        70% { transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1)) rotate(2deg); }
       }
 
       .tail {
@@ -265,6 +348,29 @@
           linear-gradient(145deg, #e7cbaa, #b3805a);
         box-shadow: inset -20px -18px 28px rgba(70,41,27,.18), inset 18px 16px 24px rgba(255,255,255,.25);
       }
+
+      .dirt {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        opacity: var(--dirt-opacity, 0);
+        pointer-events: none;
+        transition: opacity .25s ease;
+      }
+
+      .dirt i {
+        position: absolute;
+        display: block;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 40% 35%, rgba(78,55,35,.88), rgba(78,55,35,.48) 58%, transparent 70%);
+        filter: blur(.2px);
+      }
+
+      .dirt i:nth-child(1) { left: 68px; top: 116px; width: 34px; height: 22px; transform: rotate(-18deg); }
+      .dirt i:nth-child(2) { right: 78px; top: 138px; width: 42px; height: 24px; transform: rotate(13deg); }
+      .dirt i:nth-child(3) { left: 112px; bottom: 118px; width: 52px; height: 30px; transform: rotate(22deg); }
+      .dirt i:nth-child(4) { right: 72px; bottom: 92px; width: 34px; height: 24px; transform: rotate(-14deg); }
 
       .ear {
         position: absolute;
@@ -391,17 +497,53 @@
       .harness::before { top: 8px; transform: rotate(11deg); }
       .harness::after { bottom: 12px; transform: rotate(-8deg); }
 
+      .harness .collar {
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        top: -52px;
+        height: 15px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #1d65a4, #79c9ff);
+        box-shadow: 0 3px 0 rgba(37,29,24,.14);
+      }
+
+      .harness .ring {
+        position: absolute;
+        right: 15px;
+        top: -44px;
+        width: 19px;
+        height: 19px;
+        border: 4px solid #f1c15d;
+        border-radius: 50%;
+        background: transparent;
+      }
+
       .leash {
         position: absolute;
-        left: 205px;
-        bottom: 185px;
-        width: 170px;
-        height: 5px;
-        border-radius: 999px;
-        background: #285b8f;
+        left: 200px;
+        bottom: 192px;
+        width: 190px;
+        height: 82px;
+        border-top: 6px solid #285b8f;
+        border-right: 6px solid #285b8f;
+        border-radius: 0 82px 0 0;
+        background: transparent;
         opacity: var(--leash-opacity, 0);
-        transform: rotate(-28deg);
+        transform: rotate(-18deg);
         transform-origin: left center;
+      }
+
+      .leash::after {
+        content: "";
+        position: absolute;
+        right: -16px;
+        top: 70px;
+        width: 38px;
+        height: 18px;
+        border: 5px solid #285b8f;
+        border-radius: 999px;
+        background: transparent;
       }
 
       .action-bubble {
@@ -534,12 +676,17 @@
       <section class="room" aria-label="Комната котёнка">
         <div class="window" aria-hidden="true"></div>
         <div class="action-bubble" id="bubble">Котёнок ждёт заботы.</div>
-        <div class="bowl" id="bowl" aria-hidden="true"></div>
-        <div class="bed" aria-hidden="true"></div>
-        <div class="toy" aria-hidden="true"></div>
+        <button class="bowl" id="bowl" type="button" data-action="feed" aria-label="Покормить котёнка"></button>
+        <span class="hint-label label-bowl">корм</span>
+        <button class="bed" type="button" data-action="sleep" aria-label="Уложить котёнка спать"></button>
+        <span class="hint-label label-bed">сон</span>
+        <button class="toy" type="button" data-action="play" aria-label="Поиграть с котёнком"></button>
+        <span class="hint-label label-toy">игра</span>
+        <button class="walk-zone" type="button" data-action="walk" aria-label="Пойти гулять"></button>
+        <span class="hint-label label-walk">дверь</span>
         <div class="rug" aria-hidden="true"></div>
         <div class="kitten-wrap">
-          <div class="kitten" id="kitten" aria-label="Реалистичный рыжий котёнок">
+          <button class="kitten" id="kitten" type="button" data-action="pet" aria-label="Погладить реалистичного рыжего котёнка">
             <div class="tail"></div>
             <div class="body"></div>
             <div class="ear left"></div>
@@ -552,18 +699,19 @@
               <div class="whiskers left"></div>
               <div class="whiskers right"></div>
             </div>
-            <div class="harness"></div>
+            <div class="dirt" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div class="harness"><span class="collar"></span><span class="ring"></span></div>
             <div class="leash"></div>
             <div class="paw left"></div>
             <div class="paw right"></div>
-          </div>
+          </button>
         </div>
       </section>
 
       <aside class="panel">
         <div>
           <h1>Котёнок: Забота</h1>
-          <p class="lead">Ухаживай за котёнком: корми, надевай шлейку, гуляй с поводком, умывай и укладывай спать.</p>
+          <p class="lead">Ухаживай за котёнком: нажимай прямо на миску, мячик, лежанку, дверь и самого котёнка или пользуйся кнопками.</p>
         </div>
         <div class="stats" id="stats"></div>
         <div class="actions">
@@ -574,7 +722,7 @@
           <button type="button" data-action="wash">Умыть</button>
           <button type="button" data-action="play">Играть</button>
         </div>
-        <div class="log" id="log">Сначала покорми котёнка или надень шлейку для прогулки.</div>
+        <div class="log" id="log">Можно нажимать не только кнопки: миска кормит, мячик играет, лежанка укладывает, дверь ведёт гулять, котёнка можно гладить.</div>
       </aside>
     </main>
 
@@ -635,7 +783,15 @@
         document.documentElement.style.setProperty("--leash-opacity", state.outside ? "1" : "0");
         document.documentElement.style.setProperty("--sleep-drop", state.sleeping ? "36px" : "0");
         document.documentElement.style.setProperty("--kitten-scale", state.sleeping ? ".94" : "1");
+        document.documentElement.style.setProperty("--dirt-opacity", String(clamp(100 - state.clean) / 100));
         bowl.style.setProperty("--food-opacity", state.hunger < 70 ? ".85" : ".2");
+      }
+
+      function askForCare() {
+        if (state.hunger < 28) setMessage("Котёнок голодный. Нажми на миску или кнопку «Кормить».");
+        else if (state.clean < 30) setMessage("Котёнок испачкался: пятна уже видно на шерсти. Нужно умыть.");
+        else if (state.energy < 25) setMessage("Котёнок устал. Нажми на лежанку, чтобы уложить спать.");
+        else if (state.happiness < 28) setMessage("Котёнку скучно. Нажми на мячик или погладь его.");
       }
 
       function act(action) {
@@ -655,7 +811,7 @@
             return;
           }
           state.outside = true;
-          change({ happiness: 22, energy: -18, hunger: -12, clean: -10, warmth: -5 });
+          change({ happiness: 22, energy: -18, hunger: -12, clean: -22, warmth: -5 });
           setMessage("Прогулка удалась: котёнок нюхает траву и идёт рядом на поводке.");
           setTimeout(() => { state.outside = false; render(); }, 1600);
         }
@@ -672,6 +828,13 @@
           change({ happiness: 20, energy: -12, hunger: -8 });
           setMessage("Котёнок гоняет мячик и смешно прыгает.");
         }
+        if (action === "pet") {
+          kitten.classList.remove("pet");
+          void kitten.offsetWidth;
+          kitten.classList.add("pet");
+          change({ happiness: 12, energy: 2 });
+          setMessage("Котёнок мурчит. Его можно гладить прямо по шерсти.");
+        }
       }
 
       document.querySelectorAll("[data-action]").forEach((button) => {
@@ -681,6 +844,7 @@
       setInterval(() => {
         if (state.sleeping) change({ energy: 2, hunger: -0.8, warmth: 0.8 });
         else change({ hunger: -1.2, energy: -0.6, happiness: -0.5, clean: -0.4 });
+        askForCare();
       }, 4200);
 
       render();
