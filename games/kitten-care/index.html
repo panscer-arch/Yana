@@ -386,7 +386,7 @@
       }
 
       .kitten.sleeping {
-        transform: translateY(40px) scale(.72) rotate(88deg);
+        transform: translateY(8px) scale(.58) rotate(88deg);
       }
 
       .kitten.sleeping .tail {
@@ -858,10 +858,12 @@
         padding: 0 14px;
         color: #fff;
         pointer-events: auto;
+        touch-action: none;
+        user-select: none;
       }
 
       .soap-button {
-        bottom: 312px;
+        bottom: 326px;
         gap: 8px;
         color: #22566a;
         background: linear-gradient(180deg, #f8ffff, #aee4f0);
@@ -869,10 +871,20 @@
       }
 
       .shower-button {
-        bottom: 250px;
+        bottom: 264px;
+        left: 142px;
         gap: 8px;
         background: linear-gradient(180deg, #75b8d8, #34718f);
         box-shadow: 0 6px 0 rgba(37,29,24,.12);
+      }
+
+      .bath-tool.dragging {
+        position: fixed;
+        left: var(--tool-x, 24px);
+        top: var(--tool-y, 260px);
+        z-index: 30;
+        transform: translate(-50%, -50%) scale(1.06);
+        box-shadow: 0 10px 0 rgba(37,29,24,.16);
       }
 
       .soap-button::before,
@@ -902,10 +914,50 @@
           linear-gradient(135deg, #d7eef6, #427f9b);
       }
 
-      .room.bathing:not(.bath-soapy) .soap-button,
-      .room.bathing.bath-soapy .shower-button {
+      .room.bathing .soap-button,
+      .room.bathing .shower-button {
         display: inline-flex;
         align-items: center;
+      }
+
+      .bath-progress {
+        position: absolute;
+        left: 24px;
+        bottom: 204px;
+        z-index: 5;
+        display: none;
+        width: 260px;
+        gap: 7px;
+        pointer-events: none;
+      }
+
+      .room.bathing .bath-progress {
+        display: grid;
+      }
+
+      .bath-meter {
+        height: 12px;
+        overflow: hidden;
+        border: 2px solid rgba(37,29,24,.12);
+        border-radius: 999px;
+        background: rgba(255,255,255,.74);
+      }
+
+      .bath-meter i {
+        display: block;
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #9ddbef, #fff);
+      }
+
+      .soap-meter i {
+        width: var(--soap-meter, 0%);
+      }
+
+      .rinse-meter i {
+        width: var(--rinse-meter, 0%);
+        background: linear-gradient(90deg, #75b8d8, #42c995);
       }
 
       @keyframes water-wave {
@@ -1074,8 +1126,12 @@
           <div class="bath-hiss">ШШШШ!</div>
           <div class="bath-scratches"></div>
         </div>
-        <button class="bath-tool soap-button" type="button" data-action="soap">Мыло</button>
-        <button class="bath-tool shower-button" type="button" data-action="rinse">Душ</button>
+        <button class="bath-tool soap-button" type="button" data-tool="soap">Мыло</button>
+        <button class="bath-tool shower-button" type="button" data-tool="shower">Душ</button>
+        <div class="bath-progress" aria-hidden="true">
+          <div class="bath-meter soap-meter"><i></i></div>
+          <div class="bath-meter rinse-meter"><i></i></div>
+        </div>
         <div class="action-bubble" id="bubble">Котёнок ждёт заботы.</div>
         <button class="bowl" id="bowl" type="button" data-action="feed" aria-label="Покормить котёнка"></button>
         <span class="hint-label label-bowl">корм</span>
@@ -1147,8 +1203,10 @@
       const bubble = document.querySelector("#bubble");
       const bowl = document.querySelector("#bowl");
       const moveHelp = document.querySelector("#moveHelp");
+      const bathTools = document.querySelectorAll("[data-tool]");
       const keys = new Set();
       let audioContext;
+      let activeTool = null;
       const state = {
         hunger: 58,
         energy: 72,
@@ -1163,6 +1221,8 @@
         bathing: false,
         bathSoapy: false,
         bathRinsing: false,
+        soapProgress: 0,
+        rinseProgress: 0,
         x: 50,
         y: 42
       };
@@ -1270,8 +1330,10 @@
         moveHelp.classList.toggle("visible", state.outside);
         document.documentElement.style.setProperty("--leash-opacity", state.outside || state.dressed ? "1" : "0");
         document.documentElement.style.setProperty("--scratch-opacity", state.bathing && !state.bathRinsing ? ".9" : "0");
-        document.documentElement.style.setProperty("--soap-opacity", state.bathSoapy ? "1" : "0");
+        document.documentElement.style.setProperty("--soap-opacity", String(state.soapProgress / 100));
         document.documentElement.style.setProperty("--shower-opacity", state.bathRinsing ? "1" : ".35");
+        document.documentElement.style.setProperty("--soap-meter", `${state.soapProgress}%`);
+        document.documentElement.style.setProperty("--rinse-meter", `${state.rinseProgress}%`);
         document.documentElement.style.setProperty("--sleep-drop", state.sleeping ? "36px" : "0");
         document.documentElement.style.setProperty("--kitten-scale", state.sleeping ? ".94" : "1");
         document.documentElement.style.setProperty("--dirt-opacity", String(clamp(100 - state.clean) / 100));
@@ -1289,8 +1351,8 @@
 
       function act(action) {
         state.sleeping = false;
-        if (state.bathing && !["soap", "rinse"].includes(action)) {
-          setMessage("Сначала закончи купание: намыль котёнка и смой пену душем.");
+        if (state.bathing) {
+          setMessage("Сначала закончи купание руками: возьми мыло, води по котёнку, потом возьми душ и смой пену.");
           return;
         }
         if (action === "feed") {
@@ -1354,34 +1416,13 @@
           state.bathing = true;
           state.bathSoapy = false;
           state.bathRinsing = false;
+          state.soapProgress = 0;
+          state.rinseProgress = 0;
           state.x = 50;
           state.y = 34;
           change({ happiness: -7, warmth: -5 });
           playHiss();
-          setMessage("Котёнка положили прямо в ванну с водой. Он шипит: шшшш! Теперь нажми «Мыло».");
-        }
-        if (action === "soap") {
-          state.bathSoapy = true;
-          playHiss();
-          change({ clean: 12, happiness: -2 });
-          setMessage("Мыло на шерсти: появилась пена, а кошечка недовольно шипит. Теперь нажми «Душ».");
-        }
-        if (action === "rinse") {
-          if (!state.bathSoapy) {
-            setMessage("Сначала намыль котёнка мылом, потом смывай душем.");
-            return;
-          }
-          state.bathRinsing = true;
-          render();
-          playShower();
-          setMessage("Душ смывает мыло и грязь. Вода льётся прямо в ванну.");
-          setTimeout(() => {
-            state.bathing = false;
-            state.bathSoapy = false;
-            state.bathRinsing = false;
-            change({ clean: 45, happiness: 9, warmth: -2 });
-            setMessage("Купание закончено: пена смыта, котёнок мокрый, чистый и уже почти мурчит.");
-          }, 1100);
+          setMessage("Котёнок в ванне. Возьми мыло и води им по котёнку, пока не появится много пены.");
         }
         if (action === "play") {
           if (state.outside) {
@@ -1411,6 +1452,86 @@
 
       document.querySelectorAll("[data-action]").forEach((button) => {
         button.addEventListener("click", () => act(button.dataset.action));
+      });
+
+      function pointTouchesKitten(x, y) {
+        const rect = kitten.getBoundingClientRect();
+        return x >= rect.left + rect.width * .14
+          && x <= rect.right - rect.width * .14
+          && y >= rect.top + rect.height * .12
+          && y <= rect.bottom - rect.height * .04;
+      }
+
+      function moveBathTool(tool, x, y) {
+        tool.style.setProperty("--tool-x", `${x}px`);
+        tool.style.setProperty("--tool-y", `${y}px`);
+        if (!state.bathing || !pointTouchesKitten(x, y)) return;
+        if (tool.dataset.tool === "soap") {
+          state.soapProgress = clamp(state.soapProgress + 3.2);
+          state.rinseProgress = 0;
+          state.bathSoapy = state.soapProgress > 10;
+          state.bathRinsing = false;
+          if (state.soapProgress > 35) setMessage("Пена появляется на шерсти. Продолжай намыливать котёнка мылом.");
+          render();
+          return;
+        }
+        if (tool.dataset.tool === "shower") {
+          if (state.soapProgress < 35 && state.rinseProgress === 0) {
+            setMessage("Сначала намыль котёнка: пены ещё мало.");
+            return;
+          }
+          state.bathRinsing = true;
+          state.rinseProgress = clamp(state.rinseProgress + 3.2);
+          state.soapProgress = clamp(state.soapProgress - 2.8);
+          state.bathSoapy = state.soapProgress > 8;
+          if (Math.round(state.rinseProgress) % 18 === 0) playShower();
+          setMessage("Душ смывает пену. Води душем по котёнку, пока шкала смывания не заполнится.");
+          render();
+          if (state.rinseProgress >= 90 && state.soapProgress <= 35) finishBath();
+        }
+      }
+
+      function finishBath() {
+        state.bathing = false;
+        state.bathSoapy = false;
+        state.bathRinsing = false;
+        state.soapProgress = 0;
+        state.rinseProgress = 0;
+        activeTool?.classList.remove("dragging");
+        activeTool = null;
+        change({ clean: 45, happiness: 9, warmth: -2 });
+        setMessage("Купание закончено: ты сама намылила и смыла пену душем. Котёнок чистый.");
+      }
+
+      bathTools.forEach((tool) => {
+        tool.addEventListener("pointerdown", (event) => {
+          if (!state.bathing) return;
+          event.preventDefault();
+          activeTool = tool;
+          tool.classList.add("dragging");
+          tool.setPointerCapture(event.pointerId);
+          moveBathTool(tool, event.clientX, event.clientY);
+          if (tool.dataset.tool === "soap") setMessage("Води мылом по котёнку, чтобы намылить шерсть.");
+          else setMessage("Води душем по котёнку, чтобы смыть пену.");
+        });
+        tool.addEventListener("pointermove", (event) => {
+          if (activeTool !== tool) return;
+          event.preventDefault();
+          moveBathTool(tool, event.clientX, event.clientY);
+        });
+        tool.addEventListener("pointerup", () => {
+          if (activeTool !== tool) return;
+          tool.classList.remove("dragging");
+          activeTool = null;
+          state.bathRinsing = false;
+          render();
+        });
+        tool.addEventListener("pointercancel", () => {
+          tool.classList.remove("dragging");
+          activeTool = null;
+          state.bathRinsing = false;
+          render();
+        });
       });
 
       window.addEventListener("keydown", (event) => {
