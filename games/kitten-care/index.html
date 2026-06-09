@@ -467,12 +467,36 @@
       }
 
       .kitten.eating .head {
-        animation: eat-nod .55s ease-in-out infinite;
+        animation: eat-reach .7s ease-in-out infinite;
+        transform-origin: 50% 90%;
       }
 
       .kitten.eating .mouth {
         height: 34px;
         border-bottom-width: 5px;
+      }
+
+      .kitten.eating {
+        transform: translate(-22px, 92px) scale(.56) rotate(-8deg);
+      }
+
+      .kitten.eating .body {
+        animation: none;
+        transform: rotate(4deg);
+      }
+
+      .kitten.eating .tail {
+        right: 18px;
+        bottom: 118px;
+        transform: rotate(-8deg);
+      }
+
+      .kitten.eating .paw.left {
+        transform: translate(-18px, 18px) rotate(-18deg);
+      }
+
+      .kitten.eating .paw.right {
+        transform: translate(-8px, 14px) rotate(10deg);
       }
 
       .kitten.playing .head {
@@ -501,6 +525,16 @@
 
       .kitten.bathing .paw {
         animation: scratch .45s ease-in-out infinite alternate;
+      }
+
+      .kitten.bathing .tail {
+        right: 24px;
+        bottom: 122px;
+        transform: rotate(-5deg);
+      }
+
+      .kitten.bathing .body {
+        transform: scale(1.04, .9);
       }
 
       .soap-bubbles {
@@ -534,8 +568,8 @@
       }
 
       @keyframes bath-shiver {
-        0%, 100% { transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1)) rotate(-1deg); }
-        50% { transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1)) rotate(1deg); }
+        0%, 100% { transform: translateY(78px) scale(.68) rotate(-1deg); }
+        50% { transform: translateY(82px) scale(.68) rotate(1deg); }
       }
 
       @keyframes breathe {
@@ -569,9 +603,9 @@
         to { transform: translate(26px, -30px) rotate(25deg); }
       }
 
-      @keyframes eat-nod {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(14px); }
+      @keyframes eat-reach {
+        0%, 100% { transform: translate(0, 0) rotate(8deg); }
+        50% { transform: translate(-38px, 54px) rotate(-18deg); }
       }
 
       @keyframes pet-wiggle {
@@ -1446,17 +1480,17 @@
             setMessage("Сначала вернись домой: корм стоит в комнате.");
             return;
           }
-          state.x = 15;
-          state.y = 42;
+          state.x = 18;
+          state.y = 28;
           state.eating = true;
           render();
-          setMessage("Котёнок подошёл к миске: ам-ам-ам...");
+          setMessage("Котёнок подошёл к миске, опустил мордочку и ест: ам-ам-ам...");
           setTimeout(() => {
             change({ hunger: 28, happiness: 8, clean: -4 });
             setMessage("Ам-ам-ам! Котёнок поел корм и довольно облизывается.");
             state.eating = false;
             render();
-          }, 1300);
+          }, 1900);
         }
         if (action === "dress") {
           state.dressed = !state.dressed;
