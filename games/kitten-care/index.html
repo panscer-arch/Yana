@@ -467,36 +467,13 @@
       }
 
       .kitten.eating .head {
-        animation: eat-reach .7s ease-in-out infinite;
+        animation: eat-nod .65s ease-in-out infinite;
         transform-origin: 50% 90%;
       }
 
       .kitten.eating .mouth {
         height: 34px;
         border-bottom-width: 5px;
-      }
-
-      .kitten.eating {
-        transform: translate(-22px, 92px) scale(.56) rotate(-8deg);
-      }
-
-      .kitten.eating .body {
-        animation: none;
-        transform: rotate(4deg);
-      }
-
-      .kitten.eating .tail {
-        right: 18px;
-        bottom: 118px;
-        transform: rotate(-8deg);
-      }
-
-      .kitten.eating .paw.left {
-        transform: translate(-18px, 18px) rotate(-18deg);
-      }
-
-      .kitten.eating .paw.right {
-        transform: translate(-8px, 14px) rotate(10deg);
       }
 
       .kitten.playing .head {
@@ -525,16 +502,6 @@
 
       .kitten.bathing .paw {
         animation: scratch .45s ease-in-out infinite alternate;
-      }
-
-      .kitten.bathing .tail {
-        right: 24px;
-        bottom: 122px;
-        transform: rotate(-5deg);
-      }
-
-      .kitten.bathing .body {
-        transform: scale(1.04, .9);
       }
 
       .soap-bubbles {
@@ -568,8 +535,8 @@
       }
 
       @keyframes bath-shiver {
-        0%, 100% { transform: translateY(78px) scale(.68) rotate(-1deg); }
-        50% { transform: translateY(82px) scale(.68) rotate(1deg); }
+        0%, 100% { transform: translateY(46px) scale(.86) rotate(-1deg); }
+        50% { transform: translateY(50px) scale(.86) rotate(1deg); }
       }
 
       @keyframes breathe {
@@ -603,9 +570,9 @@
         to { transform: translate(26px, -30px) rotate(25deg); }
       }
 
-      @keyframes eat-reach {
-        0%, 100% { transform: translate(0, 0) rotate(8deg); }
-        50% { transform: translate(-38px, 54px) rotate(-18deg); }
+      @keyframes eat-nod {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translate(-10px, 22px) rotate(-8deg); }
       }
 
       @keyframes pet-wiggle {
@@ -622,7 +589,8 @@
         height: 34px;
         border-radius: 999px;
         background:
-          repeating-linear-gradient(90deg, rgba(102,72,50,.7) 0 12px, rgba(215,184,148,.75) 13px 24px),
+          radial-gradient(ellipse at 22% 28%, rgba(255,255,255,.34), transparent 32%),
+          linear-gradient(90deg, #d1a87e, #9d6a49),
           #c9a176;
         transform: rotate(-24deg);
         transform-origin: left center;
@@ -638,8 +606,8 @@
         border-radius: 46% 46% 42% 42%;
         background:
           radial-gradient(ellipse at 34% 28%, rgba(255,255,255,.58), transparent 24%),
-          repeating-linear-gradient(105deg, rgba(113,74,50,.32) 0 9px, transparent 10px 25px),
-          linear-gradient(145deg, #dfc7a8, #a87555);
+          radial-gradient(ellipse at 62% 64%, rgba(91,55,35,.18), transparent 35%),
+          linear-gradient(145deg, #e2c6a6, #a87555);
         box-shadow: inset -22px -20px 32px rgba(68,38,24,.2), inset 18px 18px 26px rgba(255,255,255,.25);
       }
 
@@ -652,7 +620,7 @@
         border-radius: 46% 46% 42% 42%;
         background:
           radial-gradient(ellipse at 38% 31%, rgba(255,255,255,.62), transparent 20%),
-          repeating-linear-gradient(105deg, rgba(104,66,43,.38) 0 8px, transparent 9px 22px),
+          radial-gradient(ellipse at 68% 64%, rgba(96,58,36,.16), transparent 34%),
           linear-gradient(145deg, #e7cbaa, #b3805a);
         box-shadow: inset -20px -18px 28px rgba(70,41,27,.18), inset 18px 16px 24px rgba(255,255,255,.25);
       }
@@ -1480,11 +1448,11 @@
             setMessage("Сначала вернись домой: корм стоит в комнате.");
             return;
           }
-          state.x = 18;
-          state.y = 28;
+          state.x = 17;
+          state.y = 42;
           state.eating = true;
           render();
-          setMessage("Котёнок подошёл к миске, опустил мордочку и ест: ам-ам-ам...");
+          setMessage("Котёнок подошёл к миске и аккуратно наклоняет мордочку: ам-ам-ам...");
           setTimeout(() => {
             change({ hunger: 28, happiness: 8, clean: -4 });
             setMessage("Ам-ам-ам! Котёнок поел корм и довольно облизывается.");
