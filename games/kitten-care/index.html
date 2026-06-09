@@ -373,25 +373,6 @@
         transition: left .55s ease, bottom .55s ease;
       }
 
-      .room.bathing .kitten-wrap::after {
-        content: "";
-        position: absolute;
-        left: 50%;
-        bottom: 16px;
-        z-index: 4;
-        width: min(470px, 86vw);
-        height: 150px;
-        border-radius: 45% 45% 70px 70px;
-        background:
-          radial-gradient(circle at 22% 26%, rgba(255,255,255,.94) 0 7%, transparent 8%),
-          radial-gradient(circle at 46% 22%, rgba(255,255,255,.84) 0 6%, transparent 7%),
-          radial-gradient(circle at 69% 34%, rgba(255,255,255,.78) 0 6%, transparent 7%),
-          linear-gradient(180deg, rgba(126,211,232,.9), rgba(70,164,199,.72));
-        transform: translateX(-50%);
-        animation: water-wave .9s ease-in-out infinite;
-        pointer-events: none;
-      }
-
       .kitten {
         position: relative;
         width: 280px;
@@ -402,6 +383,32 @@
         transform-origin: 50% 100%;
         transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1));
         transition: transform .35s ease;
+      }
+
+      .kitten.sleeping {
+        transform: translateY(40px) scale(.72) rotate(88deg);
+      }
+
+      .kitten.sleeping .tail {
+        right: 2px;
+        bottom: 104px;
+        transform: rotate(-8deg);
+      }
+
+      .room.sleep-mode .bed {
+        transform: scale(1.08);
+        box-shadow: inset 0 -16px 0 rgba(99, 42, 54, .16), 0 13px 0 rgba(37,29,24,.1);
+      }
+
+      .room.sleep-mode .bed::before {
+        content: "";
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: 11px;
+        height: 48px;
+        border-radius: 30px 30px 14px 14px;
+        background: rgba(255,255,255,.38);
       }
 
       .kitten.pet {
@@ -758,17 +765,15 @@
 
       .bath-water {
         position: absolute;
-        left: 24px;
-        right: 24px;
-        top: 72px;
-        height: 118px;
-        border-radius: 34px 34px 62px 62px;
+        left: 34px;
+        right: 34px;
+        top: 78px;
+        height: 82px;
+        border-radius: 32px;
         background:
-          radial-gradient(circle at 18% 26%, rgba(255,255,255,.95) 0 5%, transparent 6%),
-          radial-gradient(circle at 38% 22%, rgba(255,255,255,.85) 0 4%, transparent 5%),
-          radial-gradient(circle at 74% 34%, rgba(255,255,255,.78) 0 5%, transparent 6%),
-          linear-gradient(180deg, rgba(128,219,243,.98), rgba(47,145,190,.82));
-        box-shadow: inset 0 -18px 0 rgba(30,104,139,.16), 0 7px 0 rgba(255,255,255,.42);
+          linear-gradient(90deg, transparent 0 7%, rgba(255,255,255,.52) 8% 13%, transparent 14% 29%, rgba(255,255,255,.42) 30% 35%, transparent 36% 100%),
+          linear-gradient(180deg, rgba(122,216,240,.92), rgba(58,154,196,.78));
+        box-shadow: inset 0 -12px 0 rgba(30,104,139,.14), 0 5px 0 rgba(255,255,255,.38);
         animation: water-wave .9s ease-in-out infinite;
       }
 
@@ -857,12 +862,44 @@
 
       .soap-button {
         bottom: 312px;
-        background: linear-gradient(180deg, #9ddbef, #438aaa);
+        gap: 8px;
+        color: #22566a;
+        background: linear-gradient(180deg, #f8ffff, #aee4f0);
+        box-shadow: 0 6px 0 rgba(48,109,130,.18);
       }
 
       .shower-button {
         bottom: 250px;
-        background: linear-gradient(180deg, #72b78e, #3f8360);
+        gap: 8px;
+        background: linear-gradient(180deg, #75b8d8, #34718f);
+        box-shadow: 0 6px 0 rgba(37,29,24,.12);
+      }
+
+      .soap-button::before,
+      .shower-button::before {
+        content: "";
+        display: inline-block;
+        flex: 0 0 auto;
+      }
+
+      .soap-button::before {
+        width: 34px;
+        height: 20px;
+        border: 2px solid rgba(34,86,106,.28);
+        border-radius: 999px;
+        background:
+          radial-gradient(circle at 30% 30%, #fff 0 14%, transparent 15%),
+          linear-gradient(180deg, #fff, #b9edf7);
+      }
+
+      .shower-button::before {
+        width: 26px;
+        height: 26px;
+        border-radius: 50% 50% 8px 8px;
+        background:
+          radial-gradient(circle at 36% 70%, rgba(255,255,255,.9) 0 6%, transparent 7%),
+          radial-gradient(circle at 58% 74%, rgba(255,255,255,.8) 0 5%, transparent 6%),
+          linear-gradient(135deg, #d7eef6, #427f9b);
       }
 
       .room.bathing:not(.bath-soapy) .soap-button,
@@ -1224,6 +1261,7 @@
         room.classList.toggle("outside", state.outside);
         room.classList.toggle("bathing", state.bathing);
         room.classList.toggle("bath-soapy", state.bathSoapy);
+        room.classList.toggle("sleep-mode", state.sleeping);
         kitten.classList.toggle("sleeping", state.sleeping);
         kitten.classList.toggle("eating", state.eating);
         kitten.classList.toggle("playing", state.playing);
@@ -1297,9 +1335,16 @@
           setMessage("Ты вышла на улицу. Двигайся WASD или стрелками и гуляй с тонкой ниточкой.");
         }
         if (action === "sleep") {
+          if (state.outside) {
+            setMessage("Сначала вернись домой: лежанка стоит в комнате.");
+            return;
+          }
+          state.x = 78;
+          state.y = 54;
           state.sleeping = true;
+          render();
           change({ energy: 34, warmth: 8, hunger: -8, happiness: 6 });
-          setMessage("Котёнок свернулся на лежанке и спит.");
+          setMessage("Котёнок подошёл к лежанке, лёг боком и сладко спит.");
         }
         if (action === "wash") {
           if (state.outside) {
