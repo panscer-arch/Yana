@@ -118,6 +118,34 @@
           var(--paper);
       }
 
+      .room::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(108deg, rgba(255,255,255,.42) 0 18%, transparent 19% 100%),
+          repeating-linear-gradient(90deg, transparent 0 74px, rgba(120,83,54,.045) 75px 77px),
+          repeating-linear-gradient(0deg, transparent 0 58px, rgba(120,83,54,.045) 59px 61px);
+        opacity: .82;
+      }
+
+      .room::after {
+        content: "";
+        position: absolute;
+        left: -8%;
+        right: -8%;
+        bottom: 0;
+        z-index: 0;
+        height: 46%;
+        pointer-events: none;
+        background:
+          radial-gradient(ellipse at 50% 92%, rgba(81,55,36,.18), transparent 54%),
+          repeating-linear-gradient(95deg, rgba(128,88,56,.09) 0 2px, transparent 3px 38px);
+        opacity: .68;
+      }
+
       .room.outside {
         background:
           radial-gradient(circle at 78% 16%, #fff4a4 0 8%, transparent 9%),
@@ -141,6 +169,7 @@
 
       .window {
         position: absolute;
+        z-index: 1;
         top: 28px;
         left: 30px;
         width: 190px;
@@ -190,6 +219,7 @@
 
       .rug {
         position: absolute;
+        z-index: 1;
         bottom: 22px;
         width: min(560px, 82%);
         height: 130px;
@@ -204,7 +234,7 @@
       .toy,
       .walk-zone {
         position: absolute;
-        z-index: 2;
+        z-index: 3;
       }
 
       .room.outside .bowl,
@@ -362,7 +392,7 @@
 
       .kitten-wrap {
         position: absolute;
-        z-index: 3;
+        z-index: 4;
         left: var(--cat-x, 50%);
         bottom: var(--cat-y, 42px);
         width: min(430px, 76vw);
@@ -371,6 +401,19 @@
         place-items: end center;
         transform: translateX(-50%);
         transition: left .55s ease, bottom .55s ease;
+      }
+
+      .kitten-wrap::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 18px;
+        width: 250px;
+        height: 48px;
+        border-radius: 50%;
+        background: radial-gradient(ellipse at center, rgba(54,35,24,.24), transparent 68%);
+        transform: translateX(-50%);
+        pointer-events: none;
       }
 
       .kitten {
@@ -383,6 +426,14 @@
         transform-origin: 50% 100%;
         transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1));
         transition: transform .35s ease;
+      }
+
+      .kitten:not(.sleeping):not(.bathing) .body {
+        animation: breathe 2.8s ease-in-out infinite;
+      }
+
+      .kitten:not(.sleeping):not(.bathing) .head {
+        animation: head-life 3.4s ease-in-out infinite;
       }
 
       .kitten.sleeping {
@@ -468,9 +519,34 @@
         transition: opacity .25s ease;
       }
 
+      .wet-shine {
+        position: absolute;
+        inset: 44px 44px 46px;
+        z-index: 5;
+        opacity: var(--wet-opacity, 0);
+        pointer-events: none;
+        background:
+          linear-gradient(115deg, transparent 0 18%, rgba(255,255,255,.44) 19% 22%, transparent 23% 39%, rgba(255,255,255,.28) 40% 43%, transparent 44% 100%),
+          radial-gradient(ellipse at 46% 64%, rgba(71,142,170,.28), transparent 44%);
+        mix-blend-mode: screen;
+        filter: blur(.2px);
+        transition: opacity .35s ease;
+      }
+
       @keyframes bath-shiver {
         0%, 100% { transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1)) rotate(-1deg); }
         50% { transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1)) rotate(1deg); }
+      }
+
+      @keyframes breathe {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.025, 1.012); }
+      }
+
+      @keyframes head-life {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        45% { transform: translateY(2px) rotate(-.7deg); }
+        70% { transform: translateY(0) rotate(.5deg); }
       }
 
       @keyframes scratch {
@@ -604,16 +680,23 @@
           radial-gradient(circle at 50% 54%, #111 0 32%, transparent 33%),
           #68a87d;
         box-shadow: 0 0 0 3px rgba(67,43,28,.25);
+        animation: blink 5.4s ease-in-out infinite;
       }
 
       .eye.left { left: 62px; }
       .eye.right { right: 62px; }
 
       .sleeping .eye {
+        animation: none;
         height: 8px;
         top: 106px;
         border-radius: 999px;
         background: #4b3328;
+      }
+
+      @keyframes blink {
+        0%, 92%, 100% { transform: scaleY(1); }
+        95% { transform: scaleY(.08); }
       }
 
       .nose {
@@ -1157,6 +1240,7 @@
               <div class="whiskers right"></div>
             </div>
             <div class="dirt" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div class="wet-shine" aria-hidden="true"></div>
             <div class="soap-bubbles" aria-hidden="true"></div>
             <div class="leash"></div>
             <div class="paw left"></div>
@@ -1223,6 +1307,7 @@
         bathRinsing: false,
         soapProgress: 0,
         rinseProgress: 0,
+        wetness: 0,
         x: 50,
         y: 42
       };
@@ -1334,6 +1419,7 @@
         document.documentElement.style.setProperty("--shower-opacity", state.bathRinsing ? "1" : ".35");
         document.documentElement.style.setProperty("--soap-meter", `${state.soapProgress}%`);
         document.documentElement.style.setProperty("--rinse-meter", `${state.rinseProgress}%`);
+        document.documentElement.style.setProperty("--wet-opacity", String(state.wetness / 100));
         document.documentElement.style.setProperty("--sleep-drop", state.sleeping ? "36px" : "0");
         document.documentElement.style.setProperty("--kitten-scale", state.sleeping ? ".94" : "1");
         document.documentElement.style.setProperty("--dirt-opacity", String(clamp(100 - state.clean) / 100));
@@ -1497,6 +1583,7 @@
         state.bathRinsing = false;
         state.soapProgress = 0;
         state.rinseProgress = 0;
+        state.wetness = 100;
         activeTool?.classList.remove("dragging");
         activeTool = null;
         change({ clean: 45, happiness: 9, warmth: -2 });
@@ -1569,6 +1656,10 @@
       setInterval(() => {
         if (state.sleeping) change({ energy: 2, hunger: -0.8, warmth: 0.8 });
         else change({ hunger: -1.2, energy: -0.6, happiness: -0.5, clean: -0.4 });
+        if (state.wetness > 0 && !state.bathing) {
+          state.wetness = clamp(state.wetness - 8);
+          render();
+        }
         askForCare();
       }, 4200);
 
