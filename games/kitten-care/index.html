@@ -437,13 +437,14 @@
       }
 
       .kitten.sleeping {
-        transform: translateY(8px) scale(.58) rotate(88deg);
+        transform: translateY(-8px) scale(.58);
       }
 
       .kitten.sleeping .tail {
-        right: 2px;
-        bottom: 104px;
-        transform: rotate(-8deg);
+        right: 20px;
+        bottom: 102px;
+        width: 122px;
+        transform: rotate(-38deg);
       }
 
       .room.sleep-mode .bed {
@@ -524,13 +525,13 @@
         position: absolute;
         inset: 44px 44px 46px;
         z-index: 5;
-        opacity: var(--wet-opacity, 0);
+        opacity: calc(var(--wet-opacity, 0) * .22);
         pointer-events: none;
         background:
-          linear-gradient(115deg, transparent 0 18%, rgba(255,255,255,.44) 19% 22%, transparent 23% 39%, rgba(255,255,255,.28) 40% 43%, transparent 44% 100%),
-          radial-gradient(ellipse at 46% 64%, rgba(71,142,170,.28), transparent 44%);
-        mix-blend-mode: screen;
-        filter: blur(.2px);
+          linear-gradient(115deg, transparent 0 22%, rgba(255,255,255,.16) 23% 24%, transparent 25% 100%),
+          radial-gradient(ellipse at 46% 64%, rgba(71,142,170,.12), transparent 46%);
+        mix-blend-mode: soft-light;
+        filter: blur(.6px);
         transition: opacity .35s ease;
       }
 
@@ -605,10 +606,23 @@
         height: 178px;
         border-radius: 46% 46% 42% 42%;
         background:
-          radial-gradient(ellipse at 34% 28%, rgba(255,255,255,.58), transparent 24%),
-          radial-gradient(ellipse at 62% 64%, rgba(91,55,35,.18), transparent 35%),
-          linear-gradient(145deg, #e2c6a6, #a87555);
-        box-shadow: inset -22px -20px 32px rgba(68,38,24,.2), inset 18px 18px 26px rgba(255,255,255,.25);
+          radial-gradient(ellipse at 34% 28%, rgba(255,255,255,.24), transparent 28%),
+          radial-gradient(ellipse at 62% 64%, rgba(91,55,35,.15), transparent 37%),
+          linear-gradient(145deg, #d9bd9b, #a87555);
+        box-shadow: inset -18px -18px 30px rgba(68,38,24,.18), inset 12px 12px 22px rgba(255,255,255,.13);
+      }
+
+      .body::after,
+      .head::after {
+        content: "";
+        position: absolute;
+        inset: 8px;
+        border-radius: inherit;
+        pointer-events: none;
+        opacity: .28;
+        background:
+          linear-gradient(102deg, transparent 0 18%, rgba(84,55,38,.12) 19% 20%, transparent 21% 38%, rgba(255,255,255,.11) 39% 40%, transparent 41% 100%);
+        filter: blur(.7px);
       }
 
       .head {
@@ -619,10 +633,10 @@
         height: 174px;
         border-radius: 46% 46% 42% 42%;
         background:
-          radial-gradient(ellipse at 38% 31%, rgba(255,255,255,.62), transparent 20%),
-          radial-gradient(ellipse at 68% 64%, rgba(96,58,36,.16), transparent 34%),
-          linear-gradient(145deg, #e7cbaa, #b3805a);
-        box-shadow: inset -20px -18px 28px rgba(70,41,27,.18), inset 18px 16px 24px rgba(255,255,255,.25);
+          radial-gradient(ellipse at 38% 31%, rgba(255,255,255,.2), transparent 26%),
+          radial-gradient(ellipse at 68% 64%, rgba(96,58,36,.14), transparent 36%),
+          linear-gradient(145deg, #ddc09e, #b3805a);
+        box-shadow: inset -18px -16px 26px rgba(70,41,27,.17), inset 10px 10px 18px rgba(255,255,255,.12);
       }
 
       .dirt {
@@ -1489,12 +1503,12 @@
             setMessage("Сначала вернись домой: лежанка стоит в комнате.");
             return;
           }
-          state.x = 78;
-          state.y = 54;
+          state.x = 82;
+          state.y = 86;
           state.sleeping = true;
           render();
           change({ energy: 34, warmth: 8, hunger: -8, happiness: 6 });
-          setMessage("Котёнок подошёл к лежанке, лёг боком и сладко спит.");
+          setMessage("Котёнок забрался на лежанку, свернулся и сладко спит.");
         }
         if (action === "wash") {
           if (state.outside) {
