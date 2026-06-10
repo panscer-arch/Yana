@@ -155,8 +155,11 @@
 
       .room.bathing {
         background:
-          radial-gradient(circle at 18% 16%, rgba(255,255,255,.8) 0 8%, transparent 9%),
-          linear-gradient(180deg, #dff5fb 0 52%, #c2e1e8 53% 100%);
+          radial-gradient(circle at 18% 16%, rgba(255,255,255,.82) 0 8%, transparent 9%),
+          linear-gradient(120deg, rgba(255,255,255,.52) 0 13%, transparent 14% 100%),
+          repeating-linear-gradient(90deg, transparent 0 92px, rgba(66,116,134,.08) 93px 95px),
+          repeating-linear-gradient(0deg, transparent 0 70px, rgba(66,116,134,.08) 71px 73px),
+          linear-gradient(180deg, #dff5fb 0 52%, #bdd6df 53% 100%);
       }
 
       .room button {
@@ -421,7 +424,9 @@
         width: 310px;
         height: 92px;
         background:
+          radial-gradient(circle at var(--wash-x, 50%) var(--wash-y, 45%), rgba(255,255,255,.5) 0 8%, transparent 9%),
           radial-gradient(ellipse at 50% 68%, rgba(23,109,149,.28), transparent 70%),
+          repeating-linear-gradient(96deg, transparent 0 18px, rgba(255,255,255,.22) 19px 22px, transparent 23px 46px),
           linear-gradient(90deg, transparent 0 9%, rgba(255,255,255,.44) 10% 16%, transparent 17% 34%, rgba(255,255,255,.35) 35% 41%, transparent 42% 100%),
           linear-gradient(180deg, rgba(107,213,238,.86), rgba(44,142,188,.72));
         animation: water-wave .9s ease-in-out infinite;
@@ -531,6 +536,13 @@
         transform: translateY(30px) scale(.82);
       }
 
+      .kitten.bathing .body,
+      .kitten.bathing .head,
+      .kitten.bathing .tail,
+      .kitten.bathing .paw {
+        filter: saturate(.92) brightness(.94);
+      }
+
       .kitten.bathing .mouth {
         width: 58px;
         height: 16px;
@@ -546,10 +558,11 @@
       .soap-bubbles {
         position: absolute;
         inset: 80px 46px 58px;
-        z-index: 6;
+        z-index: 9;
         opacity: var(--soap-opacity, 0);
         pointer-events: none;
         background:
+          radial-gradient(circle at var(--wash-x, 50%) var(--wash-y, 45%), rgba(255,255,255,.98) 0 15%, rgba(255,255,255,.72) 16% 24%, transparent 25%),
           radial-gradient(circle at 20% 48%, rgba(255,255,255,.95) 0 8%, transparent 9%),
           radial-gradient(circle at 35% 28%, rgba(255,255,255,.9) 0 7%, transparent 8%),
           radial-gradient(circle at 52% 54%, rgba(255,255,255,.92) 0 9%, transparent 10%),
@@ -559,15 +572,33 @@
         transition: opacity .25s ease;
       }
 
+      .soap-bubbles::after {
+        content: "";
+        position: absolute;
+        left: var(--wash-x, 50%);
+        top: var(--wash-y, 45%);
+        width: 90px;
+        height: 70px;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 24% 36%, rgba(255,255,255,.9) 0 8%, transparent 9%),
+          radial-gradient(circle at 52% 20%, rgba(255,255,255,.82) 0 7%, transparent 8%),
+          radial-gradient(circle at 70% 58%, rgba(255,255,255,.86) 0 9%, transparent 10%);
+        transform: translate(-50%, -50%);
+        animation: foam-pulse .8s ease-in-out infinite;
+      }
+
       .wet-shine {
         position: absolute;
         inset: 44px 44px 46px;
-        z-index: 5;
-        opacity: calc(var(--wet-opacity, 0) * .22);
+        z-index: 7;
+        opacity: calc(var(--wet-opacity, 0) * .32);
         pointer-events: none;
         background:
-          linear-gradient(115deg, transparent 0 22%, rgba(255,255,255,.16) 23% 24%, transparent 25% 100%),
-          radial-gradient(ellipse at 46% 64%, rgba(71,142,170,.12), transparent 46%);
+          radial-gradient(circle at var(--wash-x, 50%) var(--wash-y, 45%), rgba(255,255,255,.28) 0 8%, transparent 9%),
+          linear-gradient(115deg, transparent 0 18%, rgba(255,255,255,.22) 19% 20%, transparent 21% 44%, rgba(255,255,255,.16) 45% 46%, transparent 47% 100%),
+          repeating-linear-gradient(100deg, transparent 0 20px, rgba(255,255,255,.08) 21px 22px, transparent 23px 42px),
+          radial-gradient(ellipse at 46% 64%, rgba(71,142,170,.18), transparent 46%);
         mix-blend-mode: soft-light;
         filter: blur(.6px);
         transition: opacity .35s ease;
@@ -576,6 +607,11 @@
       @keyframes bath-shiver {
         0%, 100% { transform: translateY(46px) scale(.86) rotate(-1deg); }
         50% { transform: translateY(50px) scale(.86) rotate(1deg); }
+      }
+
+      @keyframes foam-pulse {
+        0%, 100% { transform: translate(-50%, -50%) scale(.92); opacity: .72; }
+        50% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
       }
 
       @keyframes breathe {
@@ -650,6 +686,19 @@
         box-shadow: inset -18px -18px 30px rgba(68,38,24,.18), inset 12px 12px 22px rgba(255,255,255,.13);
       }
 
+      .body::before {
+        content: "";
+        position: absolute;
+        inset: 3px;
+        border-radius: inherit;
+        pointer-events: none;
+        opacity: .24;
+        background:
+          repeating-linear-gradient(105deg, transparent 0 12px, rgba(74,45,29,.16) 13px 14px, transparent 15px 28px),
+          repeating-linear-gradient(78deg, transparent 0 16px, rgba(255,237,211,.15) 17px 18px, transparent 19px 32px);
+        filter: blur(.25px);
+      }
+
       .body::after {
         content: "";
         position: absolute;
@@ -692,6 +741,19 @@
           linear-gradient(180deg, rgba(236,201,168,.18), rgba(149,91,59,.1));
         filter: blur(.3px);
         pointer-events: none;
+      }
+
+      .head::after {
+        content: "";
+        position: absolute;
+        inset: 3px;
+        border-radius: inherit;
+        pointer-events: none;
+        opacity: .19;
+        background:
+          repeating-linear-gradient(98deg, transparent 0 11px, rgba(74,45,29,.15) 12px 13px, transparent 14px 27px),
+          radial-gradient(ellipse at 50% 20%, rgba(255,244,226,.18), transparent 34%);
+        filter: blur(.22px);
       }
 
       .dirt {
@@ -873,6 +935,38 @@
         pointer-events: none;
       }
 
+      .bath-scene::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 244px;
+        width: min(620px, 90%);
+        height: 116px;
+        border-radius: 36px 36px 0 0;
+        background:
+          radial-gradient(ellipse at 50% 100%, rgba(47,87,102,.15), transparent 58%),
+          linear-gradient(180deg, rgba(255,255,255,.28), rgba(105,155,172,.12));
+        transform: translateX(-50%);
+      }
+
+      .bath-scene::after {
+        content: "";
+        position: absolute;
+        left: 53%;
+        bottom: 238px;
+        width: 430px;
+        height: 92px;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 14% 70%, rgba(255,255,255,.42) 0 3%, transparent 4%),
+          radial-gradient(circle at 29% 50%, rgba(255,255,255,.34) 0 2%, transparent 3%),
+          radial-gradient(circle at 52% 62%, rgba(255,255,255,.38) 0 3%, transparent 4%),
+          radial-gradient(circle at 72% 46%, rgba(255,255,255,.3) 0 2%, transparent 3%),
+          radial-gradient(circle at 88% 70%, rgba(255,255,255,.34) 0 3%, transparent 4%);
+        opacity: calc(var(--wet-opacity, 0) * .5 + var(--soap-opacity, 0) * .4);
+        transform: translateX(-50%);
+      }
+
       .room.bathing .bath-scene {
         display: block;
       }
@@ -885,10 +979,11 @@
         height: 250px;
         border-radius: 42px 42px 80px 80px;
         background:
+          radial-gradient(ellipse at 50% 18%, rgba(255,255,255,.9), transparent 42%),
           linear-gradient(180deg, rgba(255,255,255,.98) 0 14%, rgba(224,242,247,.98) 15% 100%),
           #eaf8fb;
         border: 6px solid rgba(255,255,255,.85);
-        box-shadow: inset 0 -34px 0 rgba(77,121,137,.13), 0 18px 0 rgba(37,29,24,.12);
+        box-shadow: inset 0 -34px 0 rgba(77,121,137,.13), inset -24px -22px 0 rgba(63,112,131,.06), 0 18px 0 rgba(37,29,24,.12);
         transform: translateX(-50%);
       }
 
@@ -925,6 +1020,8 @@
         height: 82px;
         border-radius: 32px;
         background:
+          radial-gradient(circle at var(--wash-x, 50%) var(--wash-y, 45%), rgba(255,255,255,.58) 0 8%, transparent 9%),
+          repeating-linear-gradient(100deg, transparent 0 18px, rgba(255,255,255,.2) 19px 21px, transparent 22px 44px),
           linear-gradient(90deg, transparent 0 7%, rgba(255,255,255,.52) 8% 13%, transparent 14% 29%, rgba(255,255,255,.42) 30% 35%, transparent 36% 100%),
           linear-gradient(180deg, rgba(122,216,240,.92), rgba(58,154,196,.78));
         box-shadow: inset 0 -12px 0 rgba(30,104,139,.14), 0 5px 0 rgba(255,255,255,.38);
@@ -974,6 +1071,25 @@
         opacity: var(--shower-opacity, 0);
         animation: water-fall .5s linear infinite;
         transform: translate(-50%, 18px) rotate(8deg);
+      }
+
+      .bath-stream::before,
+      .bath-stream::after {
+        content: "";
+        position: absolute;
+        inset: -6px -18px;
+        background:
+          radial-gradient(circle at 22% 16%, rgba(255,255,255,.75) 0 4%, transparent 5%),
+          radial-gradient(circle at 72% 27%, rgba(255,255,255,.68) 0 3%, transparent 4%),
+          radial-gradient(circle at 46% 52%, rgba(255,255,255,.62) 0 4%, transparent 5%),
+          radial-gradient(circle at 82% 76%, rgba(255,255,255,.52) 0 3%, transparent 4%);
+        animation: droplets .42s linear infinite;
+      }
+
+      .bath-stream::after {
+        animation-delay: .2s;
+        opacity: .75;
+        transform: translateY(18px);
       }
 
       .bath-hiss,
@@ -1151,8 +1267,13 @@
       }
 
       @keyframes water-fall {
-        from { opacity: .45; transform: translateY(-5px); }
-        to { opacity: .95; transform: translateY(6px); }
+        from { opacity: .45; transform: translate(-50%, 12px) rotate(8deg); }
+        to { opacity: .95; transform: translate(-50%, 26px) rotate(8deg); }
+      }
+
+      @keyframes droplets {
+        from { transform: translateY(-16px); opacity: .92; }
+        to { transform: translateY(22px); opacity: .15; }
       }
 
       .action-bubble {
@@ -1559,7 +1680,8 @@
         document.documentElement.style.setProperty("--shower-opacity", state.bathRinsing ? "1" : "0");
         document.documentElement.style.setProperty("--soap-meter", `${state.soapProgress}%`);
         document.documentElement.style.setProperty("--rinse-meter", `${state.rinseProgress}%`);
-        document.documentElement.style.setProperty("--wet-opacity", String(state.wetness / 100));
+        const wetLook = state.bathing ? Math.max(state.wetness, state.rinseProgress, state.soapProgress * .35) : state.wetness;
+        document.documentElement.style.setProperty("--wet-opacity", String(wetLook / 100));
         document.documentElement.style.setProperty("--sleep-drop", state.sleeping ? "36px" : "0");
         document.documentElement.style.setProperty("--kitten-scale", state.sleeping ? ".94" : "1");
         document.documentElement.style.setProperty("--dirt-opacity", String(clamp(100 - state.clean) / 100));
@@ -1682,6 +1804,12 @@
 
       function pointTouchesKitten(x, y) {
         const rect = kitten.getBoundingClientRect();
+        const washX = clamp(((x - rect.left) / rect.width) * 100);
+        const washY = clamp(((y - rect.top) / rect.height) * 100);
+        kitten.style.setProperty("--wash-x", `${washX}%`);
+        kitten.style.setProperty("--wash-y", `${washY}%`);
+        kittenWrap.style.setProperty("--wash-x", `${washX}%`);
+        kittenWrap.style.setProperty("--wash-y", `${washY}%`);
         return x >= rect.left + rect.width * .14
           && x <= rect.right - rect.width * .14
           && y >= rect.top + rect.height * .12
