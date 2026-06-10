@@ -971,6 +971,15 @@
         display: block;
       }
 
+      .room.drying {
+        background:
+          radial-gradient(circle at 18% 16%, rgba(255,255,255,.82) 0 8%, transparent 9%),
+          linear-gradient(120deg, rgba(255,255,255,.48) 0 13%, transparent 14% 100%),
+          repeating-linear-gradient(90deg, transparent 0 92px, rgba(120,83,54,.055) 93px 95px),
+          repeating-linear-gradient(0deg, transparent 0 70px, rgba(120,83,54,.055) 71px 73px),
+          linear-gradient(180deg, #f2e4d3 0 52%, #d8c2a4 53% 100%);
+      }
+
       .bathtub {
         position: absolute;
         left: 50%;
@@ -1161,6 +1170,29 @@
         box-shadow: inset -9px -12px 0 rgba(27,84,109,.16), 0 8px 0 rgba(37,29,24,.12);
       }
 
+      .towel-button {
+        bottom: 242px;
+        left: 230px;
+        width: 118px;
+        height: 76px;
+        border-radius: 18px;
+        background:
+          repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0 8px, transparent 9px 18px),
+          linear-gradient(135deg, #ff9fb2, #d85470);
+        box-shadow: inset 0 -10px 0 rgba(121,30,52,.14), 0 8px 0 rgba(37,29,24,.12);
+      }
+
+      .towel-button::before {
+        content: "";
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        top: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.35);
+      }
+
       .shower-button::after {
         content: "";
         position: absolute;
@@ -1217,6 +1249,11 @@
 
       .room.bathing .soap-button,
       .room.bathing .shower-button {
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .room.drying .towel-button {
         display: inline-flex;
         align-items: center;
       }
@@ -1452,6 +1489,7 @@
         </div>
         <button class="bath-tool soap-button" type="button" data-tool="soap" aria-label="Взять мыло и намылить котёнка">Мыло</button>
         <button class="bath-tool shower-button" type="button" data-tool="shower" aria-label="Взять душ и смыть пену">Душ</button>
+        <button class="bath-tool towel-button" type="button" data-tool="towel" aria-label="Взять полотенце и вытереть котёнка">Полотенце</button>
         <div class="bath-progress" aria-hidden="true">
           <div class="bath-meter soap-meter"><i></i></div>
           <div class="bath-meter rinse-meter"><i></i></div>
@@ -1581,6 +1619,7 @@
           if (state.soapProgress < 70) return "Потяни мыло на котёнка и води по шерсти, пока не появится пена.";
           return "Потяни душ на котёнка и води по пене, чтобы всё смыть.";
         }
+        if (state.wetness > 35) return "Котёнок мокрый. Потяни полотенце на шерсть и вытри его.";
         if (state.outside) return "Гуляй стрелками или нажми дверь, чтобы вернуться домой.";
         if (state.hunger < 45) return "Котёнок проголодался. Нажми «Кормить» или миску.";
         if (state.clean < 45) return "Котёнок испачкался. Нажми «В ванну».";
@@ -1665,9 +1704,10 @@
         careGuide.textContent = getCareTip();
         room.classList.toggle("outside", state.outside);
         room.classList.toggle("bathing", state.bathing);
+        room.classList.toggle("drying", !state.bathing && state.wetness > 35);
         room.classList.toggle("bath-soapy", state.bathSoapy);
         room.classList.toggle("sleep-mode", state.sleeping);
-        room.classList.toggle("action-mode", state.eating || state.playing || state.sleeping || state.bathing);
+        room.classList.toggle("action-mode", state.eating || state.playing || state.sleeping || state.bathing || state.wetness > 35);
         kitten.classList.toggle("sleeping", state.sleeping);
         kitten.classList.toggle("eating", state.eating);
         kitten.classList.toggle("playing", state.playing);
@@ -1701,6 +1741,11 @@
         state.sleeping = false;
         if (state.bathing) {
           setMessage("Сначала закончи купание руками: возьми мыло, води по котёнку, потом возьми душ и смой пену.");
+          return;
+        }
+        if (state.wetness > 35 && action !== "pet") {
+          setMessage("Котёнок ещё мокрый. Сначала вытри его полотенцем, води полотенцем по шерсти.");
+          render();
           return;
         }
         if (action === "feed") {
@@ -1823,11 +1868,20 @@
           document.documentElement.style.setProperty("--shower-x", `${x}px`);
           document.documentElement.style.setProperty("--shower-y", `${y}px`);
         }
-        if (!state.bathing || !pointTouchesKitten(x, y)) return;
+        if ((!state.bathing && !(tool.dataset.tool === "towel" && state.wetness > 0)) || !pointTouchesKitten(x, y)) return;
         useBathTool(tool.dataset.tool);
       }
 
       function useBathTool(toolName) {
+        if (toolName === "towel") {
+          if (state.bathing || state.wetness <= 0) return;
+          state.wetness = clamp(state.wetness - 7.5);
+          state.warmth = clamp(state.warmth + 1.2);
+          if (state.wetness > 35) setMessage("Вытираем шерсть полотенцем. Мокрый блеск постепенно исчезает.");
+          else setMessage("Котёнок почти сухой: шерсть пушистая и чистая.");
+          render();
+          return;
+        }
         if (!state.bathing) return;
         const soapStep = 4.6;
         const rinseStep = 4.7;
@@ -1868,19 +1922,20 @@
         activeTool?.classList.remove("dragging");
         activeTool = null;
         change({ clean: 45, happiness: 9, warmth: -2 });
-        setMessage("Купание закончено: ты сама намылила и смыла пену душем. Котёнок чистый.");
+        setMessage("Пена смыта. Теперь котёнок мокрый: возьми полотенце и вытри шерсть.");
       }
 
       bathTools.forEach((tool) => {
         tool.addEventListener("pointerdown", (event) => {
-          if (!state.bathing) return;
+          if (!state.bathing && !(tool.dataset.tool === "towel" && state.wetness > 0)) return;
           event.preventDefault();
           activeTool = tool;
           tool.classList.add("dragging");
           tool.setPointerCapture(event.pointerId);
           moveBathTool(tool, event.clientX, event.clientY);
           if (tool.dataset.tool === "soap") setMessage("Води мылом по котёнку, чтобы намылить шерсть.");
-          else setMessage("Води душем по котёнку, чтобы смыть пену.");
+          else if (tool.dataset.tool === "shower") setMessage("Води душем по котёнку, чтобы смыть пену.");
+          else setMessage("Води полотенцем по котёнку, чтобы вытереть мокрую шерсть.");
         });
         tool.addEventListener("pointermove", (event) => {
           if (activeTool !== tool) return;
