@@ -416,8 +416,41 @@
         pointer-events: none;
       }
 
+      .room.bathing .kitten-wrap::before {
+        bottom: 34px;
+        width: 310px;
+        height: 92px;
+        background:
+          radial-gradient(ellipse at 50% 68%, rgba(23,109,149,.28), transparent 70%),
+          linear-gradient(90deg, transparent 0 9%, rgba(255,255,255,.44) 10% 16%, transparent 17% 34%, rgba(255,255,255,.35) 35% 41%, transparent 42% 100%),
+          linear-gradient(180deg, rgba(107,213,238,.86), rgba(44,142,188,.72));
+        animation: water-wave .9s ease-in-out infinite;
+      }
+
+      .room.bathing .kitten-wrap::after {
+        content: "";
+        position: absolute;
+        z-index: 8;
+        left: 50%;
+        bottom: 18px;
+        width: 340px;
+        height: 118px;
+        border-radius: 48% 48% 42px 42px;
+        background:
+          radial-gradient(circle at 16% 20%, rgba(255,255,255,.8) 0 6%, transparent 7%),
+          radial-gradient(circle at 34% 28%, rgba(255,255,255,.7) 0 5%, transparent 6%),
+          radial-gradient(circle at 78% 24%, rgba(255,255,255,.72) 0 6%, transparent 7%),
+          linear-gradient(90deg, transparent 0 8%, rgba(255,255,255,.5) 9% 18%, transparent 19% 42%, rgba(255,255,255,.35) 43% 54%, transparent 55% 100%),
+          linear-gradient(180deg, rgba(142,224,243,.76), rgba(50,146,190,.68));
+        box-shadow: inset 0 -13px 0 rgba(30,104,139,.14), 0 -4px 0 rgba(255,255,255,.28);
+        opacity: .96;
+        transform: translateX(-50%);
+        pointer-events: none;
+      }
+
       .kitten {
         position: relative;
+        z-index: 2;
         width: 280px;
         height: 330px;
         border: 0;
@@ -495,6 +528,7 @@
 
       .kitten.bathing {
         animation: bath-shiver .35s ease-in-out infinite;
+        transform: translateY(30px) scale(.82);
       }
 
       .kitten.bathing .mouth {
@@ -930,15 +964,16 @@
       }
 
       .bath-stream {
-        position: absolute;
-        right: min(24%, 210px);
-        top: 92px;
+        position: fixed;
+        left: var(--shower-x, 67%);
+        top: var(--shower-y, 214px);
         width: 16px;
         height: 130px;
         border-radius: 999px;
         background: linear-gradient(180deg, rgba(162,231,249,.82), rgba(89,182,218,.22));
-        opacity: var(--shower-opacity, .35);
+        opacity: var(--shower-opacity, 0);
         animation: water-fall .5s linear infinite;
+        transform: translate(-50%, 18px) rotate(8deg);
       }
 
       .bath-hiss,
@@ -974,28 +1009,52 @@
       .bath-tool {
         left: 24px;
         display: none;
-        min-height: 50px;
-        padding: 0 14px;
-        color: #fff;
+        min-height: 0;
+        padding: 0;
+        overflow: visible;
+        border: 0;
+        color: transparent;
+        font-size: 0;
         pointer-events: auto;
         touch-action: none;
         user-select: none;
+        cursor: grab;
       }
 
       .soap-button {
-        bottom: 326px;
-        gap: 8px;
-        color: #22566a;
-        background: linear-gradient(180deg, #f8ffff, #aee4f0);
-        box-shadow: 0 6px 0 rgba(48,109,130,.18);
+        bottom: 330px;
+        width: 92px;
+        height: 54px;
+        border-radius: 999px 999px 24px 24px;
+        background:
+          radial-gradient(circle at 28% 30%, rgba(255,255,255,.92) 0 9%, transparent 10%),
+          radial-gradient(circle at 60% 22%, rgba(255,255,255,.75) 0 7%, transparent 8%),
+          linear-gradient(180deg, #ffffff 0 24%, #beeef7 25% 100%);
+        box-shadow: inset 0 -9px 0 rgba(76,168,194,.16), 0 8px 0 rgba(48,109,130,.18);
       }
 
       .shower-button {
-        bottom: 264px;
-        left: 142px;
-        gap: 8px;
-        background: linear-gradient(180deg, #75b8d8, #34718f);
-        box-shadow: 0 6px 0 rgba(37,29,24,.12);
+        bottom: 254px;
+        left: 138px;
+        width: 66px;
+        height: 92px;
+        border-radius: 32px 32px 18px 18px;
+        background:
+          radial-gradient(circle at 34% 20%, rgba(255,255,255,.9) 0 8%, transparent 9%),
+          linear-gradient(135deg, #dff6fb, #397d99 70%);
+        box-shadow: inset -9px -12px 0 rgba(27,84,109,.16), 0 8px 0 rgba(37,29,24,.12);
+      }
+
+      .shower-button::after {
+        content: "";
+        position: absolute;
+        left: 23px;
+        bottom: -48px;
+        width: 18px;
+        height: 58px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #5c8fa5, #27566d);
+        box-shadow: inset -4px 0 0 rgba(255,255,255,.18);
       }
 
       .bath-tool.dragging {
@@ -1005,33 +1064,39 @@
         z-index: 30;
         transform: translate(-50%, -50%) scale(1.06);
         box-shadow: 0 10px 0 rgba(37,29,24,.16);
+        cursor: grabbing;
       }
 
       .soap-button::before,
       .shower-button::before {
         content: "";
-        display: inline-block;
+        position: absolute;
+        pointer-events: none;
         flex: 0 0 auto;
       }
 
       .soap-button::before {
-        width: 34px;
-        height: 20px;
-        border: 2px solid rgba(34,86,106,.28);
-        border-radius: 999px;
+        left: 16px;
+        right: 16px;
+        bottom: -8px;
+        height: 10px;
+        border-radius: 50%;
         background:
-          radial-gradient(circle at 30% 30%, #fff 0 14%, transparent 15%),
-          linear-gradient(180deg, #fff, #b9edf7);
+          radial-gradient(circle at 12% 50%, rgba(255,255,255,.9) 0 20%, transparent 21%),
+          radial-gradient(circle at 38% 55%, rgba(255,255,255,.8) 0 18%, transparent 19%),
+          radial-gradient(circle at 70% 52%, rgba(255,255,255,.82) 0 20%, transparent 21%);
       }
 
       .shower-button::before {
-        width: 26px;
+        left: 12px;
+        right: 12px;
+        top: 13px;
         height: 26px;
         border-radius: 50% 50% 8px 8px;
         background:
-          radial-gradient(circle at 36% 70%, rgba(255,255,255,.9) 0 6%, transparent 7%),
-          radial-gradient(circle at 58% 74%, rgba(255,255,255,.8) 0 5%, transparent 6%),
-          linear-gradient(135deg, #d7eef6, #427f9b);
+          radial-gradient(circle at 26% 70%, rgba(255,255,255,.9) 0 6%, transparent 7%),
+          radial-gradient(circle at 50% 76%, rgba(255,255,255,.82) 0 5%, transparent 6%),
+          radial-gradient(circle at 74% 70%, rgba(255,255,255,.8) 0 5%, transparent 6%);
       }
 
       .room.bathing .soap-button,
@@ -1264,8 +1329,8 @@
           <div class="bath-hiss">ШШШШ!</div>
           <div class="bath-scratches"></div>
         </div>
-        <button class="bath-tool soap-button" type="button" data-tool="soap">Мыло</button>
-        <button class="bath-tool shower-button" type="button" data-tool="shower">Душ</button>
+        <button class="bath-tool soap-button" type="button" data-tool="soap" aria-label="Взять мыло и намылить котёнка">Мыло</button>
+        <button class="bath-tool shower-button" type="button" data-tool="shower" aria-label="Взять душ и смыть пену">Душ</button>
         <div class="bath-progress" aria-hidden="true">
           <div class="bath-meter soap-meter"><i></i></div>
           <div class="bath-meter rinse-meter"><i></i></div>
@@ -1392,8 +1457,8 @@
 
       function getCareTip() {
         if (state.bathing) {
-          if (state.soapProgress < 70) return "Возьми мыло или просто нажми «Мыло», чтобы намылить котёнка.";
-          return "Теперь возьми душ или нажимай «Душ», чтобы смыть пену.";
+          if (state.soapProgress < 70) return "Потяни мыло на котёнка и води по шерсти, пока не появится пена.";
+          return "Потяни душ на котёнка и води по пене, чтобы всё смыть.";
         }
         if (state.outside) return "Гуляй стрелками или нажми дверь, чтобы вернуться домой.";
         if (state.hunger < 45) return "Котёнок проголодался. Нажми «Кормить» или миску.";
@@ -1491,7 +1556,7 @@
         document.documentElement.style.setProperty("--leash-opacity", state.outside || state.dressed ? "1" : "0");
         document.documentElement.style.setProperty("--scratch-opacity", state.bathing && !state.bathRinsing ? ".9" : "0");
         document.documentElement.style.setProperty("--soap-opacity", String(state.soapProgress / 100));
-        document.documentElement.style.setProperty("--shower-opacity", state.bathRinsing ? "1" : ".35");
+        document.documentElement.style.setProperty("--shower-opacity", state.bathRinsing ? "1" : "0");
         document.documentElement.style.setProperty("--soap-meter", `${state.soapProgress}%`);
         document.documentElement.style.setProperty("--rinse-meter", `${state.rinseProgress}%`);
         document.documentElement.style.setProperty("--wet-opacity", String(state.wetness / 100));
@@ -1626,15 +1691,19 @@
       function moveBathTool(tool, x, y) {
         tool.style.setProperty("--tool-x", `${x}px`);
         tool.style.setProperty("--tool-y", `${y}px`);
+        if (tool.dataset.tool === "shower") {
+          document.documentElement.style.setProperty("--shower-x", `${x}px`);
+          document.documentElement.style.setProperty("--shower-y", `${y}px`);
+        }
         if (!state.bathing || !pointTouchesKitten(x, y)) return;
-        useBathTool(tool.dataset.tool, false);
+        useBathTool(tool.dataset.tool);
       }
 
-      function useBathTool(toolName, quick) {
+      function useBathTool(toolName) {
         if (!state.bathing) return;
-        const soapStep = quick ? 24 : 3.2;
-        const rinseStep = quick ? 26 : 3.2;
-        const soapWash = quick ? 20 : 2.8;
+        const soapStep = 4.6;
+        const rinseStep = 4.7;
+        const soapWash = 4.1;
         if (toolName === "soap") {
           state.soapProgress = clamp(state.soapProgress + soapStep);
           state.rinseProgress = 0;
@@ -1704,9 +1773,7 @@
           render();
         });
         tool.addEventListener("click", (event) => {
-          if (!state.bathing || activeTool) return;
           event.preventDefault();
-          useBathTool(tool.dataset.tool, true);
         });
       });
 
