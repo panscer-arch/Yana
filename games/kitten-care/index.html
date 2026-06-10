@@ -373,7 +373,7 @@
         position: absolute;
         z-index: 5;
         min-height: 28px;
-        display: inline-flex;
+        display: none;
         align-items: center;
         padding: 0 9px;
         border: 2px solid rgba(37,29,24,.12);
@@ -475,6 +475,10 @@
       .kitten.eating .mouth {
         height: 34px;
         border-bottom-width: 5px;
+      }
+
+      .kitten.eating {
+        transform: translate(-28px, 54px) scale(.72);
       }
 
       .kitten.playing .head {
@@ -612,17 +616,18 @@
         box-shadow: inset -18px -18px 30px rgba(68,38,24,.18), inset 12px 12px 22px rgba(255,255,255,.13);
       }
 
-      .body::after,
-      .head::after {
+      .body::after {
         content: "";
         position: absolute;
         inset: 8px;
         border-radius: inherit;
         pointer-events: none;
-        opacity: .28;
+        opacity: .18;
         background:
-          linear-gradient(102deg, transparent 0 18%, rgba(84,55,38,.12) 19% 20%, transparent 21% 38%, rgba(255,255,255,.11) 39% 40%, transparent 41% 100%);
-        filter: blur(.7px);
+          radial-gradient(circle at 25% 28%, rgba(255,255,255,.18) 0 5%, transparent 6%),
+          radial-gradient(circle at 66% 56%, rgba(87,56,38,.12) 0 6%, transparent 7%),
+          radial-gradient(circle at 42% 74%, rgba(255,255,255,.12) 0 4%, transparent 5%);
+        filter: blur(.9px);
       }
 
       .head {
@@ -637,6 +642,22 @@
           radial-gradient(ellipse at 68% 64%, rgba(96,58,36,.14), transparent 36%),
           linear-gradient(145deg, #ddc09e, #b3805a);
         box-shadow: inset -18px -16px 26px rgba(70,41,27,.17), inset 10px 10px 18px rgba(255,255,255,.12);
+      }
+
+      .head::before {
+        content: "";
+        position: absolute;
+        left: 47px;
+        right: 47px;
+        bottom: 22px;
+        height: 64px;
+        border-radius: 48% 48% 52% 52%;
+        background:
+          radial-gradient(circle at 32% 54%, rgba(255,238,216,.55) 0 24%, transparent 25%),
+          radial-gradient(circle at 68% 54%, rgba(255,238,216,.5) 0 24%, transparent 25%),
+          linear-gradient(180deg, rgba(236,201,168,.18), rgba(149,91,59,.1));
+        filter: blur(.3px);
+        pointer-events: none;
       }
 
       .dirt {
@@ -1098,6 +1119,24 @@
         gap: 10px;
       }
 
+      .care-guide {
+        min-height: 58px;
+        display: grid;
+        align-content: center;
+        gap: 3px;
+        padding: 11px 12px;
+        border: 2px solid rgba(37,29,24,.12);
+        border-radius: 8px;
+        background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,239,205,.68));
+        color: var(--ink);
+        font-weight: 900;
+      }
+
+      .care-guide small {
+        color: var(--muted);
+        font-weight: 900;
+      }
+
       .stat {
         display: grid;
         gap: 5px;
@@ -1270,6 +1309,10 @@
           <h1>Котёнок: Забота</h1>
           <p class="lead">Ухаживай за котёнком: нажимай прямо на миску, мячик, лежанку, дверь и самого котёнка или пользуйся кнопками.</p>
         </div>
+        <div class="care-guide" id="careGuide">
+          <small>Сейчас</small>
+          <span>Посмотри, чего котёнку больше всего хочется.</span>
+        </div>
         <div class="stats" id="stats"></div>
         <div class="actions">
           <button type="button" data-action="feed">Кормить</button>
@@ -1301,6 +1344,7 @@
       const statsEl = document.querySelector("#stats");
       const logEl = document.querySelector("#log");
       const bubble = document.querySelector("#bubble");
+      const careGuide = document.querySelector("#careGuide span");
       const bowl = document.querySelector("#bowl");
       const moveHelp = document.querySelector("#moveHelp");
       const bathTools = document.querySelectorAll("[data-tool]");
@@ -1344,6 +1388,19 @@
       function change(patch) {
         for (const [key, value] of Object.entries(patch)) state[key] = clamp(state[key] + value);
         render();
+      }
+
+      function getCareTip() {
+        if (state.bathing) {
+          if (state.soapProgress < 70) return "Возьми мыло или просто нажми «Мыло», чтобы намылить котёнка.";
+          return "Теперь возьми душ или нажимай «Душ», чтобы смыть пену.";
+        }
+        if (state.outside) return "Гуляй стрелками или нажми дверь, чтобы вернуться домой.";
+        if (state.hunger < 45) return "Котёнок проголодался. Нажми «Кормить» или миску.";
+        if (state.clean < 45) return "Котёнок испачкался. Нажми «В ванну».";
+        if (state.energy < 45) return "Котёнок устал. Нажми «Спать».";
+        if (state.happiness < 45) return "Котёнку скучно. Нажми «Играть» или мячик.";
+        return "Всё хорошо: можно играть, гулять или гладить котёнка.";
       }
 
       function getAudioContext() {
@@ -1419,10 +1476,12 @@
             <div class="bar"><i style="width:${state[key]}%"></i></div>
           </div>
         `).join("");
+        careGuide.textContent = getCareTip();
         room.classList.toggle("outside", state.outside);
         room.classList.toggle("bathing", state.bathing);
         room.classList.toggle("bath-soapy", state.bathSoapy);
         room.classList.toggle("sleep-mode", state.sleeping);
+        room.classList.toggle("action-mode", state.eating || state.playing || state.sleeping || state.bathing);
         kitten.classList.toggle("sleeping", state.sleeping);
         kitten.classList.toggle("eating", state.eating);
         kitten.classList.toggle("playing", state.playing);
@@ -1462,8 +1521,8 @@
             setMessage("Сначала вернись домой: корм стоит в комнате.");
             return;
           }
-          state.x = 17;
-          state.y = 42;
+          state.x = 18;
+          state.y = 36;
           state.eating = true;
           render();
           setMessage("Котёнок подошёл к миске и аккуратно наклоняет мордочку: ам-ам-ам...");
@@ -1568,26 +1627,35 @@
         tool.style.setProperty("--tool-x", `${x}px`);
         tool.style.setProperty("--tool-y", `${y}px`);
         if (!state.bathing || !pointTouchesKitten(x, y)) return;
-        if (tool.dataset.tool === "soap") {
-          state.soapProgress = clamp(state.soapProgress + 3.2);
+        useBathTool(tool.dataset.tool, false);
+      }
+
+      function useBathTool(toolName, quick) {
+        if (!state.bathing) return;
+        const soapStep = quick ? 24 : 3.2;
+        const rinseStep = quick ? 26 : 3.2;
+        const soapWash = quick ? 20 : 2.8;
+        if (toolName === "soap") {
+          state.soapProgress = clamp(state.soapProgress + soapStep);
           state.rinseProgress = 0;
           state.bathSoapy = state.soapProgress > 10;
           state.bathRinsing = false;
-          if (state.soapProgress > 35) setMessage("Пена появляется на шерсти. Продолжай намыливать котёнка мылом.");
+          if (state.soapProgress > 35) setMessage("Пена появляется на шерсти. Теперь можно смывать душем.");
+          else setMessage("Намыливаем котёнка. Ещё чуть-чуть мыла.");
           render();
           return;
         }
-        if (tool.dataset.tool === "shower") {
+        if (toolName === "shower") {
           if (state.soapProgress < 35 && state.rinseProgress === 0) {
             setMessage("Сначала намыль котёнка: пены ещё мало.");
             return;
           }
           state.bathRinsing = true;
-          state.rinseProgress = clamp(state.rinseProgress + 3.2);
-          state.soapProgress = clamp(state.soapProgress - 2.8);
+          state.rinseProgress = clamp(state.rinseProgress + rinseStep);
+          state.soapProgress = clamp(state.soapProgress - soapWash);
           state.bathSoapy = state.soapProgress > 8;
-          if (Math.round(state.rinseProgress) % 18 === 0) playShower();
-          setMessage("Душ смывает пену. Води душем по котёнку, пока шкала смывания не заполнится.");
+          playShower();
+          setMessage("Душ смывает пену. Ещё немного, и котёнок будет чистый.");
           render();
           if (state.rinseProgress >= 90 && state.soapProgress <= 35) finishBath();
         }
@@ -1634,6 +1702,11 @@
           activeTool = null;
           state.bathRinsing = false;
           render();
+        });
+        tool.addEventListener("click", (event) => {
+          if (!state.bathing || activeTool) return;
+          event.preventDefault();
+          useBathTool(tool.dataset.tool, true);
         });
       });
 
