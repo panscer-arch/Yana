@@ -1473,9 +1473,9 @@
               <label>
                 Сложность
                 <select id="level">
-                  <option value="easy">Легко</option>
-                  <option value="normal">Средне</option>
-                  <option value="hard">Сложно</option>
+                  <option value="easy">Легко: 2-3 класс</option>
+                  <option value="normal">Средне: 3-4 класс</option>
+                  <option value="hard">Сложно: 4-5 класс</option>
                 </select>
               </label>
 
@@ -1814,41 +1814,65 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
       }
 
-      function maxByLevel() {
-        if (level.value === "hard") return 999;
-        if (level.value === "normal") return 99;
-        return 20;
+      const difficulty = {
+        easy: {
+          add: [35, 260],
+          sub: [45, 280],
+          mulA: [3, 12],
+          mulB: [2, 9],
+          divA: [3, 12],
+          divB: [2, 9]
+        },
+        normal: {
+          add: [120, 950],
+          sub: [150, 980],
+          mulA: [12, 49],
+          mulB: [3, 12],
+          divA: [12, 80],
+          divB: [3, 12]
+        },
+        hard: {
+          add: [650, 4800],
+          sub: [700, 5200],
+          mulA: [24, 96],
+          mulB: [11, 35],
+          divA: [35, 180],
+          divB: [6, 24]
+        }
+      };
+
+      function currentDifficulty() {
+        return difficulty[level.value] || difficulty.easy;
       }
 
       function makeTask() {
-        const max = maxByLevel();
+        const settings = currentDifficulty();
         const modes = ["add", "sub", "mul", "div"];
         const op = operation.value === "mixed"
           ? modes[randomInt(0, modes.length - 1)]
           : operation.value;
-        let a = randomInt(1, max);
-        let b = randomInt(1, max);
+        let a = randomInt(settings.add[0], settings.add[1]);
+        let b = randomInt(settings.add[0], settings.add[1]);
         let symbol = "+";
         let correct = a + b;
 
         if (op === "sub") {
-          if (b > a) [a, b] = [b, a];
+          a = randomInt(settings.sub[0], settings.sub[1]);
+          b = randomInt(Math.max(12, Math.floor(settings.sub[0] / 3)), a - 1);
           symbol = "-";
           correct = a - b;
         }
 
         if (op === "mul") {
-          const mulMax = level.value === "hard" ? 12 : level.value === "normal" ? 10 : 5;
-          a = randomInt(2, mulMax);
-          b = randomInt(2, mulMax);
+          a = randomInt(settings.mulA[0], settings.mulA[1]);
+          b = randomInt(settings.mulB[0], settings.mulB[1]);
           symbol = "×";
           correct = a * b;
         }
 
         if (op === "div") {
-          const divMax = level.value === "hard" ? 12 : level.value === "normal" ? 10 : 5;
-          b = randomInt(2, divMax);
-          correct = randomInt(2, divMax);
+          b = randomInt(settings.divB[0], settings.divB[1]);
+          correct = randomInt(settings.divA[0], settings.divA[1]);
           a = b * correct;
           symbol = "÷";
         }

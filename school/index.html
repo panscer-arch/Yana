@@ -384,7 +384,7 @@
         <div>
           <span class="tag">Школьная комната</span>
           <h1>Русский, чтение и задачи рядом с играми</h1>
-          <p class="lead">Кроме математики на главной, здесь можно тренировать словарные слова, читать короткие тексты и решать простые задачи.</p>
+          <p class="lead">Кроме математики на главной, здесь можно тренировать словарные слова, читать тексты внимательнее и решать задачи посложнее.</p>
           <div class="hero-actions">
             <a class="button" href="#trainers">Начать тренировку</a>
             <a class="button secondary" href="../index.html#learn">Открыть математику</a>
@@ -401,13 +401,13 @@
       <section id="trainers" aria-labelledby="trainers-title">
         <div class="section-title">
           <h2 id="trainers-title">Тренажёры</h2>
-          <p>Три быстрых упражнения, чтобы школьный раздел уже был полезным.</p>
+          <p>Три быстрых упражнения: русский, чтение и задачи уровня 3-5 класса.</p>
         </div>
 
         <div class="trainer-grid">
           <article class="trainer">
             <h3>Словарное слово</h3>
-            <p>Вставь пропущенную букву.</p>
+            <p>Вставь пропущенную букву или сочетание букв.</p>
             <div class="task-box" id="wordTask">м_дведь</div>
             <div class="answer-row">
               <input id="wordAnswer" autocomplete="off" aria-label="Ответ для словарного слова">
@@ -419,7 +419,7 @@
 
           <article class="trainer">
             <h3>Чтение</h3>
-            <p>Прочитай вслух и ответь, кто герой.</p>
+            <p>Прочитай и найди важную деталь.</p>
             <div class="task-box" id="readingTask">Луна нашла звёздочку и спрятала её в корзинку.</div>
             <div class="answer-row">
               <input id="readingAnswer" autocomplete="off" aria-label="Ответ по чтению">
@@ -431,7 +431,7 @@
 
           <article class="trainer">
             <h3>Задача</h3>
-            <p>Реши короткую задачу.</p>
+            <p>Реши задачу на 1-2 действия.</p>
             <div class="task-box" id="storyTask">У Яны было 5 звёзд, ещё 3 подарил единорог. Сколько стало?</div>
             <div class="answer-row">
               <input id="storyAnswer" type="number" inputmode="numeric" aria-label="Ответ на задачу">
@@ -481,20 +481,25 @@
 
     <script>
       const wordTasks = [
-        { text: "м_дведь", answer: "е" },
-        { text: "к_рова", answer: "о" },
-        { text: "с_бака", answer: "о" },
-        { text: "м_лина", answer: "а" }
+        { text: "п_йзаж", answer: "е" },
+        { text: "аккуратн_сть", answer: "о" },
+        { text: "к_ллекция", answer: "о" },
+        { text: "ч_ствовать", answer: "ув" },
+        { text: "р_стение", answer: "а" },
+        { text: "праз_ник", answer: "д" }
       ];
       const readingTasks = [
-        { text: "Луна нашла звёздочку и спрятала её в корзинку.", answer: "луна" },
-        { text: "Яна построила радужный домик для единорога.", answer: "яна" },
-        { text: "Лана сидела у финиша и смотрела на облака.", answer: "лана" }
+        { text: "Утром Яна проверила план, решила 12 примеров, а потом открыла проект с игрой. Что она сделала перед проектом?", answer: ["примеры", "решила примеры", "12 примеров"] },
+        { text: "Луна сначала спряталась под столом, но вышла, когда услышала, как в миску насыпали корм. Откуда вышла Луна?", answer: ["стол", "под столом"] },
+        { text: "На витрине игр новая карточка стояла между паркуром и котёнком. Какая карточка была перед ней?", answer: ["паркур", "паркуром"] },
+        { text: "В дневнике Яна отметила: сложные задачи решать медленно, а ошибки проверять сразу. Что нужно проверять сразу?", answer: ["ошибки", "ошибку"] }
       ];
       const storyTasks = [
-        { text: "У Яны было 5 звёзд, ещё 3 подарил единорог. Сколько стало?", answer: 8 },
-        { text: "Луна собрала 9 ягод и 4 съела. Сколько осталось?", answer: 5 },
-        { text: "В галерее 3 рисунка, Яна добавила ещё 6. Сколько всего?", answer: 9 }
+        { text: "Яна решила 24 примера утром и ещё 18 после обеда. 7 примеров оказались с ошибками. Сколько правильных примеров осталось?", answer: 35 },
+        { text: "Для игры сделали 6 уровней. На каждом уровне по 14 монет. Сколько монет можно собрать всего?", answer: 84 },
+        { text: "В галерее было 128 рисунков. Яна добавила 37, а потом убрала 19 черновиков. Сколько рисунков осталось?", answer: 146 },
+        { text: "На сервер загрузили 96 файлов поровну в 8 папок. Сколько файлов оказалось в каждой папке?", answer: 12 },
+        { text: "Котёнку купили 3 пачки корма по 145 рублей и игрушку за 260 рублей. Сколько рублей потратили?", answer: 695 }
       ];
 
       let wordIndex = 0;
@@ -518,6 +523,15 @@
 
       function rotate(list, index) {
         return (index + 1) % list.length;
+      }
+
+      function getAnswerText(answerData) {
+        return Array.isArray(answerData) ? answerData[0] : answerData;
+      }
+
+      function matchesAnswer(value, answerData) {
+        const answers = Array.isArray(answerData) ? answerData : [answerData];
+        return answers.some((answer) => value === String(answer).toLowerCase());
       }
 
       function renderWord() {
@@ -554,8 +568,8 @@
 
       document.querySelector("#checkReading").addEventListener("click", () => {
         const value = readingAnswer.value.trim().toLowerCase();
-        const ok = value === readingTasks[readingIndex].answer;
-        setResult(readingResult, ok ? "Да, герой найден." : `Герой: ${readingTasks[readingIndex].answer}.`, ok);
+        const ok = matchesAnswer(value, readingTasks[readingIndex].answer);
+        setResult(readingResult, ok ? "Да, деталь найдена." : `Ответ: ${getAnswerText(readingTasks[readingIndex].answer)}.`, ok);
       });
 
       document.querySelector("#newReading").addEventListener("click", () => {
