@@ -1451,6 +1451,77 @@
         font-weight: 900;
       }
 
+      .reward-box,
+      .quest-box {
+        display: grid;
+        gap: 9px;
+        padding: 11px 12px;
+        border: 2px solid rgba(37,29,24,.12);
+        border-radius: 8px;
+        background: rgba(255,255,255,.62);
+      }
+
+      .reward-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .reward-pill {
+        min-height: 44px;
+        display: grid;
+        align-content: center;
+        gap: 2px;
+        padding: 8px;
+        border-radius: 8px;
+        background: linear-gradient(180deg, rgba(255,212,92,.36), rgba(255,255,255,.76));
+        font-weight: 900;
+      }
+
+      .reward-pill small,
+      .quest-item small {
+        color: var(--muted);
+        font-weight: 900;
+      }
+
+      .quest-list {
+        display: grid;
+        gap: 7px;
+      }
+
+      .quest-item {
+        min-height: 36px;
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        border-radius: 8px;
+        background: rgba(255,255,255,.64);
+        color: var(--muted);
+        font-weight: 900;
+      }
+
+      .quest-item.done {
+        color: #22633f;
+        background: rgba(121,199,164,.26);
+      }
+
+      .quest-mark {
+        width: 22px;
+        height: 22px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        color: #fff;
+        background: rgba(37,29,24,.24);
+        font-size: 13px;
+      }
+
+      .quest-item.done .quest-mark {
+        background: #42a86f;
+      }
+
       .stat {
         display: grid;
         gap: 5px;
@@ -1630,7 +1701,18 @@
           <small>Сейчас</small>
           <span>Посмотри, чего котёнку больше всего хочется.</span>
         </div>
+        <div class="reward-box">
+          <h2>Награды</h2>
+          <div class="reward-row">
+            <div class="reward-pill"><small>Уровень</small><span id="levelText">1</span></div>
+            <div class="reward-pill"><small>Монетки</small><span id="coinText">0</span></div>
+          </div>
+        </div>
         <div class="stats" id="stats"></div>
+        <div class="quest-box">
+          <h2>Задания</h2>
+          <div class="quest-list" id="questList"></div>
+        </div>
         <div class="actions">
           <button type="button" data-action="feed">Кормить</button>
           <button type="button" data-action="dress">Поводок</button>
@@ -1663,6 +1745,9 @@
       const logEl = document.querySelector("#log");
       const bubble = document.querySelector("#bubble");
       const careGuide = document.querySelector("#careGuide span");
+      const levelText = document.querySelector("#levelText");
+      const coinText = document.querySelector("#coinText");
+      const questList = document.querySelector("#questList");
       const bowl = document.querySelector("#bowl");
       const litterBox = document.querySelector("#litterBox");
       const moveHelp = document.querySelector("#moveHelp");
@@ -1689,6 +1774,8 @@
         soapProgress: 0,
         rinseProgress: 0,
         wetness: 0,
+        coins: 0,
+        level: 1,
         x: 50,
         y: 42
       };
@@ -1700,6 +1787,15 @@
         clean: "Чистота",
         toilet: "Туалет"
       };
+      const quests = [
+        { id: "feed", text: "Покормить котёнка" },
+        { id: "play", text: "Поиграть с мячиком" },
+        { id: "pet", text: "Погладить котёнка" },
+        { id: "toilet", text: "Сходить в лоток" },
+        { id: "wash", text: "Искупать и вытереть" },
+        { id: "sleep", text: "Уложить спать" }
+      ];
+      const completedQuests = new Set();
       const clamp = (value) => Math.max(0, Math.min(100, value));
 
       function setMessage(text) {
@@ -1709,6 +1805,15 @@
 
       function change(patch) {
         for (const [key, value] of Object.entries(patch)) state[key] = clamp(state[key] + value);
+        render();
+      }
+
+      function reward(action, coins = 2) {
+        const wasNew = !completedQuests.has(action);
+        completedQuests.add(action);
+        state.coins += wasNew ? coins + 3 : coins;
+        state.level = 1 + Math.floor(state.coins / 12);
+        playHappySound();
         render();
       }
 
@@ -1793,6 +1898,22 @@
         source.start();
       }
 
+      function playHappySound() {
+        const context = getAudioContext();
+        [440, 554, 659].forEach((frequency, index) => {
+          const oscillator = context.createOscillator();
+          const gain = context.createGain();
+          oscillator.type = "triangle";
+          oscillator.frequency.value = frequency;
+          gain.gain.setValueAtTime(.0001, context.currentTime + index * .07);
+          gain.gain.exponentialRampToValueAtTime(.06, context.currentTime + index * .07 + .02);
+          gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + index * .07 + .16);
+          oscillator.connect(gain).connect(context.destination);
+          oscillator.start(context.currentTime + index * .07);
+          oscillator.stop(context.currentTime + index * .07 + .18);
+        });
+      }
+
       function render() {
         statsEl.innerHTML = Object.entries(labels).map(([key, label]) => `
           <div class="stat">
@@ -1800,6 +1921,17 @@
             <div class="bar"><i style="width:${state[key]}%"></i></div>
           </div>
         `).join("");
+        levelText.textContent = state.level;
+        coinText.textContent = state.coins;
+        questList.innerHTML = quests.map((quest) => {
+          const done = completedQuests.has(quest.id);
+          return `
+            <div class="quest-item${done ? " done" : ""}">
+              <span class="quest-mark">${done ? "✓" : "•"}</span>
+              <span>${quest.text}<br><small>${done ? "готово" : "ещё можно сделать"}</small></span>
+            </div>
+          `;
+        }).join("");
         careGuide.textContent = getCareTip();
         room.classList.toggle("outside", state.outside);
         room.classList.toggle("bathing", state.bathing);
@@ -1869,6 +2001,7 @@
           setMessage("Котёнок сам подошёл к миске, нюхает корм и наклоняется: ам-ам-ам...");
           setTimeout(() => {
             change({ hunger: 28, happiness: 8, clean: -4, toilet: -18 });
+            reward("feed", 3);
             setMessage("Котёнок поел, облизывается и скоро может захотеть в лоток.");
             state.eating = false;
             render();
@@ -1908,6 +2041,7 @@
           state.sleeping = true;
           render();
           change({ energy: 34, warmth: 8, hunger: -8, happiness: 6, toilet: -4 });
+          reward("sleep", 2);
           setMessage("Котёнок забрался на лежанку, свернулся и сладко спит.");
         }
         if (action === "wash") {
@@ -1950,6 +2084,7 @@
           }, 1350);
           setTimeout(() => {
             change({ happiness: 24, energy: -14, hunger: -9, toilet: -6 });
+            reward("play", 3);
             state.playing = false;
             render();
             setMessage("Котёнок наигрался: бегал за мячиком, прыгал и теперь радостный.");
@@ -1967,6 +2102,7 @@
           setMessage("Котёнок подошёл к лотку, присел и аккуратно копает наполнитель.");
           setTimeout(() => {
             change({ toilet: 55, clean: -5, happiness: 3 });
+            reward("toilet", 3);
             state.usingLitter = false;
             render();
             setMessage("Готово. Котёнок сходил в лоток и закопал лапкой.");
@@ -1977,6 +2113,7 @@
           void kitten.offsetWidth;
           kitten.classList.add("pet");
           change({ happiness: 12, energy: 2 });
+          reward("pet", 1);
           setMessage("Котёнок мурчит. Его можно гладить прямо по шерсти.");
         }
       }
@@ -2016,7 +2153,10 @@
           state.wetness = clamp(state.wetness - 7.5);
           state.warmth = clamp(state.warmth + 1.2);
           if (state.wetness > 35) setMessage("Вытираем шерсть полотенцем. Мокрый блеск постепенно исчезает.");
-          else setMessage("Котёнок почти сухой: шерсть пушистая и чистая.");
+          else {
+            if (!completedQuests.has("wash")) reward("wash", 4);
+            setMessage("Котёнок почти сухой: шерсть пушистая и чистая.");
+          }
           render();
           return;
         }
