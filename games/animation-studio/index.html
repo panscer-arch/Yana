@@ -123,7 +123,7 @@
 
       .studio {
         display: grid;
-        grid-template-columns: 250px minmax(0, 1fr) 280px;
+        grid-template-columns: 220px minmax(0, 1fr) 250px;
         gap: 14px;
         align-items: start;
       }
@@ -264,10 +264,40 @@
         padding: 12px;
       }
 
+      .quickbar {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) auto auto;
+        gap: 8px;
+        align-items: center;
+        padding-bottom: 10px;
+      }
+
+      .quickbar button {
+        min-height: 42px;
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--blue), #2b84cb);
+        font-weight: 900;
+        box-shadow: 0 6px 0 rgba(33,29,47,.12);
+      }
+
+      .quickbar button.secondary {
+        color: var(--ink);
+        background: #fff;
+      }
+
+      .quickbar label {
+        min-width: 128px;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+      }
+
       .canvas-wrap {
         position: relative;
         width: 100%;
         aspect-ratio: 4 / 3;
+        min-height: min(70vh, 620px);
         overflow: hidden;
         border: 3px solid var(--line);
         border-radius: 8px;
@@ -294,6 +324,7 @@
 
       #drawCanvas {
         cursor: crosshair;
+        z-index: 2;
       }
 
       .stage-footer {
@@ -326,9 +357,9 @@
       }
 
       .frame-button {
-        min-height: 74px;
+        min-height: 66px;
         display: grid;
-        grid-template-columns: 86px 1fr;
+        grid-template-columns: 74px 1fr;
         align-items: center;
         gap: 10px;
         border: 2px solid var(--line);
@@ -345,8 +376,8 @@
       }
 
       .frame-button img {
-        width: 76px;
-        height: 56px;
+        width: 64px;
+        height: 48px;
         object-fit: contain;
         border: 2px solid rgba(33,29,47,.12);
         border-radius: 6px;
@@ -374,6 +405,14 @@
 
         .frame-list {
           max-height: 320px;
+        }
+
+        .quickbar {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .canvas-wrap {
+          min-height: 420px;
         }
       }
     </style>
@@ -445,6 +484,20 @@
         </aside>
 
         <section class="stage" aria-label="Холст">
+          <div class="quickbar" aria-label="Быстрые инструменты">
+            <button type="button" data-quick-tool="brush">Кисть</button>
+            <button type="button" data-quick-tool="eraser">Ластик</button>
+            <button type="button" id="quickUndoButton" class="secondary">Отмена</button>
+            <button type="button" id="quickFrameButton" class="secondary">+ кадр</button>
+            <label>
+              Цвет
+              <input id="quickColorPicker" type="color" value="#211d2f">
+            </label>
+            <label>
+              Размер
+              <input id="quickSizeInput" type="range" min="1" max="42" value="8">
+            </label>
+          </div>
           <div class="canvas-wrap" id="canvasWrap">
             <canvas id="onionCanvas" width="960" height="720"></canvas>
             <canvas id="drawCanvas" width="960" height="720"></canvas>
@@ -484,7 +537,9 @@
       const ctx = canvas.getContext("2d");
       const onionCtx = onionCanvas.getContext("2d");
       const colorPicker = document.querySelector("#colorPicker");
+      const quickColorPicker = document.querySelector("#quickColorPicker");
       const sizeInput = document.querySelector("#sizeInput");
+      const quickSizeInput = document.querySelector("#quickSizeInput");
       const sizeLabel = document.querySelector("#sizeLabel");
       const fpsInput = document.querySelector("#fpsInput");
       const fpsLabel = document.querySelector("#fpsLabel");
@@ -500,6 +555,20 @@
       let snapshot = null;
       let playTimer = null;
       let history = [];
+
+      function syncInputs(source) {
+        if (source === quickColorPicker) colorPicker.value = quickColorPicker.value;
+        else quickColorPicker.value = colorPicker.value;
+        if (source === quickSizeInput) sizeInput.value = quickSizeInput.value;
+        else quickSizeInput.value = sizeInput.value;
+        updateStatus();
+      }
+
+      function selectTool(nextTool) {
+        tool = nextTool;
+        document.querySelectorAll("[data-tool]").forEach((item) => item.classList.toggle("active", item.dataset.tool === tool));
+        document.querySelectorAll("[data-quick-tool]").forEach((item) => item.classList.toggle("active", item.dataset.quickTool === tool));
+      }
 
       function blankFrame() {
         const blank = document.createElement("canvas");
@@ -632,6 +701,12 @@
 
       function startDraw(event) {
         event.preventDefault();
+        if (playTimer) {
+          clearInterval(playTimer);
+          playTimer = null;
+          renderOnion();
+        }
+        canvas.setPointerCapture?.(event.pointerId);
         pushHistory();
         drawing = true;
         startPoint = getPoint(event);
@@ -644,7 +719,10 @@
           renderFrames();
           return;
         }
-        if (tool !== "line") drawLine(startPoint, startPoint);
+        if (tool !== "line") {
+          drawLine(startPoint, startPoint);
+          saveFrame();
+        }
       }
 
       function moveDraw(event) {
@@ -690,18 +768,25 @@
 
       document.querySelectorAll("[data-tool]").forEach((button) => {
         button.addEventListener("click", () => {
-          tool = button.dataset.tool;
-          document.querySelectorAll("[data-tool]").forEach((item) => item.classList.toggle("active", item === button));
+          selectTool(button.dataset.tool);
         });
+      });
+
+      document.querySelectorAll("[data-quick-tool]").forEach((button) => {
+        button.addEventListener("click", () => selectTool(button.dataset.quickTool));
       });
 
       document.querySelectorAll("[data-color]").forEach((button) => {
         button.addEventListener("click", () => {
           colorPicker.value = button.dataset.color;
+          quickColorPicker.value = button.dataset.color;
         });
       });
 
-      sizeInput.addEventListener("input", updateStatus);
+      colorPicker.addEventListener("input", () => syncInputs(colorPicker));
+      quickColorPicker.addEventListener("input", () => syncInputs(quickColorPicker));
+      sizeInput.addEventListener("input", () => syncInputs(sizeInput));
+      quickSizeInput.addEventListener("input", () => syncInputs(quickSizeInput));
       fpsInput.addEventListener("input", updateStatus);
       canvas.addEventListener("pointerdown", startDraw);
       canvas.addEventListener("pointermove", moveDraw);
@@ -711,6 +796,12 @@
       document.querySelector("#addFrameButton").addEventListener("click", async () => {
         saveFrame();
         frames.splice(activeFrame + 1, 0, blankFrame());
+        await switchFrame(activeFrame + 1);
+      });
+
+      document.querySelector("#quickFrameButton").addEventListener("click", async () => {
+        saveFrame();
+        frames.splice(activeFrame + 1, 0, frames[activeFrame]);
         await switchFrame(activeFrame + 1);
       });
 
@@ -744,6 +835,14 @@
         renderFrames();
       });
 
+      document.querySelector("#quickUndoButton").addEventListener("click", async () => {
+        const previous = history.pop();
+        if (!previous) return;
+        await loadImage(previous);
+        saveFrame();
+        renderFrames();
+      });
+
       document.querySelector("#clearButton").addEventListener("click", () => {
         pushHistory();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -764,6 +863,8 @@
 
       loadProject();
       loadImage(frames[activeFrame]).then(() => {
+        syncInputs(colorPicker);
+        selectTool("brush");
         renderOnion();
         renderFrames();
       });
