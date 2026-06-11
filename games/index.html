@@ -305,6 +305,16 @@
           linear-gradient(180deg, #cfeeff 0 48%, #f3d7b6 49% 100%);
       }
 
+      .animation-preview {
+        background:
+          radial-gradient(circle at 28% 30%, #ff6fa8 0 7%, transparent 8%),
+          radial-gradient(circle at 48% 46%, #7b61ff 0 8%, transparent 9%),
+          radial-gradient(circle at 68% 33%, #45aaf2 0 7%, transparent 8%),
+          linear-gradient(120deg, transparent 0 58%, rgba(33,29,47,.72) 59% 62%, transparent 63%),
+          linear-gradient(180deg, rgba(255,255,255,.9) 0 58%, rgba(255,212,92,.42) 59% 100%),
+          repeating-linear-gradient(90deg, rgba(33,29,47,.08) 0 2px, transparent 3px 28px);
+      }
+
       .kolobok-preview {
         background:
           radial-gradient(circle at 44% 58%, #f2b35f 0 18%, transparent 19%),
@@ -464,6 +474,14 @@
             <h3>Котёнок: Забота</h3>
             <p>Ухаживай за реалистичным котёнком: корми, гуляй с поводком, купай с мылом и душем, играй и укладывай спать.</p>
             <a class="mini-button" href="kitten-care/index.html">Играть</a>
+          </article>
+
+          <article class="game-card">
+            <div class="preview animation-preview" aria-hidden="true"></div>
+            <span class="status ready">Творческая студия</span>
+            <h3>Мультик-студия</h3>
+            <p>Рисуй кадры, копируй их, меняй детали и запускай свой мультик прямо на сайте.</p>
+            <a class="mini-button" href="animation-studio/index.html">Открыть</a>
           </article>
 
           <article class="game-card">

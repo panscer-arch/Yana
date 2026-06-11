@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Мультик-студия Яны</title>
+    <meta name="description" content="Приложение для рисования и простой покадровой анимации: кадры, кисти, цвета, проигрывание мультика и сохранение.">
+    <meta name="theme-color" content="#7b61ff">
+    <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #211d2f;
+        --muted: #665f76;
+        --paper: #fffdf7;
+        --line: rgba(33, 29, 47, .16);
+        --pink: #ff6fa8;
+        --violet: #7b61ff;
+        --blue: #45aaf2;
+        --mint: #42c995;
+        --sun: #ffd45c;
+        --shadow: 0 14px 0 rgba(33, 29, 47, .08);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 14% 14%, rgba(255,255,255,.85) 0 7%, transparent 8%),
+          radial-gradient(circle at 88% 10%, rgba(255,212,92,.42) 0 10%, transparent 11%),
+          linear-gradient(135deg, #ccefff 0%, #ffe1f1 48%, #fff1b8 100%);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .topbar,
+      main,
+      footer {
+        width: min(1240px, calc(100% - 24px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        min-height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 12px 0;
+      }
+
+      .brand,
+      .topbar nav a,
+      footer a,
+      .skip-link {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        border-radius: 8px;
+        color: var(--ink);
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .brand {
+        gap: 10px;
+        font-size: 21px;
+      }
+
+      .skip-link {
+        position: fixed;
+        left: 16px;
+        top: 12px;
+        z-index: 20;
+        transform: translateY(-150%);
+        padding: 0 12px;
+        color: #fff;
+        background: var(--ink);
+        transition: transform .15s ease;
+      }
+
+      .skip-link:focus-visible {
+        transform: translateY(0);
+      }
+
+      .brand::before {
+        content: "";
+        width: 42px;
+        height: 42px;
+        border: 3px solid var(--line);
+        border-radius: 50%;
+        background: #fff center / cover no-repeat url("../../assets/yana-unicorn-logo.png");
+      }
+
+      .topbar nav,
+      footer nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .topbar nav a,
+      footer a {
+        padding: 0 11px;
+        background: rgba(255,255,255,.68);
+      }
+
+      main {
+        padding: 8px 0 38px;
+      }
+
+      .studio {
+        display: grid;
+        grid-template-columns: 250px minmax(0, 1fr) 280px;
+        gap: 14px;
+        align-items: start;
+      }
+
+      .panel,
+      .stage,
+      .frame-strip {
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255,253,247,.95);
+        box-shadow: var(--shadow);
+      }
+
+      .panel,
+      .frame-strip {
+        display: grid;
+        gap: 12px;
+        padding: 14px;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(32px, 5vw, 58px);
+        line-height: .96;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      .lead,
+      .hint,
+      .status {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.35;
+      }
+
+      .intro {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 8px 2px 4px;
+      }
+
+      .intro-copy {
+        display: grid;
+        gap: 8px;
+      }
+
+      .status {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255,255,255,.72);
+      }
+
+      .tool-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .tool-grid button,
+      .actions button,
+      .frame-actions button,
+      .playback button,
+      .color-swatch {
+        min-height: 42px;
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--violet), #5840d7);
+        font-weight: 900;
+        box-shadow: 0 6px 0 rgba(33,29,47,.12);
+      }
+
+      button.secondary {
+        color: var(--ink);
+        background: #fff;
+      }
+
+      button.danger {
+        background: linear-gradient(180deg, #ff7891, #c84d64);
+      }
+
+      button.active {
+        outline: 4px solid rgba(69,170,242,.34);
+        outline-offset: 2px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-weight: 900;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--violet);
+      }
+
+      input[type="color"] {
+        width: 100%;
+        height: 44px;
+        padding: 3px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 7px;
+      }
+
+      .color-swatch {
+        min-height: 34px;
+        border: 2px solid rgba(33,29,47,.18);
+        box-shadow: none;
+      }
+
+      .stage {
+        position: relative;
+        overflow: hidden;
+        padding: 12px;
+      }
+
+      .canvas-wrap {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        overflow: hidden;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background:
+          linear-gradient(45deg, rgba(33,29,47,.05) 25%, transparent 25% 75%, rgba(33,29,47,.05) 75%),
+          linear-gradient(45deg, rgba(33,29,47,.05) 25%, transparent 25% 75%, rgba(33,29,47,.05) 75%);
+        background-color: #fff;
+        background-position: 0 0, 16px 16px;
+        background-size: 32px 32px;
+        touch-action: none;
+      }
+
+      canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      #onionCanvas {
+        opacity: .26;
+        pointer-events: none;
+      }
+
+      #drawCanvas {
+        cursor: crosshair;
+      }
+
+      .stage-footer {
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding-top: 10px;
+        flex-wrap: wrap;
+      }
+
+      .actions,
+      .frame-actions,
+      .playback {
+        display: grid;
+        gap: 8px;
+      }
+
+      .playback {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .frame-list {
+        display: grid;
+        gap: 8px;
+        max-height: 560px;
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .frame-button {
+        min-height: 74px;
+        display: grid;
+        grid-template-columns: 86px 1fr;
+        align-items: center;
+        gap: 10px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255,255,255,.72);
+        color: var(--ink);
+        text-align: left;
+        font-weight: 900;
+      }
+
+      .frame-button.active {
+        border-color: rgba(123,97,255,.62);
+        background: rgba(123,97,255,.12);
+      }
+
+      .frame-button img {
+        width: 76px;
+        height: 56px;
+        object-fit: contain;
+        border: 2px solid rgba(33,29,47,.12);
+        border-radius: 6px;
+        background: #fff;
+      }
+
+      .frame-number {
+        display: grid;
+        gap: 3px;
+      }
+
+      .frame-number small {
+        color: var(--muted);
+      }
+
+      @media (max-width: 980px) {
+        .studio {
+          grid-template-columns: 1fr;
+        }
+
+        .intro {
+          align-items: start;
+          flex-direction: column;
+        }
+
+        .frame-list {
+          max-height: 320px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header class="topbar">
+      <a class="brand" href="../../index.html">Яна Единорог</a>
+      <nav aria-label="Навигация">
+        <a href="../../index.html">Главная</a>
+        <a href="../index.html">Игры</a>
+        <a href="../../school/index.html">Учёба</a>
+        <a href="../../map/index.html">Карта</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section class="studio" aria-label="Мультик-студия">
+        <div class="intro">
+          <div class="intro-copy">
+            <h1>Мультик-студия</h1>
+            <p class="lead">Рисуй кадры, копируй их, меняй детали и запускай мультик прямо в браузере.</p>
+          </div>
+          <div class="status" id="status">Кадр 1 из 1</div>
+        </div>
+
+        <aside class="panel" aria-label="Инструменты рисования">
+          <h2>Инструменты</h2>
+          <div class="tool-grid">
+            <button type="button" class="active" data-tool="brush">Кисть</button>
+            <button type="button" data-tool="eraser">Ластик</button>
+            <button type="button" data-tool="line">Линия</button>
+            <button type="button" data-tool="fill">Заливка</button>
+          </div>
+
+          <label>
+            Цвет
+            <input id="colorPicker" type="color" value="#211d2f">
+          </label>
+
+          <div class="swatches" aria-label="Быстрые цвета">
+            <button class="color-swatch" type="button" data-color="#211d2f" style="background:#211d2f" aria-label="Черный"></button>
+            <button class="color-swatch" type="button" data-color="#ff6fa8" style="background:#ff6fa8" aria-label="Розовый"></button>
+            <button class="color-swatch" type="button" data-color="#7b61ff" style="background:#7b61ff" aria-label="Фиолетовый"></button>
+            <button class="color-swatch" type="button" data-color="#45aaf2" style="background:#45aaf2" aria-label="Голубой"></button>
+            <button class="color-swatch" type="button" data-color="#42c995" style="background:#42c995" aria-label="Зелёный"></button>
+            <button class="color-swatch" type="button" data-color="#ffd45c" style="background:#ffd45c" aria-label="Жёлтый"></button>
+            <button class="color-swatch" type="button" data-color="#ff8b45" style="background:#ff8b45" aria-label="Оранжевый"></button>
+            <button class="color-swatch" type="button" data-color="#ffffff" style="background:#ffffff" aria-label="Белый"></button>
+            <button class="color-swatch" type="button" data-color="#8b5a35" style="background:#8b5a35" aria-label="Коричневый"></button>
+            <button class="color-swatch" type="button" data-color="#e8c6ff" style="background:#e8c6ff" aria-label="Сиреневый"></button>
+          </div>
+
+          <label>
+            Толщина: <span id="sizeLabel">8</span>
+            <input id="sizeInput" type="range" min="1" max="42" value="8">
+          </label>
+
+          <label>
+            Скорость мультика: <span id="fpsLabel">6</span> кадр/с
+            <input id="fpsInput" type="range" min="1" max="18" value="6">
+          </label>
+
+          <div class="actions">
+            <button type="button" id="undoButton" class="secondary">Отменить штрих</button>
+            <button type="button" id="clearButton" class="danger">Очистить кадр</button>
+            <button type="button" id="downloadButton" class="secondary">Скачать картинку</button>
+          </div>
+        </aside>
+
+        <section class="stage" aria-label="Холст">
+          <div class="canvas-wrap" id="canvasWrap">
+            <canvas id="onionCanvas" width="960" height="720"></canvas>
+            <canvas id="drawCanvas" width="960" height="720"></canvas>
+          </div>
+          <div class="stage-footer">
+            <p class="hint">Полупрозрачный прошлый кадр помогает рисовать плавную анимацию.</p>
+            <div class="playback">
+              <button type="button" id="playButton">Играть</button>
+              <button type="button" id="stopButton" class="secondary">Стоп</button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="frame-strip" aria-label="Кадры анимации">
+          <h2>Кадры</h2>
+          <div class="frame-actions">
+            <button type="button" id="addFrameButton">Новый кадр</button>
+            <button type="button" id="copyFrameButton" class="secondary">Копия кадра</button>
+            <button type="button" id="deleteFrameButton" class="danger">Удалить кадр</button>
+          </div>
+          <div class="frame-list" id="frameList"></div>
+        </aside>
+      </section>
+    </main>
+
+    <footer>
+      <nav aria-label="Быстрые ссылки">
+        <a href="../index.html">Все игры</a>
+        <a href="../kitten-care/index.html">Котёнок</a>
+        <a href="../../index.html#games">Витрина</a>
+      </nav>
+    </footer>
+
+    <script>
+      const canvas = document.querySelector("#drawCanvas");
+      const onionCanvas = document.querySelector("#onionCanvas");
+      const ctx = canvas.getContext("2d");
+      const onionCtx = onionCanvas.getContext("2d");
+      const colorPicker = document.querySelector("#colorPicker");
+      const sizeInput = document.querySelector("#sizeInput");
+      const sizeLabel = document.querySelector("#sizeLabel");
+      const fpsInput = document.querySelector("#fpsInput");
+      const fpsLabel = document.querySelector("#fpsLabel");
+      const statusEl = document.querySelector("#status");
+      const frameList = document.querySelector("#frameList");
+      const storageKey = "yana-animation-studio-v1";
+      const frames = [];
+      let activeFrame = 0;
+      let tool = "brush";
+      let drawing = false;
+      let startPoint = null;
+      let lastPoint = null;
+      let snapshot = null;
+      let playTimer = null;
+      let history = [];
+
+      function blankFrame() {
+        const blank = document.createElement("canvas");
+        blank.width = canvas.width;
+        blank.height = canvas.height;
+        return blank.toDataURL("image/png");
+      }
+
+      function loadImage(dataUrl, targetCtx = ctx) {
+        return new Promise((resolve) => {
+          const image = new Image();
+          image.onload = () => {
+            targetCtx.clearRect(0, 0, canvas.width, canvas.height);
+            targetCtx.drawImage(image, 0, 0);
+            resolve();
+          };
+          image.src = dataUrl;
+        });
+      }
+
+      function saveFrame() {
+        frames[activeFrame] = canvas.toDataURL("image/png");
+        persist();
+      }
+
+      function persist() {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify({ frames, activeFrame }));
+        } catch (error) {
+          console.warn("Animation was not saved", error);
+        }
+      }
+
+      function loadProject() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
+          if (saved?.frames?.length) {
+            frames.push(...saved.frames);
+            activeFrame = Math.min(saved.activeFrame || 0, frames.length - 1);
+            return;
+          }
+        } catch (error) {
+          console.warn("Animation was not loaded", error);
+        }
+        frames.push(blankFrame());
+      }
+
+      function updateStatus() {
+        statusEl.textContent = `Кадр ${activeFrame + 1} из ${frames.length}`;
+        sizeLabel.textContent = sizeInput.value;
+        fpsLabel.textContent = fpsInput.value;
+      }
+
+      function renderOnion() {
+        onionCtx.clearRect(0, 0, onionCanvas.width, onionCanvas.height);
+        if (activeFrame === 0 || playTimer) return;
+        const image = new Image();
+        image.onload = () => onionCtx.drawImage(image, 0, 0);
+        image.src = frames[activeFrame - 1];
+      }
+
+      function renderFrames() {
+        frameList.innerHTML = "";
+        frames.forEach((frame, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `frame-button${index === activeFrame ? " active" : ""}`;
+          const preview = document.createElement("img");
+          preview.alt = "";
+          preview.src = frame;
+          const text = document.createElement("span");
+          text.className = "frame-number";
+          const title = document.createElement("span");
+          title.textContent = `Кадр ${index + 1}`;
+          const note = document.createElement("small");
+          note.textContent = index === activeFrame ? "рисуем здесь" : "нажми, чтобы открыть";
+          text.append(title, note);
+          button.append(preview, text);
+          button.addEventListener("click", () => switchFrame(index));
+          frameList.append(button);
+        });
+        updateStatus();
+      }
+
+      async function switchFrame(index) {
+        saveFrame();
+        activeFrame = index;
+        history = [];
+        await loadImage(frames[activeFrame]);
+        renderOnion();
+        renderFrames();
+      }
+
+      function pushHistory() {
+        history.push(canvas.toDataURL("image/png"));
+        if (history.length > 18) history.shift();
+      }
+
+      function getPoint(event) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: ((event.clientX - rect.left) / rect.width) * canvas.width,
+          y: ((event.clientY - rect.top) / rect.height) * canvas.height
+        };
+      }
+
+      function drawLine(from, to) {
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.lineWidth = Number(sizeInput.value);
+        ctx.globalCompositeOperation = tool === "eraser" ? "destination-out" : "source-over";
+        ctx.strokeStyle = colorPicker.value;
+        ctx.beginPath();
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(to.x, to.y);
+        ctx.stroke();
+        ctx.globalCompositeOperation = "source-over";
+      }
+
+      function floodFill(point) {
+        ctx.save();
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = colorPicker.value;
+        ctx.globalAlpha = .92;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, Number(sizeInput.value) * 3.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function startDraw(event) {
+        event.preventDefault();
+        pushHistory();
+        drawing = true;
+        startPoint = getPoint(event);
+        lastPoint = startPoint;
+        snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        if (tool === "fill") {
+          floodFill(startPoint);
+          drawing = false;
+          saveFrame();
+          renderFrames();
+          return;
+        }
+        if (tool !== "line") drawLine(startPoint, startPoint);
+      }
+
+      function moveDraw(event) {
+        if (!drawing) return;
+        event.preventDefault();
+        const point = getPoint(event);
+        if (tool === "line") {
+          ctx.putImageData(snapshot, 0, 0);
+          drawLine(startPoint, point);
+        } else {
+          drawLine(lastPoint, point);
+          lastPoint = point;
+        }
+      }
+
+      function endDraw() {
+        if (!drawing) return;
+        drawing = false;
+        saveFrame();
+        renderFrames();
+      }
+
+      async function playAnimation() {
+        saveFrame();
+        if (playTimer) clearInterval(playTimer);
+        onionCtx.clearRect(0, 0, onionCanvas.width, onionCanvas.height);
+        let index = 0;
+        await loadImage(frames[index]);
+        playTimer = setInterval(async () => {
+          index = (index + 1) % frames.length;
+          await loadImage(frames[index]);
+          statusEl.textContent = `Мультик играет: кадр ${index + 1}`;
+        }, 1000 / Number(fpsInput.value));
+      }
+
+      async function stopAnimation() {
+        if (playTimer) clearInterval(playTimer);
+        playTimer = null;
+        await loadImage(frames[activeFrame]);
+        renderOnion();
+        updateStatus();
+      }
+
+      document.querySelectorAll("[data-tool]").forEach((button) => {
+        button.addEventListener("click", () => {
+          tool = button.dataset.tool;
+          document.querySelectorAll("[data-tool]").forEach((item) => item.classList.toggle("active", item === button));
+        });
+      });
+
+      document.querySelectorAll("[data-color]").forEach((button) => {
+        button.addEventListener("click", () => {
+          colorPicker.value = button.dataset.color;
+        });
+      });
+
+      sizeInput.addEventListener("input", updateStatus);
+      fpsInput.addEventListener("input", updateStatus);
+      canvas.addEventListener("pointerdown", startDraw);
+      canvas.addEventListener("pointermove", moveDraw);
+      window.addEventListener("pointerup", endDraw);
+      window.addEventListener("pointercancel", endDraw);
+
+      document.querySelector("#addFrameButton").addEventListener("click", async () => {
+        saveFrame();
+        frames.splice(activeFrame + 1, 0, blankFrame());
+        await switchFrame(activeFrame + 1);
+      });
+
+      document.querySelector("#copyFrameButton").addEventListener("click", async () => {
+        saveFrame();
+        frames.splice(activeFrame + 1, 0, frames[activeFrame]);
+        await switchFrame(activeFrame + 1);
+      });
+
+      document.querySelector("#deleteFrameButton").addEventListener("click", async () => {
+        if (frames.length === 1) {
+          pushHistory();
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          saveFrame();
+          renderFrames();
+          return;
+        }
+        frames.splice(activeFrame, 1);
+        activeFrame = Math.max(0, activeFrame - 1);
+        await loadImage(frames[activeFrame]);
+        renderOnion();
+        renderFrames();
+        persist();
+      });
+
+      document.querySelector("#undoButton").addEventListener("click", async () => {
+        const previous = history.pop();
+        if (!previous) return;
+        await loadImage(previous);
+        saveFrame();
+        renderFrames();
+      });
+
+      document.querySelector("#clearButton").addEventListener("click", () => {
+        pushHistory();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        saveFrame();
+        renderFrames();
+      });
+
+      document.querySelector("#downloadButton").addEventListener("click", () => {
+        saveFrame();
+        const link = document.createElement("a");
+        link.download = `yana-frame-${activeFrame + 1}.png`;
+        link.href = frames[activeFrame];
+        link.click();
+      });
+
+      document.querySelector("#playButton").addEventListener("click", playAnimation);
+      document.querySelector("#stopButton").addEventListener("click", stopAnimation);
+
+      loadProject();
+      loadImage(frames[activeFrame]).then(() => {
+        renderOnion();
+        renderFrames();
+      });
+    </script>
+    <script src="../../assets/site.js"></script>
+  </body>
+</html>

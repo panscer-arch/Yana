@@ -9,6 +9,7 @@ const CACHE_PATHS = [
   "./games/parkour/game.js",
   "./games/parkour/styles.css",
   "./games/kitten-care/index.html",
+  "./games/animation-studio/index.html",
   "./games/kolobok/index.html",
   "./games/kolobok/game.js",
   "./games/kolobok/styles.css",
