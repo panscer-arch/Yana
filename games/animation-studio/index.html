@@ -382,6 +382,24 @@
         background: #fff;
       }
 
+      .template-callout {
+        display: grid;
+        gap: 8px;
+        margin: 0 0 10px;
+        padding: 10px;
+        border: 3px solid rgba(123,97,255,.34);
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,214,236,.88));
+      }
+
+      .template-callout h2 {
+        font-size: 22px;
+      }
+
+      .template-callout .template-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
       .quickbar label {
         min-width: 128px;
         grid-template-columns: auto 1fr;
@@ -577,6 +595,10 @@
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
+        .template-callout .template-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
         .canvas-wrap {
           min-height: 420px;
         }
@@ -674,6 +696,16 @@
               Размер
               <input id="quickSizeInput" type="range" min="1" max="42" value="8">
             </label>
+          </div>
+          <div class="template-callout" aria-label="Быстрый выбор рисунка">
+            <h2>Выбрать рисунок</h2>
+            <div class="template-grid">
+              <button type="button" class="template-button" data-template="kitten">Котёнок</button>
+              <button type="button" class="template-button" data-template="unicorn">Единорог</button>
+              <button type="button" class="template-button" data-template="garden">Сад</button>
+              <button type="button" class="template-button" data-template="castle">Замок</button>
+              <button type="button" class="template-button" data-template="blank">Чистый лист</button>
+            </div>
           </div>
           <div class="canvas-wrap" id="canvasWrap">
             <div class="canvas-tip" id="canvasTip">Рисуй здесь</div>
