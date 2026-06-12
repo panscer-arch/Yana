@@ -285,6 +285,68 @@
         gap: 7px;
       }
 
+      .template-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .template-button {
+        min-height: 74px;
+        display: grid;
+        align-content: end;
+        padding: 8px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.92)),
+          linear-gradient(135deg, #bfe9ff, #ffd6ec 55%, #fff2a8);
+        box-shadow: none;
+        font-weight: 900;
+        text-align: left;
+      }
+
+      .template-button[data-template="kitten"] {
+        background:
+          radial-gradient(circle at 52% 38%, #fff 0 18%, transparent 19%),
+          radial-gradient(circle at 43% 38%, #211d2f 0 2%, transparent 3%),
+          radial-gradient(circle at 61% 38%, #211d2f 0 2%, transparent 3%),
+          linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.94)),
+          #f0d8bd;
+      }
+
+      .template-button[data-template="unicorn"] {
+        background:
+          conic-gradient(from 30deg at 52% 18%, #ffd45c, #ff8b45, #ffd45c),
+          linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.94)),
+          linear-gradient(135deg, #e8c6ff, #bfe9ff);
+      }
+
+      .template-button[data-template="garden"] {
+        background:
+          radial-gradient(circle at 30% 45%, #ff6fa8 0 9%, transparent 10%),
+          radial-gradient(circle at 55% 42%, #ffd45c 0 8%, transparent 9%),
+          radial-gradient(circle at 74% 48%, #7b61ff 0 8%, transparent 9%),
+          linear-gradient(180deg, #bfe9ff 0 48%, #a5e6b7 49% 100%);
+      }
+
+      .template-button[data-template="castle"] {
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.94)),
+          linear-gradient(90deg, #d8c2ff 0 22%, #fff 23% 27%, #d8c2ff 28% 48%, #fff 49% 53%, #d8c2ff 54% 100%);
+      }
+
+      .template-button[data-template="blank"] {
+        color: var(--muted);
+        background:
+          linear-gradient(45deg, rgba(33,29,47,.06) 25%, transparent 25% 75%, rgba(33,29,47,.06) 75%),
+          linear-gradient(45deg, rgba(33,29,47,.06) 25%, transparent 25% 75%, rgba(33,29,47,.06) 75%),
+          #fff;
+        background-position: 0 0, 12px 12px;
+        background-size: 24px 24px;
+      }
+
       .color-swatch {
         min-height: 34px;
         border: 2px solid rgba(33,29,47,.18);
@@ -576,6 +638,15 @@
             <input id="sizeInput" type="range" min="1" max="42" value="8">
           </label>
 
+          <h2>Выбрать рисунок</h2>
+          <div class="template-grid" aria-label="Готовые рисунки">
+            <button type="button" class="template-button" data-template="kitten">Котёнок</button>
+            <button type="button" class="template-button" data-template="unicorn">Единорог</button>
+            <button type="button" class="template-button" data-template="garden">Сад</button>
+            <button type="button" class="template-button" data-template="castle">Замок</button>
+            <button type="button" class="template-button" data-template="blank">Чистый лист</button>
+          </div>
+
           <label>
             Скорость мультика: <span id="fpsLabel">6</span> кадр/с
             <input id="fpsInput" type="range" min="1" max="18" value="6">
@@ -829,6 +900,176 @@
         ctx.restore();
       }
 
+      function line(points, color = "#211d2f", width = 7) {
+        ctx.save();
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.beginPath();
+        points.forEach((point, index) => {
+          if (index === 0) ctx.moveTo(point[0], point[1]);
+          else ctx.lineTo(point[0], point[1]);
+        });
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function blob(x, y, rx, ry, fill, stroke = "#211d2f", width = 6) {
+        ctx.save();
+        ctx.fillStyle = fill;
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = width;
+        ctx.beginPath();
+        ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function petal(x, y, radius, fill) {
+        ctx.save();
+        ctx.translate(x, y);
+        for (let index = 0; index < 8; index += 1) {
+          ctx.rotate(Math.PI / 4);
+          ctx.fillStyle = fill;
+          ctx.beginPath();
+          ctx.ellipse(0, -radius, radius * .45, radius, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.fillStyle = "#ffd45c";
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * .48, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawSky() {
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, "#bdeeff");
+        gradient.addColorStop(.58, "#fff5d8");
+        gradient.addColorStop(1, "#d7f5c6");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255,255,255,.82)";
+        blob(170, 120, 72, 34, "rgba(255,255,255,.82)", "rgba(255,255,255,.82)", 1);
+        blob(238, 112, 88, 38, "rgba(255,255,255,.78)", "rgba(255,255,255,.78)", 1);
+        blob(765, 92, 95, 36, "rgba(255,255,255,.74)", "rgba(255,255,255,.74)", 1);
+      }
+
+      function drawTemplate(name) {
+        pushHistory();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (name === "blank") {
+          saveFrame(false);
+          renderFrames();
+          statusEl.textContent = "Чистый лист готов";
+          return;
+        }
+
+        drawSky();
+
+        if (name === "kitten") {
+          blob(480, 405, 132, 156, "#fff8ef");
+          blob(480, 250, 138, 116, "#fff8ef");
+          line([[365, 210], [402, 88], [448, 190]], "#211d2f", 6);
+          line([[594, 210], [558, 88], [512, 190]], "#211d2f", 6);
+          blob(430, 242, 18, 24, "#7cc7ff", "#211d2f", 5);
+          blob(530, 242, 18, 24, "#7cc7ff", "#211d2f", 5);
+          blob(480, 286, 18, 12, "#ff9fc2", "#211d2f", 4);
+          line([[480, 298], [480, 318], [455, 335]], "#211d2f", 5);
+          line([[480, 318], [506, 335]], "#211d2f", 5);
+          line([[338, 286], [235, 258]], "#211d2f", 4);
+          line([[342, 318], [232, 325]], "#211d2f", 4);
+          line([[620, 286], [725, 258]], "#211d2f", 4);
+          line([[618, 318], [730, 325]], "#211d2f", 4);
+          line([[590, 462], [690, 430], [744, 486], [705, 548]], "#211d2f", 13);
+          ctx.fillStyle = "rgba(255,111,168,.18)";
+          ctx.fillRect(330, 525, 300, 36);
+        }
+
+        if (name === "unicorn") {
+          blob(480, 390, 165, 112, "#fff8ff");
+          blob(415, 260, 112, 94, "#fff8ff");
+          line([[348, 212], [315, 118], [383, 184]], "#211d2f", 6);
+          line([[480, 196], [512, 72], [548, 196]], "#211d2f", 6);
+          line([[405, 168], [435, 54], [468, 166]], "#ffd45c", 14);
+          line([[422, 70], [452, 154]], "#ff8b45", 5);
+          petal(584, 218, 28, "#ff6fa8");
+          petal(633, 254, 24, "#7b61ff");
+          petal(666, 312, 22, "#45aaf2");
+          blob(382, 258, 15, 20, "#7cc7ff", "#211d2f", 5);
+          blob(350, 304, 20, 13, "#ff9fc2", "#211d2f", 4);
+          line([[395, 328], [365, 340], [335, 330]], "#211d2f", 5);
+          line([[362, 474], [340, 594]], "#211d2f", 12);
+          line([[484, 492], [466, 608]], "#211d2f", 12);
+          line([[586, 470], [616, 590]], "#211d2f", 12);
+        }
+
+        if (name === "garden") {
+          ctx.fillStyle = "#79d58b";
+          ctx.fillRect(0, 438, canvas.width, 282);
+          for (let x = 45; x < canvas.width; x += 80) {
+            line([[x, 676], [x + 22, 560], [x + 55, 672]], "rgba(49,122,68,.42)", 5);
+          }
+          petal(210, 455, 38, "#ff6fa8");
+          petal(398, 410, 44, "#7b61ff");
+          petal(604, 462, 36, "#ff8b45");
+          petal(760, 398, 42, "#45aaf2");
+          line([[210, 492], [210, 620]], "#2f9a5b", 8);
+          line([[398, 452], [398, 620]], "#2f9a5b", 8);
+          line([[604, 498], [604, 620]], "#2f9a5b", 8);
+          line([[760, 442], [760, 620]], "#2f9a5b", 8);
+          blob(530, 565, 100, 54, "#fff8ef");
+          blob(590, 505, 64, 52, "#fff8ef");
+          line([[552, 478], [532, 420], [586, 468]], "#211d2f", 5);
+          line([[625, 478], [650, 420], [648, 480]], "#211d2f", 5);
+          blob(572, 505, 10, 13, "#7cc7ff", "#211d2f", 4);
+          blob(612, 505, 10, 13, "#7cc7ff", "#211d2f", 4);
+        }
+
+        if (name === "castle") {
+          ctx.fillStyle = "#bfe9ff";
+          ctx.fillRect(0, 0, canvas.width, 720);
+          ctx.fillStyle = "#e6d7ff";
+          ctx.fillRect(260, 250, 440, 300);
+          ctx.fillRect(210, 190, 110, 360);
+          ctx.fillRect(640, 190, 110, 360);
+          ctx.fillStyle = "#7b61ff";
+          ctx.beginPath();
+          ctx.moveTo(210, 190);
+          ctx.lineTo(265, 90);
+          ctx.lineTo(320, 190);
+          ctx.closePath();
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(640, 190);
+          ctx.lineTo(695, 90);
+          ctx.lineTo(750, 190);
+          ctx.closePath();
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(350, 250);
+          ctx.lineTo(480, 120);
+          ctx.lineTo(610, 250);
+          ctx.closePath();
+          ctx.fill();
+          line([[260, 250], [700, 250], [700, 550], [260, 550], [260, 250]], "#211d2f", 7);
+          line([[210, 190], [320, 190], [320, 550], [210, 550], [210, 190]], "#211d2f", 7);
+          line([[640, 190], [750, 190], [750, 550], [640, 550], [640, 190]], "#211d2f", 7);
+          blob(480, 520, 70, 98, "#8b5a35", "#211d2f", 6);
+          for (let x = 315; x <= 645; x += 82) {
+            blob(x, 342, 24, 36, "#fffdf7", "#211d2f", 5);
+          }
+          ctx.fillStyle = "#8acb78";
+          ctx.fillRect(0, 550, canvas.width, 170);
+        }
+
+        saveFrame();
+        renderFrames();
+        statusEl.textContent = "Заготовка готова. Теперь дорисовывай сама!";
+      }
+
       function getAudioContext() {
         audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
         return audioContext;
@@ -1008,6 +1249,10 @@
           colorPicker.value = button.dataset.color;
           quickColorPicker.value = button.dataset.color;
         });
+      });
+
+      document.querySelectorAll("[data-template]").forEach((button) => {
+        button.addEventListener("click", () => drawTemplate(button.dataset.template));
       });
 
       colorPicker.addEventListener("input", () => syncInputs(colorPicker));
