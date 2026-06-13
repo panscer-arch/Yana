@@ -6,8 +6,10 @@
   const workerUrl = new URL("../sw.js", currentScript ? currentScript.src : location.href);
 
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register(workerUrl).catch((error) => {
-      console.warn("Service worker was not registered", error);
-    });
+    navigator.serviceWorker.register(workerUrl)
+      .then((registration) => registration.update())
+      .catch((error) => {
+        console.warn("Service worker was not registered", error);
+      });
   });
 })();
