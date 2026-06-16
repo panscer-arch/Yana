@@ -1,5 +1,7 @@
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d");
+const sparkleSprite = new Image();
+sparkleSprite.src = "../../assets/sprites/sparkle-unicorn.png";
 const overlay = document.querySelector("#overlay");
 const title = document.querySelector("#title");
 const text = document.querySelector("#text");
@@ -426,6 +428,15 @@ function drawPlayer() {
   ctx.translate(p.x, p.y);
   ctx.rotate(Math.sin(p.a) * 0.06);
   ctx.scale(dir, 1);
+
+  if (sparkleSprite.complete && sparkleSprite.naturalWidth > 0) {
+    ctx.shadowColor = "rgba(255, 114, 173, .38)";
+    ctx.shadowBlur = 18;
+    ctx.drawImage(sparkleSprite, -68, -64 + Math.sin(p.a * 1.3) * 2, 128, 86);
+    ctx.shadowBlur = 0;
+    ctx.restore();
+    return;
+  }
 
   ctx.shadowColor = "rgba(255, 114, 173, .42)";
   ctx.shadowBlur = 16;
