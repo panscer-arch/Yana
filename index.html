@@ -1588,15 +1588,6 @@
               </label>
 
               <label>
-                Сложность
-                <select id="level">
-                  <option value="easy">Легко: 2-3 класс</option>
-                  <option value="normal">Средне: 3-4 класс</option>
-                  <option value="hard">Сложно: 4-5 класс</option>
-                </select>
-              </label>
-
-              <label>
                 Вид
                 <select id="viewMode">
                   <option value="line">В строку</option>
@@ -1826,7 +1817,6 @@
 
     <script>
       const operation = document.querySelector("#operation");
-      const level = document.querySelector("#level");
       const viewMode = document.querySelector("#viewMode");
       const answer = document.querySelector("#answer");
       const example = document.querySelector("#example");
@@ -1931,65 +1921,33 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
       }
 
-      const difficulty = {
-        easy: {
-          add: [3, 30],
-          sub: [6, 40],
-          mulA: [2, 5],
-          mulB: [2, 5],
-          divA: [2, 5],
-          divB: [2, 5]
-        },
-        normal: {
-          add: [120, 950],
-          sub: [150, 980],
-          mulA: [12, 49],
-          mulB: [3, 12],
-          divA: [12, 80],
-          divB: [3, 12]
-        },
-        hard: {
-          add: [650, 4800],
-          sub: [700, 5200],
-          mulA: [24, 96],
-          mulB: [11, 35],
-          divA: [35, 180],
-          divB: [6, 24]
-        }
-      };
-
-      function currentDifficulty() {
-        return difficulty[level.value] || difficulty.easy;
-      }
-
       function makeTask() {
-        const settings = currentDifficulty();
         const modes = ["add", "sub", "mul", "div"];
         const op = operation.value === "mixed"
           ? modes[randomInt(0, modes.length - 1)]
           : operation.value;
-        let a = randomInt(settings.add[0], settings.add[1]);
-        let b = randomInt(settings.add[0], settings.add[1]);
+        let a = randomInt(12, 120);
+        let b = randomInt(8, 90);
         let symbol = "+";
         let correct = a + b;
 
         if (op === "sub") {
-          a = randomInt(settings.sub[0], settings.sub[1]);
-          b = randomInt(Math.max(12, Math.floor(settings.sub[0] / 3)), a - 1);
+          a = randomInt(30, 150);
+          b = randomInt(8, a - 1);
           symbol = "-";
           correct = a - b;
         }
 
         if (op === "mul") {
-          a = randomInt(settings.mulA[0], settings.mulA[1]);
-          b = randomInt(settings.mulB[0], settings.mulB[1]);
+          a = randomInt(2, 10);
+          b = randomInt(2, 10);
           symbol = "×";
           correct = a * b;
         }
 
         if (op === "div") {
-          b = randomInt(settings.divB[0], settings.divB[1]);
-          correct = randomInt(settings.divA[0], settings.divA[1]);
+          b = randomInt(2, 10);
+          correct = randomInt(2, 10);
           a = b * correct;
           symbol = "÷";
         }
@@ -2022,7 +1980,7 @@
         const progress = Math.min(score.right / dailyTarget, 1) * 100;
         goalFill.style.width = `${progress}%`;
         goalText.textContent = score.right >= dailyTarget
-          ? "Цель выполнена. Можно взять новую сложность!"
+          ? "Цель выполнена. Можно отдохнуть или решить ещё."
           : `Реши ${dailyTarget - score.right} из ${dailyTarget} примеров.`;
         if (score.streak >= 10) {
           achievement.textContent = "Суперсерия: 10 правильных подряд!";
@@ -2132,7 +2090,6 @@
       }
 
       operation.addEventListener("change", makeTask);
-      level.addEventListener("change", makeTask);
       viewMode.addEventListener("change", renderTask);
       checkAnswer.addEventListener("click", checkCurrentAnswer);
       newTask.addEventListener("click", makeTask);
