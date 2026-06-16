@@ -662,6 +662,54 @@
         box-shadow: 0 8px 0 rgba(36, 31, 53, .08);
       }
 
+      .goose-cover {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        border: 2px solid rgba(36, 31, 53, .12);
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 18% 22%, rgba(255,255,255,.9) 0 10%, transparent 11%),
+          radial-gradient(circle at 82% 18%, rgba(255,212,92,.7) 0 12%, transparent 13%),
+          linear-gradient(135deg, #bfe9ff, #ffe1f1 58%, #fff2b8);
+        box-shadow: 0 8px 0 rgba(36, 31, 53, .08);
+      }
+
+      .goose-cover img {
+        position: absolute;
+        left: 5%;
+        top: 8%;
+        width: 82%;
+        height: 72%;
+        object-fit: contain;
+        filter: drop-shadow(0 14px 10px rgba(36, 31, 53, .18));
+      }
+
+      .goose-cover::before {
+        content: "";
+        position: absolute;
+        inset: 14px;
+        border: 3px solid rgba(255,255,255,.68);
+        border-radius: 8px;
+      }
+
+      .goose-cover::after {
+        content: "Гусь-художник";
+        position: absolute;
+        left: 14px;
+        bottom: 12px;
+        min-height: 32px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        color: #fff;
+        background: rgba(36, 31, 53, .84);
+        font-size: 15px;
+        font-weight: 900;
+      }
+
       .card h3 {
         font-size: 23px;
       }
@@ -1477,7 +1525,9 @@
           </article>
 
           <article class="card featured-card">
-            <img class="game-cover" src="assets/goose-artist-yana.png" alt="">
+            <div class="goose-cover" aria-hidden="true">
+              <img src="assets/goose-artist-yana.png" alt="">
+            </div>
             <span class="status web-status">Творческая студия</span>
             <h3>Гусь-художник</h3>
             <p>Рисовалка и мультик-студия: выбирай красивые заготовки, дорисовывай, копируй кадры и запускай мультик.</p>
