@@ -495,7 +495,7 @@
         damageFlash: 0,
         hitMarker: 0,
         deathFlash: 0,
-        enemyGrace: 10,
+        enemyGrace: 4,
         player: {
           position: new THREE.Vector3(-5.2, 1.75, 13.4),
           velocity: new THREE.Vector3(),
@@ -532,7 +532,7 @@
       let networkSocket;
       let networkId = "";
       let networkTimer = 0;
-      let onlineStatus = "онлайн: подключение...";
+      let onlineStatus = location.protocol === "file:" ? "боты: локальная игра" : "онлайн: подключение...";
       let audioContext;
       const virtualMove = { forward: 0, side: 0 };
       const aimDrag = { active: false, x: 0, y: 0, moved: false, wasRunning: false };
@@ -1593,9 +1593,9 @@
             hp: 100,
             score: 0,
             target: new THREE.Vector3(rand(-26, 26), 0, rand(-22, 22)),
-            speed: rand(1.35, 2.05),
-            cooldown: rand(2.2, 4.8),
-            think: rand(0.75, 1.7),
+            speed: rand(1.8, 2.55),
+            cooldown: rand(0.8, 1.9),
+            think: rand(0.45, 1.15),
             stuck: 0,
             respawn: 0
           });
@@ -1603,7 +1603,11 @@
       }
 
       function connectArena() {
-        const isLocalPreview = location.protocol === "file:" || location.hostname === "127.0.0.1" || location.hostname === "localhost";
+        if (location.protocol === "file:") {
+          onlineStatus = "боты: локальная игра";
+          return;
+        }
+        const isLocalPreview = location.hostname === "127.0.0.1" || location.hostname === "localhost";
         const endpoint = isLocalPreview
           ? "wss://barbarpatapim.com/arena-ws/"
           : `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/arena-ws/`;
@@ -1708,7 +1712,7 @@
         state.damageFlash = 0;
         state.hitMarker = 0;
         state.deathFlash = 0;
-        state.enemyGrace = 10;
+        state.enemyGrace = 4;
         state.shots = 0;
         state.yaw = 0;
         state.pitch = 0;
@@ -1932,12 +1936,12 @@
             const target = chooseEnemyTarget(enemy);
             if (target.type === "player" && !canHuntPlayer) {
               enemy.target.set(rand(-32, 32), 0, rand(-26, -8));
-            } else if (target.distance < (target.type === "player" ? 14 : 19)) {
+            } else if (target.distance < (target.type === "player" ? 20 : 21)) {
               const chase = Math.random() > 0.32;
               const spread = target.type === "player" ? (chase ? rand(3.8, 6.8) : rand(6, 10)) : (chase ? rand(-1.8, 1.8) : rand(-5, 5));
               enemy.target.copy(target.position).add(new THREE.Vector3(chase ? rand(-2.5, 2.5) : spread, 0, chase ? spread : rand(-5, 5)));
             } else enemy.target.set(rand(-30, 30), 0, rand(-24, 20));
-            enemy.think = rand(0.85, 1.65);
+            enemy.think = rand(0.5, 1.15);
           }
           const dir = enemy.target.clone().sub(group.position);
           dir.y = 0;
@@ -1966,14 +1970,14 @@
             const aimVector = target.position.clone().sub(group.position);
             const targetHeight = target.type === "player" ? state.player.eyeHeight : 1.65;
             if (target.type === "player" && !canHuntPlayer) {
-              enemy.cooldown = rand(1.2, 2.2);
-            } else if (target.distance < (target.type === "player" ? 22 : 28) && hasLineOfSight(group.position, target.position, targetHeight)) {
-              enemy.cooldown = target.type === "player" ? rand(1.35, 2.7) : rand(0.75, 1.5);
+              enemy.cooldown = rand(0.8, 1.4);
+            } else if (target.distance < (target.type === "player" ? 28 : 30) && hasLineOfSight(group.position, target.position, targetHeight)) {
+              enemy.cooldown = target.type === "player" ? rand(0.8, 1.7) : rand(0.55, 1.2);
               const aimYaw = Math.atan2(aimVector.x, aimVector.z) + Math.PI;
               group.rotation.y = rotateToward(group.rotation.y, aimYaw, 0.55);
               enemyShoot(enemy, target);
             } else {
-              enemy.cooldown = rand(0.8, 1.45);
+              enemy.cooldown = rand(0.35, 0.75);
             }
           }
           animateSoldier(enemy.model, delta, enemy.speed);
@@ -2066,7 +2070,7 @@
         addSpark(origin, 0xffe0a0);
         addDust(target, 0xcaa878, 4);
         playShotSound(true);
-        const hitChance = targetInfo.type === "player" ? 0.54 : 0.72;
+        const hitChance = targetInfo.type === "player" ? 0.66 : 0.78;
         if (Math.random() < hitChance) {
           if (targetInfo.type === "enemy" && targetInfo.enemy) {
             targetInfo.enemy.hp -= 24;
@@ -2078,7 +2082,7 @@
               targetInfo.enemy.model.group.visible = false;
             }
           } else if (!state.downed) {
-            state.player.hp = Math.max(0, state.player.hp - 9);
+            state.player.hp = Math.max(0, state.player.hp - 11);
             state.damageFlash = 1;
             playHitSound();
             state.enemyScore += 1;
