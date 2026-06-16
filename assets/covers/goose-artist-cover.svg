@@ -14,7 +14,7 @@
   <circle cx="790" cy="86" r="58" fill="#ffd45c" opacity=".7"/>
   <path d="M74 420c92-55 186-74 279-54 122 26 212 96 362 44 52-18 94-46 127-77v187H0v-66c20-11 43-23 74-34Z" fill="#8bd3ff" opacity=".62"/>
   <rect x="46" y="66" width="808" height="360" rx="34" fill="#fff" opacity=".78" filter="url(#shadow)"/>
-  <image href="../goose-artist.png" x="78" y="72" width="744" height="336" preserveAspectRatio="xMidYMid meet"/>
+  <image href="../goose-artist-yana.png" x="78" y="72" width="744" height="336" preserveAspectRatio="xMidYMid meet"/>
   <path d="M93 81h712" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".75"/>
   <g fill="#ffd45c">
     <path d="M152 64l12 24 26 4-19 19 5 26-24-12-23 12 4-26-18-19 25-4z"/>
