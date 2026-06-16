@@ -495,6 +495,7 @@
         damageFlash: 0,
         hitMarker: 0,
         deathFlash: 0,
+        enemyGrace: 10,
         player: {
           position: new THREE.Vector3(-5.2, 1.75, 13.4),
           velocity: new THREE.Vector3(),
@@ -730,6 +731,8 @@
       tileTexture.repeat.set(8, 7);
       const glareTexture = makeGlareTexture();
       const skyTexture = makeSkyTexture();
+      const soldierPortraitTexture = new THREE.TextureLoader().load("../../assets/sprites/arena-player-sprite.png");
+      soldierPortraitTexture.colorSpace = THREE.SRGBColorSpace;
 
       const materials = {
         floor: new THREE.MeshStandardMaterial({ map: floorTexture, roughness: 0.92, metalness: 0.02 }),
@@ -745,6 +748,7 @@
         paleWall: new THREE.MeshStandardMaterial({ color: 0xe0d5c9, roughness: 0.8, metalness: 0.01 }),
         wood: new THREE.MeshStandardMaterial({ color: 0x6b4931, roughness: 0.74, metalness: 0.02 }),
         leaf: new THREE.MeshStandardMaterial({ color: 0x3e7c36, roughness: 0.72, metalness: 0.01 }),
+        vine: new THREE.MeshStandardMaterial({ color: 0x2f6f32, roughness: 0.8, metalness: 0.01 }),
         sand: new THREE.MeshStandardMaterial({ color: 0x766d55, roughness: 0.98, metalness: 0.01 }),
         red: new THREE.MeshStandardMaterial({ color: 0x7f3a32, roughness: 0.66, metalness: 0.1 }),
         blue: new THREE.MeshStandardMaterial({ color: 0x2f5364, roughness: 0.68, metalness: 0.1 }),
@@ -970,10 +974,10 @@
 
         addSkyDome();
 
-        const hemi = new THREE.HemisphereLight(0xd4e8f0, 0x5f533d, 0.82);
+        const hemi = new THREE.HemisphereLight(0xd4e8f0, 0x5f533d, 0.68);
         scene.add(hemi);
 
-        const key = new THREE.DirectionalLight(0xffe0ad, 3.85);
+        const key = new THREE.DirectionalLight(0xffd59d, 3.15);
         key.position.set(-15, 19, 10);
         key.castShadow = true;
         key.shadow.mapSize.set(4096, 4096);
@@ -988,7 +992,7 @@
         key.shadow.radius = 3;
         scene.add(key);
 
-        const rim = new THREE.DirectionalLight(0x84bfe0, 0.62);
+        const rim = new THREE.DirectionalLight(0x84bfe0, 0.48);
         rim.position.set(18, 9, -16);
         scene.add(rim);
 
@@ -1021,6 +1025,10 @@
         addCourtyardBuilding(34, -22, 10, 5.1, 5.0, materials.warmWall);
         addCourtyardBuilding(0, 28, 16, 4.8, 4.5, materials.paleWall);
         addCourtyardBuilding(0, -29, 13, 4.6, 4.8, materials.warmWall);
+        addWallVines(-29, -24.9, 7.8, 3.6);
+        addWallVines(28, 18.2, 8.5, 3.2);
+        addWallVines(-7, 25.35, 6.4, 2.4);
+        addWallVines(36.6, -6, 6.6, 2.8, true);
         addBox({ x: 0, z: -27.5, w: 9.2, h: 2.4, d: 0.34, material: materials.wood });
         addContactShadow(0, -27.5, 9.8, 0.9, 0.18);
         addCover(-18.5, 4.8, 7.4, 1.45, materials.warmWall);
@@ -1125,6 +1133,28 @@
         addArchedWindow(x - w * 0.27, frontZ, h * 0.58);
         addArchedWindow(x + w * 0.27, frontZ, h * 0.58);
         addBalcony(x, frontZ - 0.14, h * 0.66, w * 0.44);
+      }
+
+      function addWallVines(x, z, width, height, rotate = false) {
+        const group = new THREE.Group();
+        group.position.set(x, height + 0.25, z);
+        group.rotation.y = rotate ? Math.PI / 2 : 0;
+        for (let i = 0; i < 11; i += 1) {
+          const strand = new THREE.Mesh(new THREE.BoxGeometry(0.08, rand(0.8, height), 0.045), materials.vine);
+          strand.position.set(-width / 2 + i * (width / 10), -rand(0.1, height * 0.5), 0);
+          strand.rotation.z = rand(-0.12, 0.12);
+          strand.castShadow = true;
+          group.add(strand);
+          for (let j = 0; j < 2; j += 1) {
+            const leaf = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.13, 0.035), materials.leaf);
+            leaf.position.set(strand.position.x + rand(-0.12, 0.12), strand.position.y + rand(-0.35, 0.35), -0.03);
+            leaf.rotation.set(0, 0, rand(-0.8, 0.8));
+            leaf.castShadow = true;
+            group.add(leaf);
+          }
+        }
+        scene.add(group);
+        addLeafShadow(x + (rotate ? -0.5 : 0.8), z + (rotate ? 0.8 : -0.4), width * 0.5, 0.045);
       }
 
       function addArchedWindow(x, z, y) {
@@ -1475,6 +1505,18 @@
         parts.rightStrap.rotation.z = 0.12;
         parts.belt = new THREE.Mesh(new THREE.BoxGeometry(0.78, 0.08, 0.36), materials.strap);
         parts.belt.position.set(0, 0.82, -0.01);
+        parts.portrait = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.72, 0.98),
+          new THREE.MeshBasicMaterial({
+            map: soldierPortraitTexture,
+            transparent: true,
+            opacity: isPlayer ? 0.78 : 0.92,
+            side: THREE.DoubleSide,
+            depthWrite: false
+          })
+        );
+        parts.portrait.position.set(0, 1.33, -0.39);
+        parts.portrait.rotation.x = -0.03;
         parts.shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 0.86), contactShadowMaterial.clone());
         parts.shadow.material.opacity = 0.28;
         parts.shadow.rotation.x = -Math.PI / 2;
@@ -1509,7 +1551,8 @@
           parts.rifle,
           parts.leftStrap,
           parts.rightStrap,
-          parts.belt
+          parts.belt,
+          parts.portrait
         );
         group.traverse((node) => {
           if (node.isMesh) {
@@ -1535,7 +1578,7 @@
       function spawnEnemies() {
         enemies.forEach((enemy) => scene.remove(enemy.model.group));
         enemies.length = 0;
-        const spots = [[-24, -8], [24, 8], [-16, 20], [16, -20], [0, 18], [0, -18], [-34, 0], [34, 0], [8, 26]];
+        const spots = [[-30, -18], [30, -18], [-32, 3], [32, 4], [-22, -28], [22, -28], [-38, 15], [38, 14], [0, -30]];
         for (let i = 0; i < state.playerCount - 1; i += 1) {
           const [x, z] = spots[i % spots.length];
           const model = createSoldier(["a", "b", "c"][i % 3]);
@@ -1550,9 +1593,9 @@
             hp: 100,
             score: 0,
             target: new THREE.Vector3(rand(-26, 26), 0, rand(-22, 22)),
-            speed: rand(2.0, 2.8),
-            cooldown: rand(0.25, 1.1),
-            think: rand(0.4, 1.2),
+            speed: rand(1.35, 2.05),
+            cooldown: rand(2.2, 4.8),
+            think: rand(0.75, 1.7),
             stuck: 0,
             respawn: 0
           });
@@ -1560,20 +1603,18 @@
       }
 
       function connectArena() {
-        const scheme = location.protocol === "https:" ? "wss" : "ws";
-        const host = location.protocol === "file:"
-          ? "barbarpatapim.com"
-          : location.hostname === "127.0.0.1" || location.hostname === "localhost"
-            ? `${location.hostname}:8099`
-            : location.host;
+        const isLocalPreview = location.protocol === "file:" || location.hostname === "127.0.0.1" || location.hostname === "localhost";
+        const endpoint = isLocalPreview
+          ? "wss://barbarpatapim.com/arena-ws/"
+          : `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/arena-ws/`;
         try {
-          networkSocket = new WebSocket(`${scheme}://${host}/arena-ws/`);
+          networkSocket = new WebSocket(endpoint);
         } catch {
           onlineStatus = "онлайн: не подключено";
           return;
         }
         networkSocket.addEventListener("open", () => {
-          onlineStatus = "онлайн: подключено";
+          onlineStatus = isLocalPreview ? "онлайн: общий сервер" : "онлайн: подключено";
         });
         networkSocket.addEventListener("message", (event) => {
           const message = JSON.parse(event.data);
@@ -1667,6 +1708,7 @@
         state.damageFlash = 0;
         state.hitMarker = 0;
         state.deathFlash = 0;
+        state.enemyGrace = 10;
         state.shots = 0;
         state.yaw = 0;
         state.pitch = 0;
@@ -1707,6 +1749,7 @@
         resizeRenderer();
         if (state.running) {
           state.timeLeft = Math.max(0, state.timeLeft - delta);
+          state.enemyGrace = Math.max(0, state.enemyGrace - delta);
           if (state.player.hp <= 0 && !state.downed && !state.lostSoundPlayed) {
             state.downed = true;
             state.downedTimer = state.player.medkits > 0 ? 8 : 0;
@@ -1873,6 +1916,7 @@
 
       function updateEnemies(delta) {
         const playerPos = state.player.position;
+        const canHuntPlayer = state.enemyGrace <= 0;
         for (const enemy of enemies) {
           if (enemy.respawn > 0) {
             enemy.respawn -= delta;
@@ -1886,11 +1930,14 @@
           enemy.think -= delta;
           if (enemy.think <= 0 || group.position.distanceTo(enemy.target) < 1.1) {
             const target = chooseEnemyTarget(enemy);
-            if (target.distance < 22) {
+            if (target.type === "player" && !canHuntPlayer) {
+              enemy.target.set(rand(-32, 32), 0, rand(-26, -8));
+            } else if (target.distance < (target.type === "player" ? 14 : 19)) {
               const chase = Math.random() > 0.32;
-              enemy.target.copy(target.position).add(new THREE.Vector3(chase ? rand(-1.5, 1.5) : rand(-5, 5), 0, chase ? rand(-1.5, 1.5) : rand(-5, 5)));
-            } else enemy.target.set(rand(-20, 20), 0, rand(-16, 16));
-            enemy.think = rand(0.55, 1.15);
+              const spread = target.type === "player" ? (chase ? rand(3.8, 6.8) : rand(6, 10)) : (chase ? rand(-1.8, 1.8) : rand(-5, 5));
+              enemy.target.copy(target.position).add(new THREE.Vector3(chase ? rand(-2.5, 2.5) : spread, 0, chase ? spread : rand(-5, 5)));
+            } else enemy.target.set(rand(-30, 30), 0, rand(-24, 20));
+            enemy.think = rand(0.85, 1.65);
           }
           const dir = enemy.target.clone().sub(group.position);
           dir.y = 0;
@@ -1918,13 +1965,15 @@
             const target = chooseEnemyTarget(enemy);
             const aimVector = target.position.clone().sub(group.position);
             const targetHeight = target.type === "player" ? state.player.eyeHeight : 1.65;
-            if (target.distance < 30 && hasLineOfSight(group.position, target.position, targetHeight)) {
-              enemy.cooldown = rand(0.5, 1.15);
+            if (target.type === "player" && !canHuntPlayer) {
+              enemy.cooldown = rand(1.2, 2.2);
+            } else if (target.distance < (target.type === "player" ? 22 : 28) && hasLineOfSight(group.position, target.position, targetHeight)) {
+              enemy.cooldown = target.type === "player" ? rand(1.35, 2.7) : rand(0.75, 1.5);
               const aimYaw = Math.atan2(aimVector.x, aimVector.z) + Math.PI;
               group.rotation.y = rotateToward(group.rotation.y, aimYaw, 0.55);
               enemyShoot(enemy, target);
             } else {
-              enemy.cooldown = rand(0.2, 0.45);
+              enemy.cooldown = rand(0.8, 1.45);
             }
           }
           animateSoldier(enemy.model, delta, enemy.speed);
@@ -1981,16 +2030,20 @@
 
       function chooseEnemyTarget(enemy) {
         const livingEnemies = enemies.filter((other) => other !== enemy && other.respawn <= 0);
+        if (state.enemyGrace > 0 && livingEnemies.length > 0) {
+          const other = livingEnemies[Math.floor(Math.random() * livingEnemies.length)];
+          return { type: "enemy", enemy: other, position: other.model.group.position, distance: distance2D(enemy.model.group.position, other.model.group.position) };
+        }
         let target = state.downed && livingEnemies.length > 0
           ? { type: "enemy", enemy: livingEnemies[0], position: livingEnemies[0].model.group.position, distance: distance2D(enemy.model.group.position, livingEnemies[0].model.group.position) }
           : { type: "player", position: state.player.position, distance: distance2D(enemy.model.group.position, state.player.position) };
         for (const other of livingEnemies) {
           const dist = distance2D(enemy.model.group.position, other.model.group.position);
-          if (dist < target.distance && Math.random() > 0.28) {
+          if ((dist < target.distance && Math.random() > 0.18) || Math.random() > 0.84) {
             target = { type: "enemy", enemy: other, position: other.model.group.position, distance: dist };
           }
         }
-        if (target.distance > 24 && livingEnemies.length > 0) {
+        if ((target.distance > 20 || Math.random() > 0.72) && livingEnemies.length > 0) {
           const other = livingEnemies[Math.floor(Math.random() * livingEnemies.length)];
           target = { type: "enemy", enemy: other, position: other.model.group.position, distance: distance2D(enemy.model.group.position, other.model.group.position) };
         }
@@ -2004,7 +2057,7 @@
           addTracer(origin, missTarget, 0xffb866);
           addSpark(origin, 0xffe0a0);
           playShotSound(true);
-          enemy.cooldown = Math.max(enemy.cooldown, rand(0.35, 0.7));
+          enemy.cooldown = Math.max(enemy.cooldown, rand(1.0, 1.8));
           return;
         }
         const target = targetInfo.position.clone().add(new THREE.Vector3(rand(-0.25, 0.25), rand(0.1, 0.65), rand(-0.25, 0.25)));
@@ -2013,7 +2066,8 @@
         addSpark(origin, 0xffe0a0);
         addDust(target, 0xcaa878, 4);
         playShotSound(true);
-        if (Math.random() > 0.2) {
+        const hitChance = targetInfo.type === "player" ? 0.54 : 0.72;
+        if (Math.random() < hitChance) {
           if (targetInfo.type === "enemy" && targetInfo.enemy) {
             targetInfo.enemy.hp -= 24;
             enemy.score += 1;
@@ -2024,7 +2078,7 @@
               targetInfo.enemy.model.group.visible = false;
             }
           } else if (!state.downed) {
-            state.player.hp = Math.max(0, state.player.hp - 13);
+            state.player.hp = Math.max(0, state.player.hp - 9);
             state.damageFlash = 1;
             playHitSound();
             state.enemyScore += 1;
@@ -2095,7 +2149,7 @@
       }
 
       function respawnEnemy(enemy) {
-        const spots = [[-24, -8], [24, 8], [-16, 20], [16, -20], [0, 18], [0, -18], [-34, 0], [34, 0]];
+        const spots = [[-30, -18], [30, -18], [-32, 3], [32, 4], [-22, -28], [22, -28], [-38, 15], [38, 14], [0, -30]];
         const [x, z] = spots[Math.floor(Math.random() * spots.length)];
         enemy.model.group.position.set(x, 0, z);
         enemy.hp = 100;
@@ -2233,6 +2287,7 @@
         model.parts.leftStrap.position.y = 1.25 + lift;
         model.parts.rightStrap.position.y = 1.25 + lift;
         model.parts.belt.position.y = 0.82 + lift * 0.6;
+        if (model.parts.portrait) model.parts.portrait.position.y = 1.33 + lift * 0.85;
       }
 
       function updateCamera() {
@@ -2282,7 +2337,7 @@
           ? (state.downedTimer > 0
             ? `ТЫ РАНЕН | H вылечиться аптечкой (${state.player.medkits}) | осталось ${Math.ceil(state.downedTimer)} сек`
             : "ТЫ УМЕР | Нажми Заново или Старт для нового раунда")
-          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
+          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""}${state.enemyGrace > 0 ? ` | боты осматриваются ${Math.ceil(state.enemyGrace)}с` : ""} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
       }
 
       function renderScores() {
