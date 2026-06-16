@@ -529,7 +529,60 @@
         width: 270px;
         height: auto;
         transform: translateX(-50%);
+        transform-origin: 50% 80%;
         pointer-events: none;
+        animation: sprite-breathe 2.8s ease-in-out infinite;
+      }
+
+      .kitten.eating .kitten-sprite {
+        animation: sprite-eat .58s ease-in-out infinite;
+      }
+
+      .kitten.playing .kitten-sprite {
+        animation: sprite-play .78s ease-in-out infinite;
+      }
+
+      .kitten.sleeping .kitten-sprite {
+        animation: sprite-sleep 3.2s ease-in-out infinite;
+        transform: translateX(-50%) rotate(-8deg) scale(.92);
+      }
+
+      .kitten.bathing .kitten-sprite {
+        animation: sprite-shiver .24s ease-in-out infinite;
+      }
+
+      .kitten.using-litter .kitten-sprite {
+        animation: sprite-dig .42s ease-in-out infinite;
+      }
+
+      @keyframes sprite-breathe {
+        0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
+        50% { transform: translateX(-50%) translateY(-5px) scale(1.02, .99); }
+      }
+
+      @keyframes sprite-eat {
+        0%, 100% { transform: translateX(-50%) translateY(0) rotate(0deg); }
+        50% { transform: translateX(-50%) translateY(18px) rotate(3deg); }
+      }
+
+      @keyframes sprite-play {
+        0%, 100% { transform: translateX(-50%) translateY(0) rotate(-7deg) scale(1); }
+        50% { transform: translateX(-50%) translateY(-32px) rotate(9deg) scale(1.08); }
+      }
+
+      @keyframes sprite-sleep {
+        0%, 100% { transform: translateX(-50%) rotate(-8deg) scale(.92); opacity: .96; }
+        50% { transform: translateX(-50%) rotate(-9deg) scale(.94, .9); opacity: .9; }
+      }
+
+      @keyframes sprite-shiver {
+        0%, 100% { transform: translateX(-50%) translateX(-3px) rotate(-2deg); }
+        50% { transform: translateX(-50%) translateX(3px) rotate(2deg); }
+      }
+
+      @keyframes sprite-dig {
+        0%, 100% { transform: translateX(-50%) translateY(0) rotate(-2deg); }
+        50% { transform: translateX(-50%) translateY(6px) rotate(4deg); }
       }
 
       .kitten > .tail,

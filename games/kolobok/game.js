@@ -151,13 +151,24 @@ function updateHud(collected) {
 }
 
 function drawBackground() {
-  ctx.fillStyle = "#090c0d";
+  const sky = ctx.createLinearGradient(0, 0, 0, world.height);
+  sky.addColorStop(0, "#10182a");
+  sky.addColorStop(.45, "#172414");
+  sky.addColorStop(1, "#07090b");
+  ctx.fillStyle = sky;
   ctx.fillRect(0, 0, world.width, world.height);
 
+  const moon = ctx.createRadialGradient(770, 96, 0, 770, 96, 92);
+  moon.addColorStop(0, "rgba(255, 231, 158, .95)");
+  moon.addColorStop(.45, "rgba(255, 231, 158, .38)");
+  moon.addColorStop(1, "rgba(255, 231, 158, 0)");
+  ctx.fillStyle = moon;
+  ctx.fillRect(620, 0, 250, 220);
+
   const gradient = ctx.createRadialGradient(480, 360, 80, 480, 360, 620);
-  gradient.addColorStop(0, "#1e2119");
-  gradient.addColorStop(0.62, "#0a1010");
-  gradient.addColorStop(1, "#030405");
+  gradient.addColorStop(0, "rgba(69, 78, 43, .62)");
+  gradient.addColorStop(0.62, "rgba(10, 16, 16, .62)");
+  gradient.addColorStop(1, "rgba(3, 4, 5, .8)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, world.width, world.height);
 
@@ -167,6 +178,14 @@ function drawBackground() {
   ctx.moveTo(0, 568);
   ctx.bezierCurveTo(220, 505, 306, 456, 446, 382);
   ctx.bezierCurveTo(610, 296, 674, 210, 960, 174);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255, 214, 130, .2)";
+  ctx.lineWidth = 10;
+  ctx.beginPath();
+  ctx.moveTo(0, 580);
+  ctx.bezierCurveTo(230, 520, 315, 470, 455, 398);
+  ctx.bezierCurveTo(620, 312, 684, 228, 960, 190);
   ctx.stroke();
 
   for (const tree of state.trees) {
@@ -246,7 +265,10 @@ function drawPlayer() {
   if (kolobokSprite.complete && kolobokSprite.naturalWidth > 0) {
     ctx.shadowColor = "rgba(255, 202, 97, 0.55)";
     ctx.shadowBlur = 18;
-    ctx.drawImage(kolobokSprite, -34, -32, 68, 50);
+    const bounce = Math.sin(state.elapsed * 10) * 3;
+    const squash = 1 + Math.sin(state.elapsed * 10) * .04;
+    ctx.scale(squash, 1 / squash);
+    ctx.drawImage(kolobokSprite, -36, -36 + bounce, 72, 54);
     ctx.restore();
     ctx.shadowBlur = 0;
     return;

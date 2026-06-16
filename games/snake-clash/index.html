@@ -815,6 +815,8 @@
           ctx.save();
           ctx.translate(head.x, head.y);
           ctx.rotate(snake.angle);
+          const wiggle = Math.sin(performance.now() / 120 + snake.index) * 0.08;
+          ctx.scale(1 + wiggle, 1 - wiggle * .5);
           ctx.shadowColor = snake.color;
           ctx.shadowBlur = 14;
           ctx.drawImage(snakeSprite, -snake.radius - 10, -snake.radius - 16, snake.radius * 2 + 34, snake.radius * 2 + 34);
