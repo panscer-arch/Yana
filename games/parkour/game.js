@@ -421,72 +421,139 @@ function drawCoin(c, i) {
 function drawPlayer() {
   const p = state.p;
   const dir = p.vx < -20 ? -1 : 1;
+  const step = Math.sin(p.a * 2.1);
   ctx.save();
   ctx.translate(p.x, p.y);
-  ctx.rotate(Math.sin(p.a) * 0.1);
+  ctx.rotate(Math.sin(p.a) * 0.06);
   ctx.scale(dir, 1);
 
-  ctx.shadowColor = "rgba(190, 120, 255, .5)";
-  ctx.shadowBlur = 14;
+  ctx.shadowColor = "rgba(255, 114, 173, .42)";
+  ctx.shadowBlur = 16;
 
-  ctx.fillStyle = "#b58cff";
+  const body = ctx.createLinearGradient(-28, -24, 28, 24);
+  body.addColorStop(0, "#ffffff");
+  body.addColorStop(.55, "#fff7ff");
+  body.addColorStop(1, "#eadcff");
+
+  ctx.fillStyle = body;
   ctx.beginPath();
-  ctx.ellipse(0, 4, 24, 17, 0, 0, Math.PI * 2);
+  ctx.ellipse(-4, 3, 30, 18, -0.04, 0, Math.PI * 2);
   ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "rgba(45, 29, 90, .75)";
+  ctx.stroke();
 
+  ctx.fillStyle = "rgba(255,255,255,.9)";
   ctx.beginPath();
-  ctx.ellipse(20, -12, 15, 16, 0.12, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#d7c4ff";
-  ctx.beginPath();
-  ctx.moveTo(18, -28);
-  ctx.lineTo(24, -52);
-  ctx.lineTo(30, -27);
+  ctx.moveTo(-6, -10);
+  ctx.quadraticCurveTo(-22, -34, -42, -16);
+  ctx.quadraticCurveTo(-27, -14, -15, 2);
   ctx.closePath();
   ctx.fill();
+  ctx.stroke();
 
-  ctx.fillStyle = "#2d1d5a";
+  ctx.fillStyle = body;
   ctx.beginPath();
-  ctx.moveTo(7, -24);
-  ctx.quadraticCurveTo(22, -42, 37, -26);
-  ctx.quadraticCurveTo(20, -27, 10, -5);
-  ctx.closePath();
+  ctx.ellipse(24, -14, 18, 17, 0.08, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = "#d05cff";
-  ctx.fillRect(18, -34, 5, 30);
-
-  ctx.fillStyle = "#2d1d5a";
-  ctx.beginPath();
-  ctx.moveTo(-21, -3);
-  ctx.quadraticCurveTo(-50, -28, -58, 2);
-  ctx.quadraticCurveTo(-42, 15, -21, 12);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = "#d05cff";
-  ctx.beginPath();
-  ctx.moveTo(-36, -10);
-  ctx.quadraticCurveTo(-48, -5, -46, 8);
-  ctx.lineTo(-38, 7);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#8f62e8";
-  for (const legX of [-12, 5, 16]) {
-    ctx.fillRect(legX, 16, 6, 16);
-  }
+  ctx.stroke();
 
   ctx.fillStyle = "#ffffff";
   ctx.beginPath();
-  ctx.arc(25, -14, 4, 0, Math.PI * 2);
+  ctx.moveTo(18, -29);
+  ctx.lineTo(12, -50);
+  ctx.lineTo(30, -33);
+  ctx.closePath();
   ctx.fill();
-  ctx.fillStyle = "#26174a";
+  ctx.stroke();
+
+  ctx.fillStyle = "#fff0f7";
   ctx.beginPath();
-  ctx.arc(26, -14, 2, 0, Math.PI * 2);
+  ctx.moveTo(34, -30);
+  ctx.lineTo(43, -49);
+  ctx.lineTo(47, -27);
+  ctx.closePath();
   ctx.fill();
+  ctx.stroke();
+
+  const horn = ctx.createLinearGradient(28, -38, 36, -64);
+  horn.addColorStop(0, "#fff6a7");
+  horn.addColorStop(1, "#ffb233");
+  ctx.fillStyle = horn;
+  ctx.beginPath();
+  ctx.moveTo(26, -31);
+  ctx.lineTo(32, -61);
+  ctx.lineTo(40, -31);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = "rgba(110,72,16,.45)";
+  ctx.stroke();
+
+  drawMane();
+  drawTail(step);
 
   ctx.shadowBlur = 0;
+  ctx.strokeStyle = "rgba(45, 29, 90, .72)";
+  ctx.lineWidth = 4;
+  for (const leg of [
+    [-20, 15, -22, 30 + step * 3],
+    [-5, 16, -2, 31 - step * 2],
+    [9, 15, 8, 31 + step * 2],
+    [21, 12, 25, 28 - step * 3],
+  ]) {
+    ctx.beginPath();
+    ctx.moveTo(leg[0], leg[1]);
+    ctx.lineTo(leg[2], leg[3]);
+    ctx.stroke();
+    ctx.fillStyle = "#5f48c9";
+    ctx.fillRect(leg[2] - 5, leg[3] - 1, 10, 5);
+  }
+
+  ctx.fillStyle = "#45aaf2";
+  ctx.beginPath();
+  ctx.arc(31, -16, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.arc(29, -18, 1.7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(45,29,90,.65)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(33, -7, 7, .25, Math.PI - .05);
+  ctx.stroke();
+
+  ctx.fillStyle = "#ff72ad";
+  ctx.beginPath();
+  ctx.arc(41, -11, 3, 0, Math.PI * 2);
+  ctx.fill();
   ctx.restore();
+}
+
+function drawMane() {
+  const colors = ["#ff72ad", "#ffd45c", "#42c995", "#54b8ff", "#8e67ff"];
+  ctx.lineCap = "round";
+  ctx.lineWidth = 5;
+  colors.forEach((color, index) => {
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(10 + index * 4, -26 - index * 1.5);
+    ctx.quadraticCurveTo(3 + index * 2, -18 + index * 2, 7 - index, -7 + index * 3);
+    ctx.stroke();
+  });
+}
+
+function drawTail(step) {
+  const colors = ["#ff72ad", "#ffd45c", "#42c995", "#54b8ff", "#8e67ff"];
+  ctx.lineCap = "round";
+  ctx.lineWidth = 5;
+  colors.forEach((color, index) => {
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-32, 0);
+    ctx.quadraticCurveTo(-52 - index * 2, -18 + index * 7 + step * 2, -65, -3 + index * 5);
+    ctx.stroke();
+  });
 }
 
 function drawFace(x, y, r, mood = 0) {
