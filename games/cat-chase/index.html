@@ -104,6 +104,24 @@
         line-height: 1;
       }
 
+      .hero-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) min(360px, 36vw);
+        gap: 18px;
+        align-items: center;
+        width: 100%;
+      }
+
+      .hero-art {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        border: 4px solid rgba(36, 31, 53, .12);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 14px 0 rgba(36, 31, 53, .08);
+      }
+
       .lead {
         color: var(--muted);
         font-size: 17px;
@@ -413,6 +431,14 @@
       }
 
       @media (max-width: 720px) {
+        .hero-card {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-art {
+          max-width: 420px;
+        }
+
         .hud,
         .controls {
           grid-template-columns: 1fr 1fr;
@@ -432,9 +458,12 @@
     <a class="skip-link" href="#content">К содержанию</a>
     <main id="content" class="shell">
       <header>
-        <div>
-          <h1>Кошачья погоня</h1>
-          <p class="lead">Луна собирает вкусности, убегает от Ланы и добегает до финиша.</p>
+        <div class="hero-card">
+          <div>
+            <h1>Кошачья погоня</h1>
+            <p class="lead">Луна собирает вкусности, убегает от Ланы и добегает до финиша.</p>
+          </div>
+          <img class="hero-art" src="../../assets/covers/generated/cat-chase.png" alt="" loading="eager">
         </div>
         <a class="back" href="../../index.html#games">Назад к сайту</a>
       </header>

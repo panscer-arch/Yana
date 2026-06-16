@@ -198,6 +198,17 @@
         line-height: 1;
       }
 
+      .panel-cover {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        margin-bottom: 12px;
+        object-fit: cover;
+        border: 2px solid rgba(238, 231, 216, .18);
+        border-radius: 8px;
+        background: #1d1f20;
+        box-shadow: 0 16px 38px rgba(0, 0, 0, .24);
+      }
+
       .panel h2 {
         font-size: 18px;
       }
@@ -384,6 +395,7 @@
 
       <aside class="controls">
         <section class="panel">
+          <img class="panel-cover" src="../../assets/covers/generated/people-arena.png" alt="" loading="eager">
           <h1>Суперстрелялка</h1>
           <p>Большая семейная 3D-арена: боты бегают, выбирают цели, стреляют друг в друга и в игрока, а на карте лежат запасы патронов и аптечки.</p>
           <div class="setup">

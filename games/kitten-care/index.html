@@ -1424,6 +1424,16 @@
         gap: 14px;
       }
 
+      .panel-cover {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        border: 3px solid rgba(37,29,24,.12);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 10px 0 rgba(75, 51, 35, .08);
+      }
+
       h1, h2, p { margin: 0; }
       h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1; }
       .lead { color: var(--muted); font-weight: 800; line-height: 1.4; }
@@ -1693,6 +1703,7 @@
       </section>
 
       <aside class="panel">
+        <img class="panel-cover" src="../../assets/covers/generated/kitten-care.png" alt="" loading="eager">
         <div>
           <h1>Котёнок: Забота</h1>
           <p class="lead">Ухаживай за котёнком: нажимай прямо на миску, мячик, лежанку, дверь и самого котёнка или пользуйся кнопками.</p>
