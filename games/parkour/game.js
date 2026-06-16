@@ -275,17 +275,30 @@ function draw() {
 
 function drawBackground() {
   const colors = {
-    1: ["#1a2136", "#22304a", "#15151c"],
-    2: ["#101026", "#24134a", "#080913"],
-    3: ["#2a1744", "#ff8f2f", "#22202b"],
-    4: ["#2b1115", "#5a1d20", "#130b10"],
-    5: ["#c8f4ff", "#4aa7d8", "#102642"],
+    1: ["#7bd7ff", "#b9edff", "#8edb78"],
+    2: ["#6e4bff", "#f28fd8", "#2d1954"],
+    3: ["#ffbd66", "#ffd986", "#7754c8"],
+    4: ["#351018", "#8b2430", "#1a0d13"],
+    5: ["#d9fbff", "#79c8f2", "#154069"],
   }[state.n];
   const g = ctx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, colors[0]); g.addColorStop(.55, colors[1]); g.addColorStop(1, colors[2]);
   ctx.fillStyle = g;
   ctx.fillRect(-200, -160, state.width + 400, H + 360);
-  ctx.fillStyle = "rgba(255,225,106,.22)";
+
+  ctx.save();
+  ctx.globalAlpha = state.n === 4 ? .34 : .88;
+  ctx.fillStyle = state.n === 5 ? "#f7fdff" : "#fff7c8";
+  ctx.beginPath();
+  ctx.arc(state.cam + 790, 96, state.n === 4 ? 50 : 62, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  for (let x = -120; x < state.width + 300; x += 520) {
+    drawCloud(x + Math.sin(state.t + x) * 18, 105 + (x % 3) * 22, state.n === 4 ? .25 : .72);
+  }
+
+  ctx.fillStyle = state.n === 4 ? "rgba(255,92,54,.22)" : state.n === 5 ? "rgba(255,255,255,.38)" : "rgba(255,225,106,.22)";
   for (let x = 80; x < state.width + 200; x += 340) {
     ctx.save();
     ctx.translate(x, 110 + Math.sin(state.t * 1.8 + x) * 24);
@@ -294,7 +307,7 @@ function drawBackground() {
     ctx.restore();
   }
   for (let x = -100; x < state.width + 300; x += 230) {
-    ctx.fillStyle = state.n === 4 ? "#321516" : state.n === 5 ? "rgba(225,250,255,.24)" : "rgba(255,255,255,.08)";
+    ctx.fillStyle = state.n === 4 ? "#321516" : state.n === 5 ? "rgba(225,250,255,.34)" : "rgba(38,118,73,.16)";
     ctx.beginPath();
     ctx.moveTo(x, H);
     ctx.lineTo(x + 150, 360 + Math.sin(x) * 60);
@@ -319,14 +332,58 @@ function drawBackground() {
   }
 }
 
+function drawCloud(x, y, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.ellipse(x, y + 12, 54, 20, 0, 0, Math.PI * 2);
+  ctx.ellipse(x + 38, y + 8, 44, 17, 0, 0, Math.PI * 2);
+  ctx.ellipse(x - 38, y + 10, 36, 15, 0, 0, Math.PI * 2);
+  ctx.ellipse(x + 2, y - 6, 32, 26, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 function drawPlatform(p) {
   const map = {
-    ground: ["#7b4b2f", "#b8753f"], roof: ["#48505e", "#828a97"], tiny: ["#2e9e91", "#5de1cc"],
+    ground: ["#9a6038", "#63c96f"], roof: ["#80624c", "#f0bd77"], tiny: ["#2e9e91", "#5de1cc"],
     spring: ["#9b37a8", "#f26cff"], dash: ["#252c58", "#5de1cc"], gravity: ["#572c86", "#ffe16a"],
     face: ["#663399", "#ffe16a"], rock: ["#382b2b", "#8f6b58"], ice: ["#5ec8f2", "#e8fbff"], finish: ["#b78d26", "#ffe16a"],
   }[p.kind] || ["#555", "#aaa"];
-  ctx.fillStyle = map[0]; ctx.fillRect(p.x, p.y, p.w, p.h);
-  ctx.fillStyle = map[1]; ctx.fillRect(p.x, p.y, p.w, 8);
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,.22)";
+  ctx.shadowBlur = 16;
+  ctx.shadowOffsetY = 10;
+  ctx.fillStyle = map[0];
+  roundRect(p.x, p.y, p.w, p.h, 10);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+  ctx.fillStyle = map[1];
+  roundRect(p.x, p.y, p.w, Math.min(14, p.h), 9);
+  ctx.fill();
+  if (p.kind === "finish") {
+    ctx.fillStyle = "rgba(255,255,255,.9)";
+    ctx.font = "900 22px Inter, system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText("ФИНИШ", p.x + p.w / 2, p.y - 14);
+  }
+  ctx.restore();
+}
+
+function roundRect(x, y, w, h, r) {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + w - radius, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+  ctx.lineTo(x + w, y + h - radius);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+  ctx.lineTo(x + radius, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
 }
 
 function drawHazard(h) {

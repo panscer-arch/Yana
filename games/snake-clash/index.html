@@ -687,13 +687,32 @@
       }
 
       function drawGrid() {
-        ctx.fillStyle = "#080b10";
+        const bg = ctx.createLinearGradient(0, 0, width, height);
+        bg.addColorStop(0, "#111a3a");
+        bg.addColorStop(0.5, "#120d2a");
+        bg.addColorStop(1, "#071018");
+        ctx.fillStyle = bg;
         ctx.fillRect(0, 0, width, height);
 
         const left = camera.x - width / 2;
         const top = camera.y - height / 2;
+        const glow = [
+          { x: 520, y: 420, r: 420, c: "rgba(65,232,183,.16)" },
+          { x: 2150, y: 780, r: 520, c: "rgba(255,95,126,.14)" },
+          { x: 1480, y: 1640, r: 560, c: "rgba(255,209,102,.14)" },
+          { x: 2860, y: 1640, r: 460, c: "rgba(99,179,237,.13)" }
+        ];
+        glow.forEach((spot) => {
+          const p = worldToScreen(spot);
+          const radial = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, spot.r);
+          radial.addColorStop(0, spot.c);
+          radial.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = radial;
+          ctx.fillRect(0, 0, width, height);
+        });
+
         const grid = 80;
-        ctx.strokeStyle = "rgba(255,255,255,0.045)";
+        ctx.strokeStyle = "rgba(255,255,255,0.07)";
         ctx.lineWidth = 1;
 
         for (let x = -left % grid; x < width; x += grid) {
@@ -709,6 +728,17 @@
           ctx.lineTo(width, y);
           ctx.stroke();
         }
+
+        ctx.save();
+        ctx.globalAlpha = .5;
+        ctx.strokeStyle = "rgba(65,232,183,.2)";
+        ctx.lineWidth = 3;
+        for (let x = -left % 320; x < width; x += 320) {
+          ctx.beginPath();
+          ctx.arc(x, height * .52, 90, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
 
         ctx.strokeStyle = "rgba(255,95,126,0.35)";
         ctx.lineWidth = 4;
