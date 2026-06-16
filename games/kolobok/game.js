@@ -1,5 +1,7 @@
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
+const kolobokSprite = new Image();
+kolobokSprite.src = "../../assets/sprites/kolobok-sprite.png";
 const overlay = document.querySelector("#overlay");
 const startButton = document.querySelector("#start");
 const crumbsText = document.querySelector("#crumbs");
@@ -241,6 +243,14 @@ function drawPlayer() {
   ctx.save();
   ctx.translate(player.x, player.y);
   ctx.rotate(player.angle);
+  if (kolobokSprite.complete && kolobokSprite.naturalWidth > 0) {
+    ctx.shadowColor = "rgba(255, 202, 97, 0.55)";
+    ctx.shadowBlur = 18;
+    ctx.drawImage(kolobokSprite, -34, -32, 68, 50);
+    ctx.restore();
+    ctx.shadowBlur = 0;
+    return;
+  }
   ctx.shadowColor = "rgba(255, 202, 97, 0.55)";
   ctx.shadowBlur = 18;
   ctx.fillStyle = "#d99532";

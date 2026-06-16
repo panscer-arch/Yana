@@ -539,6 +539,27 @@
         opacity: .9;
       }
 
+      .character-sprite {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 118px;
+        height: auto;
+        display: block;
+        transform: translate(-50%, -58%);
+        pointer-events: none;
+      }
+
+      .cat .tail,
+      .cat .cat-body,
+      .cat .cat-head,
+      .lana .lana-body,
+      .lana .lana-head,
+      .cat::after,
+      .lana::after {
+        display: none;
+      }
+
       .message {
         min-height: 48px;
         display: flex;
@@ -700,11 +721,13 @@
           <div class="path"></div>
           <div class="finish"></div>
           <div class="cat" id="luna" aria-label="Луна">
+            <img class="character-sprite" src="../../assets/sprites/luna-kitten.png" alt="">
             <div class="tail"></div>
             <div class="cat-body"></div>
             <div class="cat-head"><span class="eye left"></span><span class="eye right"></span></div>
           </div>
           <div class="lana" id="lana" aria-label="Лана">
+            <img class="character-sprite" src="../../assets/sprites/lana-kitten.png" alt="">
             <div class="lana-body"></div>
             <div class="lana-head"><span class="eye left"></span><span class="eye right"></span></div>
           </div>

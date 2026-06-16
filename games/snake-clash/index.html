@@ -412,6 +412,8 @@
     <script>
       const canvas = document.querySelector("#arena");
       const ctx = canvas.getContext("2d");
+      const snakeSprite = new Image();
+      snakeSprite.src = "../../assets/sprites/snake-sprite.png";
       const lengthEl = document.querySelector("#length");
       const killsEl = document.querySelector("#kills");
       const rankEl = document.querySelector("#rank");
@@ -809,6 +811,15 @@
         ctx.restore();
 
         const head = worldToScreen(snake);
+        if (snakeSprite.complete && snakeSprite.naturalWidth > 0) {
+          ctx.save();
+          ctx.translate(head.x, head.y);
+          ctx.rotate(snake.angle);
+          ctx.shadowColor = snake.color;
+          ctx.shadowBlur = 14;
+          ctx.drawImage(snakeSprite, -snake.radius - 10, -snake.radius - 16, snake.radius * 2 + 34, snake.radius * 2 + 34);
+          ctx.restore();
+        }
         const eyeOffset = snake.radius * 0.45;
         const side = snake.angle + Math.PI / 2;
         ctx.fillStyle = "#071018";

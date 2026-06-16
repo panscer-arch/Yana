@@ -521,6 +521,25 @@
         transition: transform .35s ease;
       }
 
+      .kitten-sprite {
+        position: absolute;
+        left: 50%;
+        bottom: 22px;
+        z-index: 1;
+        width: 270px;
+        height: auto;
+        transform: translateX(-50%);
+        pointer-events: none;
+      }
+
+      .kitten > .tail,
+      .kitten > .body,
+      .kitten > .ear,
+      .kitten > .head,
+      .kitten > .paw {
+        display: none;
+      }
+
       .kitten:not(.sleeping):not(.bathing) .body {
         animation: breathe 2.8s ease-in-out infinite;
       }
@@ -1680,6 +1699,7 @@
         <div class="rug" aria-hidden="true"></div>
         <div class="kitten-wrap">
           <button class="kitten" id="kitten" type="button" data-action="pet" aria-label="Погладить реалистичного рыжего котёнка">
+            <img class="kitten-sprite" src="../../assets/sprites/care-kitten.png" alt="">
             <div class="tail"></div>
             <div class="body"></div>
             <div class="ear left"></div>
