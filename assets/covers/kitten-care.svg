@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520">
+  <defs>
+    <linearGradient id="room" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#cfeeff"/>
+      <stop offset=".55" stop-color="#fff0d8"/>
+      <stop offset="1" stop-color="#f3d7b6"/>
+    </linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="14" stdDeviation="9" flood-color="#241f35" flood-opacity=".18"/></filter>
+  </defs>
+  <rect width="900" height="520" fill="url(#room)"/>
+  <rect x="0" y="354" width="900" height="166" fill="#e9c59f"/>
+  <ellipse cx="282" cy="424" rx="170" ry="55" fill="#f59fbd"/>
+  <g filter="url(#shadow)">
+    <ellipse cx="434" cy="330" rx="140" ry="116" fill="#f6d8bd" stroke="#241f35" stroke-width="10"/>
+    <circle cx="430" cy="214" r="105" fill="#e6bd93" stroke="#241f35" stroke-width="10"/>
+    <path d="M351 166 314 72l87 57m108 36 51-87 31 111" fill="#e6bd93" stroke="#241f35" stroke-width="10" stroke-linejoin="round"/>
+    <circle cx="393" cy="210" r="14" fill="#241f35"/>
+    <circle cx="467" cy="210" r="14" fill="#241f35"/>
+    <path d="M430 235c14 17 36 17 52 0" stroke="#241f35" stroke-width="8" stroke-linecap="round" fill="none"/>
+  </g>
+  <path d="M650 348c66 0 109 25 109 62 0 39-45 65-109 65s-109-26-109-65c0-37 43-62 109-62Z" fill="#fff" stroke="#241f35" stroke-width="9"/>
+  <path d="M603 399h94" stroke="#ff8b45" stroke-width="18" stroke-linecap="round"/>
+  <text x="42" y="78" font-family="Arial, sans-serif" font-size="54" font-weight="900" fill="#241f35">Котёнок: Забота</text>
+</svg>

@@ -388,6 +388,17 @@
         content: "3D-арена";
       }
 
+      .cover-img {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        display: block;
+        object-fit: cover;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 8px 0 rgba(33, 29, 47, .08);
+      }
+
       .status.ready {
         color: #0d6b49;
         background: rgba(66, 201, 149, .2);
@@ -500,7 +511,7 @@
 
         <div class="game-grid">
           <article class="game-card">
-            <div class="preview cat-preview" aria-hidden="true"></div>
+            <img class="cover-img" src="../assets/covers/cat-chase.svg" alt="">
             <span class="status ready">Готовая игра</span>
             <h3>Кошачья погоня</h3>
             <p>Луна собирает вкусности, убегает от Ланы и добегает до финиша. Есть жизни, счёт и управление на клавиатуре или телефоне.</p>
@@ -508,7 +519,7 @@
           </article>
 
           <article class="game-card">
-            <div class="preview parkour-preview" aria-hidden="true"></div>
+            <img class="cover-img" src="../assets/covers/parkour.svg" alt="">
             <span class="status ready">Готовая игра</span>
             <h3>Искорка: Паркур</h3>
             <p>Платформер на пять уровней: паркур, Dash, смешные лица, лава со зверем, верёвки и ледяной склон.</p>
@@ -516,7 +527,7 @@
           </article>
 
           <article class="game-card">
-            <div class="preview kitten-preview" aria-hidden="true"></div>
+            <img class="cover-img" src="../assets/covers/kitten-care.svg" alt="">
             <span class="status ready">Новая игра</span>
             <h3>Котёнок: Забота</h3>
             <p>Ухаживай за реалистичным котёнком: корми, гуляй с поводком, купай с мылом и душем, играй и укладывай спать.</p>
@@ -524,7 +535,7 @@
           </article>
 
           <article class="game-card">
-            <div class="preview animation-preview" aria-hidden="true"></div>
+            <img class="cover-img" src="../assets/covers/goose-artist-cover.svg" alt="">
             <span class="status ready">Творческая студия</span>
             <h3>Гусь-художник</h3>
             <p>Рисуй кадры, выбирай красивые заготовки, копируй детали и запускай свой мультик прямо на сайте.</p>
@@ -532,7 +543,7 @@
           </article>
 
           <article class="game-card">
-            <div class="preview kolobok-preview" aria-hidden="true"></div>
+            <img class="cover-img" src="../assets/covers/kolobok.svg" alt="">
             <span class="status ready">Готовая игра</span>
             <h3>Колобок: Темная Тропа</h3>
             <p>Ночная мини-игра: Колобок собирает крошки, избегает страшных теней и ищет теплую печь.</p>
@@ -540,7 +551,7 @@
           </article>
 
           <article class="game-card">
-            <div class="preview snake-preview" aria-hidden="true"></div>
+            <img class="cover-img" src="../assets/covers/snake-clash.svg" alt="">
             <span class="status ready">Готовая игра</span>
             <h3>Snake Clash</h3>
             <p>Арена со змейками для 1-10 живых игроков: собирайте точки, растите и ешьте меньших.</p>
@@ -548,7 +559,7 @@
           </article>
 
           <article class="game-card">
-            <div class="preview people-preview" aria-hidden="true"></div>
+            <img class="cover-img" src="../assets/covers/people-arena.svg" alt="">
             <span class="status ready">Реалистичная версия</span>
             <h3>Суперстрелялка</h3>
             <p>Большая 3D-арена с укрытиями, ботами, аптечками, ранениями и перестрелкой.</p>
@@ -556,7 +567,7 @@
           </article>
 
           <article class="game-card">
-            <div class="preview unicorn-preview" aria-hidden="true"></div>
+            <img class="cover-img" src="../assets/yana-unicorn-hero.png" alt="">
             <span class="status next">Следующая игра</span>
             <h3>Единорожий забег</h3>
             <p>Идея для платформера: прыгать по облакам, собирать звёзды, открывать радужные скины.</p>

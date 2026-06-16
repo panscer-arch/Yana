@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#bfe9ff"/>
+      <stop offset=".48" stop-color="#ffe1f1"/>
+      <stop offset="1" stop-color="#fff2b8"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="10" flood-color="#241f35" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <rect width="900" height="520" fill="url(#bg)"/>
+  <circle cx="118" cy="104" r="48" fill="#fff" opacity=".72"/>
+  <circle cx="790" cy="86" r="58" fill="#ffd45c" opacity=".7"/>
+  <path d="M74 420c92-55 186-74 279-54 122 26 212 96 362 44 52-18 94-46 127-77v187H0v-66c20-11 43-23 74-34Z" fill="#8bd3ff" opacity=".62"/>
+  <rect x="46" y="66" width="808" height="360" rx="34" fill="#fff" opacity=".78" filter="url(#shadow)"/>
+  <image href="../goose-artist.png" x="78" y="72" width="744" height="336" preserveAspectRatio="xMidYMid meet"/>
+  <path d="M93 81h712" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".75"/>
+  <g fill="#ffd45c">
+    <path d="M152 64l12 24 26 4-19 19 5 26-24-12-23 12 4-26-18-19 25-4z"/>
+    <path d="M776 312l9 18 20 3-15 14 4 20-18-9-18 9 3-20-14-14 20-3z"/>
+  </g>
+  <rect x="48" y="430" width="426" height="64" rx="18" fill="#241f35" opacity=".86"/>
+  <text x="76" y="474" font-family="Arial, sans-serif" font-size="42" font-weight="900" fill="#fff">Гусь-художник</text>
+</svg>

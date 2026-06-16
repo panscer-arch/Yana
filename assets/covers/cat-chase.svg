@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+      <stop stop-color="#8ed9ff"/>
+      <stop offset=".55" stop-color="#dff7ff"/>
+      <stop offset=".56" stop-color="#8ad66f"/>
+      <stop offset="1" stop-color="#55b85d"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="14" stdDeviation="8" flood-color="#241f35" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <rect width="900" height="520" fill="url(#sky)"/>
+  <circle cx="742" cy="86" r="46" fill="#ffd45c"/>
+  <path d="M58 387c104-37 157-85 241-67 77 17 125 83 218 60 96-23 143-91 267-58 47 13 79 36 100 55v143H0v-98c14-11 31-24 58-35Z" fill="#4caf5a"/>
+  <g filter="url(#shadow)">
+    <path d="M250 346c-54-17-93-4-115 31-17 27-5 58 29 69 44 15 113-2 159-41 13-11 12-37-8-48-18-10-41-4-65-11Z" fill="#ffffff" stroke="#241f35" stroke-width="12" stroke-linejoin="round"/>
+    <path d="M185 339 152 263l75 51m63 41 31-75 34 80" fill="#fff" stroke="#241f35" stroke-width="12" stroke-linejoin="round"/>
+    <circle cx="234" cy="369" r="10" fill="#54b8ff"/>
+    <circle cx="273" cy="367" r="10" fill="#54b8ff"/>
+    <path d="M248 392c14 14 34 14 49 0" fill="none" stroke="#241f35" stroke-width="8" stroke-linecap="round"/>
+    <path d="M575 351c48-28 105-19 143 16 26 24 26 64-6 83-45 27-131 15-184-23-22-16-14-55 47-76Z" fill="#a86542" stroke="#241f35" stroke-width="12" stroke-linejoin="round"/>
+    <path d="M618 342 590 264l72 49m78 55 29-81 40 88" fill="#a86542" stroke="#241f35" stroke-width="12" stroke-linejoin="round"/>
+    <circle cx="650" cy="373" r="10" fill="#ffd45c"/>
+    <circle cx="692" cy="374" r="10" fill="#ffd45c"/>
+  </g>
+  <path d="M358 300c48-38 96-55 153-50" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-dasharray="1 25"/>
+  <text x="42" y="76" font-family="Arial, sans-serif" font-size="52" font-weight="900" fill="#241f35">Кошачья погоня</text>
+</svg>

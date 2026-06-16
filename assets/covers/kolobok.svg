@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520">
+  <defs>
+    <linearGradient id="night" x1="0" x2="0" y1="0" y2="1">
+      <stop stop-color="#101927"/>
+      <stop offset=".62" stop-color="#18231c"/>
+      <stop offset="1" stop-color="#3e2b1f"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="900" height="520" fill="url(#night)"/>
+  <circle cx="760" cy="82" r="48" fill="#ffd45c" filter="url(#glow)"/>
+  <path d="M85 377c164-62 288-46 431 5 100 35 208 24 384-44v182H0V414c25-12 52-25 85-37Z" fill="#4b3426"/>
+  <g stroke="#0d1411" stroke-width="14" stroke-linecap="round">
+    <path d="M142 322V122m0 82-58-48m58 70 68-62"/>
+    <path d="M662 340V110m0 98-75-70m75 102 86-78"/>
+  </g>
+  <circle cx="412" cy="314" r="90" fill="#f2b35f" stroke="#241f35" stroke-width="12"/>
+  <circle cx="382" cy="294" r="9" fill="#4b2814"/>
+  <circle cx="430" cy="294" r="9" fill="#4b2814"/>
+  <path d="M380 338c31 24 69 21 93-7" fill="none" stroke="#4b2814" stroke-width="9" stroke-linecap="round"/>
+  <path d="M248 428c55-26 104-35 164-35 67 0 124 16 180 43" fill="none" stroke="#ffd45c" stroke-width="12" stroke-linecap="round" stroke-dasharray="4 28"/>
+  <text x="42" y="78" font-family="Arial, sans-serif" font-size="52" font-weight="900" fill="#fff">Колобок</text>
+</svg>
