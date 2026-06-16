@@ -515,15 +515,45 @@
       }
 
       .game-art {
+        position: relative;
+        overflow: hidden;
         min-height: 118px;
         border: 2px solid rgba(36, 31, 53, .12);
         border-radius: 8px;
         background:
-          radial-gradient(circle at 31% 62%, #fff 0 15%, transparent 16%),
-          radial-gradient(circle at 38% 53%, #fff 0 10%, transparent 11%),
-          radial-gradient(circle at 72% 58%, #9b5838 0 15%, transparent 16%),
-          radial-gradient(circle at 68% 49%, #9b5838 0 10%, transparent 11%),
+          radial-gradient(ellipse at 37% 62%, #fff 0 15%, transparent 16%),
+          radial-gradient(circle at 32% 46%, #fff 0 9%, transparent 10%),
+          radial-gradient(ellipse at 70% 62%, #9b5838 0 15%, transparent 16%),
+          radial-gradient(circle at 74% 47%, #9b5838 0 9%, transparent 10%),
           linear-gradient(180deg, #8ed9ff 0 52%, #75c96d 52% 100%);
+      }
+
+      .game-art::after {
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
+        min-height: 28px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 9px;
+        border-radius: 8px;
+        color: #241f35;
+        background: rgba(255,255,255,.84);
+        font-size: 13px;
+        font-weight: 900;
+        box-shadow: 0 5px 0 rgba(36,31,53,.08);
+      }
+
+      .game-art::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(255,255,255,0), rgba(36,31,53,.1));
+        pointer-events: none;
+      }
+
+      .cat-art::after {
+        content: "Луна против Ланы";
       }
 
       .game-art.unicorn-art {
@@ -533,6 +563,10 @@
           center / cover no-repeat url("assets/yana-unicorn-hero.png");
       }
 
+      .game-art.unicorn-art::after {
+        content: "Новые идеи";
+      }
+
       .game-art.empty {
         background:
           radial-gradient(circle at 78% 22%, rgba(255, 255, 255, .86) 0 12%, transparent 13%),
@@ -540,58 +574,81 @@
           repeating-linear-gradient(45deg, rgba(255, 255, 255, .45) 0 14px, transparent 14px 28px);
       }
 
+      .game-art.empty::after {
+        content: "Мастерская";
+      }
+
       .game-art.parkour-art {
         background:
-          radial-gradient(circle at 22% 68%, #ffe16a 0 12%, transparent 13%),
-          linear-gradient(135deg, transparent 0 46%, rgba(255, 225, 106, .78) 47% 52%, transparent 53%),
-          repeating-linear-gradient(115deg, rgba(255, 255, 255, .24) 0 10px, transparent 10px 22px),
+          radial-gradient(circle at 22% 68%, #ffe16a 0 10%, transparent 11%),
+          linear-gradient(135deg, transparent 0 40%, rgba(255, 225, 106, .9) 41% 46%, transparent 47%),
+          linear-gradient(165deg, transparent 0 56%, rgba(84,184,255,.75) 57% 62%, transparent 63%),
+          repeating-linear-gradient(0deg, transparent 0 25px, rgba(255,255,255,.2) 26px 29px),
           linear-gradient(145deg, #211733, #4c2b69 48%, #15111c);
+      }
+
+      .game-art.parkour-art::after {
+        content: "Прыжки и лава";
       }
 
       .game-art.kitten-art {
         background:
+          radial-gradient(ellipse at 50% 72%, #f7d8be 0 30%, transparent 31%),
           radial-gradient(circle at 50% 46%, #e1bd93 0 18%, transparent 19%),
           radial-gradient(circle at 43% 41%, #23201e 0 3%, transparent 4%),
           radial-gradient(circle at 57% 41%, #23201e 0 3%, transparent 4%),
           radial-gradient(circle at 50% 48%, #d98991 0 3%, transparent 4%),
-          radial-gradient(ellipse at 50% 72%, #c9946d 0 24%, transparent 25%),
           linear-gradient(180deg, #cfeeff 0 48%, #f3d7b6 49% 100%);
+      }
+
+      .game-art.kitten-art::after {
+        content: "Уход за котёнком";
       }
 
       .game-art.animation-art {
         background:
-          radial-gradient(circle at 26% 28%, #ff72ad 0 7%, transparent 8%),
-          radial-gradient(circle at 48% 48%, #8e67ff 0 8%, transparent 9%),
-          radial-gradient(circle at 70% 32%, #54b8ff 0 7%, transparent 8%),
-          linear-gradient(120deg, transparent 0 58%, rgba(36,31,53,.72) 59% 62%, transparent 63%),
-          linear-gradient(180deg, rgba(255,255,255,.92) 0 58%, rgba(255,212,92,.42) 59% 100%),
-          repeating-linear-gradient(90deg, rgba(36,31,53,.08) 0 2px, transparent 3px 28px);
+          linear-gradient(90deg, rgba(255,255,255,.1), rgba(255,255,255,.65)),
+          center / cover no-repeat url("assets/goose-artist.png");
+      }
+
+      .game-art.animation-art::after {
+        content: "Гусь-художник";
       }
 
       .game-art.kolobok-art {
         background:
-          radial-gradient(circle at 44% 58%, #f2b35f 0 18%, transparent 19%),
+          radial-gradient(circle at 44% 58%, #f2b35f 0 17%, transparent 18%),
           radial-gradient(circle at 49% 53%, #4b2814 0 2%, transparent 3%),
           radial-gradient(circle at 39% 52%, #4b2814 0 2%, transparent 3%),
+          radial-gradient(circle at 82% 26%, rgba(255,212,92,.7) 0 8%, transparent 9%),
           linear-gradient(180deg, #18231c 0 56%, #3e2b1f 56% 100%);
+      }
+
+      .game-art.kolobok-art::after {
+        content: "Ночная тропа";
       }
 
       .game-art.snake-art {
         background:
-          radial-gradient(circle at 72% 32%, #ffd166 0 4%, transparent 5%),
-          radial-gradient(circle at 28% 68%, #41e8b7 0 5%, transparent 6%),
+          radial-gradient(circle at 74% 32%, #ffd166 0 4%, transparent 5%),
+          radial-gradient(circle at 30% 68%, #41e8b7 0 5%, transparent 6%),
           radial-gradient(circle at 64% 72%, #ff5f7e 0 5%, transparent 6%),
-          conic-gradient(from 180deg at 54% 50%, #41e8b7, #63b3ed, #b794f4, #41e8b7);
+          linear-gradient(90deg, transparent 0 20%, #41e8b7 21% 29%, transparent 30%),
+          conic-gradient(from 180deg at 54% 50%, #1d2548, #283c75, #181f3f, #1d2548);
+      }
+
+      .game-art.snake-art::after {
+        content: "Змейки 1-10";
       }
 
       .game-art.people-art {
         background:
-          radial-gradient(circle at 18% 64%, #ff72ad 0 8%, transparent 9%),
-          radial-gradient(circle at 36% 38%, #54b8ff 0 8%, transparent 9%),
-          radial-gradient(circle at 54% 68%, #42c995 0 8%, transparent 9%),
-          radial-gradient(circle at 72% 36%, #ffd45c 0 8%, transparent 9%),
-          radial-gradient(circle at 86% 62%, #8e67ff 0 8%, transparent 9%),
-          linear-gradient(135deg, #ffffff, #eaf7ff 52%, #fff4fb);
+          linear-gradient(90deg, rgba(36,31,53,.5) 0 10%, transparent 11% 42%, rgba(36,31,53,.45) 43% 54%, transparent 55%),
+          linear-gradient(180deg, #9fd6f5 0 42%, #b88a65 43% 61%, #6f715d 62% 100%);
+      }
+
+      .game-art.people-art::after {
+        content: "3D-арена";
       }
 
       .card h3 {
@@ -1376,7 +1433,7 @@
 
         <div class="cards">
           <article class="card featured-card">
-            <div class="game-art" aria-hidden="true"></div>
+            <div class="game-art cat-art" aria-hidden="true"></div>
             <span class="status ready">Главная игра</span>
             <h3>Кошачья погоня</h3>
             <p>Луна убегает от Ланы, собирает вкусности, открывает скины и добегает до финиша.</p>
@@ -1411,8 +1468,8 @@
           <article class="card featured-card">
             <div class="game-art animation-art" aria-hidden="true"></div>
             <span class="status web-status">Творческая студия</span>
-            <h3>Мультик-студия</h3>
-            <p>Рисовалка для кадров и мультиков: кисти, цвета, копии кадров, проигрывание и сохранение.</p>
+            <h3>Гусь-художник</h3>
+            <p>Рисовалка и мультик-студия: выбирай красивые заготовки, дорисовывай, копируй кадры и запускай мультик.</p>
             <div class="card-actions">
               <a class="mini-button" href="games/animation-studio/index.html">Открыть</a>
               <span class="path-label">games/animation-studio</span>
