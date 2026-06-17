@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Жужжа и зверята</title>
+    <meta name="description" content="Добрая игра про животных: Жужжа летает по полянке, собирает вкусности и помогает зверятам.">
+    <meta name="theme-color" content="#9ee7ff">
+    <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #282238;
+        --muted: #6d617d;
+        --paper: #fffdf7;
+        --line: rgba(40, 34, 56, .14);
+        --pink: #ff6faa;
+        --green: #54bf74;
+        --sun: #ffd968;
+        --blue: #72cfff;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+        background:
+          radial-gradient(circle at 14% 16%, rgba(255,255,255,.86) 0 7%, transparent 8%),
+          radial-gradient(circle at 84% 15%, rgba(255,255,255,.78) 0 8%, transparent 9%),
+          linear-gradient(180deg, #9ee7ff 0 54%, #a8df78 55% 100%);
+      }
+
+      a { color: inherit; }
+      button { border: 0; font: inherit; cursor: pointer; }
+
+      .skip-link {
+        position: fixed;
+        left: 16px;
+        top: 12px;
+        z-index: 30;
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        color: #fff;
+        background: var(--ink);
+        font-weight: 900;
+        transform: translateY(-145%);
+      }
+
+      .skip-link:focus-visible { transform: translateY(0); }
+
+      .topbar,
+      main,
+      footer {
+        width: min(1180px, calc(100% - 24px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        min-height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+      }
+
+      .brand,
+      .topbar a,
+      footer a {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        color: var(--ink);
+        background: rgba(255,255,255,.72);
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .brand { background: #fff; }
+      nav { display: flex; flex-wrap: wrap; gap: 8px; }
+
+      main {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 16px;
+        align-items: start;
+        padding-bottom: 34px;
+      }
+
+      .game {
+        overflow: hidden;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255,255,255,.74);
+        box-shadow: 0 16px 0 rgba(40, 34, 56, .08);
+      }
+
+      .hud {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1px;
+        background: var(--line);
+      }
+
+      .hud div {
+        padding: 10px 12px;
+        background: rgba(255,253,247,.95);
+      }
+
+      .hud span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .hud strong {
+        display: block;
+        margin-top: 2px;
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        touch-action: none;
+        background: #9ee7ff;
+      }
+
+      .panel {
+        display: grid;
+        gap: 12px;
+        padding: 14px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255,253,247,.94);
+        box-shadow: 0 16px 0 rgba(40, 34, 56, .08);
+      }
+
+      h1,
+      h2,
+      p { margin: 0; }
+
+      h1 {
+        font-size: 34px;
+        line-height: 1;
+      }
+
+      p {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .actions,
+      .pads {
+        display: grid;
+        gap: 8px;
+      }
+
+      .actions { grid-template-columns: 1fr 1fr; }
+      .pads { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+      button {
+        min-height: 44px;
+        border-radius: 8px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--pink), #d94d92);
+        font-weight: 900;
+      }
+
+      button.secondary {
+        color: var(--ink);
+        background: #fff;
+        border: 2px solid var(--line);
+      }
+
+      .quest {
+        min-height: 64px;
+        display: grid;
+        align-content: center;
+        padding: 12px;
+        border-radius: 8px;
+        color: #453516;
+        background: #ffe58a;
+        font-weight: 900;
+      }
+
+      .legend {
+        display: grid;
+        gap: 8px;
+      }
+
+      .legend b {
+        color: var(--ink);
+      }
+
+      footer {
+        padding: 0 0 32px;
+      }
+
+      @media (max-width: 880px) {
+        main { grid-template-columns: 1fr; }
+        canvas { aspect-ratio: 1 / 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header class="topbar">
+      <a class="brand" href="../../index.html">Яна Единорог</a>
+      <nav aria-label="Навигация">
+        <a href="../index.html">Игры</a>
+        <a href="../../index.html#games">Главная</a>
+        <a href="../../schedule/index.html">План</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section class="game" aria-label="Жужжа и зверята">
+        <div class="hud">
+          <div><span>Счастье</span><strong id="happy">0 / 4</strong></div>
+          <div><span>Еда</span><strong id="food">0</strong></div>
+          <div><span>Время</span><strong id="time">90</strong></div>
+          <div><span>Рекорд</span><strong id="best">0</strong></div>
+        </div>
+        <canvas id="game" width="960" height="600" tabindex="0"></canvas>
+      </section>
+
+      <aside class="panel">
+        <h1>Жужжа и зверята</h1>
+        <p>Летай по полянке, собирай вкусности и относишь их зверятам. Жужжа гудит, но она добрая.</p>
+        <div class="actions">
+          <button id="start" type="button">Играть</button>
+          <button class="secondary" id="reset" type="button">Заново</button>
+        </div>
+        <h2>Задание</h2>
+        <div class="quest" id="quest">Нажми “Играть” и помоги зверятам.</div>
+        <div class="legend">
+          <p><b>Управление:</b> WASD, стрелки или кнопки. На телефоне можно вести пальцем по полянке.</p>
+          <p><b>Цель:</b> подбери еду и подлети к зверёнку, которому она нужна.</p>
+        </div>
+        <div class="pads" aria-label="Кнопки управления">
+          <button class="secondary" data-key="ArrowLeft" type="button">←</button>
+          <button class="secondary" data-key="ArrowUp" type="button">↑</button>
+          <button class="secondary" data-key="ArrowRight" type="button">→</button>
+          <button class="secondary" data-key="KeyA" type="button">A</button>
+          <button class="secondary" data-key="ArrowDown" type="button">↓</button>
+          <button class="secondary" data-key="KeyD" type="button">D</button>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <nav aria-label="Быстрые ссылки">
+        <a href="../kitten-care/index.html">Котёнок</a>
+        <a href="../cat-chase/index.html">Кошачья погоня</a>
+        <a href="../index.html">Все игры</a>
+      </nav>
+    </footer>
+
+    <script>
+      const canvas = document.querySelector("#game");
+      const ctx = canvas.getContext("2d");
+      const happyEl = document.querySelector("#happy");
+      const foodEl = document.querySelector("#food");
+      const timeEl = document.querySelector("#time");
+      const bestEl = document.querySelector("#best");
+      const questEl = document.querySelector("#quest");
+      const startButton = document.querySelector("#start");
+      const resetButton = document.querySelector("#reset");
+      const W = 960;
+      const H = 600;
+      const keys = new Set();
+      const foodNames = { berry: "ягодку", carrot: "морковку", fish: "рыбку", bone: "косточку" };
+      const foodColors = { berry: "#df3d8d", carrot: "#ff8b31", fish: "#5bc7ff", bone: "#fff6d8" };
+      const animals = [
+        { name: "Зайчик", need: "carrot", x: 760, y: 390, happy: false },
+        { name: "Котёнок", need: "fish", x: 210, y: 408, happy: false },
+        { name: "Щенок", need: "bone", x: 520, y: 460, happy: false },
+        { name: "Ёжик", need: "berry", x: 815, y: 190, happy: false }
+      ];
+      let foods = [];
+      let flowers = [];
+      let running = false;
+      let won = false;
+      let timeLeft = 90;
+      let best = Number(localStorage.getItem("yana-animal-meadow-best") || 0);
+      let carried = null;
+      let message = "Нажми “Играть” и помоги зверятам.";
+      let buzz = 0;
+      const bee = { x: 120, y: 230, vx: 0, vy: 0, targetX: 120, targetY: 230, touch: false };
+
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+      const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+
+      function resetGame() {
+        foods = [
+          { type: "carrot", x: 185, y: 180, taken: false },
+          { type: "fish", x: 600, y: 155, taken: false },
+          { type: "bone", x: 365, y: 325, taken: false },
+          { type: "berry", x: 690, y: 300, taken: false },
+          { type: "berry", x: 430, y: 185, taken: false },
+          { type: "carrot", x: 820, y: 505, taken: false }
+        ];
+        flowers = Array.from({ length: 26 }, (_, i) => ({
+          x: 55 + (i * 83) % 850,
+          y: 330 + (i * 47) % 220,
+          c: ["#ff6faa", "#ffd968", "#8e67ff", "#fff"][i % 4],
+          sway: i * .7
+        }));
+        animals.forEach((animal) => {
+          animal.happy = false;
+        });
+        Object.assign(bee, { x: 120, y: 230, vx: 0, vy: 0, targetX: 120, targetY: 230, touch: false });
+        carried = null;
+        timeLeft = 90;
+        won = false;
+        message = "Собери вкусность и отнеси её нужному зверёнку.";
+        updateHud();
+      }
+
+      function say(text) {
+        message = text;
+        questEl.textContent = text;
+      }
+
+      function startGame() {
+        running = true;
+        canvas.focus();
+        say("Жужжа полетела. Сначала найди морковку для зайчика.");
+      }
+
+      function updateHud() {
+        const happyCount = animals.filter((animal) => animal.happy).length;
+        happyEl.textContent = `${happyCount} / ${animals.length}`;
+        foodEl.textContent = carried ? foodNames[carried.type] : "нет";
+        timeEl.textContent = Math.max(0, Math.ceil(timeLeft));
+        bestEl.textContent = best;
+      }
+
+      function pickFood() {
+        if (carried) return;
+        const item = foods.find((food) => !food.taken && distance(bee, food) < 34);
+        if (!item) return;
+        item.taken = true;
+        carried = item;
+        say(`Жужжа взяла ${foodNames[item.type]}. Теперь найди того, кто это любит.`);
+      }
+
+      function feedAnimal() {
+        if (!carried) return;
+        const animal = animals.find((item) => !item.happy && distance(bee, item) < 52);
+        if (!animal) return;
+        if (animal.need !== carried.type) {
+          say(`${animal.name} хочет не это. Ему нужна ${foodNames[animal.need]}.`);
+          return;
+        }
+        animal.happy = true;
+        carried = null;
+        buzz += 20;
+        say(`${animal.name} счастлив! Найди следующую вкусность.`);
+        const happyCount = animals.filter((item) => item.happy).length;
+        if (happyCount === animals.length) {
+          running = false;
+          won = true;
+          best += 1;
+          localStorage.setItem("yana-animal-meadow-best", String(best));
+          say("Победа! Все зверята сытые и довольные.");
+        }
+      }
+
+      function update(delta) {
+        if (!running) return;
+        timeLeft -= delta;
+        buzz += delta * 11;
+        if (timeLeft <= 0) {
+          running = false;
+          timeLeft = 0;
+          say("Время вышло. Нажми “Заново” и попробуй ещё раз.");
+        }
+
+        let ax = 0;
+        let ay = 0;
+        if (keys.has("ArrowLeft") || keys.has("KeyA")) ax -= 1;
+        if (keys.has("ArrowRight") || keys.has("KeyD")) ax += 1;
+        if (keys.has("ArrowUp") || keys.has("KeyW")) ay -= 1;
+        if (keys.has("ArrowDown") || keys.has("KeyS")) ay += 1;
+
+        if (bee.touch) {
+          ax += (bee.targetX - bee.x) / 80;
+          ay += (bee.targetY - bee.y) / 80;
+        }
+
+        const len = Math.hypot(ax, ay) || 1;
+        bee.vx += (ax / len) * 720 * delta;
+        bee.vy += (ay / len) * 720 * delta;
+        bee.vx *= Math.pow(.035, delta);
+        bee.vy *= Math.pow(.035, delta);
+        bee.x = clamp(bee.x + bee.vx * delta, 38, W - 38);
+        bee.y = clamp(bee.y + bee.vy * delta, 72, H - 42);
+        pickFood();
+        feedAnimal();
+        updateHud();
+      }
+
+      function drawAnimal(animal) {
+        const bob = Math.sin(buzz * .5 + animal.x * .02) * 3;
+        ctx.save();
+        ctx.translate(animal.x, animal.y + bob);
+        ctx.fillStyle = animal.happy ? "#fff2a8" : "rgba(255,255,255,.55)";
+        ctx.beginPath();
+        ctx.arc(0, 0, 54, 0, Math.PI * 2);
+        ctx.fill();
+        if (animal.name === "Зайчик") {
+          ctx.fillStyle = "#fff";
+          ctx.beginPath();
+          ctx.ellipse(-18, -45, 11, 34, -.35, 0, Math.PI * 2);
+          ctx.ellipse(18, -45, 11, 34, .35, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#fff";
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 42, 34, 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (animal.name === "Котёнок") {
+          ctx.fillStyle = "#f6d2ad";
+          ctx.beginPath();
+          ctx.moveTo(-34, -18);
+          ctx.lineTo(-18, -52);
+          ctx.lineTo(-2, -20);
+          ctx.lineTo(18, -52);
+          ctx.lineTo(34, -18);
+          ctx.closePath();
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 42, 34, 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (animal.name === "Щенок") {
+          ctx.fillStyle = "#b77842";
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 46, 34, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#6f3f22";
+          ctx.beginPath();
+          ctx.ellipse(-32, -8, 12, 24, -.45, 0, Math.PI * 2);
+          ctx.ellipse(32, -8, 12, 24, .45, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = "#8b6a54";
+          ctx.beginPath();
+          ctx.ellipse(0, 10, 46, 30, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#5e4638";
+          ctx.lineWidth = 4;
+          for (let i = -3; i <= 3; i += 1) {
+            ctx.beginPath();
+            ctx.moveTo(i * 11, -12);
+            ctx.lineTo(i * 15, -38);
+            ctx.stroke();
+          }
+        }
+        ctx.fillStyle = "#1f1a2d";
+        ctx.beginPath();
+        ctx.arc(-13, -5, 4, 0, Math.PI * 2);
+        ctx.arc(13, -5, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = animal.happy ? "#ff6faa" : "#1f1a2d";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 3, 14, 0, Math.PI);
+        ctx.stroke();
+        ctx.fillStyle = "#fff";
+        ctx.font = "900 20px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(animal.happy ? "ура!" : foodNames[animal.need], 0, 74);
+        ctx.restore();
+      }
+
+      function drawFood(food) {
+        if (food.taken) return;
+        ctx.save();
+        ctx.translate(food.x, food.y + Math.sin(buzz + food.x) * 5);
+        ctx.fillStyle = foodColors[food.type];
+        if (food.type === "carrot") {
+          ctx.rotate(.7);
+          ctx.fillRect(-8, -20, 16, 36);
+          ctx.fillStyle = "#3fbf60";
+          ctx.fillRect(-4, -29, 8, 14);
+        } else if (food.type === "fish") {
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 22, 12, 0, 0, Math.PI * 2);
+          ctx.moveTo(-20, 0);
+          ctx.lineTo(-36, -12);
+          ctx.lineTo(-36, 12);
+          ctx.closePath();
+          ctx.fill();
+        } else if (food.type === "bone") {
+          ctx.fillRect(-22, -6, 44, 12);
+          ctx.beginPath();
+          ctx.arc(-25, -8, 9, 0, Math.PI * 2);
+          ctx.arc(-25, 8, 9, 0, Math.PI * 2);
+          ctx.arc(25, -8, 9, 0, Math.PI * 2);
+          ctx.arc(25, 8, 9, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.beginPath();
+          ctx.arc(-8, 0, 10, 0, Math.PI * 2);
+          ctx.arc(5, -4, 11, 0, Math.PI * 2);
+          ctx.arc(10, 8, 9, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawBee() {
+        ctx.save();
+        ctx.translate(bee.x, bee.y);
+        const wing = Math.sin(buzz * 4) * 8;
+        ctx.fillStyle = "rgba(255,255,255,.75)";
+        ctx.beginPath();
+        ctx.ellipse(-12, -18 - wing * .2, 18, 10, -.45, 0, Math.PI * 2);
+        ctx.ellipse(12, -18 + wing * .2, 18, 10, .45, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#ffd968";
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 28, 21, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#2b2235";
+        ctx.fillRect(-16, -17, 7, 34);
+        ctx.fillRect(1, -20, 7, 40);
+        ctx.fillStyle = "#1f1a2d";
+        ctx.beginPath();
+        ctx.arc(17, -5, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#1f1a2d";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(22, -17);
+        ctx.quadraticCurveTo(34, -28, 42, -22);
+        ctx.moveTo(22, -8);
+        ctx.quadraticCurveTo(35, -10, 43, -2);
+        ctx.stroke();
+        if (carried) {
+          ctx.fillStyle = foodColors[carried.type];
+          ctx.beginPath();
+          ctx.arc(0, 31, 11, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function draw() {
+        const sky = ctx.createLinearGradient(0, 0, 0, H);
+        sky.addColorStop(0, "#92ddff");
+        sky.addColorStop(.55, "#d8f7ff");
+        sky.addColorStop(.56, "#91d875");
+        sky.addColorStop(1, "#55b65e");
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = "#fff5a8";
+        ctx.beginPath();
+        ctx.arc(810, 92, 44, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,.85)";
+        [[150, 95], [320, 120], [590, 86]].forEach(([x, y]) => {
+          ctx.beginPath();
+          ctx.arc(x, y, 24, 0, Math.PI * 2);
+          ctx.arc(x + 32, y - 9, 28, 0, Math.PI * 2);
+          ctx.arc(x + 65, y, 22, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.fillStyle = "rgba(80,146,58,.35)";
+        ctx.beginPath();
+        ctx.ellipse(480, 595, 540, 95, 0, 0, Math.PI * 2);
+        ctx.fill();
+        flowers.forEach((flower) => {
+          const y = flower.y + Math.sin(buzz + flower.sway) * 2;
+          ctx.strokeStyle = "#318b46";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(flower.x, y + 14);
+          ctx.lineTo(flower.x, y + 32);
+          ctx.stroke();
+          ctx.fillStyle = flower.c;
+          ctx.beginPath();
+          ctx.arc(flower.x, y, 7, 0, Math.PI * 2);
+          ctx.arc(flower.x - 7, y + 5, 6, 0, Math.PI * 2);
+          ctx.arc(flower.x + 7, y + 5, 6, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        foods.forEach(drawFood);
+        animals.forEach(drawAnimal);
+        drawBee();
+        if (won) {
+          ctx.fillStyle = "rgba(255,255,255,.82)";
+          ctx.fillRect(0, 0, W, H);
+          ctx.fillStyle = "#282238";
+          ctx.font = "900 58px Arial";
+          ctx.textAlign = "center";
+          ctx.fillText("Все зверята счастливы!", W / 2, H / 2);
+        }
+      }
+
+      function loop(now) {
+        const delta = Math.min(.033, (now - (loop.last || now)) / 1000);
+        loop.last = now;
+        update(delta);
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      window.addEventListener("keydown", (event) => {
+        keys.add(event.code);
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"].includes(event.code)) event.preventDefault();
+      });
+      window.addEventListener("keyup", (event) => keys.delete(event.code));
+      window.addEventListener("blur", () => keys.clear());
+
+      canvas.addEventListener("pointerdown", (event) => {
+        const rect = canvas.getBoundingClientRect();
+        bee.targetX = (event.clientX - rect.left) * (W / rect.width);
+        bee.targetY = (event.clientY - rect.top) * (H / rect.height);
+        bee.touch = true;
+        canvas.focus();
+        if (!running) startGame();
+      });
+      canvas.addEventListener("pointermove", (event) => {
+        if (!bee.touch && event.pointerType !== "mouse") return;
+        const rect = canvas.getBoundingClientRect();
+        bee.targetX = (event.clientX - rect.left) * (W / rect.width);
+        bee.targetY = (event.clientY - rect.top) * (H / rect.height);
+        if (event.buttons) bee.touch = true;
+      });
+      canvas.addEventListener("pointerup", () => {
+        bee.touch = false;
+      });
+
+      document.querySelectorAll("[data-key]").forEach((button) => {
+        const code = button.dataset.key;
+        button.addEventListener("pointerdown", () => keys.add(code));
+        button.addEventListener("pointerup", () => keys.delete(code));
+        button.addEventListener("pointerleave", () => keys.delete(code));
+      });
+      startButton.addEventListener("click", startGame);
+      resetButton.addEventListener("click", () => {
+        running = false;
+        resetGame();
+      });
+
+      bestEl.textContent = best;
+      resetGame();
+      requestAnimationFrame(loop);
+    </script>
+    <script src="../../assets/site.js"></script>
+  </body>
+</html>
