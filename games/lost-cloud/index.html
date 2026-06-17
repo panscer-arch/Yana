@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Потерянное облако</title>
+    <meta name="description" content="Мультик Яны Потерянное облако: Луна помогает маленькому облачку Пушу найти семью.">
+    <meta name="theme-color" content="#9fe4ff">
+    <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #22213a;
+        --muted: #625d7a;
+        --paper: #fffdf7;
+        --line: rgba(34, 33, 58, .16);
+        --pink: #ff72ad;
+        --blue: #5fc8ff;
+        --sun: #ffd86b;
+        --violet: #8d6bff;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+        background:
+          radial-gradient(circle at 16% 14%, rgba(255,255,255,.9) 0 7%, transparent 8%),
+          radial-gradient(circle at 84% 18%, rgba(255,255,255,.78) 0 8%, transparent 9%),
+          linear-gradient(135deg, #bceeff, #f0ddff 55%, #fff0aa);
+      }
+
+      a { color: inherit; }
+      button { border: 0; font: inherit; cursor: pointer; }
+
+      .skip-link {
+        position: fixed;
+        left: 16px;
+        top: 12px;
+        z-index: 30;
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        color: #fff;
+        background: var(--ink);
+        font-weight: 900;
+        transform: translateY(-145%);
+      }
+
+      .skip-link:focus-visible { transform: translateY(0); }
+
+      .topbar,
+      main,
+      footer {
+        width: min(1180px, calc(100% - 24px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        min-height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+      }
+
+      .brand,
+      .topbar a,
+      footer a {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        color: var(--ink);
+        background: rgba(255,255,255,.72);
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      nav { display: flex; flex-wrap: wrap; gap: 8px; }
+
+      main {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 16px;
+        align-items: start;
+        padding-bottom: 34px;
+      }
+
+      .movie {
+        overflow: hidden;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255,253,247,.94);
+        box-shadow: 0 16px 0 rgba(34,33,58,.08);
+      }
+
+      .movie-head {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1px;
+        background: var(--line);
+      }
+
+      .movie-head div {
+        padding: 10px 12px;
+        background: rgba(255,253,247,.95);
+      }
+
+      .movie-head span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .movie-head strong {
+        display: block;
+        margin-top: 2px;
+        font-size: 20px;
+        line-height: 1;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #9fe4ff;
+      }
+
+      .subtitle {
+        min-height: 86px;
+        display: grid;
+        align-content: center;
+        padding: 14px 18px;
+        color: var(--ink);
+        background: #fff8d7;
+        border-top: 3px solid var(--line);
+        font-size: 23px;
+        font-weight: 900;
+        line-height: 1.25;
+      }
+
+      .panel {
+        display: grid;
+        gap: 12px;
+        padding: 14px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255,253,247,.94);
+        box-shadow: 0 16px 0 rgba(34,33,58,.08);
+      }
+
+      h1,
+      h2,
+      p { margin: 0; }
+
+      h1 {
+        font-size: 34px;
+        line-height: 1;
+      }
+
+      p {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      button {
+        min-height: 44px;
+        border-radius: 8px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--pink), #d94d92);
+        font-weight: 900;
+      }
+
+      button.secondary {
+        color: var(--ink);
+        background: #fff;
+        border: 2px solid var(--line);
+      }
+
+      .scene-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .scene-list button {
+        justify-content: start;
+        color: var(--ink);
+        background: #fff;
+        border: 2px solid var(--line);
+        text-align: left;
+        padding: 0 10px;
+      }
+
+      .scene-list button.active {
+        background: #dff5ff;
+        border-color: #79cfff;
+      }
+
+      footer { padding: 0 0 32px; }
+
+      @media (max-width: 880px) {
+        main { grid-template-columns: 1fr; }
+        .subtitle { font-size: 18px; }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header class="topbar">
+      <a class="brand" href="../../index.html">Яна Единорог</a>
+      <nav aria-label="Навигация">
+        <a href="../index.html">Игры</a>
+        <a href="../animation-studio/index.html">Мультик-студия</a>
+        <a href="../../index.html#games">Главная</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section class="movie" aria-label="Мультик Потерянное облако">
+        <div class="movie-head">
+          <div><span>Мультик</span><strong>Потерянное облако</strong></div>
+          <div><span>Сцена</span><strong id="scene-name">Утро</strong></div>
+          <div><span>Время</span><strong id="time">0:00</strong></div>
+        </div>
+        <canvas id="stage" width="960" height="540"></canvas>
+        <div class="subtitle" id="subtitle">Нажми “Смотреть”, чтобы начать мультик.</div>
+      </section>
+
+      <aside class="panel">
+        <h1>Потерянное облако</h1>
+        <p>Луна находит маленькое облачко Пуша и вместе с Ветром помогает ему вернуться к семье.</p>
+        <div class="actions">
+          <button id="play" type="button">Смотреть</button>
+          <button class="secondary" id="pause" type="button">Пауза</button>
+          <button class="secondary" id="prev" type="button">Назад</button>
+          <button class="secondary" id="next" type="button">Дальше</button>
+        </div>
+        <h2>Сцены</h2>
+        <div class="scene-list" id="scene-list"></div>
+        <p>Это первая версия мультика. Потом можно добавить озвучку, музыку, больше движений и кнопку “сохранить кадр”.</p>
+      </aside>
+    </main>
+
+    <footer>
+      <nav aria-label="Быстрые ссылки">
+        <a href="../animation-studio/index.html">Гусь-художник</a>
+        <a href="../kitten-care/index.html">Котёнок</a>
+        <a href="../index.html">Все игры</a>
+      </nav>
+    </footer>
+
+    <script>
+      const canvas = document.querySelector("#stage");
+      const ctx = canvas.getContext("2d");
+      const subtitleEl = document.querySelector("#subtitle");
+      const sceneNameEl = document.querySelector("#scene-name");
+      const timeEl = document.querySelector("#time");
+      const playButton = document.querySelector("#play");
+      const pauseButton = document.querySelector("#pause");
+      const prevButton = document.querySelector("#prev");
+      const nextButton = document.querySelector("#next");
+      const sceneListEl = document.querySelector("#scene-list");
+      const W = 960;
+      const H = 540;
+      const scenes = [
+        {
+          name: "Утро",
+          duration: 9,
+          lines: [
+            [0, "Луна: — Какой красивый день!"],
+            [2.7, "Пуш: — Ой! Кажется, я потерялся…"],
+            [5.3, "Луна: — Потерялся? Как такое возможно?"],
+            [7.1, "Пуш: — Я засмотрелся на радугу и отстал от своей семьи."]
+          ]
+        },
+        {
+          name: "Поиски",
+          duration: 9,
+          lines: [
+            [0, "Луна и Пуш идут искать облачную семью."],
+            [2.1, "Ветер: — Почему такие грустные?"],
+            [4.2, "Луна: — Пуш потерял своих."],
+            [6.2, "Ветер: — Тогда я помогу!"]
+          ]
+        },
+        {
+          name: "Трудность",
+          duration: 9,
+          lines: [
+            [0, "Начинается дождь."],
+            [2.2, "Пуш: — Я исчезаю…"],
+            [4.3, "Луна: — Не сдавайся!"],
+            [6.0, "Луна раскрывает большой зонт и помогает Пушу переждать дождь."]
+          ]
+        },
+        {
+          name: "Развязка",
+          duration: 8,
+          lines: [
+            [0, "После дождя появляется радуга."],
+            [2.4, "Пуш: — Это моя семья!"],
+            [4.6, "Мама-облако: — Вот ты где!"]
+          ]
+        },
+        {
+          name: "Финал",
+          duration: 9,
+          lines: [
+            [0, "Пуш обнимает Луну пушистым облачным хвостиком."],
+            [2.1, "Пуш: — Спасибо, что помогла мне."],
+            [4.2, "Луна: — Друзья для этого и нужны."],
+            [6.2, "На небе появляется облако в форме сердечка. Конец."]
+          ]
+        }
+      ];
+      let sceneIndex = 0;
+      let sceneTime = 0;
+      let playing = false;
+      let last = 0;
+
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+      const ease = (value) => value * value * (3 - 2 * value);
+
+      function activeScene() {
+        return scenes[sceneIndex];
+      }
+
+      function currentLine() {
+        const scene = activeScene();
+        let line = scene.lines[0][1];
+        scene.lines.forEach(([time, text]) => {
+          if (sceneTime >= time) line = text;
+        });
+        return line;
+      }
+
+      function setScene(index) {
+        sceneIndex = (index + scenes.length) % scenes.length;
+        sceneTime = 0;
+        updateText();
+        renderSceneButtons();
+      }
+
+      function updateText() {
+        sceneNameEl.textContent = activeScene().name;
+        subtitleEl.textContent = currentLine();
+        const total = Math.floor(scenes.slice(0, sceneIndex).reduce((sum, scene) => sum + scene.duration, 0) + sceneTime);
+        timeEl.textContent = `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+      }
+
+      function renderSceneButtons() {
+        sceneListEl.innerHTML = "";
+        scenes.forEach((scene, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = index === sceneIndex ? "active" : "";
+          button.textContent = `${index + 1}. ${scene.name}`;
+          button.addEventListener("click", () => setScene(index));
+          sceneListEl.append(button);
+        });
+      }
+
+      function drawSky(mode = "day") {
+        const sky = ctx.createLinearGradient(0, 0, 0, H);
+        if (mode === "rain") {
+          sky.addColorStop(0, "#94a8c5");
+          sky.addColorStop(.7, "#cdd8e5");
+          sky.addColorStop(1, "#86c57d");
+        } else {
+          sky.addColorStop(0, "#8fdcff");
+          sky.addColorStop(.62, "#dff8ff");
+          sky.addColorStop(.63, "#98d981");
+          sky.addColorStop(1, "#61b96a");
+        }
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = "#ffdf69";
+        ctx.beginPath();
+        ctx.arc(795, 82, 43, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawWindow() {
+        ctx.fillStyle = "#f7d8b6";
+        ctx.fillRect(0, 310, W, 230);
+        ctx.fillStyle = "#fff8e8";
+        ctx.fillRect(90, 105, 260, 245);
+        ctx.fillStyle = "#8fdcff";
+        ctx.fillRect(112, 126, 216, 178);
+        ctx.fillStyle = "#a36d47";
+        ctx.fillRect(86, 330, 275, 28);
+        ctx.fillRect(204, 116, 16, 196);
+        ctx.fillRect(112, 202, 216, 14);
+      }
+
+      function drawCloud(x, y, scale = 1, color = "#fff", face = true) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(-34, 6, 28, 0, Math.PI * 2);
+        ctx.arc(-8, -12, 35, 0, Math.PI * 2);
+        ctx.arc(28, -2, 31, 0, Math.PI * 2);
+        ctx.arc(55, 13, 22, 0, Math.PI * 2);
+        ctx.fillRect(-58, 2, 118, 34);
+        ctx.fill();
+        if (face) {
+          ctx.fillStyle = "#282238";
+          ctx.beginPath();
+          ctx.arc(-14, 6, 4, 0, Math.PI * 2);
+          ctx.arc(22, 6, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#282238";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(5, 13, 13, 0, Math.PI);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawHeartCloud(x, y, scale = 1) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.moveTo(0, 42);
+        ctx.bezierCurveTo(-82, -16, -42, -84, 0, -43);
+        ctx.bezierCurveTo(42, -84, 82, -16, 0, 42);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawLuna(x, y, scale = 1, umbrella = false) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        if (umbrella) {
+          ctx.strokeStyle = "#49305f";
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.moveTo(8, -82);
+          ctx.lineTo(8, -8);
+          ctx.stroke();
+          ctx.fillStyle = "#ff72ad";
+          ctx.beginPath();
+          ctx.arc(8, -82, 72, Math.PI, 0);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = "rgba(255,255,255,.22)";
+          ctx.fillRect(-38, -110, 92, 12);
+        }
+        ctx.fillStyle = "#f6d2ad";
+        ctx.beginPath();
+        ctx.moveTo(-45, -22);
+        ctx.lineTo(-25, -70);
+        ctx.lineTo(-5, -30);
+        ctx.lineTo(26, -72);
+        ctx.lineTo(45, -22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(0, 5, 54, 42, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#282238";
+        ctx.beginPath();
+        ctx.arc(-17, -6, 5, 0, Math.PI * 2);
+        ctx.arc(17, -6, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#282238";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(0, 8, 17, 0, Math.PI);
+        ctx.stroke();
+        ctx.strokeStyle = "#f6d2ad";
+        ctx.lineWidth = 12;
+        ctx.beginPath();
+        ctx.arc(54, 24, 40, -.2, 1.9);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawWind(x, y, scale = 1) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        ctx.strokeStyle = "#5fc8ff";
+        ctx.lineWidth = 9;
+        ctx.lineCap = "round";
+        [[0, 0, 92], [20, 32, 128], [-12, 64, 104]].forEach(([sx, sy, len]) => {
+          ctx.beginPath();
+          ctx.moveTo(sx, sy);
+          ctx.bezierCurveTo(sx + 44, sy - 24, sx + 82, sy + 28, sx + len, sy);
+          ctx.stroke();
+        });
+        ctx.fillStyle = "#282238";
+        ctx.beginPath();
+        ctx.arc(74, 2, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawRainbow(alpha = 1) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        const colors = ["#ff5c8a", "#ffb347", "#ffe66d", "#68d66b", "#55c7ff", "#8d6bff"];
+        colors.forEach((color, index) => {
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 14;
+          ctx.beginPath();
+          ctx.arc(520, 430, 250 - index * 18, Math.PI, 0);
+          ctx.stroke();
+        });
+        ctx.restore();
+      }
+
+      function drawRain() {
+        ctx.strokeStyle = "rgba(75,99,128,.45)";
+        ctx.lineWidth = 3;
+        for (let i = 0; i < 80; i += 1) {
+          const x = (i * 53 + sceneTime * 280) % W;
+          const y = (i * 91 + sceneTime * 420) % H;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x - 16, y + 34);
+          ctx.stroke();
+        }
+      }
+
+      function drawScene() {
+        const t = sceneTime;
+        if (sceneIndex === 0) {
+          drawSky();
+          drawWindow();
+          drawCloud(650, 86, .55, "#fff", false);
+          drawCloud(770, 135, .45, "#fff", false);
+          drawLuna(230, 337, .9);
+          const fall = ease(clamp((t - 1.2) / 3.2, 0, 1));
+          drawCloud(565, 80 + fall * 245, .58, "#fff", true);
+        }
+        if (sceneIndex === 1) {
+          drawSky();
+          drawCloud(760, 90, .55, "#fff", false);
+          drawLuna(210 + Math.sin(t * 2) * 8, 402, .72);
+          drawCloud(410, 330 + Math.sin(t * 2.2) * 7, .5, "#fff", true);
+          drawWind(550 + Math.sin(t) * 16, 260, .9);
+          drawCloud(650, 190 - ease(clamp((t - 5) / 3, 0, 1)) * 78, .5, "#fff", true);
+        }
+        if (sceneIndex === 2) {
+          drawSky("rain");
+          drawRain();
+          drawLuna(360, 414, .76, true);
+          const small = 1 - ease(clamp((t - 1) / 3, 0, 1)) * .28;
+          drawCloud(475, 330, .48 * small, "#f7fbff", true);
+        }
+        if (sceneIndex === 3) {
+          drawSky();
+          drawRainbow(ease(clamp(t / 2.5, 0, 1)));
+          drawLuna(200, 405, .72);
+          drawCloud(360, 300, .52, "#fff", true);
+          drawCloud(665 - ease(clamp(t / 5, 0, 1)) * 130, 185, .9, "#fff", true);
+          drawCloud(780 - ease(clamp(t / 5, 0, 1)) * 120, 225, .62, "#fff", false);
+        }
+        if (sceneIndex === 4) {
+          drawSky();
+          drawRainbow(.75);
+          drawLuna(210, 405, .72);
+          const fly = ease(clamp((t - 4.5) / 3.5, 0, 1));
+          drawCloud(350 + fly * 330, 305 - fly * 160, .52, "#fff", true);
+          drawCloud(675, 170, .78, "#fff", true);
+          drawHeartCloud(520, 110, .55 + Math.sin(t * 2) * .03);
+        }
+      }
+
+      function loop(now) {
+        const delta = Math.min(.033, (now - (last || now)) / 1000);
+        last = now;
+        if (playing) {
+          sceneTime += delta;
+          if (sceneTime >= activeScene().duration) {
+            if (sceneIndex < scenes.length - 1) setScene(sceneIndex + 1);
+            else {
+              playing = false;
+              sceneTime = activeScene().duration;
+            }
+          }
+        }
+        drawScene();
+        updateText();
+        requestAnimationFrame(loop);
+      }
+
+      playButton.addEventListener("click", () => {
+        if (sceneIndex === scenes.length - 1 && sceneTime >= activeScene().duration) setScene(0);
+        playing = true;
+      });
+      pauseButton.addEventListener("click", () => {
+        playing = false;
+      });
+      nextButton.addEventListener("click", () => setScene(sceneIndex + 1));
+      prevButton.addEventListener("click", () => setScene(sceneIndex - 1));
+
+      renderSceneButtons();
+      updateText();
+      requestAnimationFrame(loop);
+    </script>
+    <script src="../../assets/site.js"></script>
+  </body>
+</html>
