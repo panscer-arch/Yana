@@ -259,7 +259,7 @@
         </div>
         <h2>Сцены</h2>
         <div class="scene-list" id="scene-list"></div>
-        <p>Я улучшил мультяшность и сделал мультик длиннее. Озвучка браузерная: если голос некрасивый, лучше смотреть с текстом.</p>
+        <p>Версия стала длиннее и живее: больше сцен, мягкие тени, пушистые облака, лапки, зонт, дождь, радуга и финальные объятия.</p>
       </aside>
     </main>
 
@@ -347,6 +347,16 @@
           ]
         },
         {
+          name: "Капельки солнца",
+          duration: 11,
+          lines: [
+            [0, "Солнце выглянуло из-за туч, и капли на листьях засверкали."],
+            [2.8, "Пуш: — Я снова стал пушистым!"],
+            [5.8, "Луна: — Видишь? Смелые друзья обязательно находят дорогу."],
+            [8.8, "Ветер тихонько подсушил Пуша тёплым воздушным кружком."]
+          ]
+        },
+        {
           name: "Радуга",
           duration: 12,
           lines: [
@@ -354,6 +364,16 @@
             [3.0, "Пуш: — Это моя семья! Я вижу их!"],
             [6.3, "Мама-облако: — Пуш, вот ты где!"],
             [9.2, "Облака подплыли ближе, мягкие и сияющие."]
+          ]
+        },
+        {
+          name: "Объятия",
+          duration: 11,
+          lines: [
+            [0, "Мама-облако укутала Пуша мягким облачным шарфиком."],
+            [3.0, "Мама-облако: — Спасибо тебе, Луна. Ты настоящий друг."],
+            [6.2, "Луна смущённо улыбнулась и помахала лапкой."],
+            [8.7, "Пуш ещё раз подплыл к Луне, чтобы попрощаться."]
           ]
         },
         {
@@ -518,23 +538,56 @@
         ctx.beginPath();
         ctx.arc(795, 82, 43, 0, Math.PI * 2);
         ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,.35)";
+        ctx.beginPath();
+        ctx.arc(780, 65, 13, 0, Math.PI * 2);
+        ctx.arc(810, 96, 8, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       function drawWindow() {
-        ctx.fillStyle = "#f7d8b6";
+        const wall = ctx.createLinearGradient(0, 0, W, H);
+        wall.addColorStop(0, "#ffe1c8");
+        wall.addColorStop(.55, "#f7d8b6");
+        wall.addColorStop(1, "#eabf91");
+        ctx.fillStyle = wall;
         ctx.fillRect(0, 310, W, 230);
+        ctx.fillStyle = "rgba(112,77,54,.12)";
+        for (let y = 318; y < H; y += 28) {
+          ctx.fillRect(0, y, W, 2);
+        }
         ctx.fillStyle = "rgba(131,89,59,.14)";
         for (let x = 0; x < W; x += 54) {
           ctx.fillRect(x, 505, 34, 5);
         }
+        ctx.fillStyle = "rgba(78,47,33,.14)";
+        ctx.beginPath();
+        ctx.ellipse(620, 424, 205, 46, -.08, 0, Math.PI * 2);
+        ctx.fill();
         ctx.fillStyle = "#fff8e8";
         ctx.fillRect(90, 105, 260, 245);
         ctx.fillStyle = "#8fdcff";
         ctx.fillRect(112, 126, 216, 178);
+        ctx.fillStyle = "rgba(255,255,255,.4)";
+        ctx.beginPath();
+        ctx.moveTo(118, 130);
+        ctx.lineTo(238, 130);
+        ctx.lineTo(132, 302);
+        ctx.lineTo(118, 302);
+        ctx.closePath();
+        ctx.fill();
         ctx.fillStyle = "#a36d47";
         ctx.fillRect(86, 330, 275, 28);
         ctx.fillRect(204, 116, 16, 196);
         ctx.fillRect(112, 202, 216, 14);
+        ctx.fillStyle = "#ff72ad";
+        ctx.beginPath();
+        ctx.arc(458, 381, 20, 0, Math.PI * 2);
+        ctx.arc(480, 368, 28, 0, Math.PI * 2);
+        ctx.arc(513, 384, 21, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#5fae66";
+        ctx.fillRect(440, 400, 88, 16);
       }
 
       function drawGarden(extra = "clear") {
@@ -551,10 +604,21 @@
         ctx.arc(48, 295, 42, 0, Math.PI * 2);
         ctx.arc(140, 300, 48, 0, Math.PI * 2);
         ctx.fill();
+        ctx.fillStyle = "rgba(39,74,44,.18)";
+        ctx.beginPath();
+        ctx.ellipse(510, 448, 380, 44, -.06, 0, Math.PI * 2);
+        ctx.fill();
         ctx.fillStyle = "#e9c99a";
         ctx.beginPath();
         ctx.ellipse(500, 500, 420, 70, -.08, 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = "rgba(173,121,62,.24)";
+        ctx.lineWidth = 8;
+        for (let i = 0; i < 8; i += 1) {
+          ctx.beginPath();
+          ctx.arc(335 + i * 47, 505 + Math.sin(i) * 7, 32, 3.45, 5.85);
+          ctx.stroke();
+        }
         for (let i = 0; i < 22; i += 1) {
           const x = 80 + (i * 79) % 820;
           const y = 410 + (i * 37) % 95;
@@ -571,12 +635,20 @@
           ctx.arc(x + 6, y + 5, 5, 0, Math.PI * 2);
           ctx.fill();
         }
+        if (extra === "rain") {
+          ctx.fillStyle = "rgba(68,79,110,.16)";
+          ctx.fillRect(0, 0, W, H);
+        }
       }
 
       function drawCloud(x, y, scale = 1, color = "#fff", face = true) {
         ctx.save();
         ctx.translate(x, y);
         ctx.scale(scale, scale);
+        ctx.fillStyle = "rgba(62,81,110,.15)";
+        ctx.beginPath();
+        ctx.ellipse(6, 42, 82, 14, 0, 0, Math.PI * 2);
+        ctx.fill();
         ctx.strokeStyle = "rgba(98,93,122,.22)";
         ctx.lineWidth = 8;
         ctx.lineJoin = "round";
@@ -594,6 +666,12 @@
         ctx.arc(-22, -18, 18, 0, Math.PI * 2);
         ctx.arc(30, -12, 16, 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,.8)";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(-18, -22, 18, 3.4, 5.8);
+        ctx.arc(30, -15, 17, 3.6, 5.9);
+        ctx.stroke();
         if (face) {
           ctx.fillStyle = "#282238";
           ctx.beginPath();
@@ -657,6 +735,14 @@
         ctx.ellipse(0, 28, 45, 54, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
+        ctx.strokeStyle = "rgba(255,255,255,.45)";
+        ctx.lineWidth = 3;
+        for (let i = 0; i < 9; i += 1) {
+          ctx.beginPath();
+          ctx.moveTo(-28 + i * 7, -10 + Math.sin(i) * 2);
+          ctx.quadraticCurveTo(-24 + i * 7, 16, -30 + i * 8, 42);
+          ctx.stroke();
+        }
         ctx.fillStyle = "#f4c99e";
         ctx.beginPath();
         ctx.ellipse(-29, 59, 18, 12, -.18, 0, Math.PI * 2);
@@ -700,8 +786,13 @@
         ctx.fill();
         ctx.fillStyle = "#282238";
         ctx.beginPath();
-        ctx.arc(-17, -6, 5, 0, Math.PI * 2);
-        ctx.arc(17, -6, 5, 0, Math.PI * 2);
+        ctx.ellipse(-17, -7, 6, 7, 0, 0, Math.PI * 2);
+        ctx.ellipse(17, -7, 6, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,.85)";
+        ctx.beginPath();
+        ctx.arc(-19, -10, 2, 0, Math.PI * 2);
+        ctx.arc(15, -10, 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = "rgba(255,114,173,.38)";
         ctx.beginPath();
@@ -713,6 +804,14 @@
         ctx.beginPath();
         ctx.arc(0, 8, 17, 0, Math.PI);
         ctx.stroke();
+        ctx.strokeStyle = "rgba(40,34,56,.75)";
+        ctx.lineWidth = 2;
+        [[-8, 8, -52, 0], [-8, 14, -55, 15], [8, 8, 52, 0], [8, 14, 55, 15]].forEach(([sx, sy, ex, ey]) => {
+          ctx.beginPath();
+          ctx.moveTo(sx, sy);
+          ctx.lineTo(ex, ey);
+          ctx.stroke();
+        });
         ctx.restore();
       }
 
@@ -847,6 +946,25 @@
         }
         if (sceneIndex === 6) {
           drawGarden();
+          ctx.fillStyle = "rgba(255,255,255,.52)";
+          for (let i = 0; i < 18; i += 1) {
+            const x = 95 + i * 46;
+            const y = 340 + Math.sin(i + t * 2) * 18;
+            ctx.beginPath();
+            ctx.arc(x, y, 7 + (i % 3) * 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          drawLuna(230 + Math.sin(t * 1.5) * 6, 410, .74);
+          drawCloud(430, 322 + Math.sin(t * 2) * 5, .55 + Math.sin(t * 1.5) * .02, "#fff", true);
+          drawWind(555 + Math.sin(t * 1.2) * 14, 260, .78);
+          ctx.strokeStyle = "rgba(95,200,255,.32)";
+          ctx.lineWidth = 9;
+          ctx.beginPath();
+          ctx.arc(450, 325, 82, .2, 1.65);
+          ctx.stroke();
+        }
+        if (sceneIndex === 7) {
+          drawGarden();
           drawRainbow(ease(clamp(t / 3.5, 0, 1)));
           drawLuna(190, 410, .72);
           drawCloud(340, 315, .52, "#fff", true);
@@ -855,7 +973,28 @@
           drawCloud(820 - familyMove * 155, 224, .62, "#fff", false);
           drawCloud(620 - familyMove * 100, 112, .5, "#fff", false);
         }
-        if (sceneIndex === 7) {
+        if (sceneIndex === 8) {
+          drawGarden();
+          drawRainbow(.8);
+          drawLuna(210 + Math.sin(t * 2) * 3, 410, .75);
+          drawCloud(395, 300, .5, "#fff", true);
+          drawCloud(635, 205, .9, "#fff", true);
+          ctx.fillStyle = "rgba(255,255,255,.9)";
+          ctx.beginPath();
+          ctx.roundRect(526, 230, 170, 30, 15);
+          ctx.fill();
+          ctx.fillStyle = "rgba(141,107,255,.2)";
+          ctx.beginPath();
+          ctx.roundRect(540, 237, 140, 12, 8);
+          ctx.fill();
+          ctx.strokeStyle = "#282238";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(156, 354);
+          ctx.quadraticCurveTo(178, 333, 204, 344);
+          ctx.stroke();
+        }
+        if (sceneIndex === 9) {
           drawGarden();
           drawRainbow(.75);
           drawLuna(210, 410, .72);
