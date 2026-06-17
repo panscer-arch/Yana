@@ -1,19 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="Обложка игры Побег плюшевых игрушек">
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="Обложка игры Плюшевый городок">
   <defs>
     <linearGradient id="room" x1="0" x2="0" y1="0" y2="1">
-      <stop offset="0" stop-color="#2a2145"/>
-      <stop offset=".58" stop-color="#44305f"/>
-      <stop offset=".59" stop-color="#6f5571"/>
-      <stop offset="1" stop-color="#3a2643"/>
+      <stop offset="0" stop-color="#31204f"/>
+      <stop offset=".58" stop-color="#514076"/>
+      <stop offset=".59" stop-color="#786283"/>
+      <stop offset="1" stop-color="#422c50"/>
     </linearGradient>
   </defs>
   <rect width="960" height="540" rx="18" fill="url(#room)"/>
-  <circle cx="830" cy="86" r="58" fill="#ffd76a" opacity=".28"/>
-  <rect x="72" y="318" width="205" height="96" rx="14" fill="#51365b"/>
-  <rect x="340" y="388" width="150" height="92" rx="12" fill="#8a633f"/>
-  <rect x="684" y="274" width="150" height="170" rx="12" fill="#6b4a35"/>
-  <g transform="translate(476 280)">
-    <ellipse cx="0" cy="92" rx="86" ry="24" fill="#120e22" opacity=".3"/>
+  <circle cx="820" cy="84" r="56" fill="#ffd76a" opacity=".3"/>
+  <rect x="88" y="338" width="172" height="92" rx="12" fill="#4f3658"/>
+  <rect x="104" y="354" width="58" height="28" rx="8" fill="#ffbed5"/>
+  <rect x="344" y="396" width="150" height="82" rx="12" fill="#8a633f"/>
+  <rect x="672" y="290" width="150" height="160" rx="12" fill="#6b4a35"/>
+  <path d="M382 480 462 390 542 480Z" fill="#ff72ad"/>
+  <circle cx="610" cy="420" r="28" fill="#ffd76a"/>
+  <rect x="602" y="446" width="16" height="54" fill="#ffd76a"/>
+  <rect x="660" y="398" width="112" height="82" rx="10" fill="#79d6ff"/>
+  <g transform="translate(478 244)">
+    <ellipse cx="0" cy="102" rx="88" ry="24" fill="#120e22" opacity=".26"/>
     <ellipse cx="0" cy="0" rx="76" ry="82" fill="#b87a4f"/>
     <circle cx="-46" cy="-62" r="33" fill="#b87a4f"/>
     <circle cx="46" cy="-62" r="33" fill="#b87a4f"/>
@@ -21,20 +26,22 @@
     <circle cx="-24" cy="-18" r="10" fill="#24172d"/>
     <circle cx="24" cy="-18" r="10" fill="#24172d"/>
     <path d="M-22 22c18 24 50 24 68 0" fill="none" stroke="#24172d" stroke-width="8" stroke-linecap="round"/>
-    <rect x="-34" y="70" width="68" height="16" rx="5" fill="#ff72ad"/>
   </g>
-  <g transform="translate(168 170)">
-    <circle cx="0" cy="0" r="35" fill="#f3bf94"/>
-    <rect x="-28" y="26" width="56" height="78" rx="8" fill="#293052"/>
-    <text x="0" y="128" fill="#fff8e8" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="900" text-anchor="middle">топ-топ</text>
-  </g>
-  <g transform="translate(742 160)">
-    <ellipse cx="0" cy="18" rx="48" ry="34" fill="#75d48b"/>
+  <g transform="translate(738 174)">
+    <ellipse cx="0" cy="18" rx="50" ry="35" fill="#fff6f9"/>
     <circle cx="-16" cy="6" r="7" fill="#24172d"/>
     <circle cx="16" cy="6" r="7" fill="#24172d"/>
     <path d="M-16 24c12 12 32 12 44 0" fill="none" stroke="#24172d" stroke-width="6" stroke-linecap="round"/>
-    <rect x="-22" y="48" width="44" height="12" fill="#ff72ad"/>
+    <ellipse cx="-24" cy="-34" rx="12" ry="38" fill="#fff6f9" transform="rotate(-18)"/>
+    <ellipse cx="24" cy="-34" rx="12" ry="38" fill="#fff6f9" transform="rotate(18)"/>
   </g>
-  <text x="78" y="80" fill="#fff8e8" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="900">Побег плюшевых игрушек</text>
-  <text x="80" y="126" fill="#cfbfdc" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="800">прячься, спасай друзей и добеги к выходу</text>
+  <g fill="#fff8e8" font-family="Arial, Helvetica, sans-serif">
+    <text x="76" y="82" font-size="56" font-weight="900">Плюшевый городок</text>
+    <text x="80" y="130" fill="#d9cce6" font-size="27" font-weight="800">собирай ресурсы, строй базу и спасай друзей</text>
+  </g>
+  <g fill="#ff72ad">
+    <rect x="164" y="210" width="36" height="28" rx="8"/>
+    <rect x="238" y="260" width="36" height="28" rx="8"/>
+    <rect x="802" y="368" width="36" height="28" rx="8"/>
+  </g>
 </svg>
