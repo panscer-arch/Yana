@@ -36,6 +36,15 @@ const levelNames = {
   5: "Искорка: Ледяной Склон",
 };
 
+function getBestTime(level) {
+  return Number(localStorage.getItem(`sparkle-parkour-best-${level}`) || 0);
+}
+
+function saveBestTime(level, time) {
+  const best = getBestTime(level);
+  if (!best || time < best) localStorage.setItem(`sparkle-parkour-best-${level}`, time.toFixed(2));
+}
+
 function makeLevel(n) {
   const base = {
     n,
@@ -227,6 +236,7 @@ function update(dt) {
 
   const finishX = state.n === 1 ? 3495 : state.n === 2 ? 3980 : state.n === 3 ? 3240 : state.n === 4 ? 4150 : 4380;
   if (p.x > finishX) {
+    saveBestTime(state.n, state.t);
     if (state.n < 5) transition(state.n + 1, `Уровень ${state.n} пройден. Следующий включается сам.`);
     else transition(0, "Пятый ледяной уровень пройден. Искорка удержалась на скользком льду.");
   }
@@ -242,7 +252,8 @@ function updateHud() {
   hud.coins.textContent = `${state.coins.filter(c => c.taken).length}/${state.coins.length}`;
   hud.lives.textContent = Math.max(0, state.p.lives);
   hud.time.textContent = `${state.t.toFixed(1)}с`;
-  hud.speed.textContent = `L${state.n} ${Math.round(Math.abs(state.p.vx))}`;
+  const best = getBestTime(state.n);
+  hud.speed.textContent = best ? `рекорд ${best.toFixed(1)}с` : `L${state.n} ${Math.round(Math.abs(state.p.vx))}`;
 }
 
 function draw() {

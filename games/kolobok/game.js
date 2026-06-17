@@ -26,6 +26,8 @@ function resetGame() {
     lost: false,
     elapsed: 0,
     fear: 15,
+    crumbCombo: 0,
+    braveTimer: 0,
     pulse: 0,
     player: { x: 138, y: 510, r: 22, speed: 230, angle: 0 },
     crumbs: [],
@@ -78,6 +80,7 @@ function finish(message, won) {
 function update(dt) {
   state.elapsed += dt;
   state.pulse += dt;
+  state.braveTimer = Math.max(0, state.braveTimer - dt);
   const player = state.player;
   let vx = 0;
   let vy = 0;
@@ -89,8 +92,9 @@ function update(dt) {
 
   if (vx || vy) {
     const len = Math.hypot(vx, vy);
-    player.x += (vx / len) * player.speed * dt;
-    player.y += (vy / len) * player.speed * dt;
+    const boost = state.braveTimer > 0 ? 1.32 : 1;
+    player.x += (vx / len) * player.speed * boost * dt;
+    player.y += (vy / len) * player.speed * boost * dt;
     player.angle += dt * 7.5;
   }
 
@@ -120,7 +124,9 @@ function update(dt) {
   for (const crumb of state.crumbs) {
     if (!crumb.taken && dist(player, crumb) < player.r + crumb.r + 4) {
       crumb.taken = true;
-      state.fear = Math.max(0, state.fear - 12);
+      state.crumbCombo += 1;
+      state.fear = Math.max(0, state.fear - (state.crumbCombo % 3 === 0 ? 22 : 12));
+      if (state.crumbCombo % 3 === 0) state.braveTimer = 4.5;
     }
   }
 
@@ -142,7 +148,7 @@ function update(dt) {
 }
 
 function updateHud(collected) {
-  crumbsText.textContent = `${collected} / ${state.crumbs.length}`;
+  crumbsText.textContent = `${collected} / ${state.crumbs.length}${state.braveTimer > 0 ? " · смелость" : ""}`;
   fearText.textContent = `${Math.round(clamp(state.fear, 0, 100))}%`;
   const total = Math.floor(state.elapsed);
   timeText.textContent = `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(

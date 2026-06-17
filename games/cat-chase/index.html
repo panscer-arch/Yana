@@ -798,6 +798,8 @@
         won: false,
         lost: false,
         score: 0,
+        combo: 0,
+        comboTimer: 0,
         lives: 3,
         collected: 0,
         luna: { x: 85, y: 295 },
@@ -852,6 +854,8 @@
         state.won = false;
         state.lost = false;
         state.score = 0;
+        state.combo = 0;
+        state.comboTimer = 0;
         state.lives = 3;
         state.collected = 0;
         state.luna = { x: 85, y: 295 };
@@ -902,9 +906,11 @@
             item.taken = true;
             item.el.classList.add("taken-pop");
             setTimeout(() => item.el.remove(), 260);
-            state.score += 10;
+            state.combo = state.comboTimer > 0 ? state.combo + 1 : 1;
+            state.comboTimer = 150;
+            state.score += 10 + Math.min(30, state.combo * 4);
             state.collected += 1;
-            message.textContent = "Луна собрала вкусность!";
+            message.textContent = state.combo >= 3 ? `Комбо x${state.combo}! Луна собирает быстрее.` : "Луна собрала вкусность!";
           }
         }
       }
@@ -914,6 +920,8 @@
         state.lives -= 1;
         state.luna = { x: 85, y: 295 };
         state.lana = { x: 55, y: 330 };
+        state.combo = 0;
+        state.comboTimer = 0;
         state.lastLunaX = state.luna.x;
         state.lastLanaX = state.lana.x;
         message.textContent = state.lives > 0 ? "Лана догнала Луну. Осторожнее!" : "Лана поймала Луну. Попробуй ещё раз.";
@@ -958,6 +966,7 @@
 
       function loop() {
         if (state.running) {
+          state.comboTimer = Math.max(0, state.comboTimer - 1);
           updatePlayer();
           updateLana();
           checkItems();

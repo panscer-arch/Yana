@@ -1860,6 +1860,7 @@
         wetness: 0,
         coins: 0,
         level: 1,
+        happyCareTimer: 0,
         x: 50,
         y: 42
       };
@@ -1899,6 +1900,20 @@
         state.level = 1 + Math.floor(state.coins / 12);
         playHappySound();
         render();
+      }
+
+      function checkPerfectCare() {
+        const values = [state.hunger, state.energy, state.happiness, state.warmth, state.clean, state.toilet];
+        const isPerfect = values.every((value) => value >= 72) && !state.bathing && state.wetness < 10;
+        state.happyCareTimer = isPerfect ? state.happyCareTimer + 1 : 0;
+        if (state.happyCareTimer >= 3) {
+          state.happyCareTimer = 0;
+          state.coins += 4;
+          state.level = 1 + Math.floor(state.coins / 12);
+          setMessage("Котёнок сияет от заботы! +4 монетки");
+          playHappySound();
+          render();
+        }
       }
 
       function getCareTip() {
@@ -2361,6 +2376,7 @@
           state.wetness = clamp(state.wetness - 8);
           render();
         }
+        checkPerfectCare();
         askForCare();
       }, 4200);
 

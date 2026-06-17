@@ -524,6 +524,9 @@
         for (let i = 0; i < 260; i += 1) {
           foods.push(makeFood());
         }
+        for (let i = 0; i < 12; i += 1) {
+          foods.push(makeFood(rand(80, world.width - 80), rand(80, world.height - 80), 5));
+        }
         running = true;
         gameOver = false;
         renderPads();

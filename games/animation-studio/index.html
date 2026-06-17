@@ -383,6 +383,15 @@
           linear-gradient(180deg, #bfe9ff, #fff6ce);
       }
 
+      .template-button[data-template="space"] {
+        color: #fff;
+        background:
+          radial-gradient(circle at 30% 34%, #ffd45c 0 8%, transparent 9%),
+          radial-gradient(circle at 70% 58%, #ff6fa8 0 6%, transparent 7%),
+          radial-gradient(circle at 50% 22%, #ffffff 0 2%, transparent 3%),
+          linear-gradient(135deg, #171342, #3d2472 58%, #10172f);
+      }
+
       .template-button[data-template="blank"] {
         color: var(--muted);
         background:
@@ -725,6 +734,7 @@
             <button type="button" class="template-button" data-template="castle">Замок</button>
             <button type="button" class="template-button" data-template="house">Домик</button>
             <button type="button" class="template-button" data-template="rainbow">Радуга</button>
+            <button type="button" class="template-button" data-template="space">Космос</button>
             <button type="button" class="template-button" data-template="blank">Чистый лист</button>
           </div>
 
@@ -766,6 +776,7 @@
               <button type="button" class="template-button" data-template="castle">Замок</button>
               <button type="button" class="template-button" data-template="house">Домик</button>
               <button type="button" class="template-button" data-template="rainbow">Радуга</button>
+              <button type="button" class="template-button" data-template="space">Космос</button>
               <button type="button" class="template-button" data-template="blank">Чистый лист</button>
             </div>
           </div>
@@ -1206,6 +1217,40 @@
           line([[300, 638], [300, 690]], "#2f9a5b", 6);
           line([[480, 672], [480, 700]], "#2f9a5b", 6);
           line([[650, 638], [650, 690]], "#2f9a5b", 6);
+        }
+
+        if (name === "space") {
+          const sky = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+          sky.addColorStop(0, "#171342");
+          sky.addColorStop(.55, "#3d2472");
+          sky.addColorStop(1, "#0b1430");
+          ctx.fillStyle = sky;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          for (let i = 0; i < 70; i += 1) {
+            const x = (i * 137) % canvas.width;
+            const y = (i * 83) % 520 + 25;
+            blob(x, y, i % 5 === 0 ? 5 : 2.4, i % 5 === 0 ? 5 : 2.4, "#fffdf7", "#fffdf7", 1);
+          }
+          blob(235, 235, 86, 86, "#ffd45c", "#211d2f", 8);
+          blob(710, 205, 58, 58, "#45aaf2", "#211d2f", 7);
+          ctx.strokeStyle = "rgba(255,255,255,.78)";
+          ctx.lineWidth = 10;
+          ctx.beginPath();
+          ctx.ellipse(710, 205, 104, 22, -0.35, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fillStyle = "#ff6fa8";
+          ctx.beginPath();
+          ctx.moveTo(440, 425);
+          ctx.lineTo(520, 330);
+          ctx.lineTo(600, 425);
+          ctx.lineTo(570, 520);
+          ctx.lineTo(470, 520);
+          ctx.closePath();
+          ctx.fill();
+          line([[440, 425], [520, 330], [600, 425], [570, 520], [470, 520], [440, 425]], "#211d2f", 7);
+          blob(520, 425, 32, 32, "#bfe9ff", "#211d2f", 5);
+          petal(482, 535, 24, "#ff8b45");
+          petal(558, 535, 24, "#ffd45c");
         }
 
         saveFrame();
