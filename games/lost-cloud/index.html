@@ -255,11 +255,11 @@
           <button class="secondary" id="pause" type="button">Пауза</button>
           <button class="secondary" id="prev" type="button">Назад</button>
           <button class="secondary" id="next" type="button">Дальше</button>
-          <button class="secondary" id="voice" type="button">Озвучка: выкл</button>
+          <button class="secondary" id="voice" type="button">Робо-озвучка: выкл</button>
         </div>
         <h2>Сцены</h2>
         <div class="scene-list" id="scene-list"></div>
-        <p>Озвучка работает через голос браузера: Луна говорит выше и милее, Пуш мягко, Ветер ниже и взрослее.</p>
+        <p>Я улучшил мультяшность и сделал мультик длиннее. Озвучка браузерная: если голос некрасивый, лучше смотреть с текстом.</p>
       </aside>
     </main>
 
@@ -287,52 +287,83 @@
       const H = 540;
       const scenes = [
         {
-          name: "Утро",
-          duration: 9,
+          name: "Утро у окна",
+          duration: 12,
           lines: [
-            [0, "Луна: — Какой красивый день!"],
-            [2.7, "Пуш: — Ой! Кажется, я потерялся…"],
-            [5.3, "Луна: — Потерялся? Как такое возможно?"],
-            [7.1, "Пуш: — Я засмотрелся на радугу и отстал от своей семьи."]
+            [0, "Рассказчик: Утром Луна сидела на мягком подоконнике и смотрела в небо."],
+            [3.0, "Луна: — Какой красивый день! Облака похожи на зефир."],
+            [6.2, "Вдруг маленькое облачко закружилось и полетело вниз."],
+            [9.0, "Пуш: — Ой-ой! Кажется, я потерялся…"]
           ]
         },
         {
-          name: "Поиски",
-          duration: 9,
+          name: "Знакомство",
+          duration: 12,
           lines: [
-            [0, "Луна и Пуш идут искать облачную семью."],
-            [2.1, "Ветер: — Почему такие грустные?"],
-            [4.2, "Луна: — Пуш потерял своих."],
-            [6.2, "Ветер: — Тогда я помогу!"]
+            [0, "Луна: — Ты кто такой пушистый?"],
+            [2.7, "Пуш: — Я Пуш. Я засмотрелся на радугу и отстал от своей семьи."],
+            [6.3, "Луна: — Не бойся. Я маленькая, но очень смелая."],
+            [9.0, "Пуш: — Правда поможешь?"]
           ]
         },
         {
-          name: "Трудность",
-          duration: 9,
+          name: "Следы в небе",
+          duration: 13,
           lines: [
-            [0, "Начинается дождь."],
-            [2.2, "Пуш: — Я исчезаю…"],
-            [4.3, "Луна: — Не сдавайся!"],
-            [6.0, "Луна раскрывает большой зонт и помогает Пушу переждать дождь."]
+            [0, "Луна и Пуш пошли по садовой дорожке искать облачные следы."],
+            [3.4, "Пуш: — Моя семья большая-большая, как гора из ваты."],
+            [6.8, "Луна: — Тогда мы точно заметим её в небе."],
+            [9.8, "На траве блестела капелька, похожая на маленькую звезду."]
           ]
         },
         {
-          name: "Развязка",
-          duration: 8,
+          name: "Весёлый Ветер",
+          duration: 13,
           lines: [
-            [0, "После дождя появляется радуга."],
-            [2.4, "Пуш: — Это моя семья!"],
-            [4.6, "Мама-облако: — Вот ты где!"]
+            [0, "Ветер: — Фью-у-у! Почему такие грустные?"],
+            [3.0, "Луна: — Пуш потерял своих."],
+            [5.5, "Ветер: — Тогда я помогу! Я умею поднимать облака выше крыш."],
+            [9.2, "Ветер аккуратно подхватил Пуша, чтобы тот увидел дальше."]
           ]
         },
         {
-          name: "Финал",
-          duration: 9,
+          name: "Дождь",
+          duration: 12,
           lines: [
-            [0, "Пуш обнимает Луну пушистым облачным хвостиком."],
-            [2.1, "Пуш: — Спасибо, что помогла мне."],
-            [4.2, "Луна: — Друзья для этого и нужны."],
-            [6.2, "На небе появляется облако в форме сердечка. Конец."]
+            [0, "Небо потемнело, и начался дождь."],
+            [2.8, "Пуш: — Я становлюсь совсем маленьким…"],
+            [5.5, "Луна: — Не сдавайся! Сейчас я тебя укрою."],
+            [8.4, "Луна раскрыла большой розовый зонт."]
+          ]
+        },
+        {
+          name: "Под зонтом",
+          duration: 12,
+          lines: [
+            [0, "Под зонтом было тепло и спокойно."],
+            [2.8, "Пуш: — Я думал, что потерялся навсегда."],
+            [5.8, "Луна: — Когда рядом друг, навсегда не бывает."],
+            [9.0, "Дождь становился всё тише и тише."]
+          ]
+        },
+        {
+          name: "Радуга",
+          duration: 12,
+          lines: [
+            [0, "После дождя над садом появилась огромная радуга."],
+            [3.0, "Пуш: — Это моя семья! Я вижу их!"],
+            [6.3, "Мама-облако: — Пуш, вот ты где!"],
+            [9.2, "Облака подплыли ближе, мягкие и сияющие."]
+          ]
+        },
+        {
+          name: "Сердечко",
+          duration: 13,
+          lines: [
+            [0, "Пуш обнял Луну пушистым облачным хвостиком."],
+            [3.0, "Пуш: — Спасибо, что помогла мне."],
+            [5.8, "Луна: — Друзья для этого и нужны."],
+            [8.4, "Пуш улетел домой, а на небе появилось облако в форме сердечка."]
           ]
         }
       ];
@@ -389,6 +420,7 @@
           .replace(/^Пуш:\s*—\s*/, "")
           .replace(/^Ветер:\s*—\s*/, "")
           .replace(/^Мама-облако:\s*—\s*/, "")
+          .replace(/^Рассказчик:\s*/, "")
           .replaceAll("…", "...");
       }
 
@@ -397,19 +429,28 @@
         if (text.startsWith("Пуш:")) return "push";
         if (text.startsWith("Ветер:")) return "wind";
         if (text.startsWith("Мама-облако:")) return "mom";
+        if (text.startsWith("Рассказчик:")) return "narrator";
         return "narrator";
       }
 
       function voiceSettings(speaker) {
-        const ruVoice = voices.find((voice) => voice.lang?.toLowerCase().startsWith("ru"))
+        const preferred = speaker === "wind"
+          ? ["yuri", "pavel", "male", "google"]
+          : ["milena", "oksana", "female", "google"];
+        const ruVoices = voices.filter((voice) => voice.lang?.toLowerCase().startsWith("ru"));
+        const picked = preferred
+          .map((name) => ruVoices.find((voice) => voice.name.toLowerCase().includes(name)))
+          .find(Boolean);
+        const ruVoice = picked
+          || ruVoices[0]
           || voices.find((voice) => voice.lang?.toLowerCase().startsWith("en"))
           || null;
         const settings = {
-          luna: { pitch: 1.75, rate: .96, volume: 1 },
-          push: { pitch: 1.45, rate: .88, volume: .95 },
-          wind: { pitch: .75, rate: .94, volume: 1 },
-          mom: { pitch: 1.0, rate: .82, volume: 1 },
-          narrator: { pitch: 1.12, rate: .9, volume: .9 }
+          luna: { pitch: 1.28, rate: .88, volume: .95 },
+          push: { pitch: 1.16, rate: .82, volume: .88 },
+          wind: { pitch: .82, rate: .84, volume: .95 },
+          mom: { pitch: .95, rate: .78, volume: .95 },
+          narrator: { pitch: 1.0, rate: .82, volume: .75 }
         };
         return { voice: ruVoice, ...settings[speaker] };
       }
@@ -482,6 +523,10 @@
       function drawWindow() {
         ctx.fillStyle = "#f7d8b6";
         ctx.fillRect(0, 310, W, 230);
+        ctx.fillStyle = "rgba(131,89,59,.14)";
+        for (let x = 0; x < W; x += 54) {
+          ctx.fillRect(x, 505, 34, 5);
+        }
         ctx.fillStyle = "#fff8e8";
         ctx.fillRect(90, 105, 260, 245);
         ctx.fillStyle = "#8fdcff";
@@ -492,10 +537,49 @@
         ctx.fillRect(112, 202, 216, 14);
       }
 
+      function drawGarden(extra = "clear") {
+        drawSky(extra === "rain" ? "rain" : "day");
+        ctx.fillStyle = "rgba(75,153,72,.25)";
+        ctx.beginPath();
+        ctx.ellipse(480, 540, 560, 118, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#8a5a32";
+        ctx.fillRect(84, 285, 24, 130);
+        ctx.fillStyle = "#4fac61";
+        ctx.beginPath();
+        ctx.arc(95, 260, 64, 0, Math.PI * 2);
+        ctx.arc(48, 295, 42, 0, Math.PI * 2);
+        ctx.arc(140, 300, 48, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#e9c99a";
+        ctx.beginPath();
+        ctx.ellipse(500, 500, 420, 70, -.08, 0, Math.PI * 2);
+        ctx.fill();
+        for (let i = 0; i < 22; i += 1) {
+          const x = 80 + (i * 79) % 820;
+          const y = 410 + (i * 37) % 95;
+          ctx.strokeStyle = "#398a45";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(x, y + 18);
+          ctx.lineTo(x, y + 2);
+          ctx.stroke();
+          ctx.fillStyle = ["#ff72ad", "#ffd76a", "#8d6bff", "#fff"][i % 4];
+          ctx.beginPath();
+          ctx.arc(x, y, 7, 0, Math.PI * 2);
+          ctx.arc(x - 6, y + 5, 5, 0, Math.PI * 2);
+          ctx.arc(x + 6, y + 5, 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
       function drawCloud(x, y, scale = 1, color = "#fff", face = true) {
         ctx.save();
         ctx.translate(x, y);
         ctx.scale(scale, scale);
+        ctx.strokeStyle = "rgba(98,93,122,.22)";
+        ctx.lineWidth = 8;
+        ctx.lineJoin = "round";
         ctx.fillStyle = color;
         ctx.beginPath();
         ctx.arc(-34, 6, 28, 0, Math.PI * 2);
@@ -503,12 +587,23 @@
         ctx.arc(28, -2, 31, 0, Math.PI * 2);
         ctx.arc(55, 13, 22, 0, Math.PI * 2);
         ctx.fillRect(-58, 2, 118, 34);
+        ctx.stroke();
+        ctx.fill();
+        ctx.fillStyle = "rgba(133,214,255,.18)";
+        ctx.beginPath();
+        ctx.arc(-22, -18, 18, 0, Math.PI * 2);
+        ctx.arc(30, -12, 16, 0, Math.PI * 2);
         ctx.fill();
         if (face) {
           ctx.fillStyle = "#282238";
           ctx.beginPath();
           ctx.arc(-14, 6, 4, 0, Math.PI * 2);
           ctx.arc(22, 6, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "rgba(255,114,173,.34)";
+          ctx.beginPath();
+          ctx.arc(-28, 17, 7, 0, Math.PI * 2);
+          ctx.arc(37, 17, 7, 0, Math.PI * 2);
           ctx.fill();
           ctx.strokeStyle = "#282238";
           ctx.lineWidth = 3;
@@ -551,6 +646,35 @@
           ctx.fillStyle = "rgba(255,255,255,.22)";
           ctx.fillRect(-38, -110, 92, 12);
         }
+        ctx.fillStyle = "rgba(68,45,45,.16)";
+        ctx.beginPath();
+        ctx.ellipse(0, 62, 62, 15, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#282238";
+        ctx.lineWidth = 5;
+        ctx.fillStyle = "#f4c99e";
+        ctx.beginPath();
+        ctx.ellipse(0, 28, 45, 54, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#f4c99e";
+        ctx.beginPath();
+        ctx.ellipse(-29, 59, 18, 12, -.18, 0, Math.PI * 2);
+        ctx.ellipse(29, 59, 18, 12, .18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = "#f4c99e";
+        ctx.lineWidth = 14;
+        ctx.beginPath();
+        ctx.arc(50, 35, 38, -.4, 2.1);
+        ctx.stroke();
+        ctx.strokeStyle = "#282238";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(50, 35, 38, -.4, 2.1);
+        ctx.stroke();
+        ctx.strokeStyle = "#282238";
+        ctx.lineWidth = 5;
         ctx.fillStyle = "#f6d2ad";
         ctx.beginPath();
         ctx.moveTo(-45, -22);
@@ -560,23 +684,34 @@
         ctx.lineTo(45, -22);
         ctx.closePath();
         ctx.fill();
+        ctx.stroke();
         ctx.beginPath();
         ctx.ellipse(0, 5, 54, 42, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#ffbed5";
+        ctx.beginPath();
+        ctx.moveTo(-29, -34);
+        ctx.lineTo(-23, -55);
+        ctx.lineTo(-12, -35);
+        ctx.moveTo(29, -35);
+        ctx.lineTo(24, -56);
+        ctx.lineTo(12, -35);
         ctx.fill();
         ctx.fillStyle = "#282238";
         ctx.beginPath();
         ctx.arc(-17, -6, 5, 0, Math.PI * 2);
         ctx.arc(17, -6, 5, 0, Math.PI * 2);
         ctx.fill();
+        ctx.fillStyle = "rgba(255,114,173,.38)";
+        ctx.beginPath();
+        ctx.arc(-31, 9, 8, 0, Math.PI * 2);
+        ctx.arc(31, 9, 8, 0, Math.PI * 2);
+        ctx.fill();
         ctx.strokeStyle = "#282238";
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.arc(0, 8, 17, 0, Math.PI);
-        ctx.stroke();
-        ctx.strokeStyle = "#f6d2ad";
-        ctx.lineWidth = 12;
-        ctx.beginPath();
-        ctx.arc(54, 24, 40, -.2, 1.9);
         ctx.stroke();
         ctx.restore();
       }
@@ -585,6 +720,15 @@
         ctx.save();
         ctx.translate(x, y);
         ctx.scale(scale, scale);
+        ctx.strokeStyle = "rgba(38,126,190,.2)";
+        ctx.lineWidth = 18;
+        ctx.lineCap = "round";
+        [[0, 0, 92], [20, 32, 128], [-12, 64, 104]].forEach(([sx, sy, len]) => {
+          ctx.beginPath();
+          ctx.moveTo(sx, sy);
+          ctx.bezierCurveTo(sx + 44, sy - 24, sx + 82, sy + 28, sx + len, sy);
+          ctx.stroke();
+        });
         ctx.strokeStyle = "#5fc8ff";
         ctx.lineWidth = 9;
         ctx.lineCap = "round";
@@ -594,10 +738,20 @@
           ctx.bezierCurveTo(sx + 44, sy - 24, sx + 82, sy + 28, sx + len, sy);
           ctx.stroke();
         });
+        ctx.fillStyle = "rgba(255,255,255,.78)";
+        ctx.beginPath();
+        ctx.arc(70, 8, 30, 0, Math.PI * 2);
+        ctx.fill();
         ctx.fillStyle = "#282238";
         ctx.beginPath();
-        ctx.arc(74, 2, 4, 0, Math.PI * 2);
+        ctx.arc(60, 0, 4, 0, Math.PI * 2);
+        ctx.arc(80, 0, 4, 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = "#282238";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(70, 9, 10, 0, Math.PI);
+        ctx.stroke();
         ctx.restore();
       }
 
@@ -633,40 +787,79 @@
         if (sceneIndex === 0) {
           drawSky();
           drawWindow();
-          drawCloud(650, 86, .55, "#fff", false);
-          drawCloud(770, 135, .45, "#fff", false);
-          drawLuna(230, 337, .9);
-          const fall = ease(clamp((t - 1.2) / 3.2, 0, 1));
-          drawCloud(565, 80 + fall * 245, .58, "#fff", true);
+          drawCloud(650 + Math.sin(t) * 8, 86, .55, "#fff", false);
+          drawCloud(770 - Math.sin(t * .8) * 7, 135, .45, "#fff", false);
+          drawLuna(230, 345 + Math.sin(t * 1.7) * 3, .9);
+          const fall = ease(clamp((t - 5.6) / 4.2, 0, 1));
+          drawCloud(565, 70 + fall * 255, .58, "#fff", true);
         }
         if (sceneIndex === 1) {
           drawSky();
-          drawCloud(760, 90, .55, "#fff", false);
-          drawLuna(210 + Math.sin(t * 2) * 8, 402, .72);
-          drawCloud(410, 330 + Math.sin(t * 2.2) * 7, .5, "#fff", true);
-          drawWind(550 + Math.sin(t) * 16, 260, .9);
-          drawCloud(650, 190 - ease(clamp((t - 5) / 3, 0, 1)) * 78, .5, "#fff", true);
+          drawWindow();
+          drawLuna(245, 348, .92);
+          drawCloud(500 + Math.sin(t * 1.2) * 8, 336 + Math.sin(t * 2) * 6, .62, "#fff", true);
+          ctx.fillStyle = "rgba(255,255,255,.76)";
+          ctx.beginPath();
+          ctx.arc(706, 100, 26, 0, Math.PI * 2);
+          ctx.arc(736, 86, 34, 0, Math.PI * 2);
+          ctx.arc(772, 104, 25, 0, Math.PI * 2);
+          ctx.fill();
         }
         if (sceneIndex === 2) {
-          drawSky("rain");
-          drawRain();
-          drawLuna(360, 414, .76, true);
-          const small = 1 - ease(clamp((t - 1) / 3, 0, 1)) * .28;
-          drawCloud(475, 330, .48 * small, "#f7fbff", true);
+          drawGarden();
+          drawLuna(210 + Math.sin(t * 1.6) * 7, 410, .72);
+          drawCloud(390 + Math.sin(t * 2) * 8, 335, .5, "#fff", true);
+          ctx.fillStyle = "#dff8ff";
+          ctx.beginPath();
+          ctx.arc(620, 380, 14 + Math.sin(t * 3) * 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#fff";
+          ctx.font = "900 18px Arial";
+          ctx.textAlign = "center";
+          ctx.fillText("облачный след", 620, 420);
         }
         if (sceneIndex === 3) {
-          drawSky();
-          drawRainbow(ease(clamp(t / 2.5, 0, 1)));
-          drawLuna(200, 405, .72);
-          drawCloud(360, 300, .52, "#fff", true);
-          drawCloud(665 - ease(clamp(t / 5, 0, 1)) * 130, 185, .9, "#fff", true);
-          drawCloud(780 - ease(clamp(t / 5, 0, 1)) * 120, 225, .62, "#fff", false);
+          drawGarden();
+          drawLuna(190, 410, .72);
+          drawCloud(365, 330 + Math.sin(t * 2) * 6, .5, "#fff", true);
+          drawWind(505 + Math.sin(t * 1.5) * 20, 230, 1.05);
+          const lifted = ease(clamp((t - 7.5) / 3.2, 0, 1));
+          drawCloud(645, 250 - lifted * 94, .48, "#fff", true);
         }
         if (sceneIndex === 4) {
-          drawSky();
+          drawGarden("rain");
+          drawRain();
+          drawLuna(360, 414, .76, false);
+          const small = 1 - ease(clamp((t - 1.8) / 4, 0, 1)) * .28;
+          drawCloud(475, 330, .48 * small, "#f7fbff", true);
+        }
+        if (sceneIndex === 5) {
+          drawGarden("rain");
+          drawRain();
+          drawLuna(360, 414, .78, true);
+          drawCloud(475, 330 + Math.sin(t * 2) * 4, .43, "#f7fbff", true);
+          ctx.fillStyle = "rgba(255,255,255,.42)";
+          ctx.beginPath();
+          ctx.arc(620, 210, 32, 0, Math.PI * 2);
+          ctx.arc(660, 192, 40, 0, Math.PI * 2);
+          ctx.arc(705, 214, 32, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        if (sceneIndex === 6) {
+          drawGarden();
+          drawRainbow(ease(clamp(t / 3.5, 0, 1)));
+          drawLuna(190, 410, .72);
+          drawCloud(340, 315, .52, "#fff", true);
+          const familyMove = ease(clamp((t - 5) / 4.5, 0, 1));
+          drawCloud(710 - familyMove * 145, 178, .88, "#fff", true);
+          drawCloud(820 - familyMove * 155, 224, .62, "#fff", false);
+          drawCloud(620 - familyMove * 100, 112, .5, "#fff", false);
+        }
+        if (sceneIndex === 7) {
+          drawGarden();
           drawRainbow(.75);
-          drawLuna(210, 405, .72);
-          const fly = ease(clamp((t - 4.5) / 3.5, 0, 1));
+          drawLuna(210, 410, .72);
+          const fly = ease(clamp((t - 5.8) / 4, 0, 1));
           drawCloud(350 + fly * 330, 305 - fly * 160, .52, "#fff", true);
           drawCloud(675, 170, .78, "#fff", true);
           drawHeartCloud(520, 110, .55 + Math.sin(t * 2) * .03);
