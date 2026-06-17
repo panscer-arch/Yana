@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Чёрнокубие: тёмная кубическая игра Яны с блоками, кристаллами и факелами.">
+    <meta name="description" content="Чёрнокубие: тёмная кубическая песочница Яны с блоками, деревом, камнем, кристаллами, крафтом факелов и днём-ночью.">
     <meta name="theme-color" content="#080a12">
     <title>Чёрнокубие</title>
     <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
@@ -297,10 +297,10 @@
     <main id="content">
       <section class="game-shell" aria-label="Чёрнокубие">
         <div class="hud">
-          <div><span>Кристаллы</span><strong id="crystals">0 / 12</strong></div>
-          <div><span>Факелы</span><strong id="torches">0</strong></div>
+          <div><span>Сердца</span><strong id="crystals">♥♥♥♥♥</strong></div>
+          <div><span>Факелы</span><strong id="torches">0 / 6</strong></div>
           <div><span>Блоки</span><strong id="blocks">0</strong></div>
-          <div><span>Глубина</span><strong id="depth">0</strong></div>
+          <div><span>Время</span><strong id="depth">день</strong></div>
         </div>
         <canvas id="game" width="960" height="600" tabindex="0"></canvas>
       </section>
@@ -316,15 +316,15 @@
           </div>
         </div>
         <h1>Чёрнокубие</h1>
-        <p>Тёмный кубический мир: бегай, прыгай, ломай блоки, собирай кристаллы и ставь факелы, чтобы шахта светилась.</p>
+        <p>Тёмный кубический мир: бегай, прыгай, ломай блоки, добывай дерево, камень и кристаллы, крафти факелы, строй укрытия и переживай ночь.</p>
         <div class="actions">
           <button class="primary" id="start" type="button">Старт</button>
           <button id="reset" type="button">Новый мир</button>
         </div>
         <h2>Инвентарь</h2>
         <div class="inventory" id="inventory"></div>
-        <div class="log" id="log">Цель: собери 12 кристаллов и поставь 6 факелов.</div>
-        <p>WASD/стрелки — ходить и прыгать. Клик или E — ломать блок. F — поставить выбранный блок. 1-4 — выбрать блок.</p>
+        <div class="log" id="log">Цель: собери 12 кристаллов, скрафти факелы и зажги шахту.</div>
+        <p>WASD/стрелки — ходить и прыгать. Клик или E — ломать блок. F — поставить выбранный блок. C — крафт факела. 1-7 — выбрать блок.</p>
         <div class="touch" aria-label="Кнопки управления">
           <button data-key="ArrowLeft" type="button">←</button>
           <button data-key="ArrowUp" type="button">↑</button>
@@ -332,6 +332,7 @@
           <button data-act="mine" type="button">ломать</button>
           <button data-act="place" type="button">ставить</button>
           <button data-key="ArrowDown" type="button">↓</button>
+          <button data-act="craft" type="button">крафт</button>
         </div>
       </aside>
     </main>
@@ -361,16 +362,16 @@
       const tile = 32;
       const world = { w: 120, h: 32 };
       const keys = new Set();
-      const names = ["пустота", "чернокамень", "обсидиан", "кристалл", "факел"];
-      const colors = ["transparent", "#171a27", "#2d2445", "#67e8ff", "#ffd76a"];
+      const names = ["пустота", "земля", "камень", "кристалл", "факел", "трава", "дерево", "листва"];
+      const colors = ["transparent", "#463323", "#171a27", "#67e8ff", "#ffd76a", "#245c32", "#7a4724", "#2f7d44"];
       let map = [];
       let camera = { x: 0, y: 0 };
       let running = false;
       let selected = 1;
       let last = 0;
       let messageTime = 0;
-      const bag = { 1: 0, 2: 0, 3: 0, 4: 8 };
-      const player = { x: 120, y: 180, w: 22, h: 30, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0 };
+      const bag = { 1: 0, 2: 0, 3: 0, 4: 3, 5: 0, 6: 0, 7: 0 };
+      const player = { x: 120, y: 180, w: 22, h: 30, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0, hp: 5, day: 0 };
 
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
       const rand = (min, max) => Math.random() * (max - min) + min;
@@ -387,12 +388,24 @@
           for (let x = 0; x < world.w; x += 1) {
             let block = 0;
             const surface = 11 + Math.floor(Math.sin(x * 0.18) * 2);
-            if (y > surface) block = Math.random() > 0.72 ? 2 : 1;
-            if (y > surface + 3 && Math.random() > 0.94) block = 3;
+            if (y === surface) block = 5;
+            if (y > surface && y <= surface + 3) block = 1;
+            if (y > surface + 3) block = Math.random() > 0.78 ? 2 : 1;
+            if (y > surface + 5 && Math.random() > 0.94) block = 3;
             if (y === world.h - 1) block = 2;
             row.push(block);
           }
           map.push(row);
+        }
+        for (let x = 16; x < world.w - 8; x += Math.floor(rand(7, 13))) {
+          const surface = 11 + Math.floor(Math.sin(x * 0.18) * 2);
+          map[surface - 1][x] = 6;
+          map[surface - 2][x] = 6;
+          for (let yy = surface - 5; yy <= surface - 3; yy += 1) {
+            for (let xx = x - 2; xx <= x + 2; xx += 1) {
+              if (yy > 0 && xx > 0 && xx < world.w && Math.abs(xx - x) + Math.abs(yy - (surface - 4)) < 4) map[yy][xx] = 7;
+            }
+          }
         }
         for (let y = 4; y < 15; y += 1) {
           for (let x = 2; x < 13; x += 1) map[y][x] = 0;
@@ -400,8 +413,8 @@
         for (let x = 0; x < world.w; x += 1) {
           if (Math.random() > 0.88) map[10][x] = 3;
         }
-        Object.assign(bag, { 1: 0, 2: 0, 3: 0, 4: 8 });
-        Object.assign(player, { x: 120, y: 180, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0 });
+        Object.assign(bag, { 1: 0, 2: 0, 3: 0, 4: 3, 5: 0, 6: 0, 7: 0 });
+        Object.assign(player, { x: 120, y: 180, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0, hp: 5, day: 0 });
         selected = 1;
         say("Новый тёмный мир готов. Собери кристаллы и поставь факелы.");
         renderInventory();
@@ -418,7 +431,7 @@
       }
 
       function solid(block) {
-        return block === 1 || block === 2 || block === 3 || block === 4;
+        return block === 1 || block === 2 || block === 3 || block === 4 || block === 5 || block === 6 || block === 7;
       }
 
       function rectHits(x, y) {
@@ -512,6 +525,10 @@
         const px = player.x + player.w / 2;
         const py = player.y + player.h / 2;
         if (Math.floor(px / tile) === tx && Math.floor(py / tile) === ty) return;
+        if (selected === 3) {
+          say("Кристалл лучше хранить для крафта факелов.");
+          return;
+        }
         if (bag[selected] <= 0) {
           say(`${names[selected]} закончился.`);
           return;
@@ -523,14 +540,37 @@
         renderInventory();
       }
 
+      function craftTorch() {
+        if (bag[6] <= 0 || bag[3] <= 0) {
+          say("Для факела нужно дерево и кристалл.");
+          return;
+        }
+        bag[6] -= 1;
+        bag[3] -= 1;
+        bag[4] += 3;
+        selected = 4;
+        say("Скрафтила 3 факела из дерева и кристалла.");
+        renderInventory();
+      }
+
       function update(delta) {
         if (!running) return;
+        player.day += delta;
         movePlayer(delta);
         camera.x += (player.x - W * 0.45 - camera.x) * Math.min(1, delta * 8);
         camera.y += (player.y - H * 0.42 - camera.y) * Math.min(1, delta * 7);
         camera.x = clamp(camera.x, 0, world.w * tile - W);
         camera.y = clamp(camera.y, 0, world.h * tile - H);
         messageTime = Math.max(0, messageTime - delta);
+        const darkUnderground = player.y > tile * 15 && player.torches < 3;
+        if (darkUnderground && Math.floor(player.day * 2) % 8 === 0 && Math.random() < delta * 0.8) {
+          player.hp = Math.max(0, player.hp - 1);
+          say("Слишком темно. Поставь факел или вернись выше.");
+        }
+        if (player.hp <= 0) {
+          Object.assign(player, { x: 120, y: 180, vx: 0, vy: 0, hp: 5, ground: false });
+          say("Ты вернулась к входу в шахту. Сердца восстановились.");
+        }
         if (player.crystals >= 12 && player.torches >= 6) {
           running = false;
           say("Победа! Чёрная шахта стала светлой.");
@@ -549,6 +589,14 @@
         ctx.strokeStyle = "rgba(0,0,0,.36)";
         ctx.lineWidth = 2;
         ctx.strokeRect(sx + 1, sy + 1, tile - 2, tile - 2);
+        if (block === 5) {
+          ctx.fillStyle = "#3f9d51";
+          ctx.fillRect(sx, sy, tile, 8);
+        }
+        if (block === 7) {
+          ctx.fillStyle = "rgba(255,255,255,.08)";
+          ctx.fillRect(sx + 5, sy + 5, tile - 10, tile - 10);
+        }
         if (block === 3) {
           ctx.shadowColor = "#67e8ff";
           ctx.shadowBlur = 18;
@@ -570,9 +618,10 @@
       }
 
       function draw() {
+        const night = (Math.sin(player.day * 0.18) + 1) / 2;
         const sky = ctx.createLinearGradient(0, 0, 0, H);
-        sky.addColorStop(0, "#080a18");
-        sky.addColorStop(.52, "#111424");
+        sky.addColorStop(0, night > .5 ? "#080a18" : "#17264a");
+        sky.addColorStop(.52, night > .5 ? "#111424" : "#25345c");
         sky.addColorStop(1, "#07080d");
         ctx.fillStyle = sky;
         ctx.fillRect(0, 0, W, H);
@@ -612,10 +661,10 @@
         ctx.fillRect(8, 5, 7, 4);
         ctx.restore();
 
-        const darkness = ctx.createRadialGradient(px + player.w / 2, py + player.h / 2, 40, px + player.w / 2, py + player.h / 2, 340 + player.torches * 22);
+        const darkness = ctx.createRadialGradient(px + player.w / 2, py + player.h / 2, 40, px + player.w / 2, py + player.h / 2, 330 + player.torches * 22);
         darkness.addColorStop(0, "rgba(0,0,0,0)");
-        darkness.addColorStop(.58, "rgba(0,0,0,.24)");
-        darkness.addColorStop(1, "rgba(0,0,0,.78)");
+        darkness.addColorStop(.58, `rgba(0,0,0,${0.18 + night * .12})`);
+        darkness.addColorStop(1, `rgba(0,0,0,${0.62 + night * .2})`);
         ctx.fillStyle = darkness;
         ctx.fillRect(0, 0, W, H);
 
@@ -623,16 +672,16 @@
       }
 
       function updateHud() {
-        crystalsEl.textContent = `${player.crystals} / 12`;
+        crystalsEl.textContent = "♥".repeat(player.hp) + "♡".repeat(5 - player.hp);
         torchesEl.textContent = `${player.torches} / 6`;
-        blocksEl.textContent = bag[1] + bag[2] + bag[3];
-        depthEl.textContent = Math.max(0, Math.floor(player.y / tile) - 10);
+        blocksEl.textContent = bag[1] + bag[2] + bag[5] + bag[6] + bag[7];
+        depthEl.textContent = Math.sin(player.day * 0.18) > 0 ? "день" : "ночь";
         if (messageTime <= 0 && running) logEl.textContent = `Выбрано: ${names[selected]}. E/клик ломать, F ставить.`;
       }
 
       function renderInventory() {
         inventoryEl.innerHTML = "";
-        [1, 2, 3, 4].forEach((id) => {
+        [1, 2, 3, 4, 5, 6, 7].forEach((id) => {
           const button = document.createElement("button");
           button.type = "button";
           button.className = `slot${id === selected ? " active" : ""}`;
@@ -658,7 +707,8 @@
         if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"].includes(event.code)) event.preventDefault();
         if (event.code === "KeyE") mine();
         if (event.code === "KeyF") place();
-        if (["Digit1", "Digit2", "Digit3", "Digit4"].includes(event.code)) {
+        if (event.code === "KeyC") craftTorch();
+        if (["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7"].includes(event.code)) {
           selected = Number(event.code.slice(-1));
           renderInventory();
         }
@@ -689,6 +739,7 @@
       });
       document.querySelector("[data-act='mine']").addEventListener("click", mine);
       document.querySelector("[data-act='place']").addEventListener("click", place);
+      document.querySelector("[data-act='craft']").addEventListener("click", craftTorch);
 
       makeWorld();
       requestAnimationFrame(loop);
