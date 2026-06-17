@@ -993,6 +993,79 @@
         gap: 12px;
       }
 
+      .magic-lab {
+        display: grid;
+        grid-template-columns: minmax(0, .9fr) minmax(320px, 1.1fr);
+        gap: 18px;
+        align-items: stretch;
+        padding: 22px;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 12% 18%, rgba(255, 212, 92, .3), transparent 28%),
+          radial-gradient(circle at 88% 20%, rgba(123, 97, 255, .22), transparent 30%),
+          linear-gradient(135deg, rgba(255, 253, 247, .98), rgba(232, 198, 255, .42));
+        box-shadow: var(--shadow);
+      }
+
+      .magic-lab h2,
+      .magic-lab p {
+        margin: 0;
+      }
+
+      .magic-lab-copy {
+        display: grid;
+        gap: 12px;
+        align-content: center;
+      }
+
+      .magic-lab-copy p {
+        color: var(--muted);
+        font-weight: 900;
+        line-height: 1.45;
+      }
+
+      .quest-card {
+        min-height: 220px;
+        display: grid;
+        gap: 12px;
+        align-content: center;
+        padding: 18px;
+        border: 3px solid rgba(36, 31, 53, .12);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .88);
+      }
+
+      .quest-card span {
+        width: fit-content;
+        min-height: 28px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 9px;
+        border-radius: 8px;
+        color: #315f4a;
+        background: rgba(66, 201, 149, .18);
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .quest-card strong {
+        font-size: clamp(24px, 3vw, 36px);
+        line-height: 1.05;
+      }
+
+      .quest-card p {
+        color: var(--muted);
+        font-weight: 900;
+        line-height: 1.45;
+      }
+
+      .magic-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
       .site-map {
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1288,7 +1361,8 @@
 
       @media (max-width: 860px) {
         .hero,
-        .learn-grid {
+        .learn-grid,
+        .magic-lab {
           grid-template-columns: 1fr;
         }
 
@@ -1457,6 +1531,23 @@
           <span>Быстрый старт</span>
           <strong>10:00</strong>
           <p>Codex, веб-кодинг, создание игр.</p>
+        </article>
+      </section>
+
+      <section class="magic-lab" aria-labelledby="magic-title">
+        <div class="magic-lab-copy">
+          <span class="tag">Единорожий генератор</span>
+          <h2 id="magic-title">Придумать крутое задание</h2>
+          <p>Нажми кнопку, и сайт сам предложит идею для игры, рисования, учебы или нового маленького проекта.</p>
+          <div class="magic-actions">
+            <button class="button" id="magicQuestButton" type="button">Придумать крутое</button>
+            <button class="button secondary" id="saveQuestButton" type="button">Записать в дневник</button>
+          </div>
+        </div>
+        <article class="quest-card" aria-live="polite">
+          <span id="questType">Задание дня</span>
+          <strong id="questTitle">Новая идея ждёт кнопку</strong>
+          <p id="questText">Можно улучшить игру, придумать персонажа, сделать рисунок или потренировать математику.</p>
         </article>
       </section>
 
@@ -1867,12 +1958,30 @@
       const weekDone = document.querySelector("#weekDone");
       const weekDoneText = document.querySelector("#weekDoneText");
       const mathToday = document.querySelector("#mathToday");
+      const magicQuestButton = document.querySelector("#magicQuestButton");
+      const saveQuestButton = document.querySelector("#saveQuestButton");
+      const questType = document.querySelector("#questType");
+      const questTitle = document.querySelector("#questTitle");
+      const questText = document.querySelector("#questText");
 
       let task = { a: 7, b: 5, op: "+", answer: 12 };
       let score = loadScore();
       let activeTable = 2;
       const dailyTarget = 10;
       const journalKey = "yana-project-journal";
+      const magicQuestKey = "yana-magic-quest";
+      const magicQuests = [
+        ["Игровой апгрейд", "Кошачья погоня: новая вкусность", "Придумай редкий предмет, который даёт Луне ускорение на 5 секунд."],
+        ["Игровой апгрейд", "Паркур: секретная платформа", "Добавь идею места, где Искорка может найти скрытую монетку или короткий путь."],
+        ["Творчество", "Гусь-художник: новый кадр", "Нарисуй кадр для мультика: герой летит, падает или находит сокровище."],
+        ["Забота", "Котёнок: маленькая миссия", "Придумай новый квест для котёнка: что он хочет сделать до сна?"],
+        ["Учёба", "Математика-босс", "Реши 10 примеров подряд без ошибки и придумай название для медали."],
+        ["Сайт", "Новая кнопка на сайте", "Придумай раздел, который хочется открыть каждый день: игры, рисунки, школа или дневник."],
+        ["Стрелялка", "Суперстрелялка: честный бот", "Придумай правило, чтобы бот был сложным, но не бесил игрока."],
+        ["История", "Колобок: новая тропа", "Придумай место в ночном лесу, где Колобок может спрятаться от тени."],
+        ["Змейки", "Snake Clash: редкий бонус", "Придумай супер-точку, которая меняет змейку на несколько секунд."],
+        ["Единорог", "Искорка: новый скин", "Опиши скин единорога, который открывается за рекорд на уровне."]
+      ];
       const scheduleDoneKey = "yana-week-schedule-done";
       const scheduleTasksPerDay = 18;
       const scheduleDayTasks = [
@@ -2114,6 +2223,38 @@
         journalStatus.textContent = "Дневник очищен.";
       }
 
+      function renderMagicQuest(quest) {
+        questType.textContent = quest[0];
+        questTitle.textContent = quest[1];
+        questText.textContent = quest[2];
+      }
+
+      function loadMagicQuest() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(magicQuestKey) || "null");
+          renderMagicQuest(saved || magicQuests[0]);
+        } catch (error) {
+          renderMagicQuest(magicQuests[0]);
+        }
+      }
+
+      function generateMagicQuest() {
+        const quest = magicQuests[randomInt(0, magicQuests.length - 1)];
+        renderMagicQuest(quest);
+        try {
+          localStorage.setItem(magicQuestKey, JSON.stringify(quest));
+        } catch (error) {
+          console.warn("Magic quest was not saved", error);
+        }
+      }
+
+      function saveMagicQuestToJournal() {
+        const entry = `\n\nИдея от генератора: ${questTitle.textContent}\n${questText.textContent}`;
+        journalText.value = `${journalText.value.trim()}${entry}`.trim();
+        saveJournalEntry();
+        journalStatus.textContent = "Идея генератора записана в дневник.";
+      }
+
       operation.addEventListener("change", makeTask);
       viewMode.addEventListener("change", renderTask);
       checkAnswer.addEventListener("click", checkCurrentAnswer);
@@ -2121,6 +2262,8 @@
       hintTask.addEventListener("click", showHint);
       saveJournal.addEventListener("click", saveJournalEntry);
       clearJournal.addEventListener("click", clearJournalEntry);
+      magicQuestButton.addEventListener("click", generateMagicQuest);
+      saveQuestButton.addEventListener("click", saveMagicQuestToJournal);
       journalText.addEventListener("input", () => {
         journalStatus.textContent = "Есть несохраненные изменения.";
       });
@@ -2137,6 +2280,7 @@
 
       renderMultiplication();
       loadJournal();
+      loadMagicQuest();
       makeTask();
       updateScore();
       updateTodayPanel();
