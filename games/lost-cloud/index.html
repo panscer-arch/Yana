@@ -193,6 +193,11 @@
         border: 2px solid var(--line);
       }
 
+      button.voice-on {
+        color: #21152f;
+        background: linear-gradient(180deg, #79d6ff, #e8fbff);
+      }
+
       .scene-list {
         display: grid;
         gap: 8px;
@@ -250,10 +255,11 @@
           <button class="secondary" id="pause" type="button">Пауза</button>
           <button class="secondary" id="prev" type="button">Назад</button>
           <button class="secondary" id="next" type="button">Дальше</button>
+          <button class="secondary" id="voice" type="button">Озвучка: выкл</button>
         </div>
         <h2>Сцены</h2>
         <div class="scene-list" id="scene-list"></div>
-        <p>Это первая версия мультика. Потом можно добавить озвучку, музыку, больше движений и кнопку “сохранить кадр”.</p>
+        <p>Озвучка работает через голос браузера: Луна говорит выше и милее, Пуш мягко, Ветер ниже и взрослее.</p>
       </aside>
     </main>
 
@@ -275,6 +281,7 @@
       const pauseButton = document.querySelector("#pause");
       const prevButton = document.querySelector("#prev");
       const nextButton = document.querySelector("#next");
+      const voiceButton = document.querySelector("#voice");
       const sceneListEl = document.querySelector("#scene-list");
       const W = 960;
       const H = 540;
@@ -333,6 +340,9 @@
       let sceneTime = 0;
       let playing = false;
       let last = 0;
+      let voiceEnabled = false;
+      let lastSpokenKey = "";
+      let voices = [];
 
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
       const ease = (value) => value * value * (3 - 2 * value);
@@ -343,9 +353,9 @@
 
       function currentLine() {
         const scene = activeScene();
-        let line = scene.lines[0][1];
+        let line = { time: scene.lines[0][0], text: scene.lines[0][1] };
         scene.lines.forEach(([time, text]) => {
-          if (sceneTime >= time) line = text;
+          if (sceneTime >= time) line = { time, text };
         });
         return line;
       }
@@ -353,15 +363,88 @@
       function setScene(index) {
         sceneIndex = (index + scenes.length) % scenes.length;
         sceneTime = 0;
+        lastSpokenKey = "";
+        stopVoice();
         updateText();
         renderSceneButtons();
       }
 
       function updateText() {
         sceneNameEl.textContent = activeScene().name;
-        subtitleEl.textContent = currentLine();
+        const line = currentLine();
+        subtitleEl.textContent = line.text;
+        speakLine(line);
         const total = Math.floor(scenes.slice(0, sceneIndex).reduce((sum, scene) => sum + scene.duration, 0) + sceneTime);
         timeEl.textContent = `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+      }
+
+      function loadVoices() {
+        if (!("speechSynthesis" in window)) return;
+        voices = speechSynthesis.getVoices();
+      }
+
+      function cleanSpeech(text) {
+        return text
+          .replace(/^Луна:\s*—\s*/, "")
+          .replace(/^Пуш:\s*—\s*/, "")
+          .replace(/^Ветер:\s*—\s*/, "")
+          .replace(/^Мама-облако:\s*—\s*/, "")
+          .replaceAll("…", "...");
+      }
+
+      function speakerOf(text) {
+        if (text.startsWith("Луна:")) return "luna";
+        if (text.startsWith("Пуш:")) return "push";
+        if (text.startsWith("Ветер:")) return "wind";
+        if (text.startsWith("Мама-облако:")) return "mom";
+        return "narrator";
+      }
+
+      function voiceSettings(speaker) {
+        const ruVoice = voices.find((voice) => voice.lang?.toLowerCase().startsWith("ru"))
+          || voices.find((voice) => voice.lang?.toLowerCase().startsWith("en"))
+          || null;
+        const settings = {
+          luna: { pitch: 1.75, rate: .96, volume: 1 },
+          push: { pitch: 1.45, rate: .88, volume: .95 },
+          wind: { pitch: .75, rate: .94, volume: 1 },
+          mom: { pitch: 1.0, rate: .82, volume: 1 },
+          narrator: { pitch: 1.12, rate: .9, volume: .9 }
+        };
+        return { voice: ruVoice, ...settings[speaker] };
+      }
+
+      function stopVoice() {
+        if ("speechSynthesis" in window) speechSynthesis.cancel();
+      }
+
+      function speakLine(line) {
+        if (!voiceEnabled || !("speechSynthesis" in window)) return;
+        const key = `${sceneIndex}-${line.time}-${line.text}`;
+        if (key === lastSpokenKey) return;
+        lastSpokenKey = key;
+        stopVoice();
+        const utterance = new SpeechSynthesisUtterance(cleanSpeech(line.text));
+        utterance.lang = "ru-RU";
+        const settings = voiceSettings(speakerOf(line.text));
+        utterance.pitch = settings.pitch;
+        utterance.rate = settings.rate;
+        utterance.volume = settings.volume;
+        if (settings.voice) utterance.voice = settings.voice;
+        speechSynthesis.speak(utterance);
+      }
+
+      function toggleVoice() {
+        voiceEnabled = !voiceEnabled;
+        voiceButton.textContent = voiceEnabled ? "Озвучка: вкл" : "Озвучка: выкл";
+        voiceButton.classList.toggle("voice-on", voiceEnabled);
+        if (voiceEnabled) {
+          loadVoices();
+          lastSpokenKey = "";
+          speakLine(currentLine());
+        } else {
+          stopVoice();
+        }
       }
 
       function renderSceneButtons() {
@@ -611,12 +694,22 @@
       playButton.addEventListener("click", () => {
         if (sceneIndex === scenes.length - 1 && sceneTime >= activeScene().duration) setScene(0);
         playing = true;
+        if (voiceEnabled) speakLine(currentLine());
       });
       pauseButton.addEventListener("click", () => {
         playing = false;
+        stopVoice();
       });
       nextButton.addEventListener("click", () => setScene(sceneIndex + 1));
       prevButton.addEventListener("click", () => setScene(sceneIndex - 1));
+      voiceButton.addEventListener("click", toggleVoice);
+      if ("speechSynthesis" in window) {
+        loadVoices();
+        speechSynthesis.addEventListener("voiceschanged", loadVoices);
+      } else {
+        voiceButton.disabled = true;
+        voiceButton.textContent = "Озвучки нет";
+      }
 
       renderSceneButtons();
       updateText();
