@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Чёрнокубие: тёмная кубическая игра Яны с блоками, кристаллами и факелами.">
+    <meta name="theme-color" content="#080a12">
+    <title>Чёрнокубие</title>
+    <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        --ink: #f7f0ff;
+        --muted: #b7adc9;
+        --panel: rgba(13, 15, 26, .92);
+        --line: rgba(255, 255, 255, .14);
+        --violet: #8d6bff;
+        --pink: #ff68ae;
+        --gold: #ffd76a;
+        --cyan: #68e7ff;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at 16% 12%, rgba(141, 107, 255, .22), transparent 28%),
+          radial-gradient(circle at 84% 20%, rgba(255, 104, 174, .16), transparent 30%),
+          linear-gradient(135deg, #080a12, #151326 52%, #080a12);
+      }
+
+      a { color: inherit; }
+      button, select { font: inherit; }
+      button { border: 0; cursor: pointer; }
+
+      .skip-link {
+        position: fixed;
+        left: 16px;
+        top: 12px;
+        z-index: 30;
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        color: #080a12;
+        background: var(--gold);
+        font-weight: 900;
+        transform: translateY(-140%);
+        transition: transform 160ms ease;
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .topbar,
+      .footer {
+        width: min(1180px, calc(100vw - 28px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 0 10px;
+      }
+
+      .brand,
+      .topbar a,
+      .footer a {
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, .07);
+        text-decoration: none;
+        font-weight: 900;
+      }
+
+      .brand {
+        background: linear-gradient(135deg, #281d54, #6c3bd6);
+      }
+
+      .topbar nav,
+      .footer nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      main {
+        width: min(1180px, calc(100vw - 28px));
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 310px;
+        gap: 14px;
+        align-items: start;
+      }
+
+      .game-shell {
+        overflow: hidden;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: rgba(5, 6, 12, .9);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, .42);
+      }
+
+      .hud {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1px;
+        background: rgba(255,255,255,.12);
+      }
+
+      .hud div {
+        padding: 10px 12px;
+        background: rgba(13, 15, 26, .95);
+      }
+
+      .hud span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .hud strong {
+        display: block;
+        margin-top: 2px;
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        image-rendering: pixelated;
+        touch-action: none;
+        background: #080a12;
+      }
+
+      .panel {
+        display: grid;
+        gap: 12px;
+        padding: 14px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: 0 22px 60px rgba(0, 0, 0, .35);
+      }
+
+      .panel h1,
+      .panel h2,
+      .panel p {
+        margin: 0;
+      }
+
+      .panel h1 {
+        font-size: 30px;
+        line-height: 1;
+      }
+
+      .panel p {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .cover {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        border: 2px solid rgba(255,255,255,.16);
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 68% 30%, rgba(104,231,255,.25), transparent 16%),
+          linear-gradient(180deg, #0d1130 0 46%, #18121d 47% 100%);
+      }
+
+      .cover-grid {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        gap: 3px;
+        padding: 18px;
+      }
+
+      .cover-grid i {
+        border-radius: 4px;
+        background: #171a27;
+        box-shadow: inset 0 0 0 2px rgba(255,255,255,.04);
+      }
+
+      .cover-grid i:nth-child(5n) { background: #2a2144; }
+      .cover-grid i:nth-child(7n) { background: #0e3b49; box-shadow: 0 0 18px rgba(104,231,255,.38); }
+      .cover-grid i:nth-child(13n) { background: #6a3b13; box-shadow: 0 0 18px rgba(255,215,106,.32); }
+
+      .actions,
+      .inventory,
+      .touch {
+        display: grid;
+        gap: 8px;
+      }
+
+      .actions {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .inventory {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .touch {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      button,
+      .slot {
+        min-height: 42px;
+        border-radius: 8px;
+        color: var(--ink);
+        background: rgba(255,255,255,.09);
+        border: 1px solid var(--line);
+        font-weight: 900;
+      }
+
+      button.primary {
+        color: #120b21;
+        background: linear-gradient(180deg, var(--gold), #ff9d43);
+      }
+
+      .slot {
+        display: grid;
+        place-items: center;
+        text-align: center;
+        font-size: 12px;
+      }
+
+      .slot.active {
+        color: #120b21;
+        background: linear-gradient(180deg, var(--cyan), #9ff7ff);
+        box-shadow: 0 0 0 2px rgba(104,231,255,.35);
+      }
+
+      .log {
+        min-height: 54px;
+        display: grid;
+        align-content: center;
+        padding: 12px;
+        border-radius: 8px;
+        color: #120b21;
+        background: rgba(255, 215, 106, .88);
+        font-weight: 900;
+      }
+
+      .footer {
+        padding: 24px 0 36px;
+      }
+
+      @media (max-width: 900px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+
+        canvas {
+          aspect-ratio: 1 / 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header class="topbar">
+      <a class="brand" href="../../index.html">Яна Единорог</a>
+      <nav aria-label="Навигация">
+        <a href="../index.html">Игры</a>
+        <a href="../../index.html#games">Главная</a>
+        <a href="../../schedule/index.html">План</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section class="game-shell" aria-label="Чёрнокубие">
+        <div class="hud">
+          <div><span>Кристаллы</span><strong id="crystals">0 / 12</strong></div>
+          <div><span>Факелы</span><strong id="torches">0</strong></div>
+          <div><span>Блоки</span><strong id="blocks">0</strong></div>
+          <div><span>Глубина</span><strong id="depth">0</strong></div>
+        </div>
+        <canvas id="game" width="960" height="600" tabindex="0"></canvas>
+      </section>
+
+      <aside class="panel">
+        <div class="cover" aria-hidden="true">
+          <div class="cover-grid">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+        </div>
+        <h1>Чёрнокубие</h1>
+        <p>Тёмный кубический мир: бегай, прыгай, ломай блоки, собирай кристаллы и ставь факелы, чтобы шахта светилась.</p>
+        <div class="actions">
+          <button class="primary" id="start" type="button">Старт</button>
+          <button id="reset" type="button">Новый мир</button>
+        </div>
+        <h2>Инвентарь</h2>
+        <div class="inventory" id="inventory"></div>
+        <div class="log" id="log">Цель: собери 12 кристаллов и поставь 6 факелов.</div>
+        <p>WASD/стрелки — ходить и прыгать. Клик или E — ломать блок. F — поставить выбранный блок. 1-4 — выбрать блок.</p>
+        <div class="touch" aria-label="Кнопки управления">
+          <button data-key="ArrowLeft" type="button">←</button>
+          <button data-key="ArrowUp" type="button">↑</button>
+          <button data-key="ArrowRight" type="button">→</button>
+          <button data-act="mine" type="button">ломать</button>
+          <button data-act="place" type="button">ставить</button>
+          <button data-key="ArrowDown" type="button">↓</button>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <nav aria-label="Быстрые ссылки">
+        <a href="../cat-chase/index.html">Кошачья погоня</a>
+        <a href="../parkour/index.html">Паркур</a>
+        <a href="../people-arena/index.html">Суперстрелялка</a>
+      </nav>
+    </footer>
+
+    <script>
+      const canvas = document.querySelector("#game");
+      const ctx = canvas.getContext("2d");
+      const crystalsEl = document.querySelector("#crystals");
+      const torchesEl = document.querySelector("#torches");
+      const blocksEl = document.querySelector("#blocks");
+      const depthEl = document.querySelector("#depth");
+      const startButton = document.querySelector("#start");
+      const resetButton = document.querySelector("#reset");
+      const inventoryEl = document.querySelector("#inventory");
+      const logEl = document.querySelector("#log");
+
+      const W = 960;
+      const H = 600;
+      const tile = 32;
+      const world = { w: 120, h: 32 };
+      const keys = new Set();
+      const names = ["пустота", "чернокамень", "обсидиан", "кристалл", "факел"];
+      const colors = ["transparent", "#171a27", "#2d2445", "#67e8ff", "#ffd76a"];
+      let map = [];
+      let camera = { x: 0, y: 0 };
+      let running = false;
+      let selected = 1;
+      let last = 0;
+      let messageTime = 0;
+      const bag = { 1: 0, 2: 0, 3: 0, 4: 8 };
+      const player = { x: 120, y: 180, w: 22, h: 30, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0 };
+
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+      const rand = (min, max) => Math.random() * (max - min) + min;
+
+      function say(text) {
+        logEl.textContent = text;
+        messageTime = 2.8;
+      }
+
+      function makeWorld() {
+        map = [];
+        for (let y = 0; y < world.h; y += 1) {
+          const row = [];
+          for (let x = 0; x < world.w; x += 1) {
+            let block = 0;
+            const surface = 11 + Math.floor(Math.sin(x * 0.18) * 2);
+            if (y > surface) block = Math.random() > 0.72 ? 2 : 1;
+            if (y > surface + 3 && Math.random() > 0.94) block = 3;
+            if (y === world.h - 1) block = 2;
+            row.push(block);
+          }
+          map.push(row);
+        }
+        for (let y = 4; y < 15; y += 1) {
+          for (let x = 2; x < 13; x += 1) map[y][x] = 0;
+        }
+        for (let x = 0; x < world.w; x += 1) {
+          if (Math.random() > 0.88) map[10][x] = 3;
+        }
+        Object.assign(bag, { 1: 0, 2: 0, 3: 0, 4: 8 });
+        Object.assign(player, { x: 120, y: 180, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0 });
+        selected = 1;
+        say("Новый тёмный мир готов. Собери кристаллы и поставь факелы.");
+        renderInventory();
+      }
+
+      function getBlock(tx, ty) {
+        if (tx < 0 || ty < 0 || tx >= world.w || ty >= world.h) return 2;
+        return map[ty][tx];
+      }
+
+      function setBlock(tx, ty, value) {
+        if (tx < 0 || ty < 0 || tx >= world.w || ty >= world.h) return;
+        map[ty][tx] = value;
+      }
+
+      function solid(block) {
+        return block === 1 || block === 2 || block === 3 || block === 4;
+      }
+
+      function rectHits(x, y) {
+        const left = Math.floor(x / tile);
+        const right = Math.floor((x + player.w - 1) / tile);
+        const top = Math.floor(y / tile);
+        const bottom = Math.floor((y + player.h - 1) / tile);
+        for (let ty = top; ty <= bottom; ty += 1) {
+          for (let tx = left; tx <= right; tx += 1) {
+            if (solid(getBlock(tx, ty))) return true;
+          }
+        }
+        return false;
+      }
+
+      function movePlayer(delta) {
+        const left = keys.has("ArrowLeft") || keys.has("KeyA");
+        const right = keys.has("ArrowRight") || keys.has("KeyD");
+        const jump = keys.has("ArrowUp") || keys.has("KeyW") || keys.has("Space");
+        if (left) {
+          player.vx -= 900 * delta;
+          player.face = -1;
+        }
+        if (right) {
+          player.vx += 900 * delta;
+          player.face = 1;
+        }
+        if (jump && player.ground) {
+          player.vy = -520;
+          player.ground = false;
+        }
+        player.vx *= Math.pow(0.08, delta);
+        player.vx = clamp(player.vx, -230, 230);
+        player.vy = clamp(player.vy + 1050 * delta, -620, 720);
+
+        let nextX = player.x + player.vx * delta;
+        if (!rectHits(nextX, player.y)) player.x = nextX;
+        else player.vx = 0;
+
+        let nextY = player.y + player.vy * delta;
+        player.ground = false;
+        if (!rectHits(player.x, nextY)) player.y = nextY;
+        else {
+          if (player.vy > 0) player.ground = true;
+          player.vy = 0;
+        }
+
+        player.x = clamp(player.x, 4, world.w * tile - player.w - 4);
+        player.y = clamp(player.y, 0, world.h * tile - player.h - 4);
+      }
+
+      function targetCell() {
+        const cx = player.x + player.w / 2 + player.face * 34;
+        const cy = player.y + player.h / 2 + (keys.has("ArrowDown") || keys.has("KeyS") ? 28 : 0);
+        return { tx: Math.floor(cx / tile), ty: Math.floor(cy / tile) };
+      }
+
+      function mine() {
+        const { tx, ty } = targetCell();
+        const block = getBlock(tx, ty);
+        if (!block) {
+          say("Тут пусто. Подойди к блоку ближе.");
+          return;
+        }
+        if (ty === world.h - 1) {
+          say("Самый нижний слой слишком крепкий.");
+          return;
+        }
+        setBlock(tx, ty, 0);
+        if (block === 3) {
+          player.crystals += 1;
+          bag[3] += 1;
+          say("Кристалл найден! Он светится в рюкзаке.");
+        } else if (block === 4) {
+          bag[4] += 1;
+          player.torches = Math.max(0, player.torches - 1);
+          say("Факел вернулся в рюкзак.");
+        } else {
+          bag[block] += 1;
+          say(`${names[block]} добыт.`);
+        }
+        renderInventory();
+      }
+
+      function place() {
+        const { tx, ty } = targetCell();
+        if (getBlock(tx, ty)) {
+          say("Там уже стоит блок.");
+          return;
+        }
+        const px = player.x + player.w / 2;
+        const py = player.y + player.h / 2;
+        if (Math.floor(px / tile) === tx && Math.floor(py / tile) === ty) return;
+        if (bag[selected] <= 0) {
+          say(`${names[selected]} закончился.`);
+          return;
+        }
+        setBlock(tx, ty, selected);
+        bag[selected] -= 1;
+        if (selected === 4) player.torches += 1;
+        say(`${names[selected]} поставлен.`);
+        renderInventory();
+      }
+
+      function update(delta) {
+        if (!running) return;
+        movePlayer(delta);
+        camera.x += (player.x - W * 0.45 - camera.x) * Math.min(1, delta * 8);
+        camera.y += (player.y - H * 0.42 - camera.y) * Math.min(1, delta * 7);
+        camera.x = clamp(camera.x, 0, world.w * tile - W);
+        camera.y = clamp(camera.y, 0, world.h * tile - H);
+        messageTime = Math.max(0, messageTime - delta);
+        if (player.crystals >= 12 && player.torches >= 6) {
+          running = false;
+          say("Победа! Чёрная шахта стала светлой.");
+        }
+      }
+
+      function drawBlock(x, y, block) {
+        const sx = x * tile - camera.x;
+        const sy = y * tile - camera.y;
+        if (sx < -tile || sx > W || sy < -tile || sy > H) return;
+        if (!block) return;
+        ctx.fillStyle = colors[block];
+        ctx.fillRect(sx, sy, tile, tile);
+        ctx.fillStyle = "rgba(255,255,255,.06)";
+        ctx.fillRect(sx + 3, sy + 3, tile - 6, 5);
+        ctx.strokeStyle = "rgba(0,0,0,.36)";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(sx + 1, sy + 1, tile - 2, tile - 2);
+        if (block === 3) {
+          ctx.shadowColor = "#67e8ff";
+          ctx.shadowBlur = 18;
+          ctx.fillStyle = "#c8fbff";
+          ctx.fillRect(sx + 10, sy + 8, 12, 16);
+          ctx.shadowBlur = 0;
+        }
+        if (block === 4) {
+          ctx.shadowColor = "#ffd76a";
+          ctx.shadowBlur = 22;
+          ctx.fillStyle = "#ffeaa4";
+          ctx.beginPath();
+          ctx.arc(sx + 16, sy + 10, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = "#7a4724";
+          ctx.fillRect(sx + 13, sy + 16, 6, 12);
+        }
+      }
+
+      function draw() {
+        const sky = ctx.createLinearGradient(0, 0, 0, H);
+        sky.addColorStop(0, "#080a18");
+        sky.addColorStop(.52, "#111424");
+        sky.addColorStop(1, "#07080d");
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, W, H);
+
+        for (let i = 0; i < 90; i += 1) {
+          const x = (i * 157 - camera.x * .18) % W;
+          const y = (i * 83) % 210;
+          ctx.fillStyle = i % 9 === 0 ? "rgba(104,231,255,.8)" : "rgba(255,255,255,.45)";
+          ctx.fillRect(x, y, i % 9 === 0 ? 3 : 2, i % 9 === 0 ? 3 : 2);
+        }
+
+        const startX = Math.floor(camera.x / tile);
+        const endX = Math.ceil((camera.x + W) / tile);
+        const startY = Math.floor(camera.y / tile);
+        const endY = Math.ceil((camera.y + H) / tile);
+        for (let y = startY; y <= endY; y += 1) {
+          for (let x = startX; x <= endX; x += 1) drawBlock(x, y, getBlock(x, y));
+        }
+
+        const target = targetCell();
+        ctx.strokeStyle = "#ffd76a";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(target.tx * tile - camera.x + 3, target.ty * tile - camera.y + 3, tile - 6, tile - 6);
+
+        const px = player.x - camera.x;
+        const py = player.y - camera.y;
+        ctx.save();
+        ctx.translate(px + player.w / 2, py + player.h / 2);
+        ctx.scale(player.face, 1);
+        ctx.fillStyle = "#f7f0ff";
+        ctx.fillRect(-player.w / 2, -player.h / 2, player.w, player.h);
+        ctx.fillStyle = "#8d6bff";
+        ctx.fillRect(-player.w / 2 + 3, -player.h / 2 + 5, player.w - 6, 8);
+        ctx.fillStyle = "#090a12";
+        ctx.fillRect(3, -8, 4, 4);
+        ctx.fillStyle = "#ff68ae";
+        ctx.fillRect(8, 5, 7, 4);
+        ctx.restore();
+
+        const darkness = ctx.createRadialGradient(px + player.w / 2, py + player.h / 2, 40, px + player.w / 2, py + player.h / 2, 340 + player.torches * 22);
+        darkness.addColorStop(0, "rgba(0,0,0,0)");
+        darkness.addColorStop(.58, "rgba(0,0,0,.24)");
+        darkness.addColorStop(1, "rgba(0,0,0,.78)");
+        ctx.fillStyle = darkness;
+        ctx.fillRect(0, 0, W, H);
+
+        updateHud();
+      }
+
+      function updateHud() {
+        crystalsEl.textContent = `${player.crystals} / 12`;
+        torchesEl.textContent = `${player.torches} / 6`;
+        blocksEl.textContent = bag[1] + bag[2] + bag[3];
+        depthEl.textContent = Math.max(0, Math.floor(player.y / tile) - 10);
+        if (messageTime <= 0 && running) logEl.textContent = `Выбрано: ${names[selected]}. E/клик ломать, F ставить.`;
+      }
+
+      function renderInventory() {
+        inventoryEl.innerHTML = "";
+        [1, 2, 3, 4].forEach((id) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `slot${id === selected ? " active" : ""}`;
+          button.textContent = `${id}. ${names[id]} (${bag[id]})`;
+          button.addEventListener("click", () => {
+            selected = id;
+            renderInventory();
+          });
+          inventoryEl.append(button);
+        });
+      }
+
+      function loop(now) {
+        const delta = Math.min(0.033, (now - last) / 1000 || 0);
+        last = now;
+        update(delta);
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      window.addEventListener("keydown", (event) => {
+        keys.add(event.code);
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"].includes(event.code)) event.preventDefault();
+        if (event.code === "KeyE") mine();
+        if (event.code === "KeyF") place();
+        if (["Digit1", "Digit2", "Digit3", "Digit4"].includes(event.code)) {
+          selected = Number(event.code.slice(-1));
+          renderInventory();
+        }
+      });
+      window.addEventListener("keyup", (event) => keys.delete(event.code));
+      window.addEventListener("blur", () => keys.clear());
+      canvas.addEventListener("pointerdown", (event) => {
+        canvas.focus();
+        if (!running) running = true;
+        if (event.shiftKey || event.button === 2) place();
+        else mine();
+      });
+      canvas.addEventListener("contextmenu", (event) => event.preventDefault());
+      startButton.addEventListener("click", () => {
+        running = true;
+        canvas.focus();
+        say("Игра началась. Ломай блоки и зажигай шахту.");
+      });
+      resetButton.addEventListener("click", () => {
+        running = false;
+        makeWorld();
+      });
+      document.querySelectorAll("[data-key]").forEach((button) => {
+        const code = button.dataset.key;
+        button.addEventListener("pointerdown", () => keys.add(code));
+        button.addEventListener("pointerup", () => keys.delete(code));
+        button.addEventListener("pointerleave", () => keys.delete(code));
+      });
+      document.querySelector("[data-act='mine']").addEventListener("click", mine);
+      document.querySelector("[data-act='place']").addEventListener("click", place);
+
+      makeWorld();
+      requestAnimationFrame(loop);
+    </script>
+    <script src="../../assets/site.js"></script>
+  </body>
+</html>
