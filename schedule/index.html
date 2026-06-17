@@ -634,7 +634,7 @@
       <section class="hero" aria-label="План недели">
         <div>
           <span class="tag">План недели</span>
-          <h1>Неделя Яны: учёба, Codex, прогулки и порядок</h1>
+          <h1>Неделя Яны: учёба, Codex, прогулки и тренировки</h1>
           <p class="lead">План помогает видеть день целиком: утро, чтение, математика, веб-кодинг, проекты, прогулка, помощь дома и спокойный сон.</p>
           <div class="hero-actions">
             <a class="button" href="#week">Смотреть неделю</a>
@@ -653,20 +653,20 @@
       <section id="week" aria-labelledby="week-title">
         <div class="section-title">
           <h2 id="week-title">Расписание по дням</h2>
-          <p>Каждый день похож по ритму, а в 16:00 меняется главное дело по комнате.</p>
+          <p>Каждый день похож по ритму, а тренировки уже встроены так, чтобы хватило времени на сборы, дорогу и отдых.</p>
         </div>
 
         <div class="week-summary" aria-label="Короткая сводка недели">
           <div class="summary-card"><strong>7</strong><span>дней с понятным планом</span></div>
           <div class="summary-card"><strong>10</strong><span>примеров по математике утром</span></div>
           <div class="summary-card"><strong>2 ч</strong><span>Codex и веб-кодинг до обеда</span></div>
-          <div class="summary-card"><strong>16:00</strong><span>главное дело по комнате</span></div>
+          <div class="summary-card"><strong>3</strong><span>тренировки в неделю</span></div>
         </div>
 
         <div class="plan-note" aria-label="Официальный план Яны">
           <article class="plan-note-card">
             <strong>Полный план добавлен</strong>
-            <p>На этой странице стоит расписание из твоего сообщения: понедельник, вторник, среда, четверг, пятница, суббота и воскресенье с делами по времени.</p>
+            <p>На этой странице стоит новый план: учёба, Codex, прогулки, отдых и тренировки во вторник, четверг и субботу.</p>
           </article>
           <article class="plan-note-card">
             <strong>Ежедневный ритм</strong>
@@ -675,7 +675,7 @@
               <span>9:20 чтение</span>
               <span>9:30 математика</span>
               <span>10:00 Codex</span>
-              <span>16:00 порядок</span>
+              <span>тренировки 3 раза</span>
               <span>18:00 прогулка</span>
               <span>22:00 сон</span>
             </div>
@@ -753,13 +753,13 @@
       ];
 
       const days = [
-        ["Понедельник", "разобрать нижний ящик у стены"],
-        ["Вторник", "разобрать средние и верхние ящики у стены"],
-        ["Среда", "разобрать шкаф с одеждой"],
-        ["Четверг", "разобрать шкаф напротив кровати"],
-        ["Пятница", "разобрать верхние шкафы и шкафчик с трубами"],
-        ["Суббота", "составить список всех вещей в комнате"],
-        ["Воскресенье", "проверить порядок в комнате и закончить всё недоделанное"]
+        { name: "Понедельник", focus: "16:00–17:00 — творческая мастерская: игра, рисунок или проект" },
+        { name: "Вторник", training: "16:00–18:30 — тренировка" },
+        { name: "Среда", focus: "16:00–17:00 — школьные задания и спокойный проект" },
+        { name: "Четверг", training: "16:00–18:30 — тренировка" },
+        { name: "Пятница", focus: "16:00–17:00 — свободный Codex-проект или повторение математики" },
+        { name: "Суббота", training: "11:30–13:30 — тренировка" },
+        { name: "Воскресенье", focus: "16:00–17:00 — выбрать идеи на новую неделю и отдохнуть" }
       ];
 
       const weekGrid = document.querySelector("#weekGrid");
@@ -791,36 +791,62 @@
         return `${day}|${time}|${text}`;
       }
 
-      function dayRows(roomTask) {
+      function dayRows(day) {
+        if (day.name === "Вторник" || day.name === "Четверг") {
+          return [
+            ...sharedRows.slice(0, 12),
+            ["12:30–15:00", "учёба, проекты, Codex"],
+            ["15:00–15:30", "собраться на тренировку"],
+            ["15:30–16:00", "дорога и разминка"],
+            ["16:00–18:30", "тренировка", true],
+            ["18:30–19:10", "дорога домой и отдых"],
+            ["19:10–20:00", "ужин или спокойная прогулка"],
+            ...sharedRows.slice(14)
+          ];
+        }
+        if (day.name === "Суббота") {
+          return [
+            ...sharedRows.slice(0, 10),
+            ["10:00–10:45", "короткий Codex или рисунок"],
+            ["10:45–11:15", "собраться на тренировку"],
+            ["11:15–11:30", "дорога и разминка"],
+            ["11:30–13:30", "тренировка", true],
+            ["13:30–14:10", "дорога домой и отдых"],
+            ["14:10", "обед"],
+            ["15:00–17:30", "учёба, проекты или спокойная игра"],
+            ["18:00–20:00", "прогулка"],
+            ...sharedRows.slice(14)
+          ];
+        }
         const rows = [...sharedRows];
-        rows.splice(13, 0, ["16:00", roomTask, true]);
+        rows.splice(13, 0, [day.focus.split(" — ")[0], day.focus.split(" — ")[1], true]);
         return rows;
       }
 
       function renderWeek() {
         weekGrid.innerHTML = "";
-        for (const [day, roomTask] of days) {
+        for (const day of days) {
           const card = document.createElement("article");
           card.className = "day-card";
           const header = document.createElement("header");
           const title = document.createElement("h3");
-          title.textContent = day;
+          title.textContent = day.name;
           const pill = document.createElement("span");
           pill.className = "room-task";
-          pill.textContent = "16:00 порядок";
+          pill.textContent = day.training ? "тренировка" : "проект";
           header.append(title, pill);
 
           const list = document.createElement("dl");
           list.className = "schedule-list";
-          for (const [time, text, special] of dayRows(roomTask)) {
-            const key = taskKey(day, time, text);
+          for (const [time, text, special] of dayRows(day)) {
+            const key = taskKey(day.name, time, text);
             const row = document.createElement("div");
             row.className = special ? "schedule-row special" : "schedule-row";
             const check = document.createElement("input");
             check.className = "task-check";
             check.type = "checkbox";
             check.checked = Boolean(doneMap[key]);
-            check.setAttribute("aria-label", `${day}, ${time}: ${text}`);
+            check.setAttribute("aria-label", `${day.name}, ${time}: ${text}`);
             if (check.checked) row.classList.add("done");
             const dt = document.createElement("dt");
             dt.textContent = time;

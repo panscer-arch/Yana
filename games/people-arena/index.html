@@ -1774,6 +1774,33 @@
         requestAimLock();
       }
 
+      function clearMovementInput() {
+        virtualMove.forward = 0;
+        virtualMove.side = 0;
+        keys.delete("ArrowUp");
+        keys.delete("ArrowDown");
+        keys.delete("ArrowLeft");
+        keys.delete("ArrowRight");
+      }
+
+      function respawnPlayer() {
+        state.streak = 0;
+        state.downed = false;
+        state.downedTimer = 0;
+        state.deathFlash = 0;
+        state.damageFlash = 1;
+        state.enemyGrace = 3.5;
+        state.player.position.set(-8, 1.75, 24);
+        state.player.velocity.set(0, 0, 0);
+        state.player.eyeHeight = 1.75;
+        state.player.hp = 100;
+        state.player.ammo = 30;
+        state.player.reload = 0;
+        clearMovementInput();
+        showTip("Возрождение! 3 секунды, чтобы отбежать", 2.4);
+        playHitSound();
+      }
+
       function addPlayer() {
         state.playerCount = clamp(state.playerCount + 1, 1, 10);
         resetGame();
@@ -1789,28 +1816,14 @@
         if (state.running) {
           state.timeLeft = Math.max(0, state.timeLeft - delta);
           state.enemyGrace = Math.max(0, state.enemyGrace - delta);
-          if (state.player.hp <= 0 && !state.downed && !state.lostSoundPlayed) {
-            state.downed = true;
-            state.downedTimer = state.player.medkits > 0 ? 8 : 0;
-            state.player.downedHp = Math.ceil(state.downedTimer);
-            state.player.velocity.set(0, 0, 0);
-            state.damageFlash = 1;
+          if (state.player.hp <= 0) {
+            respawnPlayer();
             enemies.forEach((enemy) => {
               enemy.target.set(rand(-22, 22), 0, rand(-18, 18));
               enemy.think = 0;
             });
-            playLoseSound();
-            if (state.downedTimer <= 0) state.lostSoundPlayed = true;
           }
-          if (state.downed) {
-            state.downedTimer = Math.max(0, state.downedTimer - delta);
-            state.player.downedHp = Math.ceil(state.downedTimer);
-            if (state.downedTimer <= 0 && !state.lostSoundPlayed) {
-              playLoseSound();
-              state.lostSoundPlayed = true;
-            }
-          }
-          if (state.timeLeft <= 0 || (state.downed && state.downedTimer <= 0)) {
+          if (state.timeLeft <= 0) {
             state.running = false;
           }
         }
@@ -1836,8 +1849,8 @@
 
       function updatePlayer(delta) {
         const player = state.player;
-        if (keys.has("KeyQ") || keys.has("q") || keys.has("й") || keys.has("ArrowLeft")) state.yaw += delta * 1.55;
-        if (keys.has("KeyE") || keys.has("e") || keys.has("у") || keys.has("ArrowRight")) state.yaw -= delta * 1.55;
+        if (keys.has("KeyQ") || keys.has("q") || keys.has("й")) state.yaw += delta * 1.55;
+        if (keys.has("KeyE") || keys.has("e") || keys.has("у")) state.yaw -= delta * 1.55;
         if (keys.has("KeyF") || keys.has("f") || keys.has("а")) {
           keys.delete("KeyF");
           keys.delete("f");
@@ -1895,8 +1908,8 @@
         right.set(Math.cos(yaw), 0, -Math.sin(yaw)).normalize();
         if (keys.has("KeyW") || keys.has("w") || keys.has("ц") || keys.has("ArrowUp") || virtualMove.forward > 0) move.add(forward);
         if (keys.has("KeyS") || keys.has("s") || keys.has("ы") || keys.has("ArrowDown") || virtualMove.forward < 0) move.sub(forward);
-        if (keys.has("KeyD") || keys.has("d") || keys.has("в") || virtualMove.side > 0) move.add(right);
-        if (keys.has("KeyA") || keys.has("a") || keys.has("ф") || virtualMove.side < 0) move.sub(right);
+        if (keys.has("KeyD") || keys.has("d") || keys.has("в") || keys.has("ArrowRight") || virtualMove.side > 0) move.add(right);
+        if (keys.has("KeyA") || keys.has("a") || keys.has("ф") || keys.has("ArrowLeft") || virtualMove.side < 0) move.sub(right);
         if (move.lengthSq() > 0) move.normalize();
         const crouching = keys.has("ControlLeft") || keys.has("ControlRight") || keys.has("KeyC") || keys.has("c") || keys.has("с");
         player.crouching = crouching;
@@ -2477,6 +2490,7 @@
         keys.delete(event.code);
         keys.delete(event.key.toLowerCase());
       });
+      window.addEventListener("blur", clearMovementInput);
       document.addEventListener("mousemove", (event) => {
         if (document.pointerLockElement === canvas) {
           state.yaw -= event.movementX * 0.0052;
@@ -2507,7 +2521,10 @@
           shoot();
         }
         aimDrag.active = false;
+        virtualMove.forward = 0;
+        virtualMove.side = 0;
       });
+      window.addEventListener("pointercancel", clearMovementInput);
       startButton.addEventListener("click", startGame);
       resetButton.addEventListener("click", resetGame);
       plusButton.addEventListener("click", addPlayer);
