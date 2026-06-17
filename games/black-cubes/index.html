@@ -324,7 +324,7 @@
         <h2>Инвентарь</h2>
         <div class="inventory" id="inventory"></div>
         <div class="log" id="log">Цель: открой сундук, собери кристаллы, скрафти факелы и зажги шахту.</div>
-        <p>WASD/стрелки — ходить и прыгать. Наводи мышкой, чтобы выбирать блок вокруг героя. Клик или E — ломать. F — поставить. X — открыть сундук или лечь спать рядом с кроватью. C — крафт факела.</p>
+        <p>3D-режим: стрелки влево/вправо поворачивают экран, W/↑ и S/↓ ходят, A/D идут боком. E — ломать куб перед собой, F — ставить, X — сундук или кровать, C — крафт факела.</p>
         <div class="touch" aria-label="Кнопки управления">
           <button data-key="ArrowLeft" type="button">←</button>
           <button data-key="ArrowUp" type="button">↑</button>
@@ -368,6 +368,9 @@
       let map = [];
       let camera = { x: 0, y: 0 };
       let aim = { x: 160, y: 170, active: false };
+      const view3d = true;
+      const grid3d = { w: 20, h: 20, cells: [] };
+      const player3d = { x: 3.5, y: 3.5, a: 0, hp: 5, day: 0, chestOpened: false };
       let running = false;
       let selected = 1;
       let last = 0;
@@ -421,8 +424,38 @@
         Object.assign(bag, { 1: 0, 2: 0, 3: 0, 4: 3, 5: 0, 6: 0, 7: 0, 8: 1, 9: 1 });
         Object.assign(player, { x: 120, y: 128, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0, hp: 5, day: 0, chestOpened: false });
         selected = 1;
+        makeWorld3d();
         say("Новый мир готов. Сначала открой сундук рядом со входом.");
         renderInventory();
+      }
+
+      function makeWorld3d() {
+        grid3d.cells = [];
+        for (let y = 0; y < grid3d.h; y += 1) {
+          const row = [];
+          for (let x = 0; x < grid3d.w; x += 1) {
+            const border = x === 0 || y === 0 || x === grid3d.w - 1 || y === grid3d.h - 1;
+            let block = border ? 2 : 0;
+            if (!border && (x % 6 === 0 && y > 4 && y < 16)) block = 1;
+            if (!border && (y % 7 === 0 && x > 5 && x < 18)) block = 2;
+            row.push(block);
+          }
+          grid3d.cells.push(row);
+        }
+
+        [[6, 7], [6, 8], [7, 8], [13, 5], [14, 5], [14, 6], [10, 13], [11, 13], [12, 13]].forEach(([x, y]) => {
+          grid3d.cells[y][x] = 0;
+        });
+        grid3d.cells[3][5] = 9;
+        grid3d.cells[3][7] = 8;
+        grid3d.cells[5][4] = 6;
+        grid3d.cells[4][4] = 7;
+        grid3d.cells[9][10] = 3;
+        grid3d.cells[10][10] = 3;
+        grid3d.cells[13][15] = 3;
+        grid3d.cells[8][15] = 6;
+        grid3d.cells[7][15] = 7;
+        Object.assign(player3d, { x: 3.5, y: 3.5, a: 0, hp: 5, day: 0, chestOpened: false });
       }
 
       function getBlock(tx, ty) {
@@ -437,6 +470,31 @@
 
       function solid(block) {
         return block === 1 || block === 2 || block === 3 || block === 4 || block === 5 || block === 6 || block === 7 || block === 8 || block === 9;
+      }
+
+      function get3d(x, y) {
+        const tx = Math.floor(x);
+        const ty = Math.floor(y);
+        if (tx < 0 || ty < 0 || tx >= grid3d.w || ty >= grid3d.h) return 2;
+        return grid3d.cells[ty][tx];
+      }
+
+      function set3d(x, y, value) {
+        const tx = Math.floor(x);
+        const ty = Math.floor(y);
+        if (tx <= 0 || ty <= 0 || tx >= grid3d.w - 1 || ty >= grid3d.h - 1) return;
+        grid3d.cells[ty][tx] = value;
+      }
+
+      function solid3d(block) {
+        return block && block !== 4;
+      }
+
+      function front3d(distance = 1.2) {
+        return {
+          x: Math.floor(player3d.x + Math.cos(player3d.a) * distance),
+          y: Math.floor(player3d.y + Math.sin(player3d.a) * distance)
+        };
       }
 
       function rectHits(x, y) {
@@ -505,6 +563,10 @@
       }
 
       function mine() {
+        if (view3d) {
+          mine3d();
+          return;
+        }
         const { tx, ty } = targetCell();
         const block = getBlock(tx, ty);
         if (!block) {
@@ -538,6 +600,10 @@
       }
 
       function place() {
+        if (view3d) {
+          place3d();
+          return;
+        }
         const { tx, ty } = targetCell();
         if (getBlock(tx, ty)) {
           say("Там уже стоит блок.");
@@ -574,6 +640,54 @@
         renderInventory();
       }
 
+      function mine3d() {
+        const target = front3d(1.25);
+        const block = grid3d.cells[target.y]?.[target.x] || 0;
+        if (!block) {
+          say("Перед тобой пусто. Подойди к кубу ближе.");
+          return;
+        }
+        if (block === 8 || block === 9) {
+          say("Это лучше использовать кнопкой X, а не ломать сразу.");
+          return;
+        }
+        grid3d.cells[target.y][target.x] = 0;
+        if (block === 3) {
+          player.crystals += 1;
+          bag[3] += 1;
+          say("Кристалл добыт в 3D-мире.");
+        } else if (block === 4) {
+          bag[4] += 1;
+          player.torches = Math.max(0, player.torches - 1);
+          say("Факел забрала.");
+        } else {
+          bag[block] += 1;
+          say(`${names[block]} добыт.`);
+        }
+        renderInventory();
+      }
+
+      function place3d() {
+        const target = front3d(1.15);
+        if (grid3d.cells[target.y]?.[target.x]) {
+          say("Перед тобой уже стоит куб.");
+          return;
+        }
+        if (selected === 3) {
+          say("Кристалл лучше оставить для крафта факелов.");
+          return;
+        }
+        if (bag[selected] <= 0) {
+          say(`${names[selected]} закончился.`);
+          return;
+        }
+        grid3d.cells[target.y][target.x] = selected;
+        bag[selected] -= 1;
+        if (selected === 4) player.torches += 1;
+        say(`${names[selected]} поставлен перед тобой.`);
+        renderInventory();
+      }
+
       function nearbySpecial() {
         const focused = targetCell();
         const focusedBlock = getBlock(focused.tx, focused.ty);
@@ -599,6 +713,10 @@
       }
 
       function interact() {
+        if (view3d) {
+          interact3d();
+          return;
+        }
         const special = nearbySpecial();
         if (!special) {
           say("Подойди ближе к сундуку или кровати. Наводить точно уже не нужно.");
@@ -632,7 +750,55 @@
         }
       }
 
+      function nearest3dSpecial() {
+        let best = null;
+        for (let y = 1; y < grid3d.h - 1; y += 1) {
+          for (let x = 1; x < grid3d.w - 1; x += 1) {
+            const block = grid3d.cells[y][x];
+            if (block !== 8 && block !== 9) continue;
+            const dx = x + .5 - player3d.x;
+            const dy = y + .5 - player3d.y;
+            const distance = Math.hypot(dx, dy);
+            const looking = Math.cos(player3d.a) * dx + Math.sin(player3d.a) * dy;
+            if (distance < 2.2 && looking > -0.2 && (!best || distance < best.distance)) best = { x, y, block, distance };
+          }
+        }
+        return best;
+      }
+
+      function interact3d() {
+        const special = nearest3dSpecial();
+        if (!special) {
+          say("Подойди ближе к сундуку или кровати и повернись к ним.");
+          return;
+        }
+        if (special.block === 9) {
+          if (player3d.chestOpened) {
+            say("Сундук уже открыт.");
+            return;
+          }
+          Object.entries(chestLoot).forEach(([id, count]) => {
+            bag[id] += count;
+          });
+          player3d.chestOpened = true;
+          player.chestOpened = true;
+          selected = 6;
+          say("Сундук открыт: дерево, камень, факелы и кровать добавились в инвентарь.");
+          renderInventory();
+          return;
+        }
+        player3d.hp = 5;
+        player.hp = 5;
+        player3d.day = Math.PI / 0.18;
+        running = false;
+        say("Ты поспала на кровати в 3D-мире. Сердца восстановились, ночь прошла.");
+      }
+
       function update(delta) {
+        if (view3d) {
+          update3d(delta);
+          return;
+        }
         if (!running) return;
         player.day += delta;
         movePlayer(delta);
@@ -653,6 +819,44 @@
         if (player.crystals >= 12 && player.torches >= 6) {
           running = false;
           say("Победа! Чёрная шахта стала светлой.");
+        }
+      }
+
+      function update3d(delta) {
+        if (!running) return;
+        player3d.day += delta;
+        player.day = player3d.day;
+        const rotate = 2.3 * delta;
+        const speed = 2.8 * delta;
+        if (keys.has("ArrowLeft")) player3d.a -= rotate;
+        if (keys.has("ArrowRight")) player3d.a += rotate;
+        let moveX = 0;
+        let moveY = 0;
+        if (keys.has("KeyW") || keys.has("ArrowUp")) {
+          moveX += Math.cos(player3d.a) * speed;
+          moveY += Math.sin(player3d.a) * speed;
+        }
+        if (keys.has("KeyS") || keys.has("ArrowDown")) {
+          moveX -= Math.cos(player3d.a) * speed;
+          moveY -= Math.sin(player3d.a) * speed;
+        }
+        if (keys.has("KeyA")) {
+          moveX += Math.cos(player3d.a - Math.PI / 2) * speed;
+          moveY += Math.sin(player3d.a - Math.PI / 2) * speed;
+        }
+        if (keys.has("KeyD")) {
+          moveX += Math.cos(player3d.a + Math.PI / 2) * speed;
+          moveY += Math.sin(player3d.a + Math.PI / 2) * speed;
+        }
+        const nextX = player3d.x + moveX;
+        const nextY = player3d.y + moveY;
+        if (!solid3d(get3d(nextX, player3d.y))) player3d.x = nextX;
+        if (!solid3d(get3d(player3d.x, nextY))) player3d.y = nextY;
+        messageTime = Math.max(0, messageTime - delta);
+        player.hp = player3d.hp;
+        if (player.crystals >= 8 && player.torches >= 4) {
+          running = false;
+          say("Победа! 3D-кубомир стал светлым.");
         }
       }
 
@@ -718,6 +922,10 @@
       }
 
       function draw() {
+        if (view3d) {
+          draw3d();
+          return;
+        }
         const night = (Math.sin(player.day * 0.18) + 1) / 2;
         const sky = ctx.createLinearGradient(0, 0, 0, H);
         sky.addColorStop(0, night > .5 ? "#080a18" : "#17264a");
@@ -778,6 +986,141 @@
         ctx.fillStyle = darkness;
         ctx.fillRect(0, 0, W, H);
 
+        updateHud();
+      }
+
+      function castRay(angle) {
+        let distance = 0;
+        let hit = 0;
+        let hitX = player3d.x;
+        let hitY = player3d.y;
+        while (distance < 16 && !hit) {
+          distance += 0.035;
+          hitX = player3d.x + Math.cos(angle) * distance;
+          hitY = player3d.y + Math.sin(angle) * distance;
+          hit = get3d(hitX, hitY);
+        }
+        return { distance, hit, x: hitX, y: hitY };
+      }
+
+      function draw3dWall(stripe, top, height, block, shade) {
+        const width = 3;
+        const color = colors[block] || "#2b2d3a";
+        ctx.fillStyle = color;
+        ctx.fillRect(stripe, top, width + 1, height);
+        ctx.fillStyle = `rgba(0,0,0,${shade})`;
+        ctx.fillRect(stripe, top, width + 1, height);
+        ctx.fillStyle = "rgba(255,255,255,.06)";
+        ctx.fillRect(stripe, top + 4, width + 1, Math.max(2, height * .08));
+      }
+
+      function draw3dSprite(sprite, scale, yShift = 0) {
+        const dx = sprite.x + .5 - player3d.x;
+        const dy = sprite.y + .5 - player3d.y;
+        const distance = Math.hypot(dx, dy);
+        let angle = Math.atan2(dy, dx) - player3d.a;
+        while (angle < -Math.PI) angle += Math.PI * 2;
+        while (angle > Math.PI) angle -= Math.PI * 2;
+        if (Math.abs(angle) > Math.PI / 3 || distance < .25) return;
+        const screenX = W / 2 + Math.tan(angle) * W * .72;
+        const size = clamp((H / distance) * scale, 18, 220);
+        const y = H * .54 - size * .55 + yShift;
+        ctx.save();
+        ctx.translate(screenX, y);
+        if (sprite.block === 9) {
+          ctx.fillStyle = "#3d230d";
+          ctx.fillRect(-size * .34, size * .06, size * .68, size * .45);
+          ctx.fillStyle = "#d08a35";
+          ctx.fillRect(-size * .3, 0, size * .6, size * .42);
+          ctx.fillStyle = "#6b3d18";
+          ctx.fillRect(-size * .3, size * .18, size * .6, size * .06);
+          ctx.fillStyle = "#ffe08a";
+          ctx.fillRect(-size * .05, size * .2, size * .1, size * .12);
+        } else if (sprite.block === 8) {
+          ctx.fillStyle = "#4b2b22";
+          ctx.fillRect(-size * .42, size * .28, size * .84, size * .16);
+          ctx.fillStyle = "#f7f0ff";
+          ctx.fillRect(-size * .42, size * .04, size * .3, size * .24);
+          ctx.fillStyle = "#d73555";
+          ctx.fillRect(-size * .12, size * .04, size * .55, size * .3);
+        }
+        ctx.restore();
+      }
+
+      function draw3dMiniMap() {
+        const size = 116;
+        const cell = size / grid3d.w;
+        const ox = W - size - 18;
+        const oy = 18;
+        ctx.fillStyle = "rgba(6,8,16,.68)";
+        ctx.fillRect(ox - 8, oy - 8, size + 16, size + 16);
+        for (let y = 0; y < grid3d.h; y += 1) {
+          for (let x = 0; x < grid3d.w; x += 1) {
+            const block = grid3d.cells[y][x];
+            if (!block) continue;
+            ctx.fillStyle = colors[block] || "#fff";
+            ctx.fillRect(ox + x * cell, oy + y * cell, cell - 1, cell - 1);
+          }
+        }
+        ctx.fillStyle = "#ff68ae";
+        ctx.beginPath();
+        ctx.arc(ox + player3d.x * cell, oy + player3d.y * cell, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#ffd76a";
+        ctx.beginPath();
+        ctx.moveTo(ox + player3d.x * cell, oy + player3d.y * cell);
+        ctx.lineTo(ox + (player3d.x + Math.cos(player3d.a) * 1.8) * cell, oy + (player3d.y + Math.sin(player3d.a) * 1.8) * cell);
+        ctx.stroke();
+      }
+
+      function draw3d() {
+        const night = (Math.sin(player3d.day * 0.18) + 1) / 2;
+        const sky = ctx.createLinearGradient(0, 0, 0, H * .52);
+        sky.addColorStop(0, night > .52 ? "#10162f" : "#65b9ff");
+        sky.addColorStop(1, night > .52 ? "#28304a" : "#cfefff");
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, W, H * .52);
+        const floor = ctx.createLinearGradient(0, H * .52, 0, H);
+        floor.addColorStop(0, night > .52 ? "#26321f" : "#5d9e45");
+        floor.addColorStop(1, night > .52 ? "#11150e" : "#2e5d2f");
+        ctx.fillStyle = floor;
+        ctx.fillRect(0, H * .52, W, H * .48);
+
+        const fov = Math.PI / 3;
+        for (let x = 0; x < W; x += 3) {
+          const rayAngle = player3d.a - fov / 2 + (x / W) * fov;
+          const ray = castRay(rayAngle);
+          const corrected = ray.distance * Math.cos(rayAngle - player3d.a);
+          const wallHeight = clamp(H / Math.max(.1, corrected), 18, H * 1.4);
+          const top = H / 2 - wallHeight / 2;
+          const shade = clamp(corrected / 11, 0, .72) + (night > .52 ? .12 : 0);
+          draw3dWall(x, top, wallHeight, ray.hit || 2, shade);
+        }
+
+        const sprites = [];
+        for (let y = 1; y < grid3d.h - 1; y += 1) {
+          for (let x = 1; x < grid3d.w - 1; x += 1) {
+            const block = grid3d.cells[y][x];
+            if (block === 8 || block === 9) sprites.push({ x, y, block, distance: Math.hypot(x + .5 - player3d.x, y + .5 - player3d.y) });
+          }
+        }
+        sprites.sort((a, b) => b.distance - a.distance).forEach((sprite) => draw3dSprite(sprite, sprite.block === 8 ? .34 : .27));
+
+        ctx.strokeStyle = "rgba(255,255,255,.86)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(W / 2 - 12, H / 2);
+        ctx.lineTo(W / 2 + 12, H / 2);
+        ctx.moveTo(W / 2, H / 2 - 12);
+        ctx.lineTo(W / 2, H / 2 + 12);
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(0,0,0,.34)";
+        ctx.fillRect(18, H - 72, 310, 48);
+        ctx.fillStyle = "#fff7d9";
+        ctx.font = "900 18px system-ui";
+        ctx.fillText("3D-кубомир: поворачивай стрелками, ходи W/S", 30, H - 42);
+        draw3dMiniMap();
         updateHud();
       }
 
