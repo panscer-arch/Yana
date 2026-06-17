@@ -323,8 +323,8 @@
         </div>
         <h2>Инвентарь</h2>
         <div class="inventory" id="inventory"></div>
-        <div class="log" id="log">Цель: собери 12 кристаллов, скрафти факелы и зажги шахту.</div>
-        <p>WASD/стрелки — ходить и прыгать. Клик или E — ломать блок. F — поставить выбранный блок. C — крафт факела. 1-7 — выбрать блок.</p>
+        <div class="log" id="log">Цель: открой сундук, собери кристаллы, скрафти факелы и зажги шахту.</div>
+        <p>WASD/стрелки — ходить и прыгать. Наводи мышкой, чтобы выбирать блок вокруг героя. Клик или E — ломать. F — поставить. X — сундук/кровать. C — крафт факела.</p>
         <div class="touch" aria-label="Кнопки управления">
           <button data-key="ArrowLeft" type="button">←</button>
           <button data-key="ArrowUp" type="button">↑</button>
@@ -333,6 +333,7 @@
           <button data-act="place" type="button">ставить</button>
           <button data-key="ArrowDown" type="button">↓</button>
           <button data-act="craft" type="button">крафт</button>
+          <button data-act="interact" type="button">сундук</button>
         </div>
       </aside>
     </main>
@@ -362,16 +363,18 @@
       const tile = 32;
       const world = { w: 120, h: 32 };
       const keys = new Set();
-      const names = ["пустота", "земля", "камень", "кристалл", "факел", "трава", "дерево", "листва"];
-      const colors = ["transparent", "#463323", "#171a27", "#67e8ff", "#ffd76a", "#245c32", "#7a4724", "#2f7d44"];
+      const names = ["пустота", "земля", "камень", "кристалл", "факел", "трава", "дерево", "листва", "кровать", "сундук"];
+      const colors = ["transparent", "#463323", "#171a27", "#67e8ff", "#ffd76a", "#245c32", "#7a4724", "#2f7d44", "#bd3146", "#a66a28"];
       let map = [];
       let camera = { x: 0, y: 0 };
+      let aim = { x: 160, y: 170, active: false };
       let running = false;
       let selected = 1;
       let last = 0;
       let messageTime = 0;
-      const bag = { 1: 0, 2: 0, 3: 0, 4: 3, 5: 0, 6: 0, 7: 0 };
-      const player = { x: 120, y: 180, w: 22, h: 30, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0, hp: 5, day: 0 };
+      const bag = { 1: 0, 2: 0, 3: 0, 4: 3, 5: 0, 6: 0, 7: 0, 8: 1, 9: 1 };
+      const chestLoot = { 1: 12, 2: 8, 4: 3, 6: 4, 8: 1 };
+      const player = { x: 120, y: 128, w: 26, h: 54, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0, hp: 5, day: 0, chestOpened: false };
 
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
       const rand = (min, max) => Math.random() * (max - min) + min;
@@ -413,10 +416,12 @@
         for (let x = 0; x < world.w; x += 1) {
           if (Math.random() > 0.88) map[10][x] = 3;
         }
-        Object.assign(bag, { 1: 0, 2: 0, 3: 0, 4: 3, 5: 0, 6: 0, 7: 0 });
-        Object.assign(player, { x: 120, y: 180, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0, hp: 5, day: 0 });
+        setBlock(7, 10, 9);
+        setBlock(9, 10, 8);
+        Object.assign(bag, { 1: 0, 2: 0, 3: 0, 4: 3, 5: 0, 6: 0, 7: 0, 8: 1, 9: 1 });
+        Object.assign(player, { x: 120, y: 128, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0, hp: 5, day: 0, chestOpened: false });
         selected = 1;
-        say("Новый тёмный мир готов. Собери кристаллы и поставь факелы.");
+        say("Новый мир готов. Сначала открой сундук рядом со входом.");
         renderInventory();
       }
 
@@ -431,7 +436,7 @@
       }
 
       function solid(block) {
-        return block === 1 || block === 2 || block === 3 || block === 4 || block === 5 || block === 6 || block === 7;
+        return block === 1 || block === 2 || block === 3 || block === 4 || block === 5 || block === 6 || block === 7 || block === 8 || block === 9;
       }
 
       function rectHits(x, y) {
@@ -484,6 +489,16 @@
       }
 
       function targetCell() {
+        if (aim.active) {
+          const centerX = player.x + player.w / 2;
+          const centerY = player.y + player.h / 2;
+          const dx = aim.x - centerX;
+          const dy = aim.y - centerY;
+          if (Math.hypot(dx, dy) < 155) {
+            player.face = dx < 0 ? -1 : 1;
+            return { tx: Math.floor(aim.x / tile), ty: Math.floor(aim.y / tile) };
+          }
+        }
         const cx = player.x + player.w / 2 + player.face * 34;
         const cy = player.y + player.h / 2 + (keys.has("ArrowDown") || keys.has("KeyS") ? 28 : 0);
         return { tx: Math.floor(cx / tile), ty: Math.floor(cy / tile) };
@@ -509,6 +524,12 @@
           bag[4] += 1;
           player.torches = Math.max(0, player.torches - 1);
           say("Факел вернулся в рюкзак.");
+        } else if (block === 9) {
+          bag[9] += 1;
+          say("Сундук забрала в инвентарь.");
+        } else if (block === 8) {
+          bag[8] += 1;
+          say("Кровать забрала в инвентарь.");
         } else {
           bag[block] += 1;
           say(`${names[block]} добыт.`);
@@ -551,6 +572,32 @@
         selected = 4;
         say("Скрафтила 3 факела из дерева и кристалла.");
         renderInventory();
+      }
+
+      function interact() {
+        const { tx, ty } = targetCell();
+        const block = getBlock(tx, ty);
+        if (block === 9) {
+          if (player.chestOpened) {
+            say("Сундук уже открыт. Можно забрать сам сундук, если сломать его.");
+            return;
+          }
+          Object.entries(chestLoot).forEach(([id, count]) => {
+            bag[id] += count;
+          });
+          player.chestOpened = true;
+          selected = 6;
+          say("Сундук открыт: внутри дерево, камень, факелы и кровать. Теперь вещи не ноль.");
+          renderInventory();
+          return;
+        }
+        if (block === 8) {
+          player.day = Math.PI / 0.18;
+          player.hp = 5;
+          say("Поспала на кровати. Сердца восстановились, снова светлее.");
+          return;
+        }
+        say("Подойди к сундуку или кровати и наведи на них.");
       }
 
       function update(delta) {
@@ -615,6 +662,27 @@
           ctx.fillStyle = "#7a4724";
           ctx.fillRect(sx + 13, sy + 16, 6, 12);
         }
+        if (block === 8) {
+          ctx.fillStyle = "#f7f0ff";
+          ctx.fillRect(sx + 4, sy + 7, 11, 10);
+          ctx.fillStyle = "#d73555";
+          ctx.fillRect(sx + 14, sy + 7, 15, 15);
+          ctx.fillStyle = "#4b2b22";
+          ctx.fillRect(sx + 4, sy + 22, 25, 5);
+        }
+        if (block === 9) {
+          ctx.fillStyle = "#d08a35";
+          ctx.fillRect(sx + 4, sy + 8, 24, 18);
+          ctx.fillStyle = "#6b3d18";
+          ctx.fillRect(sx + 4, sy + 14, 24, 3);
+          ctx.fillStyle = "#ffe08a";
+          ctx.fillRect(sx + 14, sy + 15, 4, 5);
+          if (!player.chestOpened) {
+            ctx.fillStyle = "rgba(255,255,255,.7)";
+            ctx.fillRect(sx + 9, sy + 4, 3, 3);
+            ctx.fillRect(sx + 20, sy + 4, 3, 3);
+          }
+        }
       }
 
       function draw() {
@@ -651,14 +719,24 @@
         ctx.save();
         ctx.translate(px + player.w / 2, py + player.h / 2);
         ctx.scale(player.face, 1);
-        ctx.fillStyle = "#f7f0ff";
-        ctx.fillRect(-player.w / 2, -player.h / 2, player.w, player.h);
-        ctx.fillStyle = "#8d6bff";
-        ctx.fillRect(-player.w / 2 + 3, -player.h / 2 + 5, player.w - 6, 8);
-        ctx.fillStyle = "#090a12";
-        ctx.fillRect(3, -8, 4, 4);
+        ctx.fillStyle = "rgba(0,0,0,.28)";
+        ctx.fillRect(-15, 23, 30, 5);
+        ctx.fillStyle = "#f0c89b";
+        ctx.fillRect(-10, -27, 20, 18);
+        ctx.fillStyle = "#4b2b22";
+        ctx.fillRect(-11, -30, 22, 7);
+        ctx.fillStyle = "#2d66d4";
+        ctx.fillRect(-11, -7, 22, 24);
+        ctx.fillStyle = "#f0c89b";
+        ctx.fillRect(-18, -4, 7, 20);
+        ctx.fillRect(11, -4, 7, 20);
+        ctx.fillStyle = "#1b2440";
+        ctx.fillRect(-10, 17, 8, 24);
+        ctx.fillRect(2, 17, 8, 24);
+        ctx.fillStyle = "#101421";
+        ctx.fillRect(2, -21, 4, 4);
         ctx.fillStyle = "#ff68ae";
-        ctx.fillRect(8, 5, 7, 4);
+        ctx.fillRect(8, -12, 7, 4);
         ctx.restore();
 
         const darkness = ctx.createRadialGradient(px + player.w / 2, py + player.h / 2, 40, px + player.w / 2, py + player.h / 2, 330 + player.torches * 22);
@@ -674,14 +752,14 @@
       function updateHud() {
         crystalsEl.textContent = "♥".repeat(player.hp) + "♡".repeat(5 - player.hp);
         torchesEl.textContent = `${player.torches} / 6`;
-        blocksEl.textContent = bag[1] + bag[2] + bag[5] + bag[6] + bag[7];
+        blocksEl.textContent = bag[1] + bag[2] + bag[5] + bag[6] + bag[7] + bag[8] + bag[9];
         depthEl.textContent = Math.sin(player.day * 0.18) > 0 ? "день" : "ночь";
         if (messageTime <= 0 && running) logEl.textContent = `Выбрано: ${names[selected]}. E/клик ломать, F ставить.`;
       }
 
       function renderInventory() {
         inventoryEl.innerHTML = "";
-        [1, 2, 3, 4, 5, 6, 7].forEach((id) => {
+        [1, 2, 3, 4, 5, 6, 7, 8, 9].forEach((id) => {
           const button = document.createElement("button");
           button.type = "button";
           button.className = `slot${id === selected ? " active" : ""}`;
@@ -708,16 +786,27 @@
         if (event.code === "KeyE") mine();
         if (event.code === "KeyF") place();
         if (event.code === "KeyC") craftTorch();
-        if (["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7"].includes(event.code)) {
+        if (event.code === "KeyX") interact();
+        if (["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9"].includes(event.code)) {
           selected = Number(event.code.slice(-1));
           renderInventory();
         }
       });
       window.addEventListener("keyup", (event) => keys.delete(event.code));
       window.addEventListener("blur", () => keys.clear());
+      canvas.addEventListener("pointermove", (event) => {
+        const rect = canvas.getBoundingClientRect();
+        aim.x = camera.x + (event.clientX - rect.left) * (W / rect.width);
+        aim.y = camera.y + (event.clientY - rect.top) * (H / rect.height);
+        aim.active = true;
+      });
       canvas.addEventListener("pointerdown", (event) => {
         canvas.focus();
         if (!running) running = true;
+        const rect = canvas.getBoundingClientRect();
+        aim.x = camera.x + (event.clientX - rect.left) * (W / rect.width);
+        aim.y = camera.y + (event.clientY - rect.top) * (H / rect.height);
+        aim.active = true;
         if (event.shiftKey || event.button === 2) place();
         else mine();
       });
@@ -740,6 +829,7 @@
       document.querySelector("[data-act='mine']").addEventListener("click", mine);
       document.querySelector("[data-act='place']").addEventListener("click", place);
       document.querySelector("[data-act='craft']").addEventListener("click", craftTorch);
+      document.querySelector("[data-act='interact']").addEventListener("click", interact);
 
       makeWorld();
       requestAnimationFrame(loop);
