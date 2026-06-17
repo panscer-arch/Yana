@@ -399,7 +399,7 @@
           <h1>Суперстрелялка</h1>
           <p>Большая семейная 3D-арена: боты бегают, выбирают цели, стреляют друг в друга и в игрока, а на карте лежат запасы патронов и аптечки.</p>
           <div class="setup">
-            <button class="big-button" id="startButton" type="button">Старт</button>
+            <button class="big-button" id="startButton" type="button">Старт с ботами</button>
             <button class="ghost-button" id="resetButton" type="button">Заново</button>
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
@@ -487,6 +487,7 @@
         bob: 0,
         shots: 0,
         score: 0,
+        streak: 0,
         rescues: 0,
         enemyScore: 0,
         lostSoundPlayed: false,
@@ -496,6 +497,8 @@
         hitMarker: 0,
         deathFlash: 0,
         enemyGrace: 4,
+        tip: "Нажми Старт с ботами",
+        tipTimer: 4,
         player: {
           position: new THREE.Vector3(-5.2, 1.75, 13.4),
           velocity: new THREE.Vector3(),
@@ -528,6 +531,7 @@
       let hitMarkerEl;
       let deathOverlay;
       let movePad;
+      let combatTipEl;
       let scoreRenderTimer = 0;
       let networkSocket;
       let networkId = "";
@@ -542,6 +546,11 @@
       const wrapAngle = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle));
       const rotateToward = (current, target, amount) => current + wrapAngle(target - current) * amount;
       const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
+
+      function showTip(text, seconds = 2.2) {
+        state.tip = text;
+        state.tipTimer = seconds;
+      }
 
       function getAudio() {
         if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -809,6 +818,28 @@
           pointerEvents: "none"
         });
         stage.appendChild(statusLine);
+
+        combatTipEl = document.createElement("div");
+        Object.assign(combatTipEl.style, {
+          position: "absolute",
+          left: "50%",
+          top: "84px",
+          minWidth: "190px",
+          maxWidth: "min(460px, calc(100vw - 48px))",
+          padding: "12px 16px",
+          border: "1px solid rgba(255,255,255,.26)",
+          borderRadius: "8px",
+          color: "#fff8df",
+          background: "linear-gradient(135deg, rgba(21,26,24,.82), rgba(110,76,31,.72))",
+          boxShadow: "0 18px 44px rgba(0,0,0,.32)",
+          font: "900 16px system-ui",
+          textAlign: "center",
+          transform: "translateX(-50%)",
+          pointerEvents: "none",
+          opacity: "0",
+          transition: "opacity 160ms ease, transform 160ms ease"
+        });
+        stage.appendChild(combatTipEl);
 
         damageOverlay = document.createElement("div");
         Object.assign(damageOverlay.style, {
@@ -1704,6 +1735,7 @@
         state.running = false;
         state.timeLeft = 180;
         state.score = 0;
+        state.streak = 0;
         state.rescues = 0;
         state.enemyScore = 0;
         state.lostSoundPlayed = false;
@@ -1713,6 +1745,8 @@
         state.hitMarker = 0;
         state.deathFlash = 0;
         state.enemyGrace = 4;
+        state.tip = "Боты рядом. Найди укрытие и аптечки";
+        state.tipTimer = 4;
         state.shots = 0;
         state.yaw = 0;
         state.pitch = 0;
@@ -1735,6 +1769,7 @@
 
       function startGame() {
         state.running = true;
+        showTip(location.protocol === "file:" ? "Режим с ботами: держись за укрытиями" : "Арена запущена: боты плюс онлайн-игроки", 3);
         canvas.focus();
         requestAimLock();
       }
@@ -1934,7 +1969,10 @@
           enemy.think -= delta;
           if (enemy.think <= 0 || group.position.distanceTo(enemy.target) < 1.1) {
             const target = chooseEnemyTarget(enemy);
-            if (target.type === "player" && !canHuntPlayer) {
+            const healthCrate = enemy.hp < 42 ? nearestVisibleSupply(group.position, "health") : null;
+            if (healthCrate) {
+              enemy.target.set(healthCrate.x, 0, healthCrate.z);
+            } else if (target.type === "player" && !canHuntPlayer) {
               enemy.target.set(rand(-32, 32), 0, rand(-26, -8));
             } else if (target.distance < (target.type === "player" ? 20 : 21)) {
               const chase = Math.random() > 0.32;
@@ -1942,6 +1980,14 @@
               enemy.target.copy(target.position).add(new THREE.Vector3(chase ? rand(-2.5, 2.5) : spread, 0, chase ? spread : rand(-5, 5)));
             } else enemy.target.set(rand(-30, 30), 0, rand(-24, 20));
             enemy.think = rand(0.5, 1.15);
+          }
+          const nearbyHealth = enemy.hp < 72 ? nearestVisibleSupply(group.position, "health", 1.45) : null;
+          if (nearbyHealth) {
+            enemy.hp = Math.min(100, enemy.hp + 34);
+            nearbyHealth.cooldown = 10;
+            nearbyHealth.meshes.forEach((mesh) => { mesh.visible = false; });
+            addSpark(new THREE.Vector3(nearbyHealth.x, 0.7, nearbyHealth.z), 0xff9b8f);
+            addDust(new THREE.Vector3(group.position.x, 0.5, group.position.z), 0xa8e8bc, 8);
           }
           const dir = enemy.target.clone().sub(group.position);
           dir.y = 0;
@@ -2006,6 +2052,20 @@
             addDust(new THREE.Vector3(crate.x, 0.45, crate.z), crate.kind === "ammo" ? 0x9bd6ff : 0xffa096, 8);
           }
         }
+      }
+
+      function nearestVisibleSupply(position, kind, radius = Infinity) {
+        let best = null;
+        let bestDistance = radius;
+        for (const crate of supplyCrates) {
+          if (crate.kind !== kind || crate.cooldown > 0) continue;
+          const dist = distance2D(position, crate);
+          if (dist < bestDistance) {
+            best = crate;
+            bestDistance = dist;
+          }
+        }
+        return best;
       }
 
       function updateWoundedAllies() {
@@ -2083,6 +2143,7 @@
             }
           } else if (!state.downed) {
             state.player.hp = Math.max(0, state.player.hp - 11);
+            if (state.player.hp <= 0) state.streak = 0;
             state.damageFlash = 1;
             playHitSound();
             state.enemyScore += 1;
@@ -2138,6 +2199,14 @@
             addDust(hit.point, 0xd1b184, 6);
             if (enemy.hp <= 0) {
               state.score += 3;
+              state.streak += 1;
+              if (state.streak % 3 === 0) {
+                state.player.medkits += 1;
+                state.player.ammo = 30;
+                showTip(`Серия ${state.streak}! + аптечка и полный магазин`, 2.8);
+              } else {
+                showTip(`Бот сбит. Серия ${state.streak}`, 1.6);
+              }
               enemy.respawn = 2.6;
               enemy.model.group.visible = false;
             }
@@ -2248,6 +2317,7 @@
       function updateScreenEffects(delta) {
         state.damageFlash = Math.max(0, state.damageFlash - delta * 1.8);
         state.hitMarker = Math.max(0, state.hitMarker - delta * 5.2);
+        state.tipTimer = Math.max(0, state.tipTimer - delta);
         const finallyDead = state.downed && state.downedTimer <= 0;
         state.deathFlash = state.downed ? Math.min(finallyDead ? 1 : 0.78, state.deathFlash + delta * 2.8) : Math.max(0, state.deathFlash - delta * 4);
         if (damageOverlay) damageOverlay.style.opacity = String(Math.max(state.damageFlash, state.player.hp > 0 && state.player.hp < 28 ? 0.38 : 0));
@@ -2270,6 +2340,11 @@
             deathCard.style.background = finallyDead ? "rgba(170,0,0,.72)" : "rgba(130,0,0,.62)";
             deathCard.style.boxShadow = finallyDead ? "0 0 90px rgba(255,0,0,.8)" : "0 0 90px rgba(255,40,40,.65)";
           }
+        }
+        if (combatTipEl) {
+          combatTipEl.textContent = state.tip;
+          combatTipEl.style.opacity = String(state.tipTimer > 0 ? 1 : 0);
+          combatTipEl.style.transform = `translateX(-50%) translateY(${state.tipTimer > 0 ? "0" : "-8px"})`;
         }
       }
 
@@ -2341,14 +2416,14 @@
           ? (state.downedTimer > 0
             ? `ТЫ РАНЕН | H вылечиться аптечкой (${state.player.medkits}) | осталось ${Math.ceil(state.downedTimer)} сек`
             : "ТЫ УМЕР | Нажми Заново или Старт для нового раунда")
-          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""}${state.enemyGrace > 0 ? ` | боты осматриваются ${Math.ceil(state.enemyGrace)}с` : ""} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
+          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | СЕРИЯ ${state.streak} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""}${state.enemyGrace > 0 ? ` | боты осматриваются ${Math.ceil(state.enemyGrace)}с` : ""} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
       }
 
       function renderScores() {
         scoreList.innerHTML = `
           <div class="player-row">
             <i class="dot" style="background:#8a806d"></i>
-            <div><strong>1. Вы</strong><span>${state.downed ? `ранен | ${Math.ceil(state.downedTimer)} сек` : `${state.view === "first" ? "1st person" : "3rd person"} | HP ${state.player.hp}`} | спасено ${state.rescues}</span></div>
+            <div><strong>1. Вы</strong><span>${state.downed ? `ранен | ${Math.ceil(state.downedTimer)} сек` : `${state.view === "first" ? "1st person" : "3rd person"} | HP ${state.player.hp}`} | серия ${state.streak} | спасено ${state.rescues}</span></div>
             <button type="button" data-fire="1" aria-label="Огонь игрок 1">${state.score}</button>
           </div>
           ${enemies.map((enemy) => `<div class="player-row">
