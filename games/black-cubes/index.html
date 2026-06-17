@@ -324,7 +324,7 @@
         <h2>Инвентарь</h2>
         <div class="inventory" id="inventory"></div>
         <div class="log" id="log">Цель: открой сундук, собери кристаллы, скрафти факелы и зажги шахту.</div>
-        <p>WASD/стрелки — ходить и прыгать. Наводи мышкой, чтобы выбирать блок вокруг героя. Клик или E — ломать. F — поставить. X — сундук/кровать. C — крафт факела.</p>
+        <p>WASD/стрелки — ходить и прыгать. Наводи мышкой, чтобы выбирать блок вокруг героя. Клик или E — ломать. F — поставить. X — открыть сундук или лечь спать рядом с кроватью. C — крафт факела.</p>
         <div class="touch" aria-label="Кнопки управления">
           <button data-key="ArrowLeft" type="button">←</button>
           <button data-key="ArrowUp" type="button">↑</button>
@@ -333,7 +333,7 @@
           <button data-act="place" type="button">ставить</button>
           <button data-key="ArrowDown" type="button">↓</button>
           <button data-act="craft" type="button">крафт</button>
-          <button data-act="interact" type="button">сундук</button>
+          <button data-act="interact" type="button">спать/сундук</button>
         </div>
       </aside>
     </main>
@@ -574,9 +574,37 @@
         renderInventory();
       }
 
+      function nearbySpecial() {
+        const focused = targetCell();
+        const focusedBlock = getBlock(focused.tx, focused.ty);
+        if (focusedBlock === 8 || focusedBlock === 9) return { ...focused, block: focusedBlock };
+
+        const centerX = player.x + player.w / 2;
+        const centerY = player.y + player.h / 2;
+        const cx = Math.floor(centerX / tile);
+        const cy = Math.floor(centerY / tile);
+        let best = null;
+        for (let ty = cy - 4; ty <= cy + 4; ty += 1) {
+          for (let tx = cx - 5; tx <= cx + 5; tx += 1) {
+            const block = getBlock(tx, ty);
+            if (block !== 8 && block !== 9) continue;
+            const bx = tx * tile + tile / 2;
+            const by = ty * tile + tile / 2;
+            const distance = Math.hypot(bx - centerX, by - centerY);
+            if (distance > 150) continue;
+            if (!best || distance < best.distance) best = { tx, ty, block, distance };
+          }
+        }
+        return best;
+      }
+
       function interact() {
-        const { tx, ty } = targetCell();
-        const block = getBlock(tx, ty);
+        const special = nearbySpecial();
+        if (!special) {
+          say("Подойди ближе к сундуку или кровати. Наводить точно уже не нужно.");
+          return;
+        }
+        const { block } = special;
         if (block === 9) {
           if (player.chestOpened) {
             say("Сундук уже открыт. Можно забрать сам сундук, если сломать его.");
@@ -594,10 +622,14 @@
         if (block === 8) {
           player.day = Math.PI / 0.18;
           player.hp = 5;
-          say("Поспала на кровати. Сердца восстановились, снова светлее.");
+          player.x = special.tx * tile + 4;
+          player.y = special.ty * tile - player.h;
+          player.vx = 0;
+          player.vy = 0;
+          running = false;
+          say("Ты легла на кровать и поспала. Сердца восстановились, ночь пропала. Нажми старт, чтобы идти дальше.");
           return;
         }
-        say("Подойди к сундуку или кровати и наведи на них.");
       }
 
       function update(delta) {
