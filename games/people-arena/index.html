@@ -404,7 +404,7 @@
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
           </div>
-          <p>WASD/стрелки — ходьба, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, H — аптечка. V меняет камеру, но старт теперь сразу сзади героя.</p>
+          <p>W/S или ↑/↓ — ходьба, ←/→ — поворот экрана, A/D — шаг боком, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, H — аптечка.</p>
         </section>
 
         <section class="panel">
@@ -573,6 +573,17 @@
         "detail-ac-a.glb",
         "detail-ac-b.glb"
       ];
+      const SOLDIER_STYLES = ["a", "b", "c", "green", "sand", "blue", "red", "dark"];
+      const SOLDIER_TINTS = {
+        a: 0x6f6652,
+        b: 0x4f6f54,
+        c: 0x765f42,
+        green: 0x2f734a,
+        sand: 0xa98555,
+        blue: 0x345d7f,
+        red: 0x7a3f37,
+        dark: 0x34383a
+      };
 
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
       const rand = (min, max) => Math.random() * (max - min) + min;
@@ -2659,6 +2670,7 @@
         const group = new THREE.Group();
         const asset = SkeletonUtils.clone(characterAsset.root);
         const scale = isPlayer ? 1.55 : 1.28;
+        const tint = new THREE.Color(SOLDIER_TINTS[style] || SOLDIER_TINTS.a);
         asset.scale.setScalar(scale);
         asset.position.set(0, 0, 0);
         asset.rotation.y = Math.PI;
@@ -2669,8 +2681,10 @@
           node.userData.assetBody = true;
           if (node.material) {
             node.material = node.material.clone();
-            if (style === "b") node.material.color?.offsetHSL?.(0.02, 0.04, -0.03);
-            if (style === "c") node.material.color?.offsetHSL?.(0.07, 0.02, -0.02);
+            if (!isPlayer && node.material.color) {
+              node.material.color.lerp(tint, 0.46);
+              node.material.roughness = Math.max(0.66, node.material.roughness ?? 0.72);
+            }
           }
         });
         const mixer = new THREE.AnimationMixer(asset);
@@ -2725,21 +2739,22 @@
         const spots = [[-30, -18], [30, -18], [-32, 3], [32, 4], [-22, -28], [22, -28], [-38, 15], [38, 14], [0, -30]];
         for (let i = 0; i < state.playerCount - 1; i += 1) {
           const [x, z] = spots[i % spots.length];
-          const model = createSoldier(["a", "b", "c"][i % 3]);
+          const style = SOLDIER_STYLES[i % SOLDIER_STYLES.length];
+          const model = createSoldier(style);
           model.group.position.set(x, 0, z);
           model.group.rotation.y = rand(-Math.PI, Math.PI);
           scene.add(model.group);
           enemies.push({
             id: i + 2,
             name: ["Браво", "Чарли", "Дельта", "Эхо", "Фокс", "Гамма", "Норд", "Вега", "Шторм"][i] || `Игрок ${i + 2}`,
-            style: ["a", "b", "c"][i % 3],
+            style,
             model,
             hp: 100,
             score: 0,
             target: new THREE.Vector3(rand(-26, 26), 0, rand(-22, 22)),
-            speed: rand(1.8, 2.55),
-            cooldown: rand(0.8, 1.9),
-            think: rand(0.45, 1.15),
+            speed: rand(2.2, 3.05),
+            cooldown: rand(0.35, 1.05),
+            think: rand(0.18, 0.62),
             stuck: 0,
             respawn: 0
           });
@@ -2964,6 +2979,8 @@
         const player = state.player;
         if (keys.has("KeyQ") || keys.has("q") || keys.has("й")) state.yaw += delta * 1.55;
         if (keys.has("KeyE") || keys.has("e") || keys.has("у")) state.yaw -= delta * 1.55;
+        if (keys.has("ArrowLeft")) state.yaw += delta * 2.45;
+        if (keys.has("ArrowRight")) state.yaw -= delta * 2.45;
         if (keys.has("KeyF") || keys.has("f") || keys.has("а")) {
           keys.delete("KeyF");
           keys.delete("f");
@@ -3021,8 +3038,8 @@
         right.set(Math.cos(yaw), 0, -Math.sin(yaw)).normalize();
         if (keys.has("KeyW") || keys.has("w") || keys.has("ц") || keys.has("ArrowUp") || virtualMove.forward > 0) move.add(forward);
         if (keys.has("KeyS") || keys.has("s") || keys.has("ы") || keys.has("ArrowDown") || virtualMove.forward < 0) move.sub(forward);
-        if (keys.has("KeyD") || keys.has("d") || keys.has("в") || keys.has("ArrowRight") || virtualMove.side > 0) move.add(right);
-        if (keys.has("KeyA") || keys.has("a") || keys.has("ф") || keys.has("ArrowLeft") || virtualMove.side < 0) move.sub(right);
+        if (keys.has("KeyD") || keys.has("d") || keys.has("в") || virtualMove.side > 0) move.add(right);
+        if (keys.has("KeyA") || keys.has("a") || keys.has("ф") || virtualMove.side < 0) move.sub(right);
         if (move.lengthSq() > 0) move.normalize();
         const crouching = keys.has("ControlLeft") || keys.has("ControlRight") || keys.has("KeyC") || keys.has("c") || keys.has("с");
         player.crouching = crouching;
@@ -3100,12 +3117,12 @@
               enemy.target.set(healthCrate.x, 0, healthCrate.z);
             } else if (target.type === "player" && !canHuntPlayer) {
               enemy.target.set(rand(-32, 32), 0, rand(-26, -8));
-            } else if (target.distance < (target.type === "player" ? 20 : 21)) {
-              const chase = Math.random() > 0.32;
-              const spread = target.type === "player" ? (chase ? rand(3.8, 6.8) : rand(6, 10)) : (chase ? rand(-1.8, 1.8) : rand(-5, 5));
+            } else if (target.distance < (target.type === "player" ? 34 : 30)) {
+              const chase = Math.random() > 0.18;
+              const spread = target.type === "player" ? (chase ? rand(3.4, 6.2) : rand(7, 12)) : (chase ? rand(-2.4, 2.4) : rand(-6, 6));
               enemy.target.copy(target.position).add(new THREE.Vector3(chase ? rand(-2.5, 2.5) : spread, 0, chase ? spread : rand(-5, 5)));
             } else enemy.target.set(rand(-30, 30), 0, rand(-24, 20));
-            enemy.think = rand(0.5, 1.15);
+            enemy.think = rand(0.18, 0.72);
           }
           const nearbyHealth = enemy.hp < 72 ? nearestVisibleSupply(group.position, "health", 1.45) : null;
           if (nearbyHealth) {
@@ -3142,14 +3159,14 @@
             const aimVector = target.position.clone().sub(group.position);
             const targetHeight = target.type === "player" ? state.player.eyeHeight : 1.65;
             if (target.type === "player" && !canHuntPlayer) {
-              enemy.cooldown = rand(0.8, 1.4);
-            } else if (target.distance < (target.type === "player" ? 28 : 30) && hasLineOfSight(group.position, target.position, targetHeight)) {
-              enemy.cooldown = target.type === "player" ? rand(0.8, 1.7) : rand(0.55, 1.2);
+              enemy.cooldown = rand(0.45, 0.95);
+            } else if (target.distance < (target.type === "player" ? 40 : 36) && hasLineOfSight(group.position, target.position, targetHeight)) {
+              enemy.cooldown = target.type === "player" ? rand(0.55, 1.15) : rand(0.42, 0.95);
               const aimYaw = Math.atan2(aimVector.x, aimVector.z) + Math.PI;
-              group.rotation.y = rotateToward(group.rotation.y, aimYaw, 0.55);
+              group.rotation.y = rotateToward(group.rotation.y, aimYaw, 0.75);
               enemyShoot(enemy, target);
             } else {
-              enemy.cooldown = rand(0.35, 0.75);
+              enemy.cooldown = rand(0.18, 0.45);
             }
           }
           animateSoldier(enemy.model, delta, enemy.speed);
@@ -3224,16 +3241,16 @@
           const other = livingEnemies[Math.floor(Math.random() * livingEnemies.length)];
           return { type: "enemy", enemy: other, position: other.model.group.position, distance: distance2D(enemy.model.group.position, other.model.group.position) };
         }
-        let target = state.downed && livingEnemies.length > 0
+        let target = (state.downed || Math.random() < 0.38) && livingEnemies.length > 0
           ? { type: "enemy", enemy: livingEnemies[0], position: livingEnemies[0].model.group.position, distance: distance2D(enemy.model.group.position, livingEnemies[0].model.group.position) }
           : { type: "player", position: state.player.position, distance: distance2D(enemy.model.group.position, state.player.position) };
         for (const other of livingEnemies) {
           const dist = distance2D(enemy.model.group.position, other.model.group.position);
-          if ((dist < target.distance && Math.random() > 0.18) || Math.random() > 0.84) {
+          if ((dist < target.distance && Math.random() > 0.1) || Math.random() > 0.76) {
             target = { type: "enemy", enemy: other, position: other.model.group.position, distance: dist };
           }
         }
-        if ((target.distance > 20 || Math.random() > 0.72) && livingEnemies.length > 0) {
+        if ((target.distance > 24 || Math.random() > 0.64) && livingEnemies.length > 0) {
           const other = livingEnemies[Math.floor(Math.random() * livingEnemies.length)];
           target = { type: "enemy", enemy: other, position: other.model.group.position, distance: distance2D(enemy.model.group.position, other.model.group.position) };
         }
@@ -3576,10 +3593,11 @@
           ? (state.downedTimer > 0
             ? `ТЫ РАНЕН | H вылечиться аптечкой (${state.player.medkits}) | осталось ${Math.ceil(state.downedTimer)} сек`
             : "ТЫ УМЕР | Нажми Заново или Старт для нового раунда")
-          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | СЕРИЯ ${state.streak} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""}${state.enemyGrace > 0 ? ` | боты осматриваются ${Math.ceil(state.enemyGrace)}с` : ""} | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
+          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | СЕРИЯ ${state.streak} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""}${state.enemyGrace > 0 ? ` | боты осматриваются ${Math.ceil(state.enemyGrace)}с` : ""} | ← → обзор, A/D боком | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
       }
 
       function renderScores() {
+        const scoreDot = (style) => `#${(SOLDIER_TINTS[style] || SOLDIER_TINTS.a).toString(16).padStart(6, "0")}`;
         scoreList.innerHTML = `
           <div class="player-row">
             <i class="dot" style="background:#8a806d"></i>
@@ -3587,7 +3605,7 @@
             <button type="button" data-fire="1" aria-label="Огонь игрок 1">${state.score}</button>
           </div>
           ${enemies.map((enemy) => `<div class="player-row">
-            <i class="dot" style="background:${enemy.style === "b" ? "#5f695f" : enemy.style === "c" ? "#77644d" : "#7a776b"}"></i>
+            <i class="dot" style="background:${scoreDot(enemy.style)}"></i>
             <div><strong>${enemy.id}. ${enemy.name}</strong><span>${enemy.respawn > 0 ? "респавн" : `HP ${enemy.hp}`}</span></div>
             <button type="button" data-fire="${enemy.id}" aria-label="Статус игрок ${enemy.id}">${enemy.score}</button>
           </div>`).join("")}
@@ -3601,7 +3619,7 @@
 
       function renderPads() {
         padsEl.innerHTML = "";
-        const labels = ["WASD/стрелки", "мышь прицел", "R перезарядка", "Space огонь"];
+        const labels = ["W/S + ←→", "мышь прицел", "R перезарядка", "Space огонь"];
         labels.forEach((label, index) => {
           const pad = document.createElement("div");
           pad.className = "pad";
