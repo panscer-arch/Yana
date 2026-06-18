@@ -157,6 +157,7 @@ function updateHud(collected) {
 }
 
 function drawBackground() {
+  const elapsed = state?.elapsed || 0;
   const sky = ctx.createLinearGradient(0, 0, 0, world.height);
   sky.addColorStop(0, "#10182a");
   sky.addColorStop(.45, "#172414");
@@ -194,7 +195,26 @@ function drawBackground() {
   ctx.bezierCurveTo(620, 312, 684, 228, 960, 190);
   ctx.stroke();
 
-  for (const tree of state.trees) {
+  ctx.save();
+  ctx.fillStyle = "rgba(115, 94, 62, .38)";
+  for (let i = 0; i < 28; i += 1) {
+    const x = (i * 137 + 41) % world.width;
+    const y = 420 + ((i * 71) % 180);
+    ctx.beginPath();
+    ctx.ellipse(x, y, 10 + (i % 4) * 4, 4 + (i % 3) * 2, (i % 5) * .32, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "rgba(255, 231, 158, .58)";
+  for (let i = 0; i < 18; i += 1) {
+    const x = (i * 173 + Math.sin(elapsed * 1.2 + i) * 18) % world.width;
+    const y = 120 + ((i * 67) % 310) + Math.sin(elapsed * 2 + i) * 8;
+    ctx.beginPath();
+    ctx.arc(x, y, 1.8 + (i % 3), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  for (const tree of (state?.trees || [])) {
     const sway = Math.sin(state.elapsed * 1.8 + tree.sway) * 3;
     ctx.fillStyle = "rgba(15, 26, 20, 0.9)";
     ctx.fillRect(tree.x - tree.w / 2, tree.y, tree.w, tree.h);
@@ -209,20 +229,33 @@ function drawBackground() {
 }
 
 function drawCrumbs() {
+  if (!state) return;
   for (const crumb of state.crumbs) {
     if (crumb.taken) continue;
     const glow = 0.55 + Math.sin(state.pulse * 5 + crumb.glow) * 0.25;
     ctx.shadowColor = `rgba(255, 214, 130, ${glow})`;
     ctx.shadowBlur = 18;
-    ctx.fillStyle = "#ffd46e";
+    const crumbGradient = ctx.createRadialGradient(crumb.x - 3, crumb.y - 3, 1, crumb.x, crumb.y, crumb.r + 7);
+    crumbGradient.addColorStop(0, "#fff0a3");
+    crumbGradient.addColorStop(.55, "#ffd46e");
+    crumbGradient.addColorStop(1, "#a35a22");
+    ctx.fillStyle = crumbGradient;
     ctx.beginPath();
-    ctx.arc(crumb.x, crumb.y, crumb.r, 0, Math.PI * 2);
+    ctx.moveTo(crumb.x - crumb.r, crumb.y - 2);
+    ctx.quadraticCurveTo(crumb.x - crumb.r * .3, crumb.y - crumb.r * 1.1, crumb.x + crumb.r * .8, crumb.y - crumb.r * .35);
+    ctx.quadraticCurveTo(crumb.x + crumb.r * 1.05, crumb.y + crumb.r * .55, crumb.x + crumb.r * .05, crumb.y + crumb.r);
+    ctx.quadraticCurveTo(crumb.x - crumb.r * .8, crumb.y + crumb.r * .6, crumb.x - crumb.r, crumb.y - 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.5)";
+    ctx.beginPath();
+    ctx.arc(crumb.x - crumb.r * .24, crumb.y - crumb.r * .18, Math.max(2, crumb.r * .22), 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
   }
 }
 
 function drawOven() {
+  if (!state) return;
   if (!state.oven) return;
   const oven = state.oven;
   ctx.shadowColor = "rgba(255, 142, 73, 0.85)";
@@ -243,6 +276,7 @@ function drawOven() {
 }
 
 function drawEnemies() {
+  if (!state) return;
   for (const enemy of state.enemies) {
     ctx.save();
     ctx.translate(enemy.x, enemy.y);
@@ -264,6 +298,7 @@ function drawEnemies() {
 }
 
 function drawPlayer() {
+  if (!state) return;
   const player = state.player;
   ctx.save();
   ctx.translate(player.x, player.y);
@@ -300,6 +335,7 @@ function drawPlayer() {
 }
 
 function drawVignette() {
+  if (!state) return;
   const fear = clamp(state.fear / 100, 0, 1);
   const gradient = ctx.createRadialGradient(
     state.player.x,
@@ -317,6 +353,10 @@ function drawVignette() {
 }
 
 function draw() {
+  if (!state) {
+    drawBackground();
+    return;
+  }
   drawBackground();
   drawOven();
   drawCrumbs();

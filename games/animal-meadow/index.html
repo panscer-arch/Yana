@@ -490,12 +490,26 @@
         if (food.taken) return;
         ctx.save();
         ctx.translate(food.x, food.y + Math.sin(buzz + food.x) * 5);
+        ctx.fillStyle = "rgba(48,84,43,.22)";
+        ctx.beginPath();
+        ctx.ellipse(0, 20, 31, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
         ctx.fillStyle = foodColors[food.type];
+        ctx.shadowColor = "rgba(42,66,43,.22)";
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 4;
         if (food.type === "carrot") {
           ctx.rotate(.7);
+          const carrot = ctx.createLinearGradient(-8, -20, 8, 20);
+          carrot.addColorStop(0, "#ffb24d");
+          carrot.addColorStop(1, "#ee6d22");
+          ctx.fillStyle = carrot;
           ctx.fillRect(-8, -20, 16, 36);
           ctx.fillStyle = "#3fbf60";
+          ctx.shadowBlur = 0;
           ctx.fillRect(-4, -29, 8, 14);
+          ctx.fillRect(-12, -25, 8, 12);
+          ctx.fillRect(4, -26, 9, 13);
         } else if (food.type === "fish") {
           ctx.beginPath();
           ctx.ellipse(0, 0, 22, 12, 0, 0, Math.PI * 2);
@@ -503,6 +517,11 @@
           ctx.lineTo(-36, -12);
           ctx.lineTo(-36, 12);
           ctx.closePath();
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = "#eafaff";
+          ctx.beginPath();
+          ctx.arc(11, -3, 2.8, 0, Math.PI * 2);
           ctx.fill();
         } else if (food.type === "bone") {
           ctx.fillRect(-22, -6, 44, 12);
@@ -518,7 +537,59 @@
           ctx.arc(5, -4, 11, 0, Math.PI * 2);
           ctx.arc(10, 8, 9, 0, Math.PI * 2);
           ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = "#7bd36a";
+          ctx.beginPath();
+          ctx.ellipse(7, -17, 9, 4, -.55, 0, Math.PI * 2);
+          ctx.fill();
         }
+        ctx.restore();
+      }
+
+      function drawMeadowDetails() {
+        ctx.save();
+        ctx.fillStyle = "rgba(255,238,176,.34)";
+        ctx.beginPath();
+        ctx.ellipse(505, 545, 360, 58, -.04, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(170,126,76,.28)";
+        ctx.lineWidth = 7;
+        for (let i = 0; i < 6; i += 1) {
+          ctx.beginPath();
+          ctx.moveTo(220 + i * 95, 508 + Math.sin(i) * 7);
+          ctx.quadraticCurveTo(260 + i * 80, 540, 330 + i * 70, 576);
+          ctx.stroke();
+        }
+
+        const trees = [[72, 312, 1.05], [890, 304, .95], [96, 170, .72], [858, 162, .78]];
+        trees.forEach(([x, y, s]) => {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(s, s);
+          ctx.fillStyle = "#8a5a35";
+          ctx.fillRect(-9, 22, 18, 58);
+          ctx.fillStyle = "#3f9f54";
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 48, 34, 0, 0, Math.PI * 2);
+          ctx.ellipse(-26, 22, 34, 25, 0, 0, Math.PI * 2);
+          ctx.ellipse(28, 21, 34, 24, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "rgba(255,255,255,.16)";
+          ctx.beginPath();
+          ctx.ellipse(-18, -10, 22, 9, -.35, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        ctx.fillStyle = "rgba(94,176,214,.52)";
+        ctx.beginPath();
+        ctx.ellipse(122, 510, 86, 30, -.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,.5)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(122, 510, 62, 18, -.12, 0, Math.PI * 2);
+        ctx.stroke();
         ctx.restore();
       }
 
@@ -583,6 +654,7 @@
         ctx.beginPath();
         ctx.ellipse(480, 595, 540, 95, 0, 0, Math.PI * 2);
         ctx.fill();
+        drawMeadowDetails();
         flowers.forEach((flower) => {
           const y = flower.y + Math.sin(buzz + flower.sway) * 2;
           ctx.strokeStyle = "#318b46";

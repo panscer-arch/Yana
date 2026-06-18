@@ -571,32 +571,122 @@
       }
 
       function drawFurniture() {
-        ctx.fillStyle = "#4f3658";
-        ctx.fillRect(88, 345, 170, 92);
+        ctx.save();
+        ctx.fillStyle = "rgba(18,10,26,.22)";
+        ctx.beginPath();
+        ctx.ellipse(178, 446, 120, 22, 0, 0, Math.PI * 2);
+        ctx.ellipse(425, 502, 112, 18, 0, 0, Math.PI * 2);
+        ctx.ellipse(760, 462, 94, 22, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const bed = ctx.createLinearGradient(88, 345, 88, 437);
+        bed.addColorStop(0, "#7a4d73");
+        bed.addColorStop(1, "#3f284e");
+        ctx.fillStyle = bed;
+        roundRect(88, 345, 170, 92, 14);
+        ctx.fill();
         ctx.fillStyle = "#ffbed5";
-        ctx.fillRect(108, 360, 55, 28);
-        ctx.fillStyle = "#8b6543";
-        ctx.fillRect(360, 410, 132, 84);
-        ctx.fillStyle = "#6d4d35";
-        ctx.fillRect(690, 304, 136, 150);
-        ctx.fillStyle = "#fff8e8";
-        ctx.font = "900 15px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("кровать", 173, 460);
-        ctx.fillText("коробки", 426, 520);
-        ctx.fillText("шкаф", 758, 480);
+        roundRect(105, 358, 62, 32, 12);
+        ctx.fill();
+        ctx.fillStyle = "#f7ecff";
+        roundRect(150, 374, 96, 50, 10);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,114,173,.36)";
+        ctx.fillRect(150, 396, 96, 8);
+        ctx.fillStyle = "#2a1933";
+        ctx.fillRect(104, 432, 16, 22);
+        ctx.fillRect(225, 432, 16, 22);
+
+        drawToyBox(356, 415, "#9b6a43", "#ffd76a");
+        drawToyBox(420, 438, "#7a5138", "#79d6ff");
+
+        const wardrobe = ctx.createLinearGradient(690, 304, 826, 454);
+        wardrobe.addColorStop(0, "#8a6546");
+        wardrobe.addColorStop(1, "#4c3329");
+        ctx.fillStyle = wardrobe;
+        roundRect(690, 304, 136, 150, 10);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,248,232,.28)";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(706, 322, 45, 104);
+        ctx.strokeRect(765, 322, 45, 104);
+        ctx.fillStyle = "#ffd76a";
+        ctx.beginPath();
+        ctx.arc(756, 382, 4, 0, Math.PI * 2);
+        ctx.arc(762, 382, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "rgba(255,255,255,.16)";
+        roundRect(54, 112, 140, 86, 8);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,.38)";
+        ctx.lineWidth = 5;
+        ctx.strokeRect(54, 112, 140, 86);
+        ctx.beginPath();
+        ctx.moveTo(124, 112);
+        ctx.lineTo(124, 198);
+        ctx.moveTo(54, 155);
+        ctx.lineTo(194, 155);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function roundRect(x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+      }
+
+      function drawToyBox(x, y, body, tape) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.fillStyle = body;
+        roundRect(0, 0, 86, 62, 7);
+        ctx.fill();
+        ctx.fillStyle = "rgba(0,0,0,.14)";
+        ctx.fillRect(0, 44, 86, 18);
+        ctx.fillStyle = tape;
+        ctx.fillRect(36, 0, 10, 62);
+        ctx.fillRect(0, 25, 86, 8);
+        ctx.strokeStyle = "rgba(35,24,46,.35)";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(5, 5, 76, 52);
+        ctx.restore();
       }
 
       function drawDoor(door) {
+        ctx.save();
+        ctx.fillStyle = "rgba(18,10,26,.25)";
+        ctx.beginPath();
+        ctx.ellipse(door.x, door.y + 58, 48, 13, 0, 0, Math.PI * 2);
+        ctx.fill();
         ctx.fillStyle = "#ffde86";
-        ctx.fillRect(door.x - 34, door.y - 58, 68, 116);
-        ctx.fillStyle = "#3f2440";
-        ctx.fillRect(door.x - 24, door.y - 46, 48, 104);
+        roundRect(door.x - 39, door.y - 62, 78, 124, 8);
+        ctx.fill();
+        const panel = ctx.createLinearGradient(door.x - 24, door.y - 46, door.x + 24, door.y + 58);
+        panel.addColorStop(0, "#5b3260");
+        panel.addColorStop(1, "#2c1a35");
+        ctx.fillStyle = panel;
+        roundRect(door.x - 25, door.y - 48, 50, 106, 7);
+        ctx.fill();
+        ctx.fillStyle = "#ffd76a";
+        ctx.beginPath();
+        ctx.arc(door.x + 15, door.y + 5, 5, 0, Math.PI * 2);
+        ctx.fill();
         ctx.fillStyle = "#fff8e8";
         ctx.font = "900 15px Arial";
         ctx.textAlign = "center";
         const target = rooms.find((room) => room.id === door.to);
         ctx.fillText(target.name, door.x, door.y - 68);
+        ctx.restore();
       }
 
       function drawResource(item) {
@@ -607,8 +697,11 @@
         ctx.shadowColor = type.color;
         ctx.shadowBlur = 22;
         ctx.fillStyle = type.color;
-        ctx.fillRect(-18, -14, 36, 28);
+        roundRect(-20, -15, 40, 30, 7);
+        ctx.fill();
         ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(255,255,255,.32)";
+        ctx.fillRect(-14, -10, 28, 4);
         ctx.fillStyle = "#23182e";
         ctx.font = "900 13px Arial";
         ctx.textAlign = "center";
@@ -620,10 +713,26 @@
         if (friend.room !== currentRoom || friend.saved) return;
         ctx.save();
         ctx.translate(friend.x, friend.y + Math.sin(clock * 3 + friend.x) * 4);
+        ctx.fillStyle = "rgba(0,0,0,.22)";
+        ctx.beginPath();
+        ctx.ellipse(0, 41, 42, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
         ctx.fillStyle = friend.color;
         ctx.beginPath();
         ctx.ellipse(0, 10, 34, 27, 0, 0, Math.PI * 2);
         ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,.2)";
+        ctx.beginPath();
+        ctx.ellipse(-11, -2, 12, 7, -.45, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(35,24,46,.42)";
+        ctx.lineWidth = 2;
+        for (let i = -2; i <= 2; i += 1) {
+          ctx.beginPath();
+          ctx.moveTo(i * 8, 30);
+          ctx.lineTo(i * 8 + 5, 34);
+          ctx.stroke();
+        }
         ctx.fillStyle = "#23182e";
         ctx.beginPath();
         ctx.arc(-10, 0, 4, 0, Math.PI * 2);
@@ -687,6 +796,11 @@
         ctx.fill();
         ctx.fillStyle = selectedCharacter.color;
         ctx.beginPath();
+        ctx.ellipse(-21, 16, 12, 18, .25, 0, Math.PI * 2);
+        ctx.ellipse(21, 16, 12, 18, -.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = selectedCharacter.color;
+        ctx.beginPath();
         ctx.ellipse(0, 0, 27, 30, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
@@ -697,6 +811,22 @@
         ctx.beginPath();
         ctx.ellipse(0, 6, 13, 10, 0, 0, Math.PI * 2);
         ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,.2)";
+        ctx.beginPath();
+        ctx.ellipse(-10, -10, 9, 6, -.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(35,24,46,.35)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, -25);
+        ctx.quadraticCurveTo(-5, -6, 0, 26);
+        ctx.stroke();
+        for (let y = -12; y <= 18; y += 10) {
+          ctx.beginPath();
+          ctx.moveTo(-4, y);
+          ctx.lineTo(4, y + 4);
+          ctx.stroke();
+        }
         ctx.fillStyle = "#23182e";
         ctx.beginPath();
         ctx.arc(-8, -8, 4, 0, Math.PI * 2);
