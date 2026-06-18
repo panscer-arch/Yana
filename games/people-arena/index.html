@@ -549,6 +549,30 @@
         ready: false,
         error: null
       };
+      const environmentAsset = {
+        models: new Map(),
+        ready: false,
+        error: null
+      };
+      const KENNEY_MODEL_PATH = "../../assets/models/kenney-modular-buildings/";
+      const KENNEY_MODELS = [
+        "building-sample-house-a.glb",
+        "building-sample-house-b.glb",
+        "building-sample-house-c.glb",
+        "building-sample-tower-a.glb",
+        "building-sample-tower-b.glb",
+        "building-sample-tower-d.glb",
+        "building-window-awnings.glb",
+        "building-window-balcony.glb",
+        "building-window-door-window-round.glb",
+        "building-door.glb",
+        "building-edges-door.glb",
+        "building-steps-wide.glb",
+        "roof-flat-awning-a.glb",
+        "roof-flat-awning-b.glb",
+        "detail-ac-a.glb",
+        "detail-ac-b.glb"
+      ];
 
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
       const rand = (min, max) => Math.random() * (max - min) + min;
@@ -563,6 +587,10 @@
 
       async function loadGameAssets() {
         const loader = new GLTFLoader();
+        await Promise.allSettled([loadCharacterAsset(loader), loadEnvironmentAssets(loader)]);
+      }
+
+      async function loadCharacterAsset(loader) {
         try {
           const gltf = await loader.loadAsync("../../assets/models/Soldier.glb");
           characterAsset.root = gltf.scene;
@@ -581,6 +609,43 @@
           characterAsset.error = error;
           console.warn("Soldier GLB asset failed, using fallback sprite.", error);
         }
+      }
+
+      async function loadEnvironmentAssets(loader) {
+        try {
+          const loaded = await Promise.all(KENNEY_MODELS.map(async (file) => {
+            const gltf = await loader.loadAsync(`${KENNEY_MODEL_PATH}${file}`);
+            prepareKenneyModel(gltf.scene);
+            return [file.replace(".glb", ""), gltf.scene];
+          }));
+          environmentAsset.models = new Map(loaded);
+          environmentAsset.ready = environmentAsset.models.size > 0;
+        } catch (error) {
+          environmentAsset.error = error;
+          console.warn("Kenney modular building assets failed, using code-built scenery.", error);
+        }
+      }
+
+      function prepareKenneyModel(root) {
+        root.traverse((node) => {
+          if (!node.isMesh) return;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          if (!node.material) return;
+          const materialsToPatch = Array.isArray(node.material) ? node.material : [node.material];
+          node.material = Array.isArray(node.material)
+            ? materialsToPatch.map((material) => material.clone())
+            : node.material.clone();
+          const clonedMaterials = Array.isArray(node.material) ? node.material : [node.material];
+          for (const material of clonedMaterials) {
+            material.roughness = Math.max(0.62, material.roughness ?? 0.74);
+            material.metalness = Math.min(0.12, material.metalness ?? 0.04);
+            if (material.map) {
+              material.map.colorSpace = THREE.SRGBColorSpace;
+              material.map.anisotropy = 4;
+            }
+          }
+        });
       }
 
       function getAudio() {
@@ -1670,6 +1735,7 @@
         addCourtyardBuilding(34, -22, 10, 5.1, 5.0, materials.warmWall);
         addCourtyardBuilding(0, 28, 16, 4.8, 4.5, materials.paleWall);
         addCourtyardBuilding(0, -29, 13, 4.6, 4.8, materials.warmWall);
+        addKenneyCityLayer();
         addWallVines(-29, -24.9, 7.8, 3.6);
         addWallVines(28, 18.2, 8.5, 3.2);
         addWallVines(-7, 25.35, 6.4, 2.4);
@@ -1772,13 +1838,86 @@
       function addCourtyardBuilding(x, z, w, d, h, material) {
         addContactShadow(x, z, w + 1.2, d + 1.1, 0.34);
         addSoftShadow(x + 1.8, z + 1.6, w * 0.95, d * 1.35, 0.12, -0.18);
-        addBox({ x, z, w, h, d, material, collider: true });
-        addBox({ x, y: h - 0.05, z, w: w + 0.4, h: 0.18, d: d + 0.35, material: materials.paleWall, collider: false });
+        const shell = addBox({ x, z, w, h, d, material, collider: true });
+        if (environmentAsset.ready) {
+          shell.visible = false;
+          shell.castShadow = false;
+          shell.receiveShadow = false;
+        }
         const frontZ = z - d / 2 - 0.04;
-        addBox({ x, y: 0.15, z: frontZ - 0.04, w: w * 0.38, h: 2.0, d: 0.09, material: materials.wood, collider: false });
-        addArchedWindow(x - w * 0.27, frontZ, h * 0.58);
-        addArchedWindow(x + w * 0.27, frontZ, h * 0.58);
-        addBalcony(x, frontZ - 0.14, h * 0.66, w * 0.44);
+        if (!environmentAsset.ready) {
+          addBox({ x, y: h - 0.05, z, w: w + 0.4, h: 0.18, d: d + 0.35, material: materials.paleWall, collider: false });
+          addBox({ x, y: 0.15, z: frontZ - 0.04, w: w * 0.38, h: 2.0, d: 0.09, material: materials.wood, collider: false });
+          addArchedWindow(x - w * 0.27, frontZ, h * 0.58);
+          addArchedWindow(x + w * 0.27, frontZ, h * 0.58);
+          addBalcony(x, frontZ - 0.14, h * 0.66, w * 0.44);
+        }
+      }
+
+      function addKenneyModel(name, { x, y = 0, z, scale = 1, rotationY = 0, cast = true, receive = true } = {}) {
+        const source = environmentAsset.models.get(name);
+        if (!source) return null;
+        const model = SkeletonUtils.clone(source);
+        model.position.set(x, y, z);
+        model.rotation.y = rotationY;
+        model.scale.setScalar(scale);
+        model.traverse((node) => {
+          if (!node.isMesh) return;
+          node.castShadow = cast;
+          node.receiveShadow = receive;
+        });
+        scene.add(model);
+        return model;
+      }
+
+      function addKenneyCityLayer() {
+        if (!environmentAsset.ready) return;
+
+        const buildings = [
+          ["building-sample-house-a", -34, -22, 5.8, 0.02],
+          ["building-sample-house-b", 33, 21, 6.0, Math.PI],
+          ["building-sample-house-c", -34, 21, 5.5, 0.1],
+          ["building-sample-tower-a", 34, -22, 5.6, Math.PI],
+          ["building-sample-tower-b", 0, 28, 5.8, Math.PI],
+          ["building-sample-tower-d", 0, -29, 5.5, 0],
+          ["building-sample-house-b", -47.2, -4, 5.2, Math.PI / 2],
+          ["building-sample-house-c", 47.2, 5, 5.2, -Math.PI / 2]
+        ];
+        for (const [name, x, z, scale, rotationY] of buildings) {
+          addKenneyModel(name, { x, z, scale, rotationY });
+          addContactShadow(x, z, 9.4, 7.2, 0.22);
+        }
+
+        const facades = [
+          ["building-window-balcony", -20, -34.4, 4.7, 0],
+          ["building-window-awnings", -11.5, -34.4, 4.7, 0],
+          ["building-door", -3.4, -34.5, 4.7, 0],
+          ["building-window-door-window-round", 6.2, -34.4, 4.7, 0],
+          ["building-window-awnings", 17, -34.4, 4.7, 0],
+          ["building-edges-door", 29.5, -34.4, 4.6, 0],
+          ["building-window-balcony", -27.5, 34.4, 4.8, Math.PI],
+          ["building-window-door-window-round", -14, 34.4, 4.8, Math.PI],
+          ["building-door", 0, 34.4, 4.8, Math.PI],
+          ["building-window-awnings", 13.5, 34.4, 4.8, Math.PI],
+          ["building-window-balcony", 28.5, 34.4, 4.8, Math.PI]
+        ];
+        for (const [name, x, z, scale, rotationY] of facades) {
+          addKenneyModel(name, { x, z, scale, rotationY });
+        }
+
+        const roofDetails = [
+          ["roof-flat-awning-a", -21.4, -31.8, 4.7, 0],
+          ["roof-flat-awning-b", 14.8, -31.8, 4.7, 0],
+          ["roof-flat-awning-a", -27.4, 31.8, 4.8, Math.PI],
+          ["roof-flat-awning-b", 13.4, 31.8, 4.8, Math.PI],
+          ["detail-ac-a", -39.8, -19.6, 4.4, Math.PI / 2],
+          ["detail-ac-b", 39.8, 18.8, 4.4, -Math.PI / 2],
+          ["building-steps-wide", -3.4, -27.2, 3.2, 0],
+          ["building-steps-wide", 0, 26.4, 3.2, Math.PI]
+        ];
+        for (const [name, x, z, scale, rotationY] of roofDetails) {
+          addKenneyModel(name, { x, z, scale, rotationY });
+        }
       }
 
       function addWallVines(x, z, width, height, rotate = false) {
@@ -2004,6 +2143,26 @@
       }
 
       function addCover(x, z, w, h, material) {
+        if (environmentAsset.ready) {
+          const shell = addBox({ x, z, w, h, d: 1.25, material, collider: true });
+          shell.visible = false;
+          shell.castShadow = false;
+          shell.receiveShadow = false;
+          const pieces = Math.max(2, Math.round(w / 2.6));
+          for (let i = 0; i < pieces; i += 1) {
+            const offset = -w * 0.42 + i * (w * 0.84 / Math.max(1, pieces - 1));
+            const modelName = i % 3 === 0 ? "building-block" : i % 3 === 1 ? "building-window-awnings" : "building-window-balcony";
+            addKenneyModel(modelName, {
+              x: x + offset,
+              z,
+              scale: 2.05,
+              rotationY: i % 2 ? Math.PI : 0
+            });
+          }
+          addContactShadow(x, z, w + 0.6, 1.9, 0.28);
+          addSoftShadow(x + 0.8, z + 0.45, w + 1.8, 2.4, 0.08, -0.12);
+          return;
+        }
         addBox({ x, z, w, h, d: 1.25, material, collider: true });
         addBox({ x: x - w * 0.28, y: h, z: z - 0.08, w: w * 0.22, h: 0.22, d: 1.4, material: materials.paleWall, collider: false });
         addBox({ x: x + w * 0.22, y: h, z: z + 0.1, w: w * 0.28, h: 0.18, d: 1.35, material: materials.paleWall, collider: false });
@@ -3531,6 +3690,7 @@
       window.__arenaDebug = state;
       window.__arenaDebugRemoteCount = () => remotePlayers.size;
       window.__arenaAssetMode = () => characterAsset.ready ? "glb-model" : "fallback-sprite";
+      window.__arenaEnvironmentMode = () => environmentAsset.ready ? "kenney-glb-city" : "code-built-city";
       loop();
     </script>
 
