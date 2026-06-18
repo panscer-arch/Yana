@@ -397,7 +397,7 @@
         <section class="panel">
           <img class="panel-cover" src="../../assets/covers/generated/people-arena.png" alt="" loading="eager">
           <h1>Суперстрелялка</h1>
-          <p>Большая семейная 3D-арена: боты бегают, выбирают цели, стреляют друг в друга и в игрока. Визуал переделан без временных кругляшков: база, дверь, окно, стол, телефон, оружейная стойка и солдаты с деталями одежды.</p>
+          <p>Большая семейная 3D-арена: боты бегают, выбирают цели, стреляют друг в друга и в игрока. Кругляшки и технические болванки закрыты игровыми спрайтами: солдаты, раненые, аптечки, патроны, бочки, мишени и база выглядят как предметы игры.</p>
           <div class="setup">
             <button class="big-button" id="startButton" type="button">Старт с ботами</button>
             <button class="ghost-button" id="resetButton" type="button">Заново</button>
@@ -728,6 +728,294 @@
         return texture;
       }
 
+      function makeSoldierSpriteTexture(style = "a") {
+        const c = document.createElement("canvas");
+        c.width = 512;
+        c.height = 896;
+        const g = c.getContext("2d");
+        g.clearRect(0, 0, c.width, c.height);
+        const uniform = style === "b" ? "#465348" : style === "c" ? "#6a5844" : "#555a52";
+        const vest = style === "b" ? "#2d3b34" : style === "c" ? "#51412f" : "#3b3f3a";
+        const skin = "#c79f87";
+        g.shadowColor = "rgba(0,0,0,.42)";
+        g.shadowBlur = 16;
+        g.shadowOffsetY = 12;
+        g.fillStyle = "rgba(0,0,0,.35)";
+        g.beginPath();
+        g.ellipse(256, 838, 122, 28, 0, 0, Math.PI * 2);
+        g.fill();
+        g.shadowBlur = 0;
+        g.shadowOffsetY = 0;
+
+        g.lineJoin = "round";
+        g.lineCap = "round";
+        g.strokeStyle = "#151617";
+        g.lineWidth = 18;
+        g.fillStyle = uniform;
+        g.beginPath();
+        g.moveTo(194, 342);
+        g.lineTo(318, 342);
+        g.lineTo(344, 622);
+        g.lineTo(168, 622);
+        g.closePath();
+        g.fill();
+        g.stroke();
+        g.fillStyle = vest;
+        g.beginPath();
+        g.moveTo(178, 366);
+        g.lineTo(334, 366);
+        g.lineTo(318, 568);
+        g.lineTo(194, 568);
+        g.closePath();
+        g.fill();
+        g.stroke();
+        g.strokeStyle = "#222";
+        g.lineWidth = 12;
+        g.beginPath();
+        g.moveTo(210, 364);
+        g.lineTo(238, 566);
+        g.moveTo(302, 364);
+        g.lineTo(274, 566);
+        g.stroke();
+        g.fillStyle = "#101112";
+        for (let i = 0; i < 4; i += 1) g.fillRect(199 + i * 32, 512, 24, 42);
+        g.fillStyle = "#c9a95d";
+        g.fillRect(206, 402, 34, 42);
+        g.fillStyle = "#b44338";
+        g.fillRect(276, 402, 34, 42);
+
+        g.strokeStyle = "#151617";
+        g.lineWidth = 20;
+        g.beginPath();
+        g.moveTo(184, 390);
+        g.lineTo(110, 530);
+        g.lineTo(116, 650);
+        g.moveTo(328, 390);
+        g.lineTo(398, 510);
+        g.lineTo(390, 628);
+        g.stroke();
+        g.strokeStyle = "#272b28";
+        g.lineWidth = 14;
+        g.beginPath();
+        g.moveTo(184, 390);
+        g.lineTo(110, 530);
+        g.lineTo(116, 650);
+        g.moveTo(328, 390);
+        g.lineTo(398, 510);
+        g.lineTo(390, 628);
+        g.stroke();
+        g.fillStyle = "#111";
+        g.fillRect(96, 632, 46, 48);
+        g.fillRect(368, 610, 46, 48);
+
+        g.strokeStyle = "#151617";
+        g.lineWidth = 18;
+        g.beginPath();
+        g.moveTo(220, 620);
+        g.lineTo(196, 792);
+        g.moveTo(292, 620);
+        g.lineTo(318, 792);
+        g.stroke();
+        g.strokeStyle = "#2f3431";
+        g.lineWidth = 13;
+        g.beginPath();
+        g.moveTo(220, 620);
+        g.lineTo(196, 792);
+        g.moveTo(292, 620);
+        g.lineTo(318, 792);
+        g.stroke();
+        g.fillStyle = "#101112";
+        g.fillRect(162, 782, 70, 38);
+        g.fillRect(286, 782, 70, 38);
+        g.fillStyle = "#495149";
+        g.fillRect(180, 684, 42, 44);
+        g.fillRect(292, 684, 42, 44);
+
+        g.fillStyle = skin;
+        g.strokeStyle = "#151617";
+        g.lineWidth = 16;
+        g.beginPath();
+        g.roundRect(190, 154, 132, 158, 54);
+        g.fill();
+        g.stroke();
+        g.fillStyle = "#2e302d";
+        g.beginPath();
+        g.roundRect(178, 116, 156, 80, 36);
+        g.fill();
+        g.fillStyle = "#5f625a";
+        g.beginPath();
+        g.roundRect(170, 82, 172, 92, 44);
+        g.fill();
+        g.strokeStyle = "#151617";
+        g.lineWidth = 12;
+        g.stroke();
+        g.fillStyle = "#272a28";
+        g.fillRect(186, 196, 140, 70);
+        g.fillStyle = skin;
+        g.fillRect(196, 172, 120, 52);
+        g.fillStyle = "#6fa8c5";
+        g.beginPath();
+        g.ellipse(224, 198, 13, 8, 0, 0, Math.PI * 2);
+        g.ellipse(286, 198, 13, 8, 0, 0, Math.PI * 2);
+        g.fill();
+        g.strokeStyle = "#111";
+        g.lineWidth = 8;
+        g.beginPath();
+        g.moveTo(205, 184);
+        g.lineTo(242, 176);
+        g.moveTo(270, 176);
+        g.lineTo(306, 184);
+        g.stroke();
+        g.strokeStyle = "#111";
+        g.lineWidth = 9;
+        g.beginPath();
+        g.moveTo(318, 214);
+        g.lineTo(366, 254);
+        g.stroke();
+
+        g.save();
+        g.translate(346, 444);
+        g.rotate(-0.22);
+        g.fillStyle = "#111";
+        g.strokeStyle = "#000";
+        g.lineWidth = 8;
+        g.beginPath();
+        g.roundRect(-22, -24, 70, 260, 16);
+        g.fill();
+        g.stroke();
+        g.fillStyle = "#444a45";
+        g.fillRect(0, -78, 22, 76);
+        g.fillStyle = "#222";
+        g.fillRect(-42, 76, 42, 56);
+        g.restore();
+
+        g.fillStyle = "rgba(255,255,255,.16)";
+        g.beginPath();
+        g.moveTo(202, 354);
+        g.lineTo(246, 354);
+        g.lineTo(220, 548);
+        g.lineTo(194, 548);
+        g.closePath();
+        g.fill();
+        const texture = new THREE.CanvasTexture(c);
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.anisotropy = 4;
+        return texture;
+      }
+
+      function makeObjectSpriteTexture(kind) {
+        const c = document.createElement("canvas");
+        c.width = 512;
+        c.height = 512;
+        const g = c.getContext("2d");
+        g.clearRect(0, 0, c.width, c.height);
+        g.shadowColor = "rgba(0,0,0,.42)";
+        g.shadowBlur = 18;
+        g.shadowOffsetY = 12;
+        if (kind === "health" || kind === "ammo") {
+          const color = kind === "health" ? "#c8493c" : "#2f6e91";
+          g.fillStyle = "#4b3525";
+          g.strokeStyle = "#1d1712";
+          g.lineWidth = 18;
+          g.beginPath();
+          g.roundRect(86, 166, 340, 220, 26);
+          g.fill();
+          g.stroke();
+          g.fillStyle = color;
+          g.fillRect(112, 198, 288, 40);
+          g.fillRect(112, 314, 288, 40);
+          g.fillStyle = kind === "health" ? "#fff3e5" : "#ffd36a";
+          if (kind === "health") {
+            g.fillRect(228, 230, 56, 94);
+            g.fillRect(208, 250, 96, 54);
+          } else {
+            for (let i = 0; i < 5; i += 1) {
+              g.beginPath();
+              g.roundRect(176 + i * 34, 238, 20, 82, 9);
+              g.fill();
+            }
+          }
+          g.fillStyle = "rgba(255,255,255,.18)";
+          g.fillRect(120, 178, 170, 22);
+        } else if (kind === "barrel") {
+          g.fillStyle = "#4e5550";
+          g.strokeStyle = "#161817";
+          g.lineWidth = 18;
+          g.beginPath();
+          g.roundRect(158, 92, 196, 340, 44);
+          g.fill();
+          g.stroke();
+          g.fillStyle = "#2a2d2b";
+          g.fillRect(150, 152, 212, 36);
+          g.fillRect(150, 322, 212, 36);
+          g.fillStyle = "#c5a35c";
+          g.font = "900 54px Arial";
+          g.textAlign = "center";
+          g.fillText("SUPPLY", 256, 270);
+          g.fillStyle = "rgba(255,255,255,.18)";
+          g.fillRect(184, 112, 42, 290);
+        } else if (kind === "target") {
+          g.fillStyle = "#232425";
+          g.strokeStyle = "#111";
+          g.lineWidth = 18;
+          g.beginPath();
+          g.roundRect(126, 82, 260, 350, 18);
+          g.fill();
+          g.stroke();
+          const colors = ["#e9e1cf", "#c94336", "#222", "#c94336", "#e9e1cf"];
+          colors.forEach((color, i) => {
+            g.fillStyle = color;
+            g.beginPath();
+            g.arc(256, 250, 122 - i * 22, 0, Math.PI * 2);
+            g.fill();
+          });
+          g.fillStyle = "#111";
+          g.fillRect(244, 70, 24, 380);
+          g.fillRect(106, 238, 300, 24);
+        } else if (kind === "wounded") {
+          g.fillStyle = "rgba(0,0,0,.28)";
+          g.beginPath();
+          g.ellipse(256, 405, 168, 38, 0, 0, Math.PI * 2);
+          g.fill();
+          g.shadowBlur = 0;
+          g.strokeStyle = "#151617";
+          g.lineWidth = 16;
+          g.fillStyle = "#35423b";
+          g.beginPath();
+          g.roundRect(152, 250, 210, 78, 34);
+          g.fill();
+          g.stroke();
+          g.fillStyle = "#c79f87";
+          g.beginPath();
+          g.roundRect(342, 244, 70, 70, 28);
+          g.fill();
+          g.stroke();
+          g.fillStyle = "#596056";
+          g.fillRect(348, 228, 62, 28);
+          g.fillStyle = "#26302d";
+          g.fillRect(92, 312, 150, 36);
+          g.fillRect(112, 356, 132, 34);
+          g.fillStyle = "#101112";
+          g.fillRect(68, 300, 52, 48);
+          g.fillRect(88, 350, 54, 45);
+          g.fillStyle = "#26302d";
+          g.fillRect(260, 322, 128, 28);
+          g.fillStyle = "#101112";
+          g.fillRect(374, 316, 48, 38);
+          g.fillStyle = "#c8493c";
+          g.fillRect(214, 210, 96, 24);
+          g.fillRect(250, 174, 24, 96);
+          g.fillStyle = "#fff3e5";
+          g.font = "900 34px Arial";
+          g.textAlign = "center";
+          g.fillText("HELP", 262, 158);
+        }
+        const texture = new THREE.CanvasTexture(c);
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.anisotropy = 4;
+        return texture;
+      }
+
       const floorTexture = makeNoiseTexture("#3c3b36", "230,220,190", 384, 1.4);
       floorTexture.repeat.set(11, 9);
       const wallTexture = makeNoiseTexture("#303331", "190,184,165", 320, 1);
@@ -740,6 +1028,18 @@
       tileTexture.repeat.set(8, 7);
       const glareTexture = makeGlareTexture();
       const skyTexture = makeSkyTexture();
+      const soldierSpriteTextures = {
+        a: makeSoldierSpriteTexture("a"),
+        b: makeSoldierSpriteTexture("b"),
+        c: makeSoldierSpriteTexture("c")
+      };
+      const objectSpriteTextures = {
+        health: makeObjectSpriteTexture("health"),
+        ammo: makeObjectSpriteTexture("ammo"),
+        barrel: makeObjectSpriteTexture("barrel"),
+        target: makeObjectSpriteTexture("target"),
+        wounded: makeObjectSpriteTexture("wounded")
+      };
       const soldierPortraitTexture = new THREE.TextureLoader().load("../../assets/sprites/arena-player-sprite.png");
       soldierPortraitTexture.colorSpace = THREE.SRGBColorSpace;
 
@@ -982,6 +1282,34 @@
         shadow.renderOrder = -2;
         scene.add(shadow);
         return shadow;
+      }
+
+      function makeSpritePlane(texture, width, height, opacity = 1) {
+        const plane = new THREE.Mesh(
+          new THREE.PlaneGeometry(width, height),
+          new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            opacity,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+            alphaTest: 0.04
+          })
+        );
+        plane.castShadow = true;
+        plane.receiveShadow = false;
+        return plane;
+      }
+
+      function addCrossSprite(x, z, texture, width, height, y = height / 2, opacity = 1) {
+        const group = new THREE.Group();
+        group.position.set(x, y, z);
+        const front = makeSpritePlane(texture, width, height, opacity);
+        const side = makeSpritePlane(texture, width, height, opacity * 0.95);
+        side.rotation.y = Math.PI / 2;
+        group.add(front, side);
+        scene.add(group);
+        return group;
       }
 
       function addLeafShadow(x, z, radius = 4.2, opacity = 0.08) {
@@ -1426,8 +1754,9 @@
         const base = addBox({ x, z, w: 1.1, h: 0.55, d: 0.95, material: materials.crate, collider: true });
         const stripeA = addBox({ x, y: 0.58, z, w: 0.72, h: 0.08, d: 0.1, material, collider: false });
         const stripeB = addBox({ x, y: 0.58, z, w: 0.1, h: 0.08, d: 0.62, material, collider: false });
+        const sprite = addCrossSprite(x, z, objectSpriteTextures[kind], 1.42, 1.18, 0.72, 1);
         addContactShadow(x, z, 1.4, 1.2, 0.22);
-        supplyCrates.push({ x, z, kind, cooldown: 0, meshes: [base, stripeA, stripeB] });
+        supplyCrates.push({ x, z, kind, cooldown: 0, meshes: [base, stripeA, stripeB, sprite] });
       }
 
       function addWoundedAlly(x, z) {
@@ -1473,7 +1802,10 @@
         );
         zone.rotation.x = -Math.PI / 2;
         zone.position.y = 0.035;
-        group.add(body, head, helmet, leftLeg, rightLeg, leftBoot, rightBoot, arm, glove, pack, crossA, crossB, helpA, helpB, zone);
+        const sprite = makeSpritePlane(objectSpriteTextures.wounded, 2.1, 1.45, 1);
+        sprite.position.set(0, 0.72, -0.36);
+        sprite.rotation.x = -0.08;
+        group.add(sprite, body, head, helmet, leftLeg, rightLeg, leftBoot, rightBoot, arm, glove, pack, crossA, crossB, helpA, helpB, zone);
         group.traverse((node) => {
           if (node.isMesh) {
             node.castShadow = true;
@@ -1510,6 +1842,7 @@
         body.castShadow = true;
         body.receiveShadow = true;
         scene.add(body);
+        addCrossSprite(x, z, objectSpriteTextures.barrel, 1.08, 1.48, 0.82, 1);
         addContactShadow(x, z, 1.05, 1.05, 0.34);
         colliders.push({ x, z, w: 1.05, d: 1.05 });
       }
@@ -1615,7 +1948,9 @@
         board.castShadow = true;
         const ring = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.025, 12, 36), materials.red);
         ring.position.z = 0.08;
-        group.add(board, ring);
+        const sprite = makeSpritePlane(objectSpriteTextures.target, 1.65, 2.1, 1);
+        sprite.position.z = -0.08;
+        group.add(sprite, board, ring);
         scene.add(group);
       }
 
@@ -1761,6 +2096,9 @@
         );
         parts.portrait.position.set(0, 1.33, -0.39);
         parts.portrait.rotation.x = -0.03;
+        parts.sprite = makeSpritePlane(soldierSpriteTextures[style] || soldierSpriteTextures.a, 1.42, 2.55, 1);
+        parts.sprite.position.set(0, 1.18, -0.54);
+        parts.sprite.renderOrder = 4;
         parts.shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 0.86), contactShadowMaterial.clone());
         parts.shadow.material.opacity = 0.28;
         parts.shadow.rotation.x = -Math.PI / 2;
@@ -1768,6 +2106,7 @@
         parts.shadow.renderOrder = -1;
         group.add(
           parts.shadow,
+          parts.sprite,
           parts.body,
           parts.vest,
           parts.vestPlate,
@@ -1811,6 +2150,54 @@
           parts.belt,
           parts.portrait
         );
+        [
+          parts.body,
+          parts.vest,
+          parts.vestPlate,
+          parts.leftPouch,
+          parts.midPouch,
+          parts.rightPouch,
+          parts.neck,
+          parts.head,
+          parts.mask,
+          parts.eyeSlit,
+          parts.leftEye,
+          parts.rightEye,
+          parts.nose,
+          parts.leftBrow,
+          parts.rightBrow,
+          parts.helmet,
+          parts.helmetPlate,
+          parts.helmetBrim,
+          parts.leftEar,
+          parts.rightEar,
+          parts.mic,
+          parts.leftShoulder,
+          parts.rightShoulder,
+          parts.leftArm,
+          parts.rightArm,
+          parts.leftGlove,
+          parts.rightGlove,
+          parts.leftLeg,
+          parts.rightLeg,
+          parts.leftKnee,
+          parts.rightKnee,
+          parts.leftBoot,
+          parts.rightBoot,
+          parts.rifle,
+          parts.rifleBarrel,
+          parts.rifleGrip,
+          parts.leftPatch,
+          parts.rightPatch,
+          parts.leftStrap,
+          parts.rightStrap,
+          parts.belt,
+          parts.portrait
+        ].forEach((mesh) => {
+          mesh.material = mesh.material.clone();
+          mesh.material.transparent = true;
+          mesh.material.opacity = 0.12;
+        });
         group.traverse((node) => {
           if (node.isMesh) {
             if (node === parts.shadow) {
@@ -2606,6 +2993,11 @@
         model.parts.rightStrap.position.y = 1.25 + lift;
         model.parts.belt.position.y = 0.82 + lift * 0.6;
         if (model.parts.portrait) model.parts.portrait.position.y = 1.33 + lift * 0.85;
+        if (model.parts.sprite) {
+          model.parts.sprite.position.y = 1.18 + lift;
+          model.parts.sprite.rotation.z = Math.sin(model.walk * 0.5) * Math.min(0.045, speed * 0.006);
+          model.parts.sprite.scale.x = 1 + Math.sin(model.walk) * Math.min(0.035, speed * 0.005);
+        }
       }
 
       function updateCamera() {
