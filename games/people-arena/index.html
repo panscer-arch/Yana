@@ -397,14 +397,14 @@
         <section class="panel">
           <img class="panel-cover" src="../../assets/covers/generated/people-arena.png" alt="" loading="eager">
           <h1>Суперстрелялка</h1>
-          <p>Большая семейная 3D-арена: боты бегают, выбирают цели, стреляют друг в друга и в игрока. Кругляшки и технические болванки закрыты игровыми спрайтами: солдаты, раненые, аптечки, патроны, бочки, мишени и база выглядят как предметы игры.</p>
+          <p>Большая семейная 3D-арена: камера сзади героя, боты бегают и стреляют, а кругляшки закрыты игровыми спрайтами: солдаты, раненые, аптечки, патроны, бочки, мишени и база выглядят как предметы игры.</p>
           <div class="setup">
             <button class="big-button" id="startButton" type="button">Старт с ботами</button>
             <button class="ghost-button" id="resetButton" type="button">Заново</button>
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
           </div>
-          <p>WASD/стрелки — ходьба, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, H — аптечка для лечения и возрождения. Подойди к раненому, чтобы спасти.</p>
+          <p>WASD/стрелки — ходьба, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, H — аптечка. V меняет камеру, но старт теперь сразу сзади героя.</p>
         </section>
 
         <section class="panel">
@@ -480,7 +480,7 @@
         running: false,
         playerCount: 4,
         timeLeft: 180,
-        view: "first",
+        view: "third",
         yaw: 0,
         pitch: 0,
         recoil: 0,
@@ -500,7 +500,7 @@
         tip: "Нажми Старт с ботами",
         tipTimer: 4,
         player: {
-          position: new THREE.Vector3(-5.2, 1.75, 13.4),
+          position: new THREE.Vector3(-4.5, 1.75, 6.5),
           velocity: new THREE.Vector3(),
           eyeHeight: 1.75,
           hp: 100,
@@ -728,7 +728,7 @@
         return texture;
       }
 
-      function makeSoldierSpriteTexture(style = "a") {
+      function makeSoldierSpriteTexture(style = "a", view = "front") {
         const c = document.createElement("canvas");
         c.width = 512;
         c.height = 896;
@@ -746,6 +746,136 @@
         g.fill();
         g.shadowBlur = 0;
         g.shadowOffsetY = 0;
+
+        if (view === "back") {
+          g.lineJoin = "round";
+          g.lineCap = "round";
+          g.strokeStyle = "#151617";
+          g.lineWidth = 18;
+          g.fillStyle = uniform;
+          g.beginPath();
+          g.moveTo(188, 346);
+          g.lineTo(324, 346);
+          g.lineTo(350, 630);
+          g.lineTo(162, 630);
+          g.closePath();
+          g.fill();
+          g.stroke();
+          g.fillStyle = vest;
+          g.beginPath();
+          g.roundRect(174, 372, 164, 214, 26);
+          g.fill();
+          g.stroke();
+          g.fillStyle = "#1d241f";
+          g.beginPath();
+          g.roundRect(188, 386, 136, 214, 30);
+          g.fill();
+          g.stroke();
+          g.fillStyle = "#252a27";
+          g.fillRect(200, 426, 112, 24);
+          g.fillRect(200, 498, 112, 24);
+          g.fillStyle = "#c9a95d";
+          g.fillRect(214, 456, 26, 40);
+          g.fillStyle = "#b44338";
+          g.fillRect(274, 456, 26, 40);
+
+          g.strokeStyle = "#151617";
+          g.lineWidth = 20;
+          g.beginPath();
+          g.moveTo(182, 394);
+          g.lineTo(104, 530);
+          g.lineTo(104, 652);
+          g.moveTo(330, 394);
+          g.lineTo(408, 532);
+          g.lineTo(408, 646);
+          g.stroke();
+          g.strokeStyle = "#2f3431";
+          g.lineWidth = 14;
+          g.beginPath();
+          g.moveTo(182, 394);
+          g.lineTo(104, 530);
+          g.lineTo(104, 652);
+          g.moveTo(330, 394);
+          g.lineTo(408, 532);
+          g.lineTo(408, 646);
+          g.stroke();
+          g.fillStyle = "#101112";
+          g.fillRect(82, 638, 52, 46);
+          g.fillRect(384, 626, 52, 46);
+
+          g.strokeStyle = "#151617";
+          g.lineWidth = 18;
+          g.beginPath();
+          g.moveTo(218, 628);
+          g.lineTo(190, 794);
+          g.moveTo(294, 628);
+          g.lineTo(322, 794);
+          g.stroke();
+          g.strokeStyle = "#2f3431";
+          g.lineWidth = 13;
+          g.beginPath();
+          g.moveTo(218, 628);
+          g.lineTo(190, 794);
+          g.moveTo(294, 628);
+          g.lineTo(322, 794);
+          g.stroke();
+          g.fillStyle = "#101112";
+          g.fillRect(154, 782, 76, 42);
+          g.fillRect(286, 782, 76, 42);
+          g.fillStyle = "#495149";
+          g.fillRect(176, 688, 46, 46);
+          g.fillRect(290, 688, 46, 46);
+
+          g.fillStyle = "#5f625a";
+          g.strokeStyle = "#151617";
+          g.lineWidth = 15;
+          g.beginPath();
+          g.roundRect(168, 86, 176, 120, 52);
+          g.fill();
+          g.stroke();
+          g.fillStyle = "#2d302e";
+          g.beginPath();
+          g.roundRect(188, 152, 136, 150, 54);
+          g.fill();
+          g.stroke();
+          g.fillStyle = "#161817";
+          g.fillRect(190, 294, 132, 78);
+          g.fillStyle = "#70442c";
+          g.beginPath();
+          g.moveTo(198, 168);
+          g.quadraticCurveTo(256, 112, 314, 168);
+          g.lineTo(306, 216);
+          g.quadraticCurveTo(256, 182, 206, 216);
+          g.closePath();
+          g.fill();
+
+          g.save();
+          g.translate(338, 500);
+          g.rotate(-0.12);
+          g.fillStyle = "#111";
+          g.strokeStyle = "#000";
+          g.lineWidth = 8;
+          g.beginPath();
+          g.roundRect(-24, -90, 72, 274, 15);
+          g.fill();
+          g.stroke();
+          g.fillStyle = "#444a45";
+          g.fillRect(0, -150, 22, 76);
+          g.restore();
+
+          g.fillStyle = "rgba(255,255,255,.16)";
+          g.beginPath();
+          g.moveTo(202, 388);
+          g.lineTo(248, 388);
+          g.lineTo(224, 570);
+          g.lineTo(194, 570);
+          g.closePath();
+          g.fill();
+          const texture = new THREE.CanvasTexture(c);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.anisotropy = 4;
+          return texture;
+        }
 
         g.lineJoin = "round";
         g.lineCap = "round";
@@ -1031,7 +1161,8 @@
       const soldierSpriteTextures = {
         a: makeSoldierSpriteTexture("a"),
         b: makeSoldierSpriteTexture("b"),
-        c: makeSoldierSpriteTexture("c")
+        c: makeSoldierSpriteTexture("c"),
+        playerBack: makeSoldierSpriteTexture("b", "back")
       };
       const objectSpriteTextures = {
         health: makeObjectSpriteTexture("health"),
@@ -2096,8 +2227,9 @@
         );
         parts.portrait.position.set(0, 1.33, -0.39);
         parts.portrait.rotation.x = -0.03;
-        parts.sprite = makeSpritePlane(soldierSpriteTextures[style] || soldierSpriteTextures.a, 1.42, 2.55, 1);
-        parts.sprite.position.set(0, 1.18, -0.54);
+        parts.sprite = makeSpritePlane(isPlayer ? soldierSpriteTextures.playerBack : (soldierSpriteTextures[style] || soldierSpriteTextures.a), isPlayer ? 1.82 : 1.42, isPlayer ? 3.05 : 2.55, 1);
+        parts.sprite.position.set(0, isPlayer ? 1.38 : 1.18, -0.54);
+        if (isPlayer) parts.sprite.rotation.y = Math.PI;
         parts.sprite.renderOrder = 4;
         parts.shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 0.86), contactShadowMaterial.clone());
         parts.shadow.material.opacity = 0.28;
@@ -2363,7 +2495,7 @@
         state.shots = 0;
         state.yaw = 0;
         state.pitch = 0;
-        state.player.position.set(-8, 1.75, 24);
+        state.player.position.set(-4.5, 1.75, 6.5);
         state.player.velocity.set(0, 0, 0);
         state.player.eyeHeight = 1.75;
         state.player.hp = 100;
@@ -2403,7 +2535,7 @@
         state.deathFlash = 0;
         state.damageFlash = 1;
         state.enemyGrace = 3.5;
-        state.player.position.set(-8, 1.75, 24);
+        state.player.position.set(-4.5, 1.75, 6.5);
         state.player.velocity.set(0, 0, 0);
         state.player.eyeHeight = 1.75;
         state.player.hp = 100;
@@ -3007,9 +3139,10 @@
         const weaponBobX = Math.sin(state.bob * 2.5) * 0.004 * walkSpeed;
         const recoilPitch = state.recoil * 0.055;
         if (state.view === "third") {
-          const back = new THREE.Vector3(-Math.sin(state.yaw), 0.25, Math.cos(state.yaw)).multiplyScalar(5.4);
-          camera.position.copy(player.position).add(new THREE.Vector3(0, 1.25, 0)).add(back);
-          camera.lookAt(player.position.x, player.position.y + 0.65, player.position.z);
+          const back = new THREE.Vector3(-Math.sin(state.yaw), 0.2, Math.cos(state.yaw)).multiplyScalar(4.35);
+          const shoulder = new THREE.Vector3(Math.cos(state.yaw), 0, -Math.sin(state.yaw)).multiplyScalar(0.72);
+          camera.position.copy(player.position).add(new THREE.Vector3(0, 1.05, 0)).add(back).add(shoulder);
+          camera.lookAt(player.position.x - Math.sin(state.yaw) * 5.2, player.position.y + 0.82, player.position.z - Math.cos(state.yaw) * 5.2);
         } else {
           const fall = state.deathFlash * 0.55;
           camera.position.copy(player.position).add(new THREE.Vector3(0, -fall, 0));
