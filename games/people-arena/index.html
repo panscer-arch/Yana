@@ -750,126 +750,158 @@
         if (view === "back") {
           g.lineJoin = "round";
           g.lineCap = "round";
-          g.strokeStyle = "#151617";
+          g.strokeStyle = "#171514";
           g.lineWidth = 18;
-          g.fillStyle = uniform;
+
+          g.fillStyle = "#22312f";
           g.beginPath();
-          g.moveTo(188, 346);
-          g.lineTo(324, 346);
-          g.lineTo(350, 630);
-          g.lineTo(162, 630);
+          g.moveTo(178, 350);
+          g.bezierCurveTo(198, 318, 310, 318, 334, 350);
+          g.lineTo(365, 606);
+          g.bezierCurveTo(324, 642, 190, 642, 150, 606);
           g.closePath();
           g.fill();
           g.stroke();
-          g.fillStyle = vest;
+
+          g.fillStyle = "#a94134";
           g.beginPath();
-          g.roundRect(174, 372, 164, 214, 26);
+          g.moveTo(168, 326);
+          g.quadraticCurveTo(256, 292, 346, 326);
+          g.lineTo(332, 384);
+          g.quadraticCurveTo(256, 420, 180, 384);
+          g.closePath();
           g.fill();
           g.stroke();
-          g.fillStyle = "#1d241f";
+
+          g.fillStyle = "#303f36";
           g.beginPath();
-          g.roundRect(188, 386, 136, 214, 30);
+          g.roundRect(178, 384, 158, 230, 30);
           g.fill();
           g.stroke();
-          g.fillStyle = "#252a27";
-          g.fillRect(200, 426, 112, 24);
-          g.fillRect(200, 498, 112, 24);
-          g.fillStyle = "#c9a95d";
-          g.fillRect(214, 456, 26, 40);
-          g.fillStyle = "#b44338";
-          g.fillRect(274, 456, 26, 40);
+          g.fillStyle = "#202a26";
+          g.beginPath();
+          g.roundRect(198, 406, 118, 218, 28);
+          g.fill();
+          g.stroke();
+          g.fillStyle = "#3b4c43";
+          g.fillRect(212, 435, 92, 24);
+          g.fillRect(212, 510, 92, 24);
+          g.fillStyle = "#d2a550";
+          g.fillRect(220, 470, 28, 44);
+          g.fillStyle = "#cf4a3f";
+          g.fillRect(268, 470, 28, 44);
+          g.fillStyle = "#1a1e1c";
+          for (let i = 0; i < 4; i += 1) g.fillRect(202 + i * 31, 565, 21, 36);
 
-          g.strokeStyle = "#151617";
-          g.lineWidth = 20;
+          g.strokeStyle = "#171514";
+          g.lineWidth = 22;
           g.beginPath();
-          g.moveTo(182, 394);
-          g.lineTo(104, 530);
-          g.lineTo(104, 652);
-          g.moveTo(330, 394);
-          g.lineTo(408, 532);
-          g.lineTo(408, 646);
+          g.moveTo(178, 386);
+          g.bezierCurveTo(130, 444, 100, 520, 104, 650);
+          g.moveTo(334, 386);
+          g.bezierCurveTo(384, 448, 414, 520, 408, 650);
           g.stroke();
-          g.strokeStyle = "#2f3431";
-          g.lineWidth = 14;
-          g.beginPath();
-          g.moveTo(182, 394);
-          g.lineTo(104, 530);
-          g.lineTo(104, 652);
-          g.moveTo(330, 394);
-          g.lineTo(408, 532);
-          g.lineTo(408, 646);
-          g.stroke();
-          g.fillStyle = "#101112";
-          g.fillRect(82, 638, 52, 46);
-          g.fillRect(384, 626, 52, 46);
-
-          g.strokeStyle = "#151617";
-          g.lineWidth = 18;
-          g.beginPath();
-          g.moveTo(218, 628);
-          g.lineTo(190, 794);
-          g.moveTo(294, 628);
-          g.lineTo(322, 794);
-          g.stroke();
-          g.strokeStyle = "#2f3431";
-          g.lineWidth = 13;
-          g.beginPath();
-          g.moveTo(218, 628);
-          g.lineTo(190, 794);
-          g.moveTo(294, 628);
-          g.lineTo(322, 794);
-          g.stroke();
-          g.fillStyle = "#101112";
-          g.fillRect(154, 782, 76, 42);
-          g.fillRect(286, 782, 76, 42);
-          g.fillStyle = "#495149";
-          g.fillRect(176, 688, 46, 46);
-          g.fillRect(290, 688, 46, 46);
-
-          g.fillStyle = "#5f625a";
-          g.strokeStyle = "#151617";
+          g.strokeStyle = "#28312e";
           g.lineWidth = 15;
           g.beginPath();
-          g.roundRect(168, 86, 176, 120, 52);
+          g.moveTo(178, 386);
+          g.bezierCurveTo(130, 444, 100, 520, 104, 650);
+          g.moveTo(334, 386);
+          g.bezierCurveTo(384, 448, 414, 520, 408, 650);
+          g.stroke();
+          g.fillStyle = "#111";
+          g.beginPath();
+          g.roundRect(74, 626, 58, 56, 16);
+          g.roundRect(382, 622, 58, 56, 16);
+          g.fill();
+
+          g.strokeStyle = "#171514";
+          g.lineWidth = 22;
+          g.beginPath();
+          g.moveTo(218, 624);
+          g.bezierCurveTo(214, 690, 196, 736, 178, 798);
+          g.moveTo(294, 624);
+          g.bezierCurveTo(300, 690, 318, 736, 338, 798);
+          g.stroke();
+          g.strokeStyle = "#2d342f";
+          g.lineWidth = 15;
+          g.beginPath();
+          g.moveTo(218, 624);
+          g.bezierCurveTo(214, 690, 196, 736, 178, 798);
+          g.moveTo(294, 624);
+          g.bezierCurveTo(300, 690, 318, 736, 338, 798);
+          g.stroke();
+          g.fillStyle = "#48564e";
+          g.beginPath();
+          g.roundRect(170, 690, 50, 54, 12);
+          g.roundRect(292, 690, 50, 54, 12);
           g.fill();
           g.stroke();
-          g.fillStyle = "#2d302e";
+          g.fillStyle = "#101112";
           g.beginPath();
-          g.roundRect(188, 152, 136, 150, 54);
+          g.roundRect(132, 782, 94, 48, 17);
+          g.roundRect(286, 782, 94, 48, 17);
+          g.fill();
+
+          g.fillStyle = "#6f3f22";
+          g.strokeStyle = "#171514";
+          g.lineWidth = 14;
+          g.beginPath();
+          g.moveTo(164, 176);
+          g.bezierCurveTo(172, 86, 334, 70, 354, 178);
+          g.bezierCurveTo(326, 146, 294, 132, 260, 134);
+          g.bezierCurveTo(222, 136, 190, 150, 164, 176);
           g.fill();
           g.stroke();
-          g.fillStyle = "#161817";
-          g.fillRect(190, 294, 132, 78);
-          g.fillStyle = "#70442c";
+          g.fillStyle = "#8b542f";
+          for (let i = 0; i < 9; i += 1) {
+            g.beginPath();
+            g.moveTo(180 + i * 19, 178);
+            g.quadraticCurveTo(188 + i * 17, 120 + Math.sin(i) * 18, 215 + i * 8, 166);
+            g.lineTo(204 + i * 15, 206);
+            g.fill();
+          }
+          g.fillStyle = "#bd8b6b";
           g.beginPath();
-          g.moveTo(198, 168);
-          g.quadraticCurveTo(256, 112, 314, 168);
-          g.lineTo(306, 216);
-          g.quadraticCurveTo(256, 182, 206, 216);
+          g.roundRect(196, 196, 120, 122, 48);
+          g.fill();
+          g.stroke();
+          g.fillStyle = "#7a4428";
+          g.beginPath();
+          g.moveTo(184, 212);
+          g.quadraticCurveTo(256, 156, 330, 212);
+          g.lineTo(316, 246);
+          g.quadraticCurveTo(256, 204, 196, 246);
           g.closePath();
           g.fill();
 
           g.save();
-          g.translate(338, 500);
-          g.rotate(-0.12);
-          g.fillStyle = "#111";
-          g.strokeStyle = "#000";
+          g.translate(358, 505);
+          g.rotate(-0.18);
+          g.fillStyle = "#17120f";
+          g.strokeStyle = "#050505";
           g.lineWidth = 8;
           g.beginPath();
-          g.roundRect(-24, -90, 72, 274, 15);
+          g.roundRect(-28, -76, 70, 264, 15);
           g.fill();
           g.stroke();
-          g.fillStyle = "#444a45";
-          g.fillRect(0, -150, 22, 76);
+          g.fillStyle = "#5d3f27";
+          g.fillRect(-20, -42, 54, 88);
+          g.fillStyle = "#2c2a26";
+          g.fillRect(2, -146, 22, 84);
           g.restore();
 
-          g.fillStyle = "rgba(255,255,255,.16)";
+          g.fillStyle = "rgba(255,255,255,.18)";
           g.beginPath();
-          g.moveTo(202, 388);
-          g.lineTo(248, 388);
-          g.lineTo(224, 570);
-          g.lineTo(194, 570);
+          g.moveTo(205, 392);
+          g.lineTo(248, 392);
+          g.lineTo(220, 584);
+          g.lineTo(190, 584);
           g.closePath();
+          g.fill();
+          g.fillStyle = "rgba(0,0,0,.22)";
+          g.beginPath();
+          g.ellipse(256, 838, 132, 26, 0, 0, Math.PI * 2);
           g.fill();
           const texture = new THREE.CanvasTexture(c);
           texture.colorSpace = THREE.SRGBColorSpace;
@@ -1245,6 +1277,7 @@
           position: "absolute",
           left: "18px",
           bottom: "16px",
+          display: "none",
           padding: "10px 12px",
           border: "1px solid rgba(218,210,190,.22)",
           borderRadius: "8px",
@@ -1322,13 +1355,19 @@
         movePad.setAttribute("aria-label", "Кнопки движения");
         Object.assign(movePad.style, {
           position: "absolute",
-          right: "18px",
-          bottom: "16px",
-          width: "132px",
+          left: "22px",
+          bottom: "24px",
+          width: "148px",
+          height: "148px",
           display: "grid",
-          gridTemplateColumns: "44px 44px 44px",
-          gridTemplateRows: "38px 38px 38px",
-          gap: "5px",
+          gridTemplateColumns: "46px 46px 46px",
+          gridTemplateRows: "46px 46px 46px",
+          gap: "4px",
+          padding: "4px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle at 50% 50%, rgba(255,255,255,.28), rgba(20,22,24,.56) 58%, rgba(0,0,0,.44) 100%)",
+          border: "1px solid rgba(255,255,255,.22)",
+          boxShadow: "0 18px 40px rgba(0,0,0,.35), inset 0 0 24px rgba(255,255,255,.12)",
           pointerEvents: "auto"
         });
         const padItems = [
@@ -1341,11 +1380,12 @@
           button.textContent = item.label;
           button.dataset.dir = item.dir;
           Object.assign(button.style, {
-            minHeight: "38px",
-            border: "1px solid rgba(218,210,190,.26)",
-            borderRadius: "8px",
+            minHeight: "46px",
+            border: item.dir ? "1px solid rgba(255,255,255,.24)" : "0",
+            borderRadius: "50%",
             color: "#f3f0e8",
-            background: item.dir ? "rgba(10,11,12,.72)" : "transparent",
+            background: item.dir ? "rgba(20,22,24,.58)" : "transparent",
+            boxShadow: item.dir ? "inset 0 0 14px rgba(255,255,255,.1)" : "none",
             font: "900 18px system-ui",
             visibility: item.dir ? "visible" : "hidden"
           });
@@ -1381,6 +1421,85 @@
           movePad.appendChild(button);
         });
         stage.appendChild(movePad);
+
+        const healthHud = document.createElement("div");
+        Object.assign(healthHud.style, {
+          position: "absolute",
+          left: "50%",
+          bottom: "18px",
+          width: "min(250px, 34vw)",
+          height: "28px",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "4px 9px",
+          borderRadius: "8px",
+          color: "#fff",
+          background: "rgba(24,24,22,.62)",
+          boxShadow: "0 14px 32px rgba(0,0,0,.34)",
+          transform: "translateX(-50%)",
+          pointerEvents: "none",
+          font: "900 14px system-ui"
+        });
+        healthHud.innerHTML = '<span style="display:inline-grid;place-items:center;width:22px;height:20px;border-radius:6px;background:#e8453f">♥</span><strong id="visualHp">100/100</strong><i id="visualHpBar" style="display:block;flex:1;height:10px;border-radius:8px;background:linear-gradient(90deg,#35d65f,#89f06c);box-shadow:0 0 14px rgba(83,220,90,.45)"></i>';
+        stage.appendChild(healthHud);
+
+        const actionPad = document.createElement("div");
+        Object.assign(actionPad.style, {
+          position: "absolute",
+          right: "26px",
+          bottom: "28px",
+          width: "156px",
+          height: "132px",
+          pointerEvents: "auto"
+        });
+        const actionButtonStyle = {
+          position: "absolute",
+          display: "grid",
+          placeItems: "center",
+          border: "1px solid rgba(255,255,255,.24)",
+          borderRadius: "50%",
+          color: "#fff",
+          background: "radial-gradient(circle at 35% 30%, rgba(255,255,255,.22), rgba(28,29,30,.78))",
+          boxShadow: "0 14px 34px rgba(0,0,0,.38), inset 0 0 16px rgba(255,255,255,.1)",
+          font: "900 28px system-ui"
+        };
+        const shootButton = document.createElement("button");
+        shootButton.type = "button";
+        shootButton.textContent = "⌁";
+        Object.assign(shootButton.style, actionButtonStyle, {
+          right: "0",
+          bottom: "0",
+          width: "74px",
+          height: "74px"
+        });
+        shootButton.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          canvas.focus();
+          if (!state.running) startGame();
+          shoot();
+        });
+        const healButton = document.createElement("button");
+        healButton.type = "button";
+        healButton.textContent = "✚";
+        Object.assign(healButton.style, actionButtonStyle, {
+          right: "82px",
+          bottom: "42px",
+          width: "48px",
+          height: "48px",
+          color: "#8fffb0",
+          fontSize: "22px"
+        });
+        healButton.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          keys.add("KeyH");
+        });
+        healButton.addEventListener("pointerup", () => keys.delete("KeyH"));
+        healButton.addEventListener("pointercancel", () => keys.delete("KeyH"));
+        actionPad.append(healButton, shootButton);
+        stage.appendChild(actionPad);
       }
 
       function addBox({ x, y = 0, z, w, h, d, material, cast = true, receive = true, collider = true, name = "" }) {
@@ -2227,8 +2346,8 @@
         );
         parts.portrait.position.set(0, 1.33, -0.39);
         parts.portrait.rotation.x = -0.03;
-        parts.sprite = makeSpritePlane(isPlayer ? soldierSpriteTextures.playerBack : (soldierSpriteTextures[style] || soldierSpriteTextures.a), isPlayer ? 1.82 : 1.42, isPlayer ? 3.05 : 2.55, 1);
-        parts.sprite.position.set(0, isPlayer ? 1.38 : 1.18, -0.54);
+        parts.sprite = makeSpritePlane(isPlayer ? soldierSpriteTextures.playerBack : (soldierSpriteTextures[style] || soldierSpriteTextures.a), isPlayer ? 2.15 : 1.42, isPlayer ? 3.35 : 2.55, 1);
+        parts.sprite.position.set(0, isPlayer ? 1.52 : 1.18, -0.54);
         if (isPlayer) parts.sprite.rotation.y = Math.PI;
         parts.sprite.renderOrder = 4;
         parts.shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 0.86), contactShadowMaterial.clone());
@@ -2328,7 +2447,7 @@
         ].forEach((mesh) => {
           mesh.material = mesh.material.clone();
           mesh.material.transparent = true;
-          mesh.material.opacity = 0.12;
+          mesh.material.opacity = isPlayer ? 0 : 0.1;
         });
         group.traverse((node) => {
           if (node.isMesh) {
@@ -3176,6 +3295,15 @@
         starsLeftEl.textContent = state.player.reload > 0 ? "..." : state.player.ammo;
         leaderNameEl.textContent = `${state.score}`;
         const nearWounded = woundedAllies.some((ally) => !ally.rescued && distance2D(state.player.position, ally) < 3);
+        const visualHp = document.querySelector("#visualHp");
+        const visualHpBar = document.querySelector("#visualHpBar");
+        if (visualHp && visualHpBar) {
+          const hp = Math.max(0, state.player.hp);
+          visualHp.textContent = `${hp}/100`;
+          visualHpBar.style.transformOrigin = "left center";
+          visualHpBar.style.transform = `scaleX(${hp / 100})`;
+          visualHpBar.style.background = hp < 35 ? "linear-gradient(90deg,#ff4b41,#ffb347)" : "linear-gradient(90deg,#35d65f,#89f06c)";
+        }
         statusLine.textContent = state.downed
           ? (state.downedTimer > 0
             ? `ТЫ РАНЕН | H вылечиться аптечкой (${state.player.medkits}) | осталось ${Math.ceil(state.downedTimer)} сек`
