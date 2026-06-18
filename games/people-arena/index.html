@@ -397,7 +397,7 @@
         <section class="panel">
           <img class="panel-cover" src="../../assets/covers/generated/people-arena.png" alt="" loading="eager">
           <h1>Суперстрелялка</h1>
-          <p>Большая семейная 3D-арена: камера сзади героя, боты бегают и стреляют, а кругляшки закрыты игровыми спрайтами: солдаты, раненые, аптечки, патроны, бочки, мишени и база выглядят как предметы игры.</p>
+          <p>Большая семейная 3D-арена: камера сзади героя, боты бегают и стреляют, а персонажи теперь грузятся как готовые GLB-модели с анимациями, вместо рисования тела кругами, палками и капсулами.</p>
           <div class="setup">
             <button class="big-button" id="startButton" type="button">Старт с ботами</button>
             <button class="ghost-button" id="resetButton" type="button">Заново</button>
@@ -432,12 +432,15 @@
     <script type="importmap">
       {
         "imports": {
-          "three": "https://unpkg.com/three@0.165.0/build/three.module.js"
+          "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
         }
       }
     </script>
     <script type="module">
       import * as THREE from "three";
+      import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+      import * as SkeletonUtils from "three/addons/utils/SkeletonUtils.js";
 
       const canvas = document.querySelector("#arena");
       const stage = document.querySelector(".stage");
@@ -540,6 +543,12 @@
       let audioContext;
       const virtualMove = { forward: 0, side: 0 };
       const aimDrag = { active: false, x: 0, y: 0, moved: false, wasRunning: false };
+      const characterAsset = {
+        root: null,
+        animations: [],
+        ready: false,
+        error: null
+      };
 
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
       const rand = (min, max) => Math.random() * (max - min) + min;
@@ -550,6 +559,28 @@
       function showTip(text, seconds = 2.2) {
         state.tip = text;
         state.tipTimer = seconds;
+      }
+
+      async function loadGameAssets() {
+        const loader = new GLTFLoader();
+        try {
+          const gltf = await loader.loadAsync("../../assets/models/Soldier.glb");
+          characterAsset.root = gltf.scene;
+          characterAsset.animations = gltf.animations || [];
+          characterAsset.root.traverse((node) => {
+            if (!node.isMesh) return;
+            node.castShadow = true;
+            node.receiveShadow = true;
+            if (node.material) {
+              node.material = node.material.clone();
+              node.material.roughness = Math.min(0.92, node.material.roughness ?? 0.82);
+            }
+          });
+          characterAsset.ready = true;
+        } catch (error) {
+          characterAsset.error = error;
+          console.warn("Soldier GLB asset failed, using fallback sprite.", error);
+        }
       }
 
       function getAudio() {
@@ -2231,6 +2262,7 @@
       }
 
       function createSoldier(style = "a", isPlayer = false) {
+        if (characterAsset.ready && characterAsset.root) return createModelSoldier(style, isPlayer);
         const armorMaterial = style === "b" ? materials.armorB : style === "c" ? materials.armorC : materials.armorA;
         const group = new THREE.Group();
         const parts = {};
@@ -2462,6 +2494,64 @@
         });
         group.visible = !isPlayer;
         return { group, parts, style, hp: 100, alive: true, cooldown: rand(0.4, 1.8), walk: rand(0, 10), isPlayer };
+      }
+
+      function createModelSoldier(style = "a", isPlayer = false) {
+        const group = new THREE.Group();
+        const asset = SkeletonUtils.clone(characterAsset.root);
+        const scale = isPlayer ? 1.55 : 1.28;
+        asset.scale.setScalar(scale);
+        asset.position.set(0, 0, 0);
+        asset.rotation.y = Math.PI;
+        asset.traverse((node) => {
+          if (!node.isMesh) return;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.userData.assetBody = true;
+          if (node.material) {
+            node.material = node.material.clone();
+            if (style === "b") node.material.color?.offsetHSL?.(0.02, 0.04, -0.03);
+            if (style === "c") node.material.color?.offsetHSL?.(0.07, 0.02, -0.02);
+          }
+        });
+        const mixer = new THREE.AnimationMixer(asset);
+        const actions = {};
+        characterAsset.animations.forEach((clip) => {
+          actions[clip.name.toLowerCase()] = mixer.clipAction(clip);
+        });
+        const idle = actions.idle || Object.values(actions)[0] || null;
+        if (idle) {
+          idle.enabled = true;
+          idle.setEffectiveWeight(1);
+          idle.play();
+        }
+        const shadow = new THREE.Mesh(new THREE.PlaneGeometry(isPlayer ? 1.6 : 1.25, isPlayer ? 1.05 : 0.82), contactShadowMaterial.clone());
+        shadow.material.opacity = isPlayer ? 0.38 : 0.28;
+        shadow.rotation.x = -Math.PI / 2;
+        shadow.position.y = 0.025;
+        shadow.renderOrder = -1;
+        group.add(shadow, asset);
+        group.visible = !isPlayer;
+        const head = new THREE.Mesh(
+          new THREE.BoxGeometry(0.42 * scale, 0.35 * scale, 0.42 * scale),
+          new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
+        );
+        head.position.set(0, 1.55 * scale, -0.05);
+        group.add(head);
+        return {
+          group,
+          parts: { head, shadow, asset },
+          assetRoot: asset,
+          mixer,
+          actions,
+          currentAction: "idle",
+          style,
+          hp: 100,
+          alive: true,
+          cooldown: rand(0.4, 1.8),
+          walk: rand(0, 10),
+          isPlayer
+        };
       }
 
       function makeLimb(radius, length, material) {
@@ -3227,6 +3317,25 @@
 
       function animateSoldier(model, delta, speed) {
         if (!model) return;
+        if (model.assetRoot && model.mixer) {
+          const wanted = speed > 0.72 ? (model.actions.run ? "run" : model.actions.walk ? "walk" : "idle") : "idle";
+          if (wanted !== model.currentAction) {
+            const previous = model.actions[model.currentAction];
+            const next = model.actions[wanted] || model.actions.idle || Object.values(model.actions)[0];
+            if (previous && previous !== next) previous.fadeOut(0.16);
+            if (next) {
+              next.reset().fadeIn(0.16).play();
+              next.timeScale = wanted === "run" ? 1.05 : wanted === "walk" ? 0.9 : 1;
+            }
+            model.currentAction = wanted;
+          }
+          model.mixer.update(delta);
+          if (model.parts.shadow) {
+            model.parts.shadow.scale.setScalar(1 + Math.sin(model.walk) * 0.02);
+          }
+          model.walk += delta * Math.max(1, speed) * 2.5;
+          return;
+        }
         model.walk += delta * Math.max(1, speed) * 4.2;
         const swing = Math.sin(model.walk) * Math.min(0.55, speed * 0.12);
         model.parts.leftLeg.rotation.x = swing;
@@ -3414,12 +3523,14 @@
       window.addEventListener("resize", resizeRenderer);
 
       setupDomOverlay();
+      await loadGameAssets();
       buildArena();
       connectArena();
       resetGame();
       resizeRenderer();
       window.__arenaDebug = state;
       window.__arenaDebugRemoteCount = () => remotePlayers.size;
+      window.__arenaAssetMode = () => characterAsset.ready ? "glb-model" : "fallback-sprite";
       loop();
     </script>
 
