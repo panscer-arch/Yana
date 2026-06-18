@@ -397,7 +397,7 @@
         <section class="panel">
           <img class="panel-cover" src="../../assets/covers/generated/people-arena.png" alt="" loading="eager">
           <h1>Суперстрелялка</h1>
-          <p>Большая семейная 3D-арена: боты бегают, выбирают цели, стреляют друг в друга и в игрока, а на карте лежат запасы патронов и аптечки.</p>
+          <p>Большая семейная 3D-арена: боты бегают, выбирают цели, стреляют друг в друга и в игрока. Визуал переделан без временных кругляшков: база, дверь, окно, стол, телефон, оружейная стойка и солдаты с деталями одежды.</p>
           <div class="setup">
             <button class="big-button" id="startButton" type="button">Старт с ботами</button>
             <button class="ghost-button" id="resetButton" type="button">Заново</button>
@@ -774,6 +774,11 @@
         strap: new THREE.MeshStandardMaterial({ color: 0x1b1b1a, roughness: 0.82, metalness: 0.08 }),
         eye: new THREE.MeshStandardMaterial({ color: 0x6f9fc1, roughness: 0.24, metalness: 0.02, emissive: 0x122334, emissiveIntensity: 0.1 })
       };
+      materials.badge = new THREE.MeshStandardMaterial({ color: 0xd1b66c, roughness: 0.42, metalness: 0.18 });
+      materials.boot = new THREE.MeshStandardMaterial({ color: 0x151614, roughness: 0.8, metalness: 0.05 });
+      materials.phone = new THREE.MeshStandardMaterial({ color: 0x1d2528, roughness: 0.45, metalness: 0.2 });
+      materials.screen = new THREE.MeshStandardMaterial({ color: 0x64c7d9, roughness: 0.08, metalness: 0.02, emissive: 0x123b45, emissiveIntensity: 0.38 });
+      materials.paper = new THREE.MeshStandardMaterial({ color: 0xe9dfc8, roughness: 0.92, metalness: 0.01 });
       const contactShadowMaterial = new THREE.MeshBasicMaterial({
         color: 0x070807,
         transparent: true,
@@ -1082,6 +1087,7 @@
         addPlanter(37.4, -10.2);
         addPlanter(-4.4, 24.2);
         addPlanter(6.6, -27.5);
+        addSpawnRoomDetails();
 
         for (const [x, z] of [[-26.2, 1.8], [26.2, -22.2], [0.8, 20.8], [-36.4, -4.8], [33.5, 8.5], [-8, -30], [17, 26]]) addBarrel(x, z);
         for (const [x, z, kind] of [[-8, -25, "ammo"], [18, 16, "health"], [-28, 12, "ammo"], [29, -10, "health"], [3, 27, "ammo"], [-18, -8, "health"]]) addSupplyCrate(x, z, kind);
@@ -1217,6 +1223,164 @@
         }
       }
 
+      function addSpawnRoomDetails() {
+        addRoomRug(-8.2, 24.1);
+        addRealDoor(-15.4, 25.46, 0);
+        addRealWindow(-6.4, 25.44, 2.05, 2.1);
+        addNoticeBoard(-11.2, 25.42);
+        addTable(-4.7, 22.9);
+        addPhone(-4.15, 22.34);
+        addBenchBed(-14.6, 22.1);
+        addWeaponRack(-1.25, 25.18);
+        addFloorCables(-5.2, 22.9);
+      }
+
+      function addRoomRug(x, z) {
+        const rug = new THREE.Mesh(
+          new THREE.PlaneGeometry(8.8, 4.1),
+          new THREE.MeshStandardMaterial({ color: 0x4b4a42, roughness: 0.96, metalness: 0.01 })
+        );
+        rug.rotation.x = -Math.PI / 2;
+        rug.position.set(x, 0.031, z);
+        rug.receiveShadow = true;
+        scene.add(rug);
+        for (let i = 0; i < 5; i += 1) {
+          const stripe = new THREE.Mesh(
+            new THREE.PlaneGeometry(8.3, 0.045),
+            new THREE.MeshBasicMaterial({ color: i % 2 ? 0x73694e : 0x2c3331 })
+          );
+          stripe.rotation.x = -Math.PI / 2;
+          stripe.position.set(x, 0.034, z - 1.7 + i * 0.85);
+          scene.add(stripe);
+        }
+      }
+
+      function addRealDoor(x, z, rotationY = 0) {
+        const group = new THREE.Group();
+        group.position.set(x, 0, z);
+        group.rotation.y = rotationY;
+        const panel = new THREE.Mesh(new THREE.BoxGeometry(1.18, 2.3, 0.12), materials.wood);
+        panel.position.y = 1.15;
+        const frameTop = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.16, 0.18), materials.paleWall);
+        frameTop.position.y = 2.38;
+        const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(0.13, 2.45, 0.18), materials.paleWall);
+        frameLeft.position.set(-0.75, 1.23, 0);
+        const frameRight = frameLeft.clone();
+        frameRight.position.x = 0.75;
+        const handle = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.11, 0.08), materials.badge);
+        handle.position.set(0.42, 1.08, -0.09);
+        const grooves = [];
+        for (let i = 0; i < 3; i += 1) {
+          const groove = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.035, 0.025), materials.strap);
+          groove.position.set(0, 0.62 + i * 0.46, -0.075);
+          grooves.push(groove);
+        }
+        group.add(panel, frameTop, frameLeft, frameRight, handle, ...grooves);
+        group.traverse((node) => {
+          if (node.isMesh) {
+            node.castShadow = true;
+            node.receiveShadow = true;
+          }
+        });
+        scene.add(group);
+      }
+
+      function addRealWindow(x, z, y, width) {
+        const group = new THREE.Group();
+        group.position.set(x, y, z);
+        const glass = new THREE.Mesh(new THREE.BoxGeometry(width, 1.05, 0.07), materials.glass);
+        const frameH = new THREE.Mesh(new THREE.BoxGeometry(width + 0.18, 0.08, 0.12), materials.paleWall);
+        const frameB = frameH.clone();
+        frameH.position.y = 0.57;
+        frameB.position.y = -0.57;
+        const frameL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.22, 0.12), materials.paleWall);
+        const frameR = frameL.clone();
+        frameL.position.x = -width / 2 - 0.04;
+        frameR.position.x = width / 2 + 0.04;
+        const cross = new THREE.Mesh(new THREE.BoxGeometry(0.07, 1.12, 0.13), materials.paleWall);
+        group.add(glass, frameH, frameB, frameL, frameR, cross);
+        group.traverse((node) => {
+          if (node.isMesh) {
+            node.castShadow = true;
+            node.receiveShadow = true;
+          }
+        });
+        scene.add(group);
+        addGlare(x + 0.42, y + 0.18, z - 0.08, 0.36, 0.18);
+      }
+
+      function addNoticeBoard(x, z) {
+        addBox({ x, y: 1.35, z, w: 2.0, h: 1.12, d: 0.08, material: materials.wood, collider: false });
+        for (let i = 0; i < 4; i += 1) {
+          const note = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.26, 0.025), materials.paper);
+          note.position.set(x - 0.62 + (i % 2) * 0.72, 1.48 + Math.floor(i / 2) * 0.36, z - 0.07);
+          note.rotation.z = rand(-0.08, 0.08);
+          scene.add(note);
+        }
+      }
+
+      function addTable(x, z) {
+        addBox({ x, y: 0.72, z, w: 2.25, h: 0.16, d: 1.2, material: materials.wood, collider: true });
+        for (const sx of [-0.9, 0.9]) {
+          for (const sz of [-0.42, 0.42]) addBox({ x: x + sx, y: 0.02, z: z + sz, w: 0.13, h: 0.72, d: 0.13, material: materials.wood, collider: false });
+        }
+        addContactShadow(x, z, 2.6, 1.55, 0.22);
+      }
+
+      function addPhone(x, z) {
+        const group = new THREE.Group();
+        group.position.set(x, 0.88, z);
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.06, 0.58), materials.phone);
+        body.rotation.y = -0.18;
+        const screen = new THREE.Mesh(new THREE.BoxGeometry(0.23, 0.012, 0.32), materials.screen);
+        screen.position.set(0, 0.04, -0.03);
+        screen.rotation.x = -Math.PI / 2;
+        const button = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.012, 0.035), materials.badge);
+        button.position.set(0, 0.045, 0.21);
+        button.rotation.x = -Math.PI / 2;
+        group.add(body, screen, button);
+        group.traverse((node) => {
+          if (node.isMesh) {
+            node.castShadow = true;
+            node.receiveShadow = true;
+          }
+        });
+        scene.add(group);
+      }
+
+      function addBenchBed(x, z) {
+        addBox({ x, y: 0.42, z, w: 2.35, h: 0.28, d: 0.92, material: materials.fabric, collider: true });
+        addBox({ x: x - 0.73, y: 0.72, z: z - 0.1, w: 0.62, h: 0.2, d: 0.55, material: materials.paleWall, collider: false });
+        addBox({ x, y: 0.19, z, w: 2.45, h: 0.12, d: 1.02, material: materials.metal, collider: false });
+        addContactShadow(x, z, 2.65, 1.22, 0.24);
+      }
+
+      function addWeaponRack(x, z) {
+        addBox({ x, y: 1.05, z, w: 1.8, h: 1.85, d: 0.14, material: materials.metal, collider: false });
+        for (let i = 0; i < 3; i += 1) {
+          const rifle = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.12, 1.05), materials.black);
+          rifle.position.set(x - 0.55 + i * 0.55, 1.16, z - 0.13);
+          rifle.rotation.set(0.18, 0.18, 0.18);
+          rifle.castShadow = true;
+          scene.add(rifle);
+          const grip = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.32, 0.11), materials.black);
+          grip.position.set(x - 0.48 + i * 0.55, 0.9, z - 0.11);
+          grip.rotation.z = -0.25;
+          grip.castShadow = true;
+          scene.add(grip);
+        }
+      }
+
+      function addFloorCables(x, z) {
+        const cableMaterial = new THREE.MeshBasicMaterial({ color: 0x101010 });
+        for (let i = 0; i < 3; i += 1) {
+          const cable = new THREE.Mesh(new THREE.BoxGeometry(1.1 + i * 0.25, 0.025, 0.035), cableMaterial);
+          cable.position.set(x + i * 0.38, 0.045, z + 0.58 + i * 0.13);
+          cable.rotation.y = rand(-0.7, 0.7);
+          scene.add(cable);
+        }
+      }
+
       function addPlanter(x, z) {
         addBox({ x, z, w: 1.05, h: 0.36, d: 0.8, material: materials.wood, collider: true });
         addContactShadow(x, z, 1.3, 1.0, 0.2);
@@ -1269,17 +1433,36 @@
       function addWoundedAlly(x, z) {
         const group = new THREE.Group();
         group.position.set(x, 0, z);
-        const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.24, 0.58, 5, 10), materials.fabric);
-        body.position.set(0, 0.55, 0);
-        body.rotation.z = Math.PI / 2;
+        const mat = new THREE.MeshStandardMaterial({ color: 0x344039, roughness: 0.9, metalness: 0.02 });
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.24, 0.38), mat);
+        body.position.set(0, 0.48, 0);
+        body.rotation.z = -0.08;
         const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 14, 10), materials.skin);
-        head.position.set(0.48, 0.56, 0);
+        head.position.set(0.53, 0.5, 0);
+        const helmet = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.1, 0.26), materials.helmet);
+        helmet.position.set(0.54, 0.64, -0.02);
+        helmet.rotation.z = -0.12;
+        const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.13, 0.14), materials.suit);
+        const rightLeg = leftLeg.clone();
+        leftLeg.position.set(-0.53, 0.4, -0.11);
+        rightLeg.position.set(-0.53, 0.4, 0.12);
+        leftLeg.rotation.z = 0.12;
+        rightLeg.rotation.z = -0.05;
+        const leftBoot = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.12, 0.18), materials.boot);
+        const rightBoot = leftBoot.clone();
+        leftBoot.position.set(-0.82, 0.37, -0.12);
+        rightBoot.position.set(-0.82, 0.37, 0.13);
+        const arm = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.11, 0.13), materials.suit);
+        arm.position.set(0.1, 0.5, -0.34);
+        arm.rotation.y = -0.28;
+        const glove = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 0.14), materials.boot);
+        glove.position.set(0.4, 0.48, -0.45);
         const pack = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.28, 0.38), materials.armorC);
-        pack.position.set(-0.15, 0.34, -0.08);
+        pack.position.set(-0.12, 0.64, 0.02);
         const crossA = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.035, 0.04), materials.red);
         const crossB = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.32, 0.04), materials.red);
-        crossA.position.set(-0.15, 0.5, -0.29);
-        crossB.position.set(-0.15, 0.5, -0.29);
+        crossA.position.set(-0.12, 0.82, -0.18);
+        crossB.position.set(-0.12, 0.82, -0.18);
         const helpA = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.08, 0.08), materials.red);
         const helpB = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.55, 0.08), materials.red);
         helpA.position.set(0, 1.25, 0);
@@ -1290,7 +1473,7 @@
         );
         zone.rotation.x = -Math.PI / 2;
         zone.position.y = 0.035;
-        group.add(body, head, pack, crossA, crossB, helpA, helpB, zone);
+        group.add(body, head, helmet, leftLeg, rightLeg, leftBoot, rightBoot, arm, glove, pack, crossA, crossB, helpA, helpB, zone);
         group.traverse((node) => {
           if (node.isMesh) {
             node.castShadow = true;
@@ -1494,6 +1677,14 @@
         parts.rightEye.scale.set(1.35, 0.72, 0.55);
         parts.leftEye.position.set(-0.095, 1.95, -0.27);
         parts.rightEye.position.set(0.095, 1.95, -0.27);
+        parts.nose = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.07, 0.05), materials.skin);
+        parts.nose.position.set(0, 1.88, -0.295);
+        parts.leftBrow = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.025, 0.025), materials.strap);
+        parts.rightBrow = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.025, 0.025), materials.strap);
+        parts.leftBrow.position.set(-0.1, 2.0, -0.292);
+        parts.rightBrow.position.set(0.1, 2.0, -0.292);
+        parts.leftBrow.rotation.z = 0.12;
+        parts.rightBrow.rotation.z = -0.12;
         parts.helmet = new THREE.Mesh(new THREE.SphereGeometry(0.33, 28, 14, 0, Math.PI * 2, 0, Math.PI * 0.62), materials.helmet);
         parts.helmet.scale.set(1.03, 0.82, 1.02);
         parts.helmet.position.y = 1.99;
@@ -1522,12 +1713,34 @@
         parts.rightArm.position.set(0.52, 1.11, -0.02);
         parts.leftArm.rotation.z = 0.18;
         parts.rightArm.rotation.z = -0.18;
+        parts.leftGlove = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.16), materials.boot);
+        parts.rightGlove = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.16), materials.boot);
+        parts.leftGlove.position.set(-0.57, 0.78, -0.06);
+        parts.rightGlove.position.set(0.57, 0.78, -0.06);
         parts.leftLeg = makeLimb(0.15, 0.76, materials.suit);
         parts.rightLeg = makeLimb(0.15, 0.76, materials.suit);
         parts.leftLeg.position.set(-0.2, 0.42, 0);
         parts.rightLeg.position.set(0.2, 0.42, 0);
+        parts.leftKnee = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.14, 0.1), armorMaterial);
+        parts.rightKnee = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.14, 0.1), armorMaterial);
+        parts.leftKnee.position.set(-0.2, 0.44, -0.13);
+        parts.rightKnee.position.set(0.2, 0.44, -0.13);
+        parts.leftBoot = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.16, 0.42), materials.boot);
+        parts.rightBoot = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.16, 0.42), materials.boot);
+        parts.leftBoot.position.set(-0.2, 0.08, -0.08);
+        parts.rightBoot.position.set(0.2, 0.08, -0.08);
         parts.rifle = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.12, 0.84), materials.black);
         parts.rifle.position.set(0.34, 1.18, -0.46);
+        parts.rifleBarrel = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.055, 0.46), materials.metal);
+        parts.rifleBarrel.position.set(0.34, 1.21, -0.98);
+        parts.rifleGrip = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.28, 0.12), materials.black);
+        parts.rifleGrip.position.set(0.22, 1.0, -0.3);
+        parts.leftPatch = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.18, 0.035), materials.badge);
+        parts.rightPatch = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.18, 0.035), materials.red);
+        parts.leftPatch.position.set(-0.62, 1.27, -0.15);
+        parts.rightPatch.position.set(0.62, 1.27, -0.15);
+        parts.leftPatch.rotation.z = 0.18;
+        parts.rightPatch.rotation.z = -0.18;
         parts.leftStrap = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.88, 0.045), materials.strap);
         parts.rightStrap = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.88, 0.045), materials.strap);
         parts.leftStrap.position.set(-0.22, 1.25, -0.23);
@@ -1567,6 +1780,9 @@
           parts.eyeSlit,
           parts.leftEye,
           parts.rightEye,
+          parts.nose,
+          parts.leftBrow,
+          parts.rightBrow,
           parts.helmet,
           parts.helmetPlate,
           parts.helmetBrim,
@@ -1577,9 +1793,19 @@
           parts.rightShoulder,
           parts.leftArm,
           parts.rightArm,
+          parts.leftGlove,
+          parts.rightGlove,
           parts.leftLeg,
           parts.rightLeg,
+          parts.leftKnee,
+          parts.rightKnee,
+          parts.leftBoot,
+          parts.rightBoot,
           parts.rifle,
+          parts.rifleBarrel,
+          parts.rifleGrip,
+          parts.leftPatch,
+          parts.rightPatch,
           parts.leftStrap,
           parts.rightStrap,
           parts.belt,
