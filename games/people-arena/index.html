@@ -2899,16 +2899,17 @@
         state.running = true;
         showTip(location.protocol === "file:" ? "Режим с ботами: держись за укрытиями" : "Арена запущена: боты плюс онлайн-игроки", 3);
         canvas.focus();
-        requestAimLock();
       }
 
       function clearMovementInput() {
         virtualMove.forward = 0;
         virtualMove.side = 0;
-        keys.delete("ArrowUp");
-        keys.delete("ArrowDown");
-        keys.delete("ArrowLeft");
-        keys.delete("ArrowRight");
+        [
+          "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight",
+          "KeyW", "KeyA", "KeyS", "KeyD",
+          "w", "a", "s", "d", "ц", "ф", "ы", "в",
+          "ControlLeft", "ControlRight", "KeyC", "c", "с", "ShiftLeft", "Shift"
+        ].forEach((key) => keys.delete(key));
       }
 
       function respawnPlayer() {
@@ -2979,8 +2980,8 @@
         const player = state.player;
         if (keys.has("KeyQ") || keys.has("q") || keys.has("й")) state.yaw += delta * 1.55;
         if (keys.has("KeyE") || keys.has("e") || keys.has("у")) state.yaw -= delta * 1.55;
-        if (keys.has("ArrowLeft")) state.yaw += delta * 2.45;
-        if (keys.has("ArrowRight")) state.yaw -= delta * 2.45;
+        if (keys.has("ArrowLeft")) state.yaw += delta * 4.35;
+        if (keys.has("ArrowRight")) state.yaw -= delta * 4.35;
         if (keys.has("KeyF") || keys.has("f") || keys.has("а")) {
           keys.delete("KeyF");
           keys.delete("f");
@@ -3656,24 +3657,28 @@
         keys.delete(event.key.toLowerCase());
       });
       window.addEventListener("blur", clearMovementInput);
+      function applyAimDelta(dx, dy, pointerScale = 1) {
+        if (Math.abs(dx) + Math.abs(dy) > 2) aimDrag.moved = true;
+        state.yaw -= dx * 0.0105 * pointerScale;
+        state.pitch = clamp(state.pitch - dy * 0.0068 * pointerScale, -0.72, 0.62);
+      }
+
       document.addEventListener("mousemove", (event) => {
         if (document.pointerLockElement === canvas) {
-          state.yaw -= event.movementX * 0.0052;
-          state.pitch = clamp(state.pitch - event.movementY * 0.0036, -0.72, 0.62);
-          return;
+          applyAimDelta(event.movementX, event.movementY, 0.72);
         }
-        if (!aimDrag.active) return;
+      });
+      document.addEventListener("pointermove", (event) => {
+        if (!aimDrag.active || document.pointerLockElement === canvas) return;
         const dx = event.clientX - aimDrag.x;
         const dy = event.clientY - aimDrag.y;
         aimDrag.x = event.clientX;
         aimDrag.y = event.clientY;
-        if (Math.abs(dx) + Math.abs(dy) > 2) aimDrag.moved = true;
-        state.yaw -= dx * 0.0062;
-        state.pitch = clamp(state.pitch - dy * 0.0042, -0.72, 0.62);
+        applyAimDelta(dx, dy, event.pointerType === "touch" ? 1.35 : 1);
       });
       canvas.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
         canvas.focus();
-        requestAimLock();
         aimDrag.wasRunning = state.running;
         if (!state.running) startGame();
         aimDrag.active = true;
@@ -3681,6 +3686,7 @@
         aimDrag.y = event.clientY;
         aimDrag.moved = false;
       });
+      canvas.addEventListener("dblclick", () => requestAimLock());
       window.addEventListener("pointerup", (event) => {
         if (aimDrag.active && event.button === 0 && aimDrag.wasRunning && !aimDrag.moved) {
           shoot();
