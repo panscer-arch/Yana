@@ -1310,6 +1310,35 @@
         target: makeObjectSpriteTexture("target"),
         wounded: makeObjectSpriteTexture("wounded")
       };
+      function makeArenaSignTexture(text, bg = "#d94768", fg = "#fff7df") {
+        const c = document.createElement("canvas");
+        c.width = 512;
+        c.height = 192;
+        const g = c.getContext("2d");
+        g.fillStyle = bg;
+        g.fillRect(0, 0, c.width, c.height);
+        g.fillStyle = "rgba(255,255,255,.18)";
+        g.fillRect(0, 0, c.width, 34);
+        g.fillRect(0, 148, c.width, 16);
+        g.strokeStyle = "rgba(24,18,26,.55)";
+        g.lineWidth = 16;
+        g.strokeRect(8, 8, c.width - 16, c.height - 16);
+        g.fillStyle = fg;
+        g.font = "900 54px Arial";
+        g.textAlign = "center";
+        g.textBaseline = "middle";
+        g.fillText(text, c.width / 2, c.height / 2 + 4);
+        const texture = new THREE.CanvasTexture(c);
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.anisotropy = 4;
+        return texture;
+      }
+      const signTextures = {
+        start: makeArenaSignTexture("СТАРТ", "#e45757"),
+        medic: makeArenaSignTexture("АПТЕЧКА", "#31a66a"),
+        arena: makeArenaSignTexture("АРЕНА", "#4057a8"),
+        hide: makeArenaSignTexture("УКРЫТИЕ", "#b67b38")
+      };
       const soldierPortraitTexture = new THREE.TextureLoader().load("../../assets/sprites/arena-player-sprite.png");
       soldierPortraitTexture.colorSpace = THREE.SRGBColorSpace;
 
@@ -1747,6 +1776,7 @@
         addCourtyardBuilding(0, 28, 16, 4.8, 4.5, materials.paleWall);
         addCourtyardBuilding(0, -29, 13, 4.6, 4.8, materials.warmWall);
         addKenneyCityLayer();
+        addFestivalArenaDetails();
         addWallVines(-29, -24.9, 7.8, 3.6);
         addWallVines(28, 18.2, 8.5, 3.2);
         addWallVines(-7, 25.35, 6.4, 2.4);
@@ -1929,6 +1959,133 @@
         for (const [name, x, z, scale, rotationY] of roofDetails) {
           addKenneyModel(name, { x, z, scale, rotationY });
         }
+      }
+
+      function addFestivalArenaDetails() {
+        addFlagLine(-30, -18, 30, -18, 5.8);
+        addFlagLine(-24, 19, 26, 16, 5.4);
+        addFlagLine(-42, 2, -18, 12, 4.7);
+        addArenaSign("arena", 0, -33.9, 3.1, 0, 6.2);
+        addArenaSign("start", -30.5, -7.2, 2.4, Math.PI / 2, 3.8);
+        addArenaSign("medic", 18, 15.2, 2.2, Math.PI * 0.08, 3.2);
+        addArenaSign("hide", -18.5, 4.1, 2.05, 0.04, 3.3);
+
+        addMarketStall(-28, -15.5, "#e84d62", "#ffd15c");
+        addMarketStall(24, 18.5, "#32b884", "#5cc8ff");
+        addMarketStall(13.5, -24, "#4f6bea", "#ffe16a");
+        addMarketStall(-2.5, 19.5, "#ff8a3d", "#8fe26f");
+
+        addColorPole(-31, -12, 0xe84d62);
+        addColorPole(31, 12, 0x32b884);
+        addColorPole(-12, -25, 0x4f6bea);
+        addColorPole(10, 25, 0xffd15c);
+
+        for (const [x, z, color] of [[-33, 9, 0xe84d62], [-21, -18, 0x32b884], [22, -16, 0x4f6bea], [32, 1, 0xffd15c], [-4, 3, 0xffffff]]) {
+          addPaintMark(x, z, color);
+        }
+      }
+
+      function addArenaSign(kind, x, z, y, rotationY, width) {
+        const mesh = new THREE.Mesh(
+          new THREE.PlaneGeometry(width, width * 0.38),
+          new THREE.MeshBasicMaterial({ map: signTextures[kind], transparent: true, side: THREE.DoubleSide })
+        );
+        mesh.position.set(x, y, z);
+        mesh.rotation.y = rotationY;
+        scene.add(mesh);
+        addContactShadow(x, z, width * 0.72, 0.42, 0.18);
+        return mesh;
+      }
+
+      function addFlagLine(x1, z1, x2, z2, y) {
+        const group = new THREE.Group();
+        const colors = [0xe84d62, 0xffd15c, 0x32b884, 0x4f6bea, 0xffffff];
+        const start = new THREE.Vector3(x1, y, z1);
+        const end = new THREE.Vector3(x2, y, z2);
+        const line = end.clone().sub(start);
+        const length = line.length();
+        const angle = Math.atan2(line.x, line.z);
+        const rope = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, length), new THREE.MeshStandardMaterial({ color: 0x3e342a, roughness: 0.8 }));
+        rope.position.copy(start).lerp(end, 0.5);
+        rope.rotation.y = angle;
+        group.add(rope);
+        for (let i = 0; i < 13; i += 1) {
+          const t = i / 12;
+          const flag = new THREE.Mesh(
+            new THREE.ConeGeometry(0.34, 0.72, 3),
+            new THREE.MeshStandardMaterial({ color: colors[i % colors.length], roughness: 0.72, metalness: 0.02 })
+          );
+          flag.position.copy(start).lerp(end, t);
+          flag.position.y -= 0.42 + Math.sin(i) * 0.05;
+          flag.rotation.set(Math.PI, angle, Math.PI / 3);
+          flag.castShadow = true;
+          group.add(flag);
+        }
+        scene.add(group);
+      }
+
+      function addMarketStall(x, z, topColor, clothColor) {
+        const topMat = new THREE.MeshStandardMaterial({ color: topColor, roughness: 0.76, metalness: 0.02 });
+        const clothMat = new THREE.MeshStandardMaterial({ color: clothColor, roughness: 0.84, metalness: 0.01 });
+        const wood = materials.wood;
+        const group = new THREE.Group();
+        group.position.set(x, 0, z);
+        const counter = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.7, 1.25), wood);
+        counter.position.y = 0.48;
+        const awning = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.22, 1.75), topMat);
+        awning.position.y = 2.15;
+        const cloth = new THREE.Mesh(new THREE.BoxGeometry(3.7, 0.12, 0.18), clothMat);
+        cloth.position.set(0, 1.92, -0.88);
+        group.add(counter, awning, cloth);
+        for (const sx of [-1.55, 1.55]) {
+          const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 2.05, 10), wood);
+          pole.position.set(sx, 1.15, -0.55);
+          group.add(pole);
+        }
+        for (let i = 0; i < 4; i += 1) {
+          const box = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.22, 0.42), i % 2 ? clothMat : topMat);
+          box.position.set(-1.08 + i * 0.72, 0.95, -0.1);
+          box.castShadow = true;
+          group.add(box);
+        }
+        group.traverse((node) => {
+          if (!node.isMesh) return;
+          node.castShadow = true;
+          node.receiveShadow = true;
+        });
+        scene.add(group);
+        colliders.push({ x, y: 0, z, w: 3.9, h: 1.1, d: 1.7 });
+        addContactShadow(x, z, 4.4, 2.2, 0.24);
+      }
+
+      function addColorPole(x, z, color) {
+        const group = new THREE.Group();
+        group.position.set(x, 0, z);
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.08, 3.6, 12), materials.metal);
+        pole.position.y = 1.8;
+        const lamp = new THREE.Mesh(
+          new THREE.SphereGeometry(0.28, 18, 12),
+          new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.35, roughness: 0.4 })
+        );
+        lamp.position.y = 3.72;
+        const light = new THREE.PointLight(color, 0.45, 6, 2);
+        light.position.y = 3.55;
+        group.add(pole, lamp, light);
+        group.traverse((node) => {
+          if (node.isMesh) node.castShadow = true;
+        });
+        scene.add(group);
+      }
+
+      function addPaintMark(x, z, color) {
+        const mark = new THREE.Mesh(
+          new THREE.CircleGeometry(1.1, 28),
+          new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.28, depthWrite: false })
+        );
+        mark.rotation.x = -Math.PI / 2;
+        mark.position.set(x, 0.035, z);
+        mark.renderOrder = -1;
+        scene.add(mark);
       }
 
       function addWallVines(x, z, width, height, rotate = false) {
@@ -2703,7 +2860,27 @@
         shadow.rotation.x = -Math.PI / 2;
         shadow.position.y = 0.025;
         shadow.renderOrder = -1;
-        group.add(shadow, asset);
+        const teamColor = isPlayer ? new THREE.Color(0x78d8ff) : tint;
+        const markerMaterial = new THREE.MeshStandardMaterial({
+          color: teamColor,
+          emissive: teamColor,
+          emissiveIntensity: isPlayer ? 0.12 : 0.28,
+          roughness: 0.48,
+          metalness: 0.08
+        });
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(isPlayer ? 0.72 : 0.58, 0.035, 8, 42), markerMaterial);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = 0.055;
+        ring.castShadow = false;
+        ring.receiveShadow = false;
+        const backBadge = new THREE.Mesh(new THREE.BoxGeometry(0.34 * scale, 0.42 * scale, 0.06 * scale), markerMaterial);
+        backBadge.position.set(0, 0.92 * scale, 0.38 * scale);
+        backBadge.castShadow = true;
+        const floatingMark = new THREE.Mesh(new THREE.OctahedronGeometry(isPlayer ? 0.16 : 0.22, 0), markerMaterial);
+        floatingMark.position.set(0, isPlayer ? 2.35 : 2.55, 0);
+        floatingMark.castShadow = false;
+        floatingMark.userData.floatMarker = true;
+        group.add(shadow, ring, asset, backBadge, floatingMark);
         group.visible = !isPlayer;
         const head = new THREE.Mesh(
           new THREE.BoxGeometry(0.42 * scale, 0.35 * scale, 0.42 * scale),
@@ -2713,7 +2890,7 @@
         group.add(head);
         return {
           group,
-          parts: { head, shadow, asset },
+          parts: { head, shadow, asset, ring, backBadge, floatingMark },
           assetRoot: asset,
           mixer,
           actions,
@@ -3509,6 +3686,14 @@
           model.mixer.update(delta);
           if (model.parts.shadow) {
             model.parts.shadow.scale.setScalar(1 + Math.sin(model.walk) * 0.02);
+          }
+          if (model.parts.ring) {
+            model.parts.ring.rotation.z += delta * 1.8;
+            model.parts.ring.scale.setScalar(1 + Math.sin(model.walk * 1.7) * 0.08);
+          }
+          if (model.parts.floatingMark) {
+            model.parts.floatingMark.rotation.y += delta * 2.4;
+            model.parts.floatingMark.position.y = (model.isPlayer ? 2.35 : 2.55) + Math.sin(model.walk * 1.4) * 0.12;
           }
           model.walk += delta * Math.max(1, speed) * 2.5;
           return;
