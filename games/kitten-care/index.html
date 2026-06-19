@@ -232,13 +232,162 @@
           repeating-radial-gradient(ellipse at center, rgba(157, 96, 62, .22) 0 12px, rgba(255, 226, 196, .5) 13px 24px);
       }
 
+      .paw-trails,
+      .food-crumbs,
+      .snore-clouds,
+      .play-sparks,
+      .bath-splash {
+        position: absolute;
+        z-index: 2;
+        pointer-events: none;
+      }
+
+      .paw-trails {
+        left: 18%;
+        right: 18%;
+        bottom: 96px;
+        height: 190px;
+        opacity: 0;
+        transition: opacity .25s ease;
+      }
+
+      .paw-trails i {
+        position: absolute;
+        width: 23px;
+        height: 15px;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 24% 28%, rgba(87,62,38,.34) 0 17%, transparent 18%),
+          radial-gradient(circle at 52% 15%, rgba(87,62,38,.28) 0 13%, transparent 14%),
+          radial-gradient(circle at 74% 32%, rgba(87,62,38,.32) 0 15%, transparent 16%),
+          radial-gradient(ellipse at 50% 72%, rgba(87,62,38,.42) 0 39%, transparent 40%);
+        filter: blur(.2px);
+      }
+
+      .paw-trails i:nth-child(1) { left: 2%; bottom: 8px; transform: rotate(-9deg); }
+      .paw-trails i:nth-child(2) { left: 16%; bottom: 42px; transform: rotate(10deg); }
+      .paw-trails i:nth-child(3) { left: 34%; bottom: 24px; transform: rotate(-13deg); }
+      .paw-trails i:nth-child(4) { left: 52%; bottom: 74px; transform: rotate(14deg); }
+      .paw-trails i:nth-child(5) { left: 70%; bottom: 40px; transform: rotate(-8deg); }
+      .paw-trails i:nth-child(6) { left: 84%; bottom: 92px; transform: rotate(12deg); }
+
+      .room.dirty-mode .paw-trails,
+      .room.outside .paw-trails {
+        opacity: .88;
+      }
+
+      .food-crumbs {
+        left: calc(9% + 12px);
+        bottom: 117px;
+        width: 92px;
+        height: 52px;
+        opacity: 0;
+        transform: scale(.85);
+        transition: opacity .18s ease, transform .18s ease;
+      }
+
+      .food-crumbs i,
+      .play-sparks i,
+      .bath-splash i {
+        position: absolute;
+        display: block;
+        border-radius: 50%;
+      }
+
+      .food-crumbs i {
+        width: 8px;
+        height: 8px;
+        background: #8b5935;
+        box-shadow: 13px 14px 0 #c7894f, 28px 3px 0 #7a4d31, 46px 17px 0 #a46b3d, 63px 6px 0 #c7894f;
+        animation: crumbs-jump .55s ease-in-out infinite alternate;
+      }
+
+      .room.eating-mode .food-crumbs {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .snore-clouds {
+        right: 12%;
+        bottom: 210px;
+        width: 128px;
+        height: 94px;
+        opacity: 0;
+        color: rgba(71,43,77,.62);
+        font-weight: 1000;
+        font-size: 28px;
+        transition: opacity .22s ease;
+      }
+
+      .snore-clouds span {
+        position: absolute;
+        animation: snore-float 2.2s ease-in-out infinite;
+      }
+
+      .snore-clouds span:nth-child(1) { left: 10px; bottom: 8px; }
+      .snore-clouds span:nth-child(2) { left: 46px; bottom: 32px; animation-delay: .28s; font-size: 22px; }
+      .snore-clouds span:nth-child(3) { left: 78px; bottom: 58px; animation-delay: .56s; font-size: 17px; }
+
+      .room.sleep-mode .snore-clouds {
+        opacity: 1;
+      }
+
+      .play-sparks {
+        left: 23%;
+        bottom: 132px;
+        width: 170px;
+        height: 112px;
+        opacity: 0;
+      }
+
+      .play-sparks i {
+        width: 15px;
+        height: 15px;
+        background: #ffe073;
+        box-shadow: 0 0 0 5px rgba(255,224,115,.22);
+        animation: sparkle-pop .72s ease-in-out infinite;
+      }
+
+      .play-sparks i:nth-child(1) { left: 6px; top: 42px; }
+      .play-sparks i:nth-child(2) { left: 64px; top: 6px; animation-delay: .16s; }
+      .play-sparks i:nth-child(3) { left: 128px; top: 50px; animation-delay: .32s; }
+
+      .room.play-mode .play-sparks {
+        opacity: 1;
+      }
+
+      .bath-splash {
+        left: 50%;
+        bottom: 166px;
+        width: 300px;
+        height: 96px;
+        opacity: 0;
+        transform: translateX(-50%);
+      }
+
+      .bath-splash i {
+        width: 18px;
+        height: 18px;
+        background: rgba(156,226,245,.86);
+        box-shadow: 0 0 0 7px rgba(255,255,255,.22);
+        animation: splash-drop .65s ease-in-out infinite;
+      }
+
+      .bath-splash i:nth-child(1) { left: 22px; bottom: 8px; }
+      .bath-splash i:nth-child(2) { left: 118px; bottom: 30px; animation-delay: .2s; }
+      .bath-splash i:nth-child(3) { right: 44px; bottom: 12px; animation-delay: .34s; }
+
+      .room.bathing .bath-splash {
+        opacity: .95;
+      }
+
       .bowl,
       .bed,
       .toy,
       .litter-box,
       .walk-zone {
         position: absolute;
-        z-index: 3;
+        z-index: 7;
       }
 
       .room.outside .bowl,
@@ -458,7 +607,11 @@
         display: grid;
         place-items: end center;
         transform: translateX(-50%);
-        transition: left .55s ease, bottom .55s ease;
+        transition: left .72s cubic-bezier(.18,.86,.25,1), bottom .72s cubic-bezier(.18,.86,.25,1);
+      }
+
+      .kitten-wrap.moving {
+        animation: kitten-path-bob .38s ease-in-out infinite;
       }
 
       .kitten-wrap::before {
@@ -538,6 +691,10 @@
         animation: sprite-eat .58s ease-in-out infinite;
       }
 
+      .kitten.moving .kitten-sprite {
+        animation: sprite-walk .38s ease-in-out infinite;
+      }
+
       .kitten.playing .kitten-sprite {
         animation: sprite-play .78s ease-in-out infinite;
       }
@@ -563,6 +720,16 @@
       @keyframes sprite-eat {
         0%, 100% { transform: translateX(-50%) translateY(0) rotate(0deg); }
         50% { transform: translateX(-50%) translateY(18px) rotate(3deg); }
+      }
+
+      @keyframes sprite-walk {
+        0%, 100% { transform: translateX(-50%) translateY(0) rotate(-2deg); }
+        50% { transform: translateX(-50%) translateY(-12px) rotate(2deg); }
+      }
+
+      @keyframes kitten-path-bob {
+        0%, 100% { filter: drop-shadow(0 12px 10px rgba(49,32,22,.12)); }
+        50% { filter: drop-shadow(0 18px 14px rgba(49,32,22,.18)); }
       }
 
       @keyframes sprite-play {
@@ -817,6 +984,27 @@
         0%, 100% { transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1)) rotate(0deg); }
         35% { transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1)) rotate(-2deg); }
         70% { transform: translateY(var(--sleep-drop, 0)) scale(var(--kitten-scale, 1)) rotate(2deg); }
+      }
+
+      @keyframes crumbs-jump {
+        from { transform: translateY(0); opacity: .78; }
+        to { transform: translateY(-7px); opacity: 1; }
+      }
+
+      @keyframes snore-float {
+        0% { transform: translateY(10px) scale(.88); opacity: 0; }
+        35% { opacity: .9; }
+        100% { transform: translateY(-22px) scale(1.08); opacity: 0; }
+      }
+
+      @keyframes sparkle-pop {
+        0%, 100% { transform: scale(.5) rotate(0deg); opacity: .2; }
+        45% { transform: scale(1.2) rotate(18deg); opacity: 1; }
+      }
+
+      @keyframes splash-drop {
+        0%, 100% { transform: translateY(6px) scale(.72); opacity: .3; }
+        45% { transform: translateY(-18px) scale(1.08); opacity: 1; }
       }
 
       .tail {
@@ -1750,6 +1938,11 @@
         <button class="walk-zone" type="button" data-action="walk" aria-label="Пойти гулять"></button>
         <span class="hint-label label-walk">дверь</span>
         <div class="rug" aria-hidden="true"></div>
+        <div class="paw-trails" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="food-crumbs" aria-hidden="true"><i></i></div>
+        <div class="snore-clouds" aria-hidden="true"><span>Z</span><span>z</span><span>z</span></div>
+        <div class="play-sparks" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="bath-splash" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="kitten-wrap">
           <button class="kitten" id="kitten" type="button" data-action="pet" aria-label="Погладить реалистичного рыжего котёнка">
             <img class="kitten-sprite" src="../../assets/sprites/care-kitten.png" alt="">
@@ -1858,6 +2051,7 @@
         soapProgress: 0,
         rinseProgress: 0,
         wetness: 0,
+        moving: false,
         coins: 0,
         level: 1,
         happyCareTimer: 0,
@@ -1914,6 +2108,19 @@
           playHappySound();
           render();
         }
+      }
+
+      function moveKittenTo(x, y, message, after, duration = 980) {
+        state.x = x;
+        state.y = y;
+        state.moving = true;
+        setMessage(message);
+        render();
+        setTimeout(() => {
+          state.moving = false;
+          if (after) after();
+          render();
+        }, duration);
       }
 
       function getCareTip() {
@@ -2038,12 +2245,17 @@
         room.classList.toggle("bath-soapy", state.bathSoapy);
         room.classList.toggle("sleep-mode", state.sleeping);
         room.classList.toggle("play-mode", state.playing);
+        room.classList.toggle("eating-mode", state.eating);
+        room.classList.toggle("toilet-mode", state.usingLitter);
+        room.classList.toggle("dirty-mode", state.clean < 58);
         room.classList.toggle("action-mode", state.eating || state.playing || state.sleeping || state.usingLitter || state.bathing || state.wetness > 35);
+        kittenWrap.classList.toggle("moving", state.moving);
         kitten.classList.toggle("sleeping", state.sleeping);
         kitten.classList.toggle("eating", state.eating);
         kitten.classList.toggle("playing", state.playing);
         kitten.classList.toggle("using-litter", state.usingLitter);
         kitten.classList.toggle("bathing", state.bathing);
+        kitten.classList.toggle("moving", state.moving);
         kitten.classList.toggle("soapy", state.bathSoapy);
         moveHelp.classList.toggle("visible", state.outside);
         document.documentElement.style.setProperty("--leash-opacity", state.outside || state.dressed ? "1" : "0");
@@ -2075,6 +2287,10 @@
 
       function act(action) {
         state.sleeping = false;
+        if (state.moving) {
+          setMessage("Котёнок уже бежит к месту. Сейчас дойдёт и начнёт действие.");
+          return;
+        }
         if (state.bathing) {
           setMessage("Сначала закончи купание руками: возьми мыло, води по котёнку, потом возьми душ и смой пену.");
           return;
@@ -2093,119 +2309,128 @@
             setMessage("Сначала вернись домой: корм стоит в комнате.");
             return;
           }
-          state.x = 20;
-          state.y = 46;
-          state.eating = true;
-          render();
-          setMessage("Котёнок сам подошёл к миске, нюхает корм и наклоняется: ам-ам-ам...");
-          setTimeout(() => {
-            change({ hunger: 28, happiness: 8, clean: -4, toilet: -18 });
-            reward("feed", 3);
-            setMessage("Котёнок поел, облизывается и скоро может захотеть в лоток.");
-            state.eating = false;
+          moveKittenTo(20, 46, "Котёнок услышал миску и сам бежит к корму...", () => {
+            state.eating = true;
             render();
-          }, 2400);
+            setMessage("Котёнок наклонился к миске, нюхает корм и ест: ам-ам-ам...");
+            setTimeout(() => {
+              change({ hunger: 28, happiness: 8, clean: -4, toilet: -18 });
+              reward("feed", 3);
+              setMessage("Котёнок поел, облизывается и скоро может захотеть в лоток.");
+              state.eating = false;
+              render();
+            }, 2400);
+          });
+          return;
         }
         if (action === "dress") {
           state.dressed = !state.dressed;
           change({ warmth: state.dressed ? 4 : -2, happiness: state.dressed ? 5 : 2 });
           setMessage(state.dressed ? "Тонкая ниточка-поводок готова: без ремней, просто аккуратная прогулка." : "Ниточку сняли, котёнку свободно.");
+          return;
         }
         if (action === "walk") {
           if (state.outside) {
-            state.outside = false;
-            state.x = 50;
-            state.y = 42;
-            change({ warmth: 5, energy: -3 });
-            setMessage("Котёнок вернулся домой и снял лапки с дорожки.");
+            moveKittenTo(50, 42, "Котёнок бежит обратно домой через дверь...", () => {
+              state.outside = false;
+              change({ warmth: 5, energy: -3 });
+              setMessage("Котёнок вернулся домой и снял лапки с дорожки.");
+            });
             return;
           }
           if (!state.dressed) {
             setMessage("Сначала прикрепи тонкую ниточку-поводок: без неё котёнка нельзя выводить.");
             return;
           }
-          state.outside = true;
-          state.x = 52;
-          state.y = 58;
-          change({ happiness: 22, energy: -18, hunger: -12, clean: -22, warmth: -5 });
-          setMessage("Ты вышла на улицу. Двигайся WASD или стрелками и гуляй с тонкой ниточкой.");
+          moveKittenTo(82, 86, "Котёнок идёт к двери и ждёт прогулку...", () => {
+            state.outside = true;
+            state.x = 52;
+            state.y = 58;
+            change({ happiness: 22, energy: -18, hunger: -12, clean: -22, warmth: -5 });
+            setMessage("Ты вышла на улицу. Двигайся WASD или стрелками и гуляй с тонкой ниточкой.");
+          });
+          return;
         }
         if (action === "sleep") {
           if (state.outside) {
             setMessage("Сначала вернись домой: лежанка стоит в комнате.");
             return;
           }
-          state.x = 82;
-          state.y = 86;
-          state.sleeping = true;
-          render();
-          change({ energy: 34, warmth: 8, hunger: -8, happiness: 6, toilet: -4 });
-          reward("sleep", 2);
-          setMessage("Котёнок забрался на лежанку, свернулся и сладко спит.");
+          moveKittenTo(82, 86, "Котёнок сонно топает к лежанке...", () => {
+            state.sleeping = true;
+            render();
+            change({ energy: 34, warmth: 8, hunger: -8, happiness: 6, toilet: -4 });
+            reward("sleep", 2);
+            setMessage("Котёнок забрался на лежанку, свернулся и сладко спит.");
+          });
+          return;
         }
         if (action === "wash") {
           if (state.outside) {
             setMessage("Сначала вернись домой: ванна стоит в комнате.");
             return;
           }
-          state.bathing = true;
-          state.bathSoapy = false;
-          state.bathRinsing = false;
-          state.soapProgress = 0;
-          state.rinseProgress = 0;
-          state.x = 50;
-          state.y = 34;
-          change({ happiness: -7, warmth: -5 });
-          playHiss();
-          setMessage("Котёнок в ванне. Возьми мыло и води им по котёнку, пока не появится много пены.");
+          moveKittenTo(50, 34, "Котёнок не очень хочет в ванну, но идёт к ванной...", () => {
+            state.bathing = true;
+            state.bathSoapy = false;
+            state.bathRinsing = false;
+            state.soapProgress = 0;
+            state.rinseProgress = 0;
+            change({ happiness: -7, warmth: -5 });
+            playHiss();
+            setMessage("Котёнок в ванне. Возьми мыло и води им по котёнку, пока не появится много пены.");
+          });
+          return;
         }
         if (action === "play") {
           if (state.outside) {
             setMessage("Игрушка дома. Вернись в комнату, чтобы поиграть.");
             return;
           }
-          state.x = 35;
-          state.y = 54;
-          state.playing = true;
-          render();
-          setMessage("Котёнок заметил мячик, подкрадывается и готовится прыгнуть.");
-          setTimeout(() => {
-            state.x = 45;
-            state.y = 70;
+          moveKittenTo(35, 54, "Котёнок заметил мячик и подкрадывается к нему...", () => {
+            state.playing = true;
             render();
-            setMessage("Прыжок! Котёнок догоняет мячик и толкает его лапками.");
-          }, 650);
-          setTimeout(() => {
-            state.x = 28;
-            state.y = 48;
-            render();
-            setMessage("Мячик укатился, котёнок разворачивается и бежит за ним.");
-          }, 1350);
-          setTimeout(() => {
-            change({ happiness: 24, energy: -14, hunger: -9, toilet: -6 });
-            reward("play", 3);
-            state.playing = false;
-            render();
-            setMessage("Котёнок наигрался: бегал за мячиком, прыгал и теперь радостный.");
-          }, 2300);
+            setMessage("Котёнок пригнулся, виляет хвостом и готовится прыгнуть.");
+            setTimeout(() => {
+              state.x = 45;
+              state.y = 70;
+              render();
+              setMessage("Прыжок! Котёнок догоняет мячик и толкает его лапками.");
+            }, 650);
+            setTimeout(() => {
+              state.x = 28;
+              state.y = 48;
+              render();
+              setMessage("Мячик укатился, котёнок разворачивается и бежит за ним.");
+            }, 1350);
+            setTimeout(() => {
+              change({ happiness: 24, energy: -14, hunger: -9, toilet: -6 });
+              reward("play", 3);
+              state.playing = false;
+              render();
+              setMessage("Котёнок наигрался: бегал за мячиком, прыгал и теперь радостный.");
+            }, 2300);
+          });
+          return;
         }
         if (action === "toilet") {
           if (state.outside) {
             setMessage("Лоток дома. Сначала вернись в комнату.");
             return;
           }
-          state.x = 49;
-          state.y = 52;
-          state.usingLitter = true;
-          render();
-          setMessage("Котёнок подошёл к лотку, присел и аккуратно копает наполнитель.");
-          setTimeout(() => {
-            change({ toilet: 55, clean: -5, happiness: 3 });
-            reward("toilet", 3);
-            state.usingLitter = false;
+          moveKittenTo(49, 52, "Котёнок сам идёт к лотку...", () => {
+            state.usingLitter = true;
             render();
-            setMessage("Готово. Котёнок сходил в лоток и закопал лапкой.");
-          }, 2100);
+            setMessage("Котёнок подошёл к лотку, присел и аккуратно копает наполнитель.");
+            setTimeout(() => {
+              change({ toilet: 55, clean: -5, happiness: 3 });
+              reward("toilet", 3);
+              state.usingLitter = false;
+              render();
+              setMessage("Готово. Котёнок сходил в лоток и закопал лапкой.");
+            }, 2100);
+          });
+          return;
         }
         if (action === "pet") {
           kitten.classList.remove("pet");
