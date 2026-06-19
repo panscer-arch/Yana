@@ -2588,8 +2588,59 @@
         return group;
       }
 
+      function createSpriteSoldierFallback(style = "a", isPlayer = false) {
+        const group = new THREE.Group();
+        const texture = isPlayer ? soldierSpriteTextures.playerBack : (soldierSpriteTextures[style] || soldierSpriteTextures.a);
+        const sprite = makeSpritePlane(texture, isPlayer ? 2.3 : 1.58, isPlayer ? 3.55 : 2.72, isPlayer ? 0.94 : 1);
+        sprite.position.set(0, isPlayer ? 1.62 : 1.32, 0);
+        sprite.renderOrder = 5;
+        const shadow = new THREE.Mesh(new THREE.PlaneGeometry(isPlayer ? 1.55 : 1.18, isPlayer ? 1.0 : 0.78), contactShadowMaterial.clone());
+        shadow.material.opacity = isPlayer ? 0.38 : 0.28;
+        shadow.rotation.x = -Math.PI / 2;
+        shadow.position.y = 0.025;
+        shadow.renderOrder = -1;
+        const tint = new THREE.Color(SOLDIER_TINTS[style] || SOLDIER_TINTS.a);
+        const markerMaterial = new THREE.MeshStandardMaterial({
+          color: isPlayer ? 0x78d8ff : tint,
+          emissive: isPlayer ? 0x1f6f92 : tint,
+          emissiveIntensity: isPlayer ? 0.1 : 0.22,
+          roughness: 0.48,
+          metalness: 0.08
+        });
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(isPlayer ? 0.72 : 0.56, 0.035, 8, 42), markerMaterial);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = 0.055;
+        const floatingMark = new THREE.Mesh(new THREE.OctahedronGeometry(isPlayer ? 0.16 : 0.22, 0), markerMaterial);
+        floatingMark.position.set(0, isPlayer ? 2.65 : 2.45, 0);
+        floatingMark.userData.floatMarker = true;
+        const head = new THREE.Mesh(
+          new THREE.BoxGeometry(isPlayer ? 0.72 : 0.46, isPlayer ? 0.65 : 0.46, 0.18),
+          new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
+        );
+        head.position.set(0, isPlayer ? 2.18 : 1.82, 0.02);
+        group.add(shadow, ring, sprite, floatingMark, head);
+        group.traverse((node) => {
+          if (!node.isMesh) return;
+          node.castShadow = node !== shadow && node !== ring && node !== floatingMark;
+          node.receiveShadow = false;
+        });
+        group.visible = !isPlayer;
+        return {
+          group,
+          parts: { sprite, shadow, ring, floatingMark, head },
+          spriteOnly: true,
+          style,
+          hp: 100,
+          alive: true,
+          cooldown: rand(0.4, 1.8),
+          walk: rand(0, 10),
+          isPlayer
+        };
+      }
+
       function createSoldier(style = "a", isPlayer = false) {
         if (characterAsset.ready && characterAsset.root) return createModelSoldier(style, isPlayer);
+        return createSpriteSoldierFallback(style, isPlayer);
         const armorMaterial = style === "b" ? materials.armorB : style === "c" ? materials.armorC : materials.armorA;
         const group = new THREE.Group();
         const parts = {};
@@ -3699,6 +3750,26 @@
           return;
         }
         model.walk += delta * Math.max(1, speed) * 4.2;
+        if (model.spriteOnly) {
+          const stride = Math.min(0.18, speed * 0.018);
+          const lift = Math.abs(Math.sin(model.walk * 2)) * stride;
+          if (model.parts.sprite) {
+            model.parts.sprite.position.y = (model.isPlayer ? 1.62 : 1.32) + lift;
+            model.parts.sprite.rotation.z = Math.sin(model.walk) * Math.min(0.075, speed * 0.009);
+            model.parts.sprite.scale.x = 1 + Math.sin(model.walk * 1.1) * Math.min(0.045, speed * 0.006);
+          }
+          if (model.parts.shadow) {
+            model.parts.shadow.scale.setScalar(1 + Math.sin(model.walk * 1.4) * 0.03);
+          }
+          if (model.parts.ring) {
+            model.parts.ring.rotation.z += delta * 1.8;
+          }
+          if (model.parts.floatingMark) {
+            model.parts.floatingMark.rotation.y += delta * 2.4;
+            model.parts.floatingMark.position.y = (model.isPlayer ? 2.65 : 2.45) + Math.sin(model.walk * 1.4) * 0.1;
+          }
+          return;
+        }
         const swing = Math.sin(model.walk) * Math.min(0.55, speed * 0.12);
         model.parts.leftLeg.rotation.x = swing;
         model.parts.rightLeg.rotation.x = -swing;
