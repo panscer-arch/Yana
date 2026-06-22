@@ -544,8 +544,8 @@
       const virtualMove = { forward: 0, side: 0 };
       const aimDrag = { active: false, x: 0, y: 0, moved: false, wasRunning: false };
       const characterAsset = {
-        root: null,
-        animations: [],
+        models: new Map(),
+        animations: new Map(),
         ready: false,
         error: null
       };
@@ -555,6 +555,22 @@
         error: null
       };
       const KENNEY_MODEL_PATH = "../../assets/models/kenney-modular-buildings/";
+      const MINI_CHARACTER_MODEL_PATH = "../../assets/models/kenney-mini-characters/";
+      const MINI_CHARACTER_SPRITE_PATH = "../../assets/sprites/kenney-mini-characters/";
+      const MINI_CHARACTER_FILES = [
+        "character-female-a",
+        "character-female-b",
+        "character-female-c",
+        "character-female-d",
+        "character-female-e",
+        "character-female-f",
+        "character-male-a",
+        "character-male-b",
+        "character-male-c",
+        "character-male-d",
+        "character-male-e",
+        "character-male-f"
+      ];
       const KENNEY_MODELS = [
         "building-sample-house-a.glb",
         "building-sample-house-b.glb",
@@ -573,16 +589,20 @@
         "detail-ac-a.glb",
         "detail-ac-b.glb"
       ];
-      const SOLDIER_STYLES = ["a", "b", "c", "green", "sand", "blue", "red", "dark"];
+      const SOLDIER_STYLES = MINI_CHARACTER_FILES;
       const SOLDIER_TINTS = {
-        a: 0x6f6652,
-        b: 0x4f6f54,
-        c: 0x765f42,
-        green: 0x2f734a,
-        sand: 0xa98555,
-        blue: 0x345d7f,
-        red: 0x7a3f37,
-        dark: 0x34383a
+        "character-female-a": 0x7dc9ff,
+        "character-female-b": 0xff86b8,
+        "character-female-c": 0xffc45f,
+        "character-female-d": 0x8de0a5,
+        "character-female-e": 0xb69cff,
+        "character-female-f": 0xff9a66,
+        "character-male-a": 0x6f86a8,
+        "character-male-b": 0x4f8f6a,
+        "character-male-c": 0xa98555,
+        "character-male-d": 0x5976a8,
+        "character-male-e": 0xa85c5c,
+        "character-male-f": 0x4f5458
       };
 
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -603,23 +623,41 @@
 
       async function loadCharacterAsset(loader) {
         try {
-          const gltf = await loader.loadAsync("../../assets/models/Soldier.glb");
-          characterAsset.root = gltf.scene;
-          characterAsset.animations = gltf.animations || [];
-          characterAsset.root.traverse((node) => {
-            if (!node.isMesh) return;
-            node.castShadow = true;
-            node.receiveShadow = true;
-            if (node.material) {
-              node.material = node.material.clone();
-              node.material.roughness = Math.min(0.92, node.material.roughness ?? 0.82);
-            }
-          });
-          characterAsset.ready = true;
+          const loaded = await Promise.all(MINI_CHARACTER_FILES.map(async (name) => {
+            const gltf = await loader.loadAsync(`${MINI_CHARACTER_MODEL_PATH}${name}.glb`);
+            prepareCharacterModel(gltf.scene);
+            characterAsset.animations.set(name, gltf.animations || []);
+            return [name, gltf.scene];
+          }));
+          characterAsset.models = new Map(loaded);
+          characterAsset.ready = characterAsset.models.size > 0;
         } catch (error) {
           characterAsset.error = error;
-          console.warn("Soldier GLB asset failed, using fallback sprite.", error);
+          console.warn("Kenney Mini Character GLB assets failed, using PNG sprite fallback.", error);
         }
+      }
+
+      function prepareCharacterModel(root) {
+        root.traverse((node) => {
+          if (!node.isMesh) return;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.userData.assetBody = true;
+          if (!node.material) return;
+          const materials = Array.isArray(node.material) ? node.material : [node.material];
+          node.material = Array.isArray(node.material)
+            ? materials.map((material) => material.clone())
+            : node.material.clone();
+          const cloned = Array.isArray(node.material) ? node.material : [node.material];
+          for (const material of cloned) {
+            material.roughness = Math.max(0.64, material.roughness ?? 0.78);
+            material.metalness = Math.min(0.12, material.metalness ?? 0.02);
+            if (material.map) {
+              material.map.colorSpace = THREE.SRGBColorSpace;
+              material.map.anisotropy = 4;
+            }
+          }
+        });
       }
 
       async function loadEnvironmentAssets(loader) {
@@ -1297,12 +1335,14 @@
       tileTexture.repeat.set(8, 7);
       const glareTexture = makeGlareTexture();
       const skyTexture = makeSkyTexture();
-      const soldierSpriteTextures = {
-        a: makeSoldierSpriteTexture("a"),
-        b: makeSoldierSpriteTexture("b"),
-        c: makeSoldierSpriteTexture("c"),
-        playerBack: makeSoldierSpriteTexture("b", "back")
-      };
+      const textureLoader = new THREE.TextureLoader();
+      const soldierSpriteTextures = Object.fromEntries(MINI_CHARACTER_FILES.map((name) => {
+        const texture = textureLoader.load(`${MINI_CHARACTER_SPRITE_PATH}${name}.png`);
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.anisotropy = 4;
+        return [name, texture];
+      }));
+      soldierSpriteTextures.playerBack = soldierSpriteTextures["character-female-a"];
       const objectSpriteTextures = {
         health: makeObjectSpriteTexture("health"),
         ammo: makeObjectSpriteTexture("ammo"),
@@ -1339,7 +1379,7 @@
         arena: makeArenaSignTexture("АРЕНА", "#4057a8"),
         hide: makeArenaSignTexture("УКРЫТИЕ", "#b67b38")
       };
-      const soldierPortraitTexture = new THREE.TextureLoader().load("../../assets/sprites/arena-player-sprite.png");
+      const soldierPortraitTexture = textureLoader.load(`${MINI_CHARACTER_SPRITE_PATH}character-female-a.png`);
       soldierPortraitTexture.colorSpace = THREE.SRGBColorSpace;
 
       const materials = {
@@ -1812,7 +1852,7 @@
         addTarget(-9.4, -24.6);
         addTarget(9.4, 24.6);
 
-        playerModel = createSoldier("b", true);
+        playerModel = createSoldier("character-female-a", true);
         scene.add(playerModel.group);
         weapon = createWeapon();
         camera.add(weapon);
@@ -2588,9 +2628,9 @@
         return group;
       }
 
-      function createSpriteSoldierFallback(style = "a", isPlayer = false) {
+      function createSpriteSoldierFallback(style = "character-female-a", isPlayer = false) {
         const group = new THREE.Group();
-        const texture = isPlayer ? soldierSpriteTextures.playerBack : (soldierSpriteTextures[style] || soldierSpriteTextures.a);
+        const texture = isPlayer ? soldierSpriteTextures.playerBack : (soldierSpriteTextures[style] || soldierSpriteTextures["character-male-a"]);
         const sprite = makeSpritePlane(texture, isPlayer ? 2.3 : 1.58, isPlayer ? 3.55 : 2.72, isPlayer ? 0.94 : 1);
         sprite.position.set(0, isPlayer ? 1.62 : 1.32, 0);
         sprite.renderOrder = 5;
@@ -2638,8 +2678,8 @@
         };
       }
 
-      function createSoldier(style = "a", isPlayer = false) {
-        if (characterAsset.ready && characterAsset.root) return createModelSoldier(style, isPlayer);
+      function createSoldier(style = "character-female-a", isPlayer = false) {
+        if (characterAsset.ready && characterAsset.models.size > 0) return createModelSoldier(style, isPlayer);
         return createSpriteSoldierFallback(style, isPlayer);
         const armorMaterial = style === "b" ? materials.armorB : style === "c" ? materials.armorC : materials.armorA;
         const group = new THREE.Group();
@@ -2756,7 +2796,7 @@
         );
         parts.portrait.position.set(0, 1.33, -0.39);
         parts.portrait.rotation.x = -0.03;
-        parts.sprite = makeSpritePlane(isPlayer ? soldierSpriteTextures.playerBack : (soldierSpriteTextures[style] || soldierSpriteTextures.a), isPlayer ? 2.15 : 1.42, isPlayer ? 3.35 : 2.55, 1);
+        parts.sprite = makeSpritePlane(isPlayer ? soldierSpriteTextures.playerBack : (soldierSpriteTextures[style] || soldierSpriteTextures["character-male-a"]), isPlayer ? 2.15 : 1.42, isPlayer ? 3.35 : 2.55, 1);
         parts.sprite.position.set(0, isPlayer ? 1.52 : 1.18, -0.54);
         if (isPlayer) parts.sprite.rotation.y = Math.PI;
         parts.sprite.renderOrder = 4;
@@ -2874,10 +2914,11 @@
         return { group, parts, style, hp: 100, alive: true, cooldown: rand(0.4, 1.8), walk: rand(0, 10), isPlayer };
       }
 
-      function createModelSoldier(style = "a", isPlayer = false) {
+      function createModelSoldier(style = "character-female-a", isPlayer = false) {
         const group = new THREE.Group();
-        const asset = SkeletonUtils.clone(characterAsset.root);
-        const scale = isPlayer ? 1.55 : 1.28;
+        const source = characterAsset.models.get(style) || characterAsset.models.get("character-male-a") || [...characterAsset.models.values()][0];
+        const asset = SkeletonUtils.clone(source);
+        const scale = isPlayer ? 1.82 : 1.48;
         const tint = new THREE.Color(SOLDIER_TINTS[style] || SOLDIER_TINTS.a);
         asset.scale.setScalar(scale);
         asset.position.set(0, 0, 0);
@@ -2897,7 +2938,7 @@
         });
         const mixer = new THREE.AnimationMixer(asset);
         const actions = {};
-        characterAsset.animations.forEach((clip) => {
+        (characterAsset.animations.get(style) || []).forEach((clip) => {
           actions[clip.name.toLowerCase()] = mixer.clipAction(clip);
         });
         const idle = actions.idle || Object.values(actions)[0] || null;
@@ -3034,7 +3075,7 @@
         if (!peer || !peer.id || peer.id === networkId) return;
         let remote = remotePlayers.get(peer.id);
         if (!remote) {
-          const model = createSoldier(["a", "b", "c"][remotePlayers.size % 3]);
+          const model = createSoldier(SOLDIER_STYLES[remotePlayers.size % SOLDIER_STYLES.length]);
           scene.add(model.group);
           remote = { id: peer.id, model, state: peer, lastSeen: performance.now() };
           remotePlayers.set(peer.id, remote);
@@ -3969,7 +4010,7 @@
       resizeRenderer();
       window.__arenaDebug = state;
       window.__arenaDebugRemoteCount = () => remotePlayers.size;
-      window.__arenaAssetMode = () => characterAsset.ready ? "glb-model" : "fallback-sprite";
+      window.__arenaAssetMode = () => characterAsset.ready ? "kenney-mini-glb-assets" : "kenney-mini-png-fallback";
       window.__arenaEnvironmentMode = () => environmentAsset.ready ? "kenney-glb-city" : "code-built-city";
       loop();
     </script>
