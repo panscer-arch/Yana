@@ -173,6 +173,65 @@
         touch-action: none;
       }
 
+      .start-screen {
+        position: absolute;
+        inset: 0;
+        z-index: 15;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(circle at 50% 34%, rgba(255, 228, 149, .22), transparent 28%),
+          linear-gradient(180deg, rgba(12, 14, 16, .54), rgba(8, 9, 10, .78));
+        backdrop-filter: blur(3px);
+      }
+
+      .start-screen.hidden {
+        display: none;
+      }
+
+      .start-card {
+        width: min(430px, 92%);
+        display: grid;
+        gap: 14px;
+        padding: 22px;
+        border: 2px solid rgba(255,255,255,.22);
+        border-radius: 8px;
+        color: #fff7df;
+        background: linear-gradient(145deg, rgba(30, 34, 35, .94), rgba(93, 72, 45, .88));
+        box-shadow: 0 24px 70px rgba(0,0,0,.44);
+        text-align: center;
+      }
+
+      .start-card h2 {
+        margin: 0;
+        font-size: clamp(28px, 5vw, 42px);
+        line-height: .95;
+      }
+
+      .start-card p {
+        margin: 0;
+        color: #d8ceb8;
+        font-weight: 850;
+        line-height: 1.42;
+      }
+
+      .start-play-button {
+        min-height: 58px;
+        border-radius: 8px;
+        color: white;
+        background: linear-gradient(135deg, #d45b45, #c59b4a);
+        box-shadow: 0 12px 0 rgba(0,0,0,.22);
+        font-size: 22px;
+        font-weight: 950;
+      }
+
+      .start-small {
+        color: #bfb49f;
+        font-size: 13px;
+        font-weight: 850;
+      }
+
       .controls {
         display: grid;
         gap: 12px;
@@ -391,6 +450,14 @@
           <div><span>Фраги</span><strong id="leaderName">0</strong></div>
         </div>
         <canvas id="arena" width="1120" height="700" tabindex="0"></canvas>
+        <div class="start-screen" id="startScreen">
+          <div class="start-card">
+            <h2>Нажми кнопку</h2>
+            <p>Игра не начнётся сама. Сначала спокойно посмотри арену, потом запускай ботов.</p>
+            <button class="start-play-button" id="startOverlayButton" type="button">Играть</button>
+            <span class="start-small">После кнопки: W/S ходьба, мышь прицел, Space выстрел.</span>
+          </div>
+        </div>
       </section>
 
       <aside class="controls">
@@ -451,6 +518,8 @@
       const scoreList = document.querySelector("#scoreList");
       const padsEl = document.querySelector("#pads");
       const startButton = document.querySelector("#startButton");
+      const startOverlay = document.querySelector("#startScreen");
+      const startOverlayButton = document.querySelector("#startOverlayButton");
       const resetButton = document.querySelector("#resetButton");
       const plusButton = document.querySelector("#plusButton");
       const minusButton = document.querySelector("#minusButton");
@@ -3158,6 +3227,7 @@
         state.player.ammoPacks = 0;
         state.player.cooldown = 0;
         state.player.reload = 0;
+        startOverlay.classList.remove("hidden");
         spawnEnemies();
         renderPads();
         updateHud();
@@ -3166,6 +3236,7 @@
 
       function startGame() {
         state.running = true;
+        startOverlay.classList.add("hidden");
         showTip(location.protocol === "file:" ? "Режим с ботами: держись за укрытиями" : "Арена запущена: боты плюс онлайн-игроки", 3);
         canvas.focus();
       }
@@ -3977,7 +4048,10 @@
         event.preventDefault();
         canvas.focus();
         aimDrag.wasRunning = state.running;
-        if (!state.running) startGame();
+        if (!state.running) {
+          showTip("Сначала нажми кнопку Играть", 1.6);
+          return;
+        }
         aimDrag.active = true;
         aimDrag.x = event.clientX;
         aimDrag.y = event.clientY;
@@ -3994,6 +4068,7 @@
       });
       window.addEventListener("pointercancel", clearMovementInput);
       startButton.addEventListener("click", startGame);
+      startOverlayButton.addEventListener("click", startGame);
       resetButton.addEventListener("click", resetGame);
       plusButton.addEventListener("click", addPlayer);
       minusButton.addEventListener("click", removePlayer);
