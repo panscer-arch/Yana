@@ -474,6 +474,30 @@
         background-image: url("../../assets/cozy-house/rug.png");
       }
 
+      .item.toy .shape {
+        background-image: url("../../assets/cozy-house/toy.png");
+      }
+
+      .item.food .shape {
+        background-image: url("../../assets/cozy-house/food.png");
+      }
+
+      .item.wardrobe .shape {
+        background-image: url("../../assets/cozy-house/wardrobe.png");
+      }
+
+      .item.book .shape {
+        background-image: url("../../assets/cozy-house/book.png");
+      }
+
+      .item.backpack .shape {
+        background-image: url("../../assets/cozy-house/backpack.png");
+      }
+
+      .item.phone .shape {
+        background-image: url("../../assets/cozy-house/phone.png");
+      }
+
       .item.asset .shape {
         inset: 0 !important;
         width: auto !important;
@@ -506,6 +530,18 @@
       .person.walking { animation: hop .42s ease-in-out infinite; }
       .person.dragging { cursor: grabbing; transition: none; }
       .person.guest { --shirt-a: #ff9859; --shirt-b: #ff72ad; }
+      .person.selected::after {
+        content: "";
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        bottom: -6px;
+        height: 12px;
+        border: 3px solid var(--pink);
+        border-radius: 50%;
+        background: rgba(255,114,173,.22);
+        box-shadow: 0 0 0 5px rgba(255,255,255,.7);
+      }
 
       @keyframes hop {
         0%, 100% { transform: translateY(0); }
@@ -565,6 +601,12 @@
       .held.petbed { background-image: url("../../assets/cozy-house/petbed.png"); }
       .held.mirror { background-image: url("../../assets/cozy-house/mirror.png"); }
       .held.rug { background-image: url("../../assets/cozy-house/rug.png"); }
+      .held.toy { background-image: url("../../assets/cozy-house/toy.png"); }
+      .held.food { background-image: url("../../assets/cozy-house/food.png"); }
+      .held.wardrobe { background-image: url("../../assets/cozy-house/wardrobe.png"); }
+      .held.book { background-image: url("../../assets/cozy-house/book.png"); }
+      .held.backpack { background-image: url("../../assets/cozy-house/backpack.png"); }
+      .held.phone { background-image: url("../../assets/cozy-house/phone.png"); }
 
       .thought {
         position: absolute;
@@ -618,6 +660,8 @@
       }
 
       .buttons,
+      .character-buttons,
+      .outfit-buttons,
       .palette,
       .room-buttons {
         display: grid;
@@ -625,6 +669,8 @@
       }
 
       .buttons { grid-template-columns: 1fr 1fr; }
+      .character-buttons,
+      .outfit-buttons { grid-template-columns: 1fr 1fr 1fr; }
       .room-buttons { grid-template-columns: 1fr 1fr; }
       .palette { grid-template-columns: 1fr 1fr; }
 
@@ -640,10 +686,22 @@
       }
 
       .button.secondary,
+      .button.tiny,
       .tool {
         color: var(--ink);
         background: #fff;
         border: 2px solid var(--line);
+      }
+
+      .button.tiny {
+        min-height: 40px;
+        padding: 0 8px;
+        box-shadow: 0 5px 0 rgba(36,31,53,.1);
+      }
+
+      .button.active {
+        color: #fff;
+        background: linear-gradient(180deg, var(--violet), #6f4ee8);
       }
 
       .tool {
@@ -673,6 +731,12 @@
       .tool[data-kind="petbed"] i { background: #ffb5d5; border-radius: 50%; }
       .tool[data-kind="mirror"] i { background: #d7f8ff; height: 42px; border-radius: 20px 20px 10px 10px; }
       .tool[data-kind="rug"] i { background: #ff9859; border-radius: 50%; }
+      .tool[data-kind="toy"] i { background: #b29cff; border-radius: 50% 50% 18px 18px; }
+      .tool[data-kind="food"] i { background: #ff9859; border-radius: 50%; }
+      .tool[data-kind="wardrobe"] i { background: #ffc26d; height: 42px; }
+      .tool[data-kind="book"] i { background: linear-gradient(90deg, #ff72ad 0 50%, #fff0aa 51%); }
+      .tool[data-kind="backpack"] i { background: #54b8ff; height: 42px; border-radius: 14px; }
+      .tool[data-kind="phone"] i { background: #241f35; width: 28px; height: 42px; }
 
       .log {
         min-height: 58px;
@@ -774,6 +838,24 @@
             <p class="lead">Строй уютный дом: выбирай комнату, ставь мебель, двигай предметы и придумывай истории.</p>
           </div>
 
+          <section aria-labelledby="people-title">
+            <h2 id="people-title">Персонажи</h2>
+            <div class="character-buttons">
+              <button class="button tiny active" data-person="person">Яна</button>
+              <button class="button tiny" data-person="guest">Подружка</button>
+              <button class="button tiny" id="danceButton" type="button">Танец</button>
+            </div>
+          </section>
+
+          <section aria-labelledby="outfits-title">
+            <h2 id="outfits-title">Одежда</h2>
+            <div class="outfit-buttons">
+              <button class="button tiny active" data-outfit="home">Дом</button>
+              <button class="button tiny" data-outfit="party">Праздник</button>
+              <button class="button tiny" data-outfit="sleep">Пижама</button>
+            </div>
+          </section>
+
           <section aria-labelledby="rooms-title">
             <h2 id="rooms-title">Комнаты</h2>
             <div class="room-buttons">
@@ -800,6 +882,12 @@
               <button class="tool" data-kind="petbed"><i></i><span>Лежанка</span></button>
               <button class="tool" data-kind="mirror"><i></i><span>Зеркало</span></button>
               <button class="tool" data-kind="rug"><i></i><span>Ковёр</span></button>
+              <button class="tool" data-kind="toy"><i></i><span>Игрушка</span></button>
+              <button class="tool" data-kind="food"><i></i><span>Еда</span></button>
+              <button class="tool" data-kind="wardrobe"><i></i><span>Шкаф</span></button>
+              <button class="tool" data-kind="book"><i></i><span>Книжка</span></button>
+              <button class="tool" data-kind="backpack"><i></i><span>Рюкзак</span></button>
+              <button class="tool" data-kind="phone"><i></i><span>Телефон</span></button>
             </div>
           </section>
 
@@ -834,6 +922,8 @@
       const guest = document.querySelector("#guest");
       const heldPerson = document.querySelector("#heldPerson");
       const heldGuest = document.querySelector("#heldGuest");
+      const personButtons = [...document.querySelectorAll("[data-person]")];
+      const outfitButtons = [...document.querySelectorAll("[data-outfit]")];
       const thought = document.querySelector("#thought");
       const logEl = document.querySelector("#log");
       const roomNameEl = document.querySelector("#roomName");
@@ -859,7 +949,13 @@
         tv: [104, 86],
         petbed: [98, 64],
         mirror: [96, 92],
-        rug: [126, 62]
+        rug: [126, 62],
+        toy: [98, 78],
+        food: [92, 68],
+        wardrobe: [104, 118],
+        book: [86, 62],
+        backpack: [86, 86],
+        phone: [64, 86]
       };
       const itemNames = {
         sofa: "диван",
@@ -872,7 +968,25 @@
         tv: "телевизор",
         petbed: "лежанка",
         mirror: "зеркало",
-        rug: "ковёр"
+        rug: "ковёр",
+        toy: "игрушка",
+        food: "еда",
+        wardrobe: "шкаф",
+        book: "книжка",
+        backpack: "рюкзак",
+        phone: "телефон"
+      };
+      const outfitImages = {
+        person: {
+          home: "../../assets/cozy-house/character-yana.png",
+          party: "../../assets/cozy-house/character-yana-party.png",
+          sleep: "../../assets/cozy-house/character-yana-sleep.png"
+        },
+        guest: {
+          home: "../../assets/cozy-house/character-friend.png",
+          party: "../../assets/cozy-house/character-friend-party.png",
+          sleep: "../../assets/cozy-house/character-friend-sleep.png"
+        }
       };
       const roomCenters = {
         living: [108, 284],
@@ -889,9 +1003,10 @@
         cozy: 38,
         coins: 12,
         night: false,
+        selectedPerson: "person",
         people: {
-          person: { x: 108, y: 284, holding: "" },
-          guest: { x: 188, y: 288, holding: "" }
+          person: { x: 108, y: 284, holding: "", outfit: "home" },
+          guest: { x: 188, y: 288, holding: "", outfit: "home" }
         },
         items: [
           { id: "start-sofa", kind: "sofa", x: 42, y: 352 },
@@ -907,6 +1022,9 @@
       };
       state.people.person.holding ||= "";
       state.people.guest.holding ||= "";
+      state.people.person.outfit ||= "home";
+      state.people.guest.outfit ||= "home";
+      state.selectedPerson ||= "person";
 
       function setLog(text) {
         logEl.textContent = text;
@@ -926,8 +1044,14 @@
         house.style.setProperty("--hero-y", `${state.people.person.y}px`);
         guest.style.setProperty("--hero-x", `${state.people.guest.x}px`);
         guest.style.setProperty("--hero-y", `${state.people.guest.y}px`);
+        person.querySelector("img").src = outfitImages.person[state.people.person.outfit];
+        guest.querySelector("img").src = outfitImages.guest[state.people.guest.outfit];
+        person.classList.toggle("selected", state.selectedPerson === "person");
+        guest.classList.toggle("selected", state.selectedPerson === "guest");
         heldPerson.className = `held ${state.people.person.holding} ${state.people.person.holding ? "show" : ""}`;
         heldGuest.className = `held ${state.people.guest.holding} ${state.people.guest.holding ? "show" : ""}`;
+        personButtons.forEach((button) => button.classList.toggle("active", button.dataset.person === state.selectedPerson));
+        outfitButtons.forEach((button) => button.classList.toggle("active", button.dataset.outfit === state.people[state.selectedPerson].outfit));
         person.classList.add("walking");
         setTimeout(() => person.classList.remove("walking"), 520);
       }
@@ -1023,13 +1147,22 @@
           tv: "Включили мультик в гостиной.",
           petbed: "Лежанка ждёт будущего питомца.",
           mirror: "Посмотрели в зеркало и выбрали наряд.",
-          rug: "Ковёр сделал комнату мягче."
+          rug: "Ковёр сделал комнату мягче.",
+          toy: "Игрушка ожила в новой истории.",
+          food: "Перекус готов. Ам-ам!",
+          wardrobe: "Открыли шкаф и выбираем образ.",
+          book: "Читаем книжку и придумываем сказку.",
+          backpack: "Рюкзак собран для прогулки.",
+          phone: "Позвонили другу и позвали в гости."
         };
         state.mood = Math.min(100, state.mood + 4);
         state.cozy = Math.min(100, state.cozy + 2);
         if (kind === "fridge") state.coins += 1;
-        const targetId = Math.abs(state.people.guest.x - x) < Math.abs(state.people.person.x - x) ? "guest" : "person";
+        const targetId = state.selectedPerson;
         state.people[targetId].holding = kind;
+        if (kind === "wardrobe") changeOutfit(state.people[targetId].outfit === "party" ? "home" : "party");
+        if (kind === "bed" || kind === "petbed") changeOutfit("sleep");
+        if (kind === "food") state.coins += 1;
         setLog(messages[kind] || "Предмет ожил в истории.");
         createSparkle(x + 38, y - 4);
         renderStats();
@@ -1097,6 +1230,33 @@
         render();
       }
 
+      function selectPerson(id) {
+        state.selectedPerson = id;
+        setLog(id === "guest" ? "Выбрана подружка." : "Выбрана Яна.");
+        renderPerson();
+      }
+
+      function changeOutfit(outfit) {
+        state.people[state.selectedPerson].outfit = outfit;
+        const label = outfit === "party" ? "праздничный наряд" : outfit === "sleep" ? "пижаму" : "домашний образ";
+        state.mood = Math.min(100, state.mood + 3);
+        setLog(`Переодели персонажа в ${label}.`);
+        renderStats();
+        renderPerson();
+      }
+
+      function dance() {
+        [person, guest].forEach((hero) => {
+          hero.classList.add("walking");
+          setTimeout(() => hero.classList.remove("walking"), 1200);
+        });
+        state.mood = Math.min(100, state.mood + 7);
+        setLog("Мини-дискотека дома!");
+        createSparkle(state.people.person.x + 30, state.people.person.y - 8);
+        createSparkle(state.people.guest.x + 30, state.people.guest.y - 8);
+        renderStats();
+      }
+
       function saveHouse() {
         localStorage.setItem("yana-cozy-house", JSON.stringify(state));
         setLog("Домик сохранён в этом браузере.");
@@ -1109,9 +1269,10 @@
         state.cozy = 38;
         state.coins = 12;
         state.night = false;
+        state.selectedPerson = "person";
         state.people = {
-          person: { x: 108, y: 284, holding: "" },
-          guest: { x: 188, y: 288, holding: "" }
+          person: { x: 108, y: 284, holding: "", outfit: "home" },
+          guest: { x: 188, y: 288, holding: "", outfit: "home" }
         };
         state.items = [
           { id: "start-sofa", kind: "sofa", x: 42, y: 352 },
@@ -1135,12 +1296,24 @@
         button.addEventListener("click", () => addItem(button.dataset.kind));
       });
 
+      personButtons.forEach((button) => {
+        button.addEventListener("click", () => selectPerson(button.dataset.person));
+      });
+
+      outfitButtons.forEach((button) => {
+        button.addEventListener("click", () => changeOutfit(button.dataset.outfit));
+      });
+
+      document.querySelector("#danceButton").addEventListener("click", dance);
+
       [person, guest].forEach((hero) => {
         hero.addEventListener("pointerdown", startDrag);
         hero.addEventListener("click", () => {
+          state.selectedPerson = hero.id;
           setLog(hero.id === "guest" ? "Подружка пришла в гости." : "Героиня готова играть дома.");
           state.mood = Math.min(100, state.mood + 2);
           renderStats();
+          renderPerson();
         });
       });
 
