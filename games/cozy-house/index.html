@@ -227,6 +227,16 @@
         transform: translateX(-50%);
       }
 
+      .house::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        background: center bottom / 100% 100% no-repeat url("../../assets/cozy-house/room-details.png");
+        opacity: .82;
+      }
+
       .roof {
         position: absolute;
         left: 30px;
@@ -251,6 +261,7 @@
         border-radius: 10px;
         overflow: hidden;
         background: #fff8e9;
+        z-index: 0;
       }
 
       .room {
@@ -337,13 +348,17 @@
       .item .shape {
         position: absolute;
         inset: 0;
-        filter: drop-shadow(0 8px 0 rgba(36,31,53,.12));
+        background: center / contain no-repeat;
+        filter: drop-shadow(0 10px 0 rgba(36,31,53,.12));
+      }
+
+      .item.asset .shape::before,
+      .item.asset .shape::after {
+        content: none;
       }
 
       .item.sofa .shape {
-        border: 5px solid var(--ink);
-        border-radius: 26px 26px 14px 14px;
-        background: linear-gradient(180deg, #ff89bd, #d95195);
+        background-image: url("../../assets/cozy-house/sofa.png");
       }
 
       .item.sofa .shape::before {
@@ -360,19 +375,11 @@
       }
 
       .item.bed .shape {
-        border: 5px solid var(--ink);
-        border-radius: 18px;
-        background: linear-gradient(180deg, #9bb5ff 0 42%, #fff 43% 58%, #8e67ff 59% 100%);
+        background-image: url("../../assets/cozy-house/bed.png");
       }
 
       .item.table .shape {
-        left: 8px;
-        right: 8px;
-        top: 8px;
-        height: 24px;
-        border: 5px solid var(--ink);
-        border-radius: 12px;
-        background: #b07345;
+        background-image: url("../../assets/cozy-house/table.png");
       }
 
       .item.table .shape::before,
@@ -390,13 +397,7 @@
       .item.table .shape::after { right: 12px; }
 
       .item.plant .shape {
-        left: 28px;
-        top: 34px;
-        width: 36px;
-        height: 34px;
-        border: 5px solid var(--ink);
-        border-radius: 8px 8px 18px 18px;
-        background: #ff9859;
+        background-image: url("../../assets/cozy-house/plant.png");
       }
 
       .item.plant .shape::before {
@@ -413,12 +414,7 @@
       }
 
       .item.lamp .shape {
-        left: 34px;
-        top: 18px;
-        width: 18px;
-        height: 58px;
-        border-radius: 8px;
-        background: var(--ink);
+        background-image: url("../../assets/cozy-house/lamp.png");
       }
 
       .item.lamp .shape::before {
@@ -434,24 +430,11 @@
       }
 
       .item.tub .shape {
-        left: 4px;
-        right: 4px;
-        bottom: 2px;
-        height: 46px;
-        border: 5px solid var(--ink);
-        border-radius: 18px 18px 32px 32px;
-        background:
-          linear-gradient(180deg, rgba(120,220,245,.82) 0 38%, #fff 39% 100%);
+        background-image: url("../../assets/cozy-house/tub.png");
       }
 
       .item.fridge .shape {
-        left: 16px;
-        top: 0;
-        width: 54px;
-        height: 90px;
-        border: 5px solid var(--ink);
-        border-radius: 12px;
-        background: linear-gradient(180deg, #e9fbff 0 48%, #bceaf4 49% 100%);
+        background-image: url("../../assets/cozy-house/fridge.png");
       }
 
       .item.fridge .shape::after {
@@ -465,84 +448,123 @@
         background: var(--ink);
       }
 
+      .item.tv .shape {
+        background-image: url("../../assets/cozy-house/tv.png");
+      }
+
+      .item.tv .shape::before {
+        content: "";
+        position: absolute;
+        left: 36px;
+        bottom: -22px;
+        width: 18px;
+        height: 20px;
+        background: var(--ink);
+      }
+
+      .item.petbed .shape {
+        background-image: url("../../assets/cozy-house/petbed.png");
+      }
+
+      .item.mirror .shape {
+        background-image: url("../../assets/cozy-house/mirror.png");
+      }
+
+      .item.rug .shape {
+        background-image: url("../../assets/cozy-house/rug.png");
+      }
+
+      .item.asset .shape {
+        inset: 0 !important;
+        width: auto !important;
+        height: auto !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background-color: transparent !important;
+      }
+
+      .item.asset .shape::before,
+      .item.asset .shape::after {
+        display: none !important;
+        content: none !important;
+      }
+
       .person {
         position: absolute;
         z-index: 8;
         left: var(--hero-x, 130px);
         top: var(--hero-y, 334px);
-        width: 74px;
-        height: 128px;
+        width: 86px;
+        height: 132px;
         border: 0;
         background: transparent;
         transition: left .45s ease, top .45s ease, transform .2s ease;
+        touch-action: none;
+        cursor: grab;
       }
 
       .person.walking { animation: hop .42s ease-in-out infinite; }
+      .person.dragging { cursor: grabbing; transition: none; }
+      .person.guest { --shirt-a: #ff9859; --shirt-b: #ff72ad; }
 
       @keyframes hop {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-7px); }
       }
 
+      .person img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+        filter: drop-shadow(0 10px 0 rgba(36,31,53,.14));
+      }
+
       .person::before {
         content: "";
         position: absolute;
-        left: 18px;
-        top: 0;
-        width: 40px;
-        height: 40px;
-        border: 4px solid var(--ink);
-        border-radius: 50%;
-        background:
-          radial-gradient(circle at 35% 48%, var(--ink) 0 3px, transparent 4px),
-          radial-gradient(circle at 65% 48%, var(--ink) 0 3px, transparent 4px),
-          linear-gradient(180deg, #f4b99e, #e9a485);
-      }
-
-      .person::after {
-        content: "";
-        position: absolute;
-        left: 12px;
-        top: 38px;
-        width: 52px;
-        height: 62px;
-        border: 4px solid var(--ink);
-        border-radius: 18px 18px 20px 20px;
-        background:
-          linear-gradient(90deg, transparent 46%, rgba(255,255,255,.34) 47% 53%, transparent 54%),
-          linear-gradient(180deg, #54b8ff, #8e67ff);
-      }
-
-      .hair {
-        position: absolute;
-        left: 14px;
-        top: -3px;
-        width: 48px;
-        height: 26px;
-        border-radius: 50% 50% 16px 16px;
-        background: #6d4635;
-      }
-
-      .legs,
-      .arms {
-        position: absolute;
-        inset: 0;
-      }
-
-      .legs::before,
-      .legs::after,
-      .arms::before,
-      .arms::after {
-        content: "";
-        position: absolute;
+        left: 37px;
+        top: 46px;
+        z-index: 2;
+        width: 7px;
+        height: 3px;
         border-radius: 999px;
         background: var(--ink);
+        opacity: 0;
+        box-shadow: 23px 0 0 var(--ink);
+        animation: blink 4.8s infinite;
       }
 
-      .arms::before { left: 2px; top: 48px; width: 13px; height: 48px; transform: rotate(18deg); }
-      .arms::after { right: 2px; top: 48px; width: 13px; height: 48px; transform: rotate(-18deg); }
-      .legs::before { left: 22px; top: 94px; width: 13px; height: 34px; }
-      .legs::after { right: 22px; top: 94px; width: 13px; height: 34px; }
+      @keyframes blink {
+        0%, 94%, 100% { opacity: 0; transform: scaleY(.4); }
+        95%, 97% { opacity: 1; transform: scaleY(1); }
+      }
+
+      .held {
+        position: absolute;
+        right: -22px;
+        bottom: 42px;
+        z-index: 3;
+        width: 44px;
+        height: 44px;
+        background: center / contain no-repeat;
+        filter: drop-shadow(0 5px 0 rgba(36,31,53,.12));
+        opacity: 0;
+        transform: rotate(-9deg);
+      }
+
+      .held.show { opacity: 1; }
+      .held.sofa { background-image: url("../../assets/cozy-house/sofa.png"); }
+      .held.bed { background-image: url("../../assets/cozy-house/bed.png"); }
+      .held.table { background-image: url("../../assets/cozy-house/table.png"); }
+      .held.plant { background-image: url("../../assets/cozy-house/plant.png"); }
+      .held.lamp { background-image: url("../../assets/cozy-house/lamp.png"); }
+      .held.tub { background-image: url("../../assets/cozy-house/tub.png"); }
+      .held.fridge { background-image: url("../../assets/cozy-house/fridge.png"); }
+      .held.tv { background-image: url("../../assets/cozy-house/tv.png"); }
+      .held.petbed { background-image: url("../../assets/cozy-house/petbed.png"); }
+      .held.mirror { background-image: url("../../assets/cozy-house/mirror.png"); }
+      .held.rug { background-image: url("../../assets/cozy-house/rug.png"); }
 
       .thought {
         position: absolute;
@@ -560,6 +582,23 @@
         font-weight: 900;
         pointer-events: none;
         transition: left .45s ease, top .45s ease, opacity .2s ease;
+      }
+
+      .sparkle {
+        position: absolute;
+        z-index: 14;
+        width: 20px;
+        height: 20px;
+        pointer-events: none;
+        background: #ffd45c;
+        clip-path: polygon(50% 0, 62% 34%, 100% 50%, 62% 66%, 50% 100%, 38% 66%, 0 50%, 38% 34%);
+        animation: pop .75s ease forwards;
+      }
+
+      @keyframes pop {
+        from { transform: translateY(0) scale(.4); opacity: 0; }
+        35% { opacity: 1; }
+        to { transform: translateY(-38px) scale(1.25); opacity: 0; }
       }
 
       .panel {
@@ -630,6 +669,10 @@
       .tool[data-kind="lamp"] i { background: var(--sun); clip-path: polygon(25% 0, 75% 0, 100% 100%, 0 100%); }
       .tool[data-kind="tub"] i { background: var(--blue); border-radius: 10px 10px 24px 24px; }
       .tool[data-kind="fridge"] i { background: #bceaf4; height: 42px; }
+      .tool[data-kind="tv"] i { background: linear-gradient(135deg, #5ee5ff, #8e67ff); }
+      .tool[data-kind="petbed"] i { background: #ffb5d5; border-radius: 50%; }
+      .tool[data-kind="mirror"] i { background: #d7f8ff; height: 42px; border-radius: 20px 20px 10px 10px; }
+      .tool[data-kind="rug"] i { background: #ff9859; border-radius: 50%; }
 
       .log {
         min-height: 58px;
@@ -712,7 +755,12 @@
                 <button class="room attic" data-room="attic" data-title="Чердак" aria-label="Чердак"><span class="window"></span></button>
               </div>
               <button class="person" id="person" type="button" aria-label="Героиня домика">
-                <span class="hair"></span><span class="arms"></span><span class="legs"></span>
+                <img src="../../assets/cozy-house/character-yana.png" alt="">
+                <span class="held" id="heldPerson"></span>
+              </button>
+              <button class="person guest" id="guest" type="button" aria-label="Подружка в домике" style="--hero-x: 210px; --hero-y: 338px">
+                <img src="../../assets/cozy-house/character-friend.png" alt="">
+                <span class="held" id="heldGuest"></span>
               </button>
               <div class="thought" id="thought">Давай строить дом!</div>
             </div>
@@ -748,6 +796,10 @@
               <button class="tool" data-kind="lamp"><i></i><span>Лампа</span></button>
               <button class="tool" data-kind="tub"><i></i><span>Ванна</span></button>
               <button class="tool" data-kind="fridge"><i></i><span>Холодильник</span></button>
+              <button class="tool" data-kind="tv"><i></i><span>Телевизор</span></button>
+              <button class="tool" data-kind="petbed"><i></i><span>Лежанка</span></button>
+              <button class="tool" data-kind="mirror"><i></i><span>Зеркало</span></button>
+              <button class="tool" data-kind="rug"><i></i><span>Ковёр</span></button>
             </div>
           </section>
 
@@ -779,6 +831,9 @@
       const roomsEl = document.querySelector("#rooms");
       const houseWrap = document.querySelector("#houseWrap");
       const person = document.querySelector("#person");
+      const guest = document.querySelector("#guest");
+      const heldPerson = document.querySelector("#heldPerson");
+      const heldGuest = document.querySelector("#heldGuest");
       const thought = document.querySelector("#thought");
       const logEl = document.querySelector("#log");
       const roomNameEl = document.querySelector("#roomName");
@@ -800,7 +855,11 @@
         plant: [90, 88],
         lamp: [88, 86],
         tub: [118, 72],
-        fridge: [88, 98]
+        fridge: [88, 98],
+        tv: [104, 86],
+        petbed: [98, 64],
+        mirror: [96, 92],
+        rug: [126, 62]
       };
       const itemNames = {
         sofa: "диван",
@@ -809,7 +868,11 @@
         plant: "цветок",
         lamp: "лампа",
         tub: "ванна",
-        fridge: "холодильник"
+        fridge: "холодильник",
+        tv: "телевизор",
+        petbed: "лежанка",
+        mirror: "зеркало",
+        rug: "ковёр"
       };
       const roomCenters = {
         living: [108, 284],
@@ -826,6 +889,10 @@
         cozy: 38,
         coins: 12,
         night: false,
+        people: {
+          person: { x: 108, y: 284, holding: "" },
+          guest: { x: 188, y: 288, holding: "" }
+        },
         items: [
           { id: "start-sofa", kind: "sofa", x: 42, y: 352 },
           { id: "start-table", kind: "table", x: 308, y: 360 },
@@ -834,6 +901,12 @@
         ]
       };
       let activeDrag = null;
+      state.people ||= {
+        person: { x: 108, y: 284, holding: "" },
+        guest: { x: 188, y: 288, holding: "" }
+      };
+      state.people.person.holding ||= "";
+      state.people.guest.holding ||= "";
 
       function setLog(text) {
         logEl.textContent = text;
@@ -849,9 +922,12 @@
       }
 
       function renderPerson() {
-        const [x, y] = roomCenters[state.room];
-        house.style.setProperty("--hero-x", `${x}px`);
-        house.style.setProperty("--hero-y", `${y}px`);
+        house.style.setProperty("--hero-x", `${state.people.person.x}px`);
+        house.style.setProperty("--hero-y", `${state.people.person.y}px`);
+        guest.style.setProperty("--hero-x", `${state.people.guest.x}px`);
+        guest.style.setProperty("--hero-y", `${state.people.guest.y}px`);
+        heldPerson.className = `held ${state.people.person.holding} ${state.people.person.holding ? "show" : ""}`;
+        heldGuest.className = `held ${state.people.guest.holding} ${state.people.guest.holding ? "show" : ""}`;
         person.classList.add("walking");
         setTimeout(() => person.classList.remove("walking"), 520);
       }
@@ -862,7 +938,7 @@
           const [w, h] = itemSizes[item.kind];
           const button = document.createElement("button");
           button.type = "button";
-          button.className = `item ${item.kind}`;
+          button.className = `item asset ${item.kind}`;
           button.dataset.id = item.id;
           button.setAttribute("aria-label", itemNames[item.kind]);
           button.style.setProperty("--x", `${item.x}px`);
@@ -871,6 +947,7 @@
           button.style.setProperty("--h", `${h}px`);
           button.innerHTML = '<span class="shape"></span>';
           button.addEventListener("pointerdown", startDrag);
+          button.addEventListener("click", () => useItem(item.kind, item.x, item.y));
           house.appendChild(button);
         }
       }
@@ -883,6 +960,11 @@
 
       function goRoom(room) {
         state.room = room;
+        const [x, y] = roomCenters[room];
+        state.people.person.x = x;
+        state.people.person.y = y;
+        state.people.guest.x = Math.min(x + 86, 660);
+        state.people.guest.y = y + 4;
         state.mood = Math.min(100, state.mood + 1);
         setLog(`Идём в комнату: ${roomNames[room]}.`);
         render();
@@ -890,12 +972,28 @@
 
       function addItem(kind) {
         const [centerX, centerY] = roomCenters[state.room];
-        const [w] = itemSizes[kind];
+        const [w, h] = itemSizes[kind];
+        const rect = house.getBoundingClientRect();
+        const roomOffset = 62 + (state.items.length % 3) * 24;
+        let nextX = Math.max(10, Math.min(rect.width - w, centerX + roomOffset));
+        let nextY = Math.max(124, Math.min(rect.height - h, centerY + 58));
+        for (let step = 0; step < 6; step += 1) {
+          const blocked = Object.values(state.people).some((hero) => (
+            nextX < hero.x + 86 &&
+            nextX + w > hero.x &&
+            nextY < hero.y + 132 &&
+            nextY + h > hero.y
+          ));
+          if (!blocked) break;
+          nextX = Math.max(10, Math.min(rect.width - w, nextX + 124));
+          nextY = Math.max(124, Math.min(rect.height - h, nextY + 42));
+          if (nextX >= rect.width - w - 4) nextX = 14 + step * 18;
+        }
         state.items.push({
           id: `${kind}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
           kind,
-          x: Math.max(10, centerX - w / 2 + Math.random() * 34 - 17),
-          y: Math.max(124, centerY + Math.random() * 34 - 10)
+          x: nextX,
+          y: nextY
         });
         state.cozy = Math.min(100, state.cozy + 5);
         state.mood = Math.min(100, state.mood + 3);
@@ -904,16 +1002,53 @@
         render();
       }
 
+      function createSparkle(x, y) {
+        const sparkle = document.createElement("i");
+        sparkle.className = "sparkle";
+        sparkle.style.left = `${x}px`;
+        sparkle.style.top = `${y}px`;
+        house.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 800);
+      }
+
+      function useItem(kind, x, y) {
+        const messages = {
+          sofa: "Сели на диван и отдыхаем.",
+          bed: "Пора спать. В спальне стало уютнее.",
+          table: "На стол можно поставить чай и печенье.",
+          plant: "Полили цветок. Он выглядит счастливым.",
+          lamp: state.night ? "Лампа светит вечером." : "Лампа готова к вечеру.",
+          tub: "Ванна готова. Можно умываться.",
+          fridge: "Открыли холодильник и нашли вкусный перекус.",
+          tv: "Включили мультик в гостиной.",
+          petbed: "Лежанка ждёт будущего питомца.",
+          mirror: "Посмотрели в зеркало и выбрали наряд.",
+          rug: "Ковёр сделал комнату мягче."
+        };
+        state.mood = Math.min(100, state.mood + 4);
+        state.cozy = Math.min(100, state.cozy + 2);
+        if (kind === "fridge") state.coins += 1;
+        const targetId = Math.abs(state.people.guest.x - x) < Math.abs(state.people.person.x - x) ? "guest" : "person";
+        state.people[targetId].holding = kind;
+        setLog(messages[kind] || "Предмет ожил в истории.");
+        createSparkle(x + 38, y - 4);
+        renderStats();
+        renderPerson();
+      }
+
       function startDrag(event) {
         event.preventDefault();
         const el = event.currentTarget;
-        const item = state.items.find((entry) => entry.id === el.dataset.id);
-        if (!item) return;
+        const personId = el.classList.contains("person") ? el.id : "";
+        const item = personId ? null : state.items.find((entry) => entry.id === el.dataset.id);
+        if (!item && !personId) return;
         const rect = house.getBoundingClientRect();
+        const current = personId ? state.people[personId] : item;
         activeDrag = {
-          id: item.id,
-          dx: event.clientX - rect.left - item.x,
-          dy: event.clientY - rect.top - item.y
+          id: personId || item.id,
+          type: personId ? "person" : "item",
+          dx: event.clientX - rect.left - current.x,
+          dy: event.clientY - rect.top - current.y
         };
         el.classList.add("dragging");
         el.setPointerCapture?.(event.pointerId);
@@ -921,9 +1056,18 @@
 
       function dragMove(event) {
         if (!activeDrag) return;
+        const rect = house.getBoundingClientRect();
+        if (activeDrag.type === "person") {
+          const hero = state.people[activeDrag.id];
+          hero.x = Math.max(0, Math.min(rect.width - 86, event.clientX - rect.left - activeDrag.dx));
+          hero.y = Math.max(126, Math.min(rect.height - 132, event.clientY - rect.top - activeDrag.dy));
+          const el = document.querySelector(`#${activeDrag.id}`);
+          el.style.setProperty("--hero-x", `${hero.x}px`);
+          el.style.setProperty("--hero-y", `${hero.y}px`);
+          return;
+        }
         const item = state.items.find((entry) => entry.id === activeDrag.id);
         if (!item) return;
-        const rect = house.getBoundingClientRect();
         const [w, h] = itemSizes[item.kind];
         item.x = Math.max(0, Math.min(rect.width - w, event.clientX - rect.left - activeDrag.dx));
         item.y = Math.max(116, Math.min(rect.height - h, event.clientY - rect.top - activeDrag.dy));
@@ -936,9 +1080,12 @@
 
       function stopDrag() {
         if (!activeDrag) return;
+        const finishedType = activeDrag.type;
         house.querySelectorAll(".dragging").forEach((el) => el.classList.remove("dragging"));
         activeDrag = null;
         state.cozy = Math.min(100, state.cozy + 1);
+        state.mood = Math.min(100, state.mood + 1);
+        setLog(finishedType === "person" ? "Персонаж переехал в новое место." : "Предмет переставлен.");
         renderStats();
       }
 
@@ -962,6 +1109,10 @@
         state.cozy = 38;
         state.coins = 12;
         state.night = false;
+        state.people = {
+          person: { x: 108, y: 284, holding: "" },
+          guest: { x: 188, y: 288, holding: "" }
+        };
         state.items = [
           { id: "start-sofa", kind: "sofa", x: 42, y: 352 },
           { id: "start-table", kind: "table", x: 308, y: 360 },
@@ -982,6 +1133,15 @@
 
       document.querySelectorAll("[data-kind]").forEach((button) => {
         button.addEventListener("click", () => addItem(button.dataset.kind));
+      });
+
+      [person, guest].forEach((hero) => {
+        hero.addEventListener("pointerdown", startDrag);
+        hero.addEventListener("click", () => {
+          setLog(hero.id === "guest" ? "Подружка пришла в гости." : "Героиня готова играть дома.");
+          state.mood = Math.min(100, state.mood + 2);
+          renderStats();
+        });
       });
 
       document.querySelector("#dayButton").addEventListener("click", () => {

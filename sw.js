@@ -1,4 +1,4 @@
-const CACHE_NAME = "yana-unicorn-v43";
+const CACHE_NAME = "yana-unicorn-v44";
 const CACHE_PATHS = [
   "./",
   "./index.html",
@@ -38,6 +38,20 @@ const CACHE_PATHS = [
   "./assets/covers/generated/parkour.png",
   "./assets/covers/generated/kitten-care.png",
   "./assets/covers/generated/cozy-house.svg",
+  "./assets/cozy-house/character-yana.png",
+  "./assets/cozy-house/character-friend.png",
+  "./assets/cozy-house/room-details.png",
+  "./assets/cozy-house/sofa.png",
+  "./assets/cozy-house/bed.png",
+  "./assets/cozy-house/table.png",
+  "./assets/cozy-house/plant.png",
+  "./assets/cozy-house/lamp.png",
+  "./assets/cozy-house/tub.png",
+  "./assets/cozy-house/fridge.png",
+  "./assets/cozy-house/tv.png",
+  "./assets/cozy-house/petbed.png",
+  "./assets/cozy-house/mirror.png",
+  "./assets/cozy-house/rug.png",
   "./assets/covers/generated/goose-artist.png",
   "./assets/covers/generated/lost-cloud.svg",
   "./assets/covers/generated/kolobok.png",
