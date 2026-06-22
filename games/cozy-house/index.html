@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Милый домик</title>
+    <meta name="description" content="Милый домик: уютная игра про строительство и украшение дома с комнатами, мебелью и маленьким персонажем.">
+    <meta name="theme-color" content="#ff72ad">
+    <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #241f35;
+        --muted: #6f6382;
+        --paper: #fffdf7;
+        --pink: #ff72ad;
+        --violet: #8e67ff;
+        --blue: #54b8ff;
+        --mint: #42c995;
+        --sun: #ffd45c;
+        --orange: #ff9859;
+        --line: rgba(36, 31, 53, .16);
+        --shadow: 0 14px 0 rgba(36, 31, 53, .1);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+        background:
+          radial-gradient(circle at 12% 12%, rgba(255,255,255,.9) 0 6%, transparent 7%),
+          radial-gradient(circle at 86% 13%, rgba(255,255,255,.8) 0 7%, transparent 8%),
+          linear-gradient(135deg, #bdefff 0%, #ffd6ef 48%, #fff0aa 100%);
+      }
+
+      button, input { font: inherit; }
+      button { cursor: pointer; }
+      a { color: inherit; }
+
+      .skip-link {
+        position: fixed;
+        left: 16px;
+        top: 12px;
+        z-index: 40;
+        transform: translateY(-150%);
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 14px;
+        border-radius: 8px;
+        color: #fff;
+        background: var(--ink);
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .skip-link:focus-visible { transform: translateY(0); }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border-bottom: 2px solid rgba(255,255,255,.72);
+        background: rgba(255,253,247,.88);
+        backdrop-filter: blur(12px);
+      }
+
+      .topbar-inner {
+        width: min(1180px, calc(100% - 28px));
+        min-height: 72px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .brand,
+      .topbar nav a {
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        color: var(--ink);
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .brand { gap: 10px; font-size: 22px; }
+
+      .mark {
+        width: 46px;
+        height: 46px;
+        border: 3px solid var(--ink);
+        border-radius: 50%;
+        background: #fff center / cover no-repeat url("../../assets/yana-unicorn-logo.png");
+        box-shadow: 0 5px 0 rgba(36,31,53,.12);
+      }
+
+      .topbar nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .topbar nav a {
+        padding: 0 12px;
+        border: 2px solid transparent;
+      }
+
+      .topbar nav a:hover,
+      .topbar nav a:focus-visible {
+        border-color: var(--line);
+        background: #fff;
+      }
+
+      main {
+        width: min(1180px, calc(100% - 28px));
+        margin: 0 auto;
+        padding: 24px 0 48px;
+      }
+
+      .game-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 310px;
+        gap: 14px;
+        align-items: start;
+      }
+
+      .stage,
+      .panel {
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255,253,247,.94);
+        box-shadow: var(--shadow);
+      }
+
+      .stage {
+        min-height: 720px;
+        overflow: hidden;
+      }
+
+      .status-bar {
+        min-height: 72px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1px;
+        background: rgba(36,31,53,.12);
+      }
+
+      .status-bar div {
+        display: grid;
+        align-content: center;
+        gap: 3px;
+        padding: 10px 12px;
+        background: rgba(255,255,255,.68);
+      }
+
+      .status-bar span {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .status-bar strong {
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      .house-wrap {
+        position: relative;
+        min-height: 648px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 82% 12%, #ffdf67 0 42px, transparent 44px),
+          linear-gradient(180deg, #aae8ff 0 43%, #8bd487 44% 100%);
+      }
+
+      .house-wrap.night {
+        background:
+          radial-gradient(circle at 82% 12%, #fff4ad 0 34px, transparent 36px),
+          radial-gradient(circle at 22% 14%, rgba(255,255,255,.8) 0 2px, transparent 3px),
+          radial-gradient(circle at 40% 18%, rgba(255,255,255,.72) 0 2px, transparent 3px),
+          linear-gradient(180deg, #2d3c78 0 43%, #285b58 44% 100%);
+      }
+
+      .cloud {
+        position: absolute;
+        top: 64px;
+        left: 8%;
+        width: 180px;
+        height: 54px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.72);
+        filter: blur(.2px);
+        animation: cloud 14s ease-in-out infinite alternate;
+      }
+
+      .cloud::before,
+      .cloud::after {
+        content: "";
+        position: absolute;
+        bottom: 14px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.78);
+      }
+
+      .cloud::before { left: 28px; width: 62px; height: 62px; }
+      .cloud::after { right: 34px; width: 76px; height: 76px; }
+
+      @keyframes cloud {
+        from { transform: translateX(0); }
+        to { transform: translateX(80px); }
+      }
+
+      .house {
+        position: absolute;
+        left: 50%;
+        bottom: 42px;
+        width: min(760px, calc(100% - 38px));
+        height: 540px;
+        transform: translateX(-50%);
+      }
+
+      .roof {
+        position: absolute;
+        left: 30px;
+        right: 30px;
+        top: 0;
+        height: 122px;
+        clip-path: polygon(50% 0, 100% 100%, 0 100%);
+        background: linear-gradient(135deg, #8e67ff, #6545d7);
+        box-shadow: 0 12px 0 rgba(36,31,53,.12);
+      }
+
+      .rooms {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 438px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        border: 6px solid var(--ink);
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff8e9;
+      }
+
+      .room {
+        position: relative;
+        overflow: hidden;
+        border: 3px solid rgba(36,31,53,.18);
+        background: var(--room-bg);
+      }
+
+      .room::before {
+        content: "";
+        position: absolute;
+        inset: auto 0 0;
+        height: 42%;
+        background:
+          linear-gradient(90deg, rgba(36,31,53,.06) 1px, transparent 1px),
+          linear-gradient(0deg, rgba(36,31,53,.05) 1px, transparent 1px),
+          var(--floor);
+        background-size: 38px 38px, 38px 38px, auto;
+      }
+
+      .room::after {
+        content: attr(data-title);
+        position: absolute;
+        left: 10px;
+        top: 8px;
+        z-index: 2;
+        min-height: 24px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 8px;
+        border-radius: 7px;
+        background: rgba(255,255,255,.72);
+        color: rgba(36,31,53,.76);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .room.living { --room-bg: linear-gradient(180deg, #ffe9f3, #ffd0e8); --floor: #e8b783; }
+      .room.kitchen { --room-bg: linear-gradient(180deg, #fff5c9, #ffe7a0); --floor: #d7f2ef; }
+      .room.bedroom { --room-bg: linear-gradient(180deg, #dbe6ff, #c8d4ff); --floor: #e6c4f2; }
+      .room.bath { --room-bg: linear-gradient(180deg, #d8f7ff, #bdefff); --floor: #cde6f3; }
+      .room.play { --room-bg: linear-gradient(180deg, #daf8d9, #bff0c1); --floor: #ffd6a8; }
+      .room.attic { --room-bg: linear-gradient(180deg, #f4e0ff, #eac9ff); --floor: #e3c895; }
+
+      .window {
+        position: absolute;
+        right: 16px;
+        top: 42px;
+        width: 64px;
+        height: 52px;
+        border: 5px solid #fff;
+        border-radius: 8px;
+        background:
+          linear-gradient(90deg, transparent 47%, #fff 48% 54%, transparent 55%),
+          linear-gradient(0deg, transparent 47%, #fff 48% 54%, transparent 55%),
+          linear-gradient(180deg, #9ddfff, #8bd487);
+        box-shadow: 0 5px 0 rgba(36,31,53,.1);
+      }
+
+      .house-wrap.night .window {
+        background:
+          linear-gradient(90deg, transparent 47%, #fff 48% 54%, transparent 55%),
+          linear-gradient(0deg, transparent 47%, #fff 48% 54%, transparent 55%),
+          linear-gradient(180deg, #ffe88a, #ffc95d);
+      }
+
+      .item {
+        position: absolute;
+        z-index: 4;
+        width: var(--w, 80px);
+        height: var(--h, 68px);
+        left: var(--x, 40px);
+        top: var(--y, 100px);
+        border: 0;
+        background: transparent;
+        touch-action: none;
+        cursor: grab;
+      }
+
+      .item:active,
+      .dragging { cursor: grabbing; }
+
+      .item .shape {
+        position: absolute;
+        inset: 0;
+        filter: drop-shadow(0 8px 0 rgba(36,31,53,.12));
+      }
+
+      .item.sofa .shape {
+        border: 5px solid var(--ink);
+        border-radius: 26px 26px 14px 14px;
+        background: linear-gradient(180deg, #ff89bd, #d95195);
+      }
+
+      .item.sofa .shape::before {
+        content: "";
+        position: absolute;
+        left: 9px;
+        right: 9px;
+        top: -22px;
+        height: 42px;
+        border: 5px solid var(--ink);
+        border-bottom: 0;
+        border-radius: 22px 22px 0 0;
+        background: #ffabd0;
+      }
+
+      .item.bed .shape {
+        border: 5px solid var(--ink);
+        border-radius: 18px;
+        background: linear-gradient(180deg, #9bb5ff 0 42%, #fff 43% 58%, #8e67ff 59% 100%);
+      }
+
+      .item.table .shape {
+        left: 8px;
+        right: 8px;
+        top: 8px;
+        height: 24px;
+        border: 5px solid var(--ink);
+        border-radius: 12px;
+        background: #b07345;
+      }
+
+      .item.table .shape::before,
+      .item.table .shape::after {
+        content: "";
+        position: absolute;
+        top: 24px;
+        width: 10px;
+        height: 38px;
+        border-radius: 8px;
+        background: var(--ink);
+      }
+
+      .item.table .shape::before { left: 12px; }
+      .item.table .shape::after { right: 12px; }
+
+      .item.plant .shape {
+        left: 28px;
+        top: 34px;
+        width: 36px;
+        height: 34px;
+        border: 5px solid var(--ink);
+        border-radius: 8px 8px 18px 18px;
+        background: #ff9859;
+      }
+
+      .item.plant .shape::before {
+        content: "";
+        position: absolute;
+        left: -22px;
+        top: -48px;
+        width: 76px;
+        height: 58px;
+        background:
+          radial-gradient(ellipse at 28% 62%, #42c995 0 24%, transparent 25%),
+          radial-gradient(ellipse at 50% 28%, #69d88f 0 26%, transparent 27%),
+          radial-gradient(ellipse at 75% 62%, #35a873 0 23%, transparent 24%);
+      }
+
+      .item.lamp .shape {
+        left: 34px;
+        top: 18px;
+        width: 18px;
+        height: 58px;
+        border-radius: 8px;
+        background: var(--ink);
+      }
+
+      .item.lamp .shape::before {
+        content: "";
+        position: absolute;
+        left: -22px;
+        top: -28px;
+        width: 62px;
+        height: 42px;
+        clip-path: polygon(28% 0, 72% 0, 100% 100%, 0 100%);
+        background: #ffd45c;
+        border: 5px solid var(--ink);
+      }
+
+      .item.tub .shape {
+        left: 4px;
+        right: 4px;
+        bottom: 2px;
+        height: 46px;
+        border: 5px solid var(--ink);
+        border-radius: 18px 18px 32px 32px;
+        background:
+          linear-gradient(180deg, rgba(120,220,245,.82) 0 38%, #fff 39% 100%);
+      }
+
+      .item.fridge .shape {
+        left: 16px;
+        top: 0;
+        width: 54px;
+        height: 90px;
+        border: 5px solid var(--ink);
+        border-radius: 12px;
+        background: linear-gradient(180deg, #e9fbff 0 48%, #bceaf4 49% 100%);
+      }
+
+      .item.fridge .shape::after {
+        content: "";
+        position: absolute;
+        right: 7px;
+        top: 45px;
+        width: 8px;
+        height: 24px;
+        border-radius: 8px;
+        background: var(--ink);
+      }
+
+      .person {
+        position: absolute;
+        z-index: 8;
+        left: var(--hero-x, 130px);
+        top: var(--hero-y, 334px);
+        width: 74px;
+        height: 128px;
+        border: 0;
+        background: transparent;
+        transition: left .45s ease, top .45s ease, transform .2s ease;
+      }
+
+      .person.walking { animation: hop .42s ease-in-out infinite; }
+
+      @keyframes hop {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-7px); }
+      }
+
+      .person::before {
+        content: "";
+        position: absolute;
+        left: 18px;
+        top: 0;
+        width: 40px;
+        height: 40px;
+        border: 4px solid var(--ink);
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 35% 48%, var(--ink) 0 3px, transparent 4px),
+          radial-gradient(circle at 65% 48%, var(--ink) 0 3px, transparent 4px),
+          linear-gradient(180deg, #f4b99e, #e9a485);
+      }
+
+      .person::after {
+        content: "";
+        position: absolute;
+        left: 12px;
+        top: 38px;
+        width: 52px;
+        height: 62px;
+        border: 4px solid var(--ink);
+        border-radius: 18px 18px 20px 20px;
+        background:
+          linear-gradient(90deg, transparent 46%, rgba(255,255,255,.34) 47% 53%, transparent 54%),
+          linear-gradient(180deg, #54b8ff, #8e67ff);
+      }
+
+      .hair {
+        position: absolute;
+        left: 14px;
+        top: -3px;
+        width: 48px;
+        height: 26px;
+        border-radius: 50% 50% 16px 16px;
+        background: #6d4635;
+      }
+
+      .legs,
+      .arms {
+        position: absolute;
+        inset: 0;
+      }
+
+      .legs::before,
+      .legs::after,
+      .arms::before,
+      .arms::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        background: var(--ink);
+      }
+
+      .arms::before { left: 2px; top: 48px; width: 13px; height: 48px; transform: rotate(18deg); }
+      .arms::after { right: 2px; top: 48px; width: 13px; height: 48px; transform: rotate(-18deg); }
+      .legs::before { left: 22px; top: 94px; width: 13px; height: 34px; }
+      .legs::after { right: 22px; top: 94px; width: 13px; height: 34px; }
+
+      .thought {
+        position: absolute;
+        z-index: 12;
+        left: calc(var(--hero-x, 130px) + 45px);
+        top: calc(var(--hero-y, 334px) - 44px);
+        max-width: 220px;
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 10px;
+        border: 3px solid rgba(36,31,53,.12);
+        border-radius: 8px;
+        background: rgba(255,255,255,.9);
+        font-weight: 900;
+        pointer-events: none;
+        transition: left .45s ease, top .45s ease, opacity .2s ease;
+      }
+
+      .panel {
+        padding: 14px;
+        display: grid;
+        gap: 14px;
+      }
+
+      h1, h2, h3, p { margin: 0; }
+      h1 { font-size: 32px; line-height: 1; }
+      h2 { font-size: 20px; }
+
+      .lead {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.42;
+      }
+
+      .buttons,
+      .palette,
+      .room-buttons {
+        display: grid;
+        gap: 8px;
+      }
+
+      .buttons { grid-template-columns: 1fr 1fr; }
+      .room-buttons { grid-template-columns: 1fr 1fr; }
+      .palette { grid-template-columns: 1fr 1fr; }
+
+      .button,
+      .tool {
+        min-height: 44px;
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--pink), #df4f9a);
+        box-shadow: 0 7px 0 rgba(36,31,53,.12);
+        font-weight: 900;
+      }
+
+      .button.secondary,
+      .tool {
+        color: var(--ink);
+        background: #fff;
+        border: 2px solid var(--line);
+      }
+
+      .tool {
+        min-height: 74px;
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        gap: 5px;
+      }
+
+      .tool i {
+        width: 44px;
+        height: 30px;
+        border-radius: 10px;
+        display: block;
+        background: var(--pink);
+        box-shadow: inset 0 -7px 0 rgba(36,31,53,.12);
+      }
+
+      .tool[data-kind="bed"] i { background: var(--violet); }
+      .tool[data-kind="table"] i { background: #b07345; }
+      .tool[data-kind="plant"] i { background: var(--mint); border-radius: 50% 50% 12px 12px; }
+      .tool[data-kind="lamp"] i { background: var(--sun); clip-path: polygon(25% 0, 75% 0, 100% 100%, 0 100%); }
+      .tool[data-kind="tub"] i { background: var(--blue); border-radius: 10px 10px 24px 24px; }
+      .tool[data-kind="fridge"] i { background: #bceaf4; height: 42px; }
+
+      .log {
+        min-height: 58px;
+        padding: 12px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--muted);
+        font-weight: 900;
+        line-height: 1.35;
+      }
+
+      .help {
+        padding: 12px;
+        border-radius: 8px;
+        background: rgba(84,184,255,.16);
+        color: #31556a;
+        font-weight: 900;
+        line-height: 1.35;
+      }
+
+      footer {
+        width: min(1180px, calc(100% - 28px));
+        margin: 0 auto;
+        padding: 0 0 28px;
+        color: var(--muted);
+        font-weight: 900;
+        text-align: center;
+      }
+
+      @media (max-width: 960px) {
+        .game-shell { grid-template-columns: 1fr; }
+        .stage { min-height: 620px; }
+        .house-wrap { min-height: 548px; }
+        .house { height: 470px; }
+        .rooms { height: 384px; }
+      }
+
+      @media (max-width: 620px) {
+        .status-bar { grid-template-columns: repeat(2, 1fr); }
+        .house { width: 720px; left: 360px; }
+        .house-wrap { overflow-x: auto; }
+        .buttons, .palette, .room-buttons { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="../../index.html"><span class="mark"></span><span>Яна Единорог</span></a>
+        <nav aria-label="Навигация">
+          <a href="../../index.html">Главная</a>
+          <a href="../index.html">Игры</a>
+          <a href="../../school/index.html">Учёба</a>
+          <a href="../../map/index.html">Карта</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="content">
+      <div class="game-shell">
+        <section class="stage" aria-label="Игра Милый домик">
+          <div class="status-bar">
+            <div><span>Комната</span><strong id="roomName">Гостиная</strong></div>
+            <div><span>Настроение</span><strong id="mood">92</strong></div>
+            <div><span>Уют</span><strong id="cozy">38</strong></div>
+            <div><span>Монетки</span><strong id="coins">12</strong></div>
+          </div>
+          <div class="house-wrap" id="houseWrap">
+            <div class="cloud"></div>
+            <div class="house" id="house">
+              <div class="roof"></div>
+              <div class="rooms" id="rooms">
+                <button class="room living" data-room="living" data-title="Гостиная" aria-label="Гостиная"><span class="window"></span></button>
+                <button class="room kitchen" data-room="kitchen" data-title="Кухня" aria-label="Кухня"><span class="window"></span></button>
+                <button class="room bedroom" data-room="bedroom" data-title="Спальня" aria-label="Спальня"><span class="window"></span></button>
+                <button class="room bath" data-room="bath" data-title="Ванная" aria-label="Ванная"><span class="window"></span></button>
+                <button class="room play" data-room="play" data-title="Игровая" aria-label="Игровая"><span class="window"></span></button>
+                <button class="room attic" data-room="attic" data-title="Чердак" aria-label="Чердак"><span class="window"></span></button>
+              </div>
+              <button class="person" id="person" type="button" aria-label="Героиня домика">
+                <span class="hair"></span><span class="arms"></span><span class="legs"></span>
+              </button>
+              <div class="thought" id="thought">Давай строить дом!</div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel">
+          <img src="../../assets/covers/generated/cozy-house.svg" alt="" style="width:100%;border:3px solid var(--line);border-radius:8px;background:#fff">
+          <div>
+            <h1>Милый домик</h1>
+            <p class="lead">Строй уютный дом: выбирай комнату, ставь мебель, двигай предметы и придумывай истории.</p>
+          </div>
+
+          <section aria-labelledby="rooms-title">
+            <h2 id="rooms-title">Комнаты</h2>
+            <div class="room-buttons">
+              <button class="button secondary" data-go="living">Гостиная</button>
+              <button class="button secondary" data-go="kitchen">Кухня</button>
+              <button class="button secondary" data-go="bedroom">Спальня</button>
+              <button class="button secondary" data-go="bath">Ванная</button>
+              <button class="button secondary" data-go="play">Игровая</button>
+              <button class="button secondary" data-go="attic">Чердак</button>
+            </div>
+          </section>
+
+          <section aria-labelledby="palette-title">
+            <h2 id="palette-title">Мебель</h2>
+            <div class="palette">
+              <button class="tool" data-kind="sofa"><i></i><span>Диван</span></button>
+              <button class="tool" data-kind="bed"><i></i><span>Кровать</span></button>
+              <button class="tool" data-kind="table"><i></i><span>Стол</span></button>
+              <button class="tool" data-kind="plant"><i></i><span>Цветок</span></button>
+              <button class="tool" data-kind="lamp"><i></i><span>Лампа</span></button>
+              <button class="tool" data-kind="tub"><i></i><span>Ванна</span></button>
+              <button class="tool" data-kind="fridge"><i></i><span>Холодильник</span></button>
+            </div>
+          </section>
+
+          <div class="buttons">
+            <button class="button" id="dayButton">День/ночь</button>
+            <button class="button secondary" id="cleanButton">Убрать</button>
+            <button class="button secondary" id="saveButton">Сохранить</button>
+            <button class="button secondary" id="resetButton">Сначала</button>
+          </div>
+
+          <div class="log" id="log">Нажми комнату или кнопку комнаты. Мебель можно перетаскивать мышкой или пальцем.</div>
+          <div class="help">Идея: это уютная игра про дом и истории. Можно развивать дальше: одежда, питомцы, магазин, гости, задания дня.</div>
+        </aside>
+      </div>
+    </main>
+
+    <footer>
+      <p>Милый домик добавлен в игровую лабораторию Яны.</p>
+      <nav aria-label="Быстрые ссылки в подвале">
+        <a href="../../index.html">Главная</a>
+        <a href="../index.html">Игры</a>
+        <a href="../kitten-care/index.html">Котёнок</a>
+        <a href="../../school/index.html">Учёба</a>
+      </nav>
+    </footer>
+
+    <script>
+      const house = document.querySelector("#house");
+      const roomsEl = document.querySelector("#rooms");
+      const houseWrap = document.querySelector("#houseWrap");
+      const person = document.querySelector("#person");
+      const thought = document.querySelector("#thought");
+      const logEl = document.querySelector("#log");
+      const roomNameEl = document.querySelector("#roomName");
+      const moodEl = document.querySelector("#mood");
+      const cozyEl = document.querySelector("#cozy");
+      const coinsEl = document.querySelector("#coins");
+      const roomNames = {
+        living: "Гостиная",
+        kitchen: "Кухня",
+        bedroom: "Спальня",
+        bath: "Ванная",
+        play: "Игровая",
+        attic: "Чердак"
+      };
+      const itemSizes = {
+        sofa: [118, 74],
+        bed: [118, 78],
+        table: [92, 74],
+        plant: [90, 88],
+        lamp: [88, 86],
+        tub: [118, 72],
+        fridge: [88, 98]
+      };
+      const itemNames = {
+        sofa: "диван",
+        bed: "кровать",
+        table: "стол",
+        plant: "цветок",
+        lamp: "лампа",
+        tub: "ванна",
+        fridge: "холодильник"
+      };
+      const roomCenters = {
+        living: [108, 284],
+        kitchen: [362, 284],
+        bedroom: [616, 284],
+        bath: [108, 503],
+        play: [362, 503],
+        attic: [616, 503]
+      };
+      const saved = JSON.parse(localStorage.getItem("yana-cozy-house") || "null");
+      const state = saved || {
+        room: "living",
+        mood: 92,
+        cozy: 38,
+        coins: 12,
+        night: false,
+        items: [
+          { id: "start-sofa", kind: "sofa", x: 42, y: 352 },
+          { id: "start-table", kind: "table", x: 308, y: 360 },
+          { id: "start-bed", kind: "bed", x: 556, y: 150 },
+          { id: "start-plant", kind: "plant", x: 662, y: 354 }
+        ]
+      };
+      let activeDrag = null;
+
+      function setLog(text) {
+        logEl.textContent = text;
+        thought.textContent = text.length > 34 ? `${text.slice(0, 34)}...` : text;
+      }
+
+      function renderStats() {
+        roomNameEl.textContent = roomNames[state.room];
+        moodEl.textContent = Math.round(state.mood);
+        cozyEl.textContent = Math.round(state.cozy);
+        coinsEl.textContent = state.coins;
+        houseWrap.classList.toggle("night", state.night);
+      }
+
+      function renderPerson() {
+        const [x, y] = roomCenters[state.room];
+        house.style.setProperty("--hero-x", `${x}px`);
+        house.style.setProperty("--hero-y", `${y}px`);
+        person.classList.add("walking");
+        setTimeout(() => person.classList.remove("walking"), 520);
+      }
+
+      function renderItems() {
+        house.querySelectorAll(".item").forEach((item) => item.remove());
+        for (const item of state.items) {
+          const [w, h] = itemSizes[item.kind];
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `item ${item.kind}`;
+          button.dataset.id = item.id;
+          button.setAttribute("aria-label", itemNames[item.kind]);
+          button.style.setProperty("--x", `${item.x}px`);
+          button.style.setProperty("--y", `${item.y}px`);
+          button.style.setProperty("--w", `${w}px`);
+          button.style.setProperty("--h", `${h}px`);
+          button.innerHTML = '<span class="shape"></span>';
+          button.addEventListener("pointerdown", startDrag);
+          house.appendChild(button);
+        }
+      }
+
+      function render() {
+        renderStats();
+        renderPerson();
+        renderItems();
+      }
+
+      function goRoom(room) {
+        state.room = room;
+        state.mood = Math.min(100, state.mood + 1);
+        setLog(`Идём в комнату: ${roomNames[room]}.`);
+        render();
+      }
+
+      function addItem(kind) {
+        const [centerX, centerY] = roomCenters[state.room];
+        const [w] = itemSizes[kind];
+        state.items.push({
+          id: `${kind}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+          kind,
+          x: Math.max(10, centerX - w / 2 + Math.random() * 34 - 17),
+          y: Math.max(124, centerY + Math.random() * 34 - 10)
+        });
+        state.cozy = Math.min(100, state.cozy + 5);
+        state.mood = Math.min(100, state.mood + 3);
+        state.coins = Math.max(0, state.coins - 1);
+        setLog(`Поставили ${itemNames[kind]}. Можно двигать.`);
+        render();
+      }
+
+      function startDrag(event) {
+        event.preventDefault();
+        const el = event.currentTarget;
+        const item = state.items.find((entry) => entry.id === el.dataset.id);
+        if (!item) return;
+        const rect = house.getBoundingClientRect();
+        activeDrag = {
+          id: item.id,
+          dx: event.clientX - rect.left - item.x,
+          dy: event.clientY - rect.top - item.y
+        };
+        el.classList.add("dragging");
+        el.setPointerCapture?.(event.pointerId);
+      }
+
+      function dragMove(event) {
+        if (!activeDrag) return;
+        const item = state.items.find((entry) => entry.id === activeDrag.id);
+        if (!item) return;
+        const rect = house.getBoundingClientRect();
+        const [w, h] = itemSizes[item.kind];
+        item.x = Math.max(0, Math.min(rect.width - w, event.clientX - rect.left - activeDrag.dx));
+        item.y = Math.max(116, Math.min(rect.height - h, event.clientY - rect.top - activeDrag.dy));
+        const el = house.querySelector(`[data-id="${item.id}"]`);
+        if (el) {
+          el.style.setProperty("--x", `${item.x}px`);
+          el.style.setProperty("--y", `${item.y}px`);
+        }
+      }
+
+      function stopDrag() {
+        if (!activeDrag) return;
+        house.querySelectorAll(".dragging").forEach((el) => el.classList.remove("dragging"));
+        activeDrag = null;
+        state.cozy = Math.min(100, state.cozy + 1);
+        renderStats();
+      }
+
+      function cleanHouse() {
+        state.items = state.items.slice(-8);
+        state.mood = Math.min(100, state.mood + 6);
+        state.cozy = Math.min(100, state.cozy + 4);
+        setLog("Домик прибран. Оставили самые новые вещи.");
+        render();
+      }
+
+      function saveHouse() {
+        localStorage.setItem("yana-cozy-house", JSON.stringify(state));
+        setLog("Домик сохранён в этом браузере.");
+      }
+
+      function resetHouse() {
+        localStorage.removeItem("yana-cozy-house");
+        state.room = "living";
+        state.mood = 92;
+        state.cozy = 38;
+        state.coins = 12;
+        state.night = false;
+        state.items = [
+          { id: "start-sofa", kind: "sofa", x: 42, y: 352 },
+          { id: "start-table", kind: "table", x: 308, y: 360 },
+          { id: "start-bed", kind: "bed", x: 556, y: 150 },
+          { id: "start-plant", kind: "plant", x: 662, y: 354 }
+        ];
+        setLog("Начали домик заново.");
+        render();
+      }
+
+      document.querySelectorAll("[data-go]").forEach((button) => {
+        button.addEventListener("click", () => goRoom(button.dataset.go));
+      });
+
+      document.querySelectorAll(".room").forEach((room) => {
+        room.addEventListener("click", () => goRoom(room.dataset.room));
+      });
+
+      document.querySelectorAll("[data-kind]").forEach((button) => {
+        button.addEventListener("click", () => addItem(button.dataset.kind));
+      });
+
+      document.querySelector("#dayButton").addEventListener("click", () => {
+        state.night = !state.night;
+        state.mood = Math.min(100, state.mood + 2);
+        setLog(state.night ? "В домике вечер. Окна светятся." : "Снова день. Можно строить дальше.");
+        render();
+      });
+      document.querySelector("#cleanButton").addEventListener("click", cleanHouse);
+      document.querySelector("#saveButton").addEventListener("click", saveHouse);
+      document.querySelector("#resetButton").addEventListener("click", resetHouse);
+      window.addEventListener("pointermove", dragMove);
+      window.addEventListener("pointerup", stopDrag);
+      window.addEventListener("pointercancel", stopDrag);
+
+      render();
+    </script>
+    <script src="../../assets/site.js"></script>
+  </body>
+</html>

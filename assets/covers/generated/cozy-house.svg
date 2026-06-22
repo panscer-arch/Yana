@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Милый домик">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#aee8ff"/>
+      <stop offset=".5" stop-color="#ffd6ef"/>
+      <stop offset="1" stop-color="#fff0a8"/>
+    </linearGradient>
+    <linearGradient id="wall" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff8ea"/>
+      <stop offset="1" stop-color="#ffe2bd"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="10" stdDeviation="5" flood-color="#241f35" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <rect width="960" height="540" fill="url(#sky)"/>
+  <circle cx="770" cy="92" r="48" fill="#ffdf67"/>
+  <path d="M0 410c130-62 214-46 308-12 94 33 169 28 257-20 110-61 260-44 395 35v127H0z" fill="#7bcf8f"/>
+  <g filter="url(#shadow)">
+    <path d="M154 176 480 54l326 122v286H154z" fill="#ff93c4"/>
+    <path d="M116 194 480 42l364 152-24 50-340-141-340 141z" fill="#7c5aff"/>
+    <rect x="190" y="196" width="580" height="264" rx="16" fill="url(#wall)" stroke="#241f35" stroke-width="8"/>
+    <path d="M480 196v264M190 328h580" stroke="#241f35" stroke-width="7" opacity=".22"/>
+    <rect x="226" y="230" width="160" height="76" rx="12" fill="#aee8ff" stroke="#241f35" stroke-width="5"/>
+    <rect x="574" y="230" width="150" height="82" rx="12" fill="#b8f0c4" stroke="#241f35" stroke-width="5"/>
+    <rect x="245" y="374" width="156" height="58" rx="24" fill="#ff72ad" stroke="#241f35" stroke-width="5"/>
+    <rect x="560" y="360" width="148" height="74" rx="16" fill="#ffd45c" stroke="#241f35" stroke-width="5"/>
+    <rect x="438" y="342" width="84" height="118" rx="12" fill="#b07345" stroke="#241f35" stroke-width="5"/>
+    <circle cx="503" cy="400" r="6" fill="#fff0a8"/>
+    <g transform="translate(430 230)">
+      <ellipse cx="50" cy="72" rx="42" ry="10" fill="#241f35" opacity=".16"/>
+      <circle cx="50" cy="32" r="26" fill="#f3b79f" stroke="#241f35" stroke-width="5"/>
+      <path d="M25 34c10-34 46-34 57 0-20-13-38-13-57 0z" fill="#6d4635"/>
+      <rect x="23" y="60" width="54" height="66" rx="18" fill="#54b8ff" stroke="#241f35" stroke-width="5"/>
+      <path d="M24 76 2 98M76 76l23 22M35 124l-9 34M65 124l9 34" stroke="#241f35" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="40" cy="32" r="4" fill="#241f35"/>
+      <circle cx="60" cy="32" r="4" fill="#241f35"/>
+      <path d="M39 45c8 7 16 7 23 0" fill="none" stroke="#241f35" stroke-width="4" stroke-linecap="round"/>
+    </g>
+  </g>
+  <text x="60" y="74" fill="#241f35" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="900">Милый домик</text>
+  <text x="62" y="120" fill="#655b78" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800">строй, украшай, играй дома</text>
+</svg>
