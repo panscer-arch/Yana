@@ -495,7 +495,7 @@
               <button class="hero-choice" data-hero="character-male-d" type="button"><img src="../../assets/sprites/kenney-mini-characters/character-male-d.png" alt="">Норд</button>
             </div>
             <button class="start-play-button" id="startOverlayButton" type="button">Играть</button>
-            <span class="start-small">После кнопки: W/S ходьба, мышь прицел, Space выстрел.</span>
+            <span class="start-small">Камера от 1 лица: W/S ходьба, мышь прицел, Space выстрел.</span>
           </div>
         </div>
       </section>
@@ -504,14 +504,14 @@
         <section class="panel">
           <img class="panel-cover" src="../../assets/covers/generated/people-arena.png" alt="" loading="eager">
           <h1>Суперстрелялка</h1>
-          <p>Большая семейная 3D-арена: камера сзади героя, боты бегают и стреляют, а персонажи теперь грузятся как готовые GLB-модели с анимациями, вместо рисования тела кругами, палками и капсулами.</p>
+          <p>Большая семейная 3D-арена: камера от первого лица, боты бегают и стреляют, а персонажи грузятся как готовые GLB-модели с анимациями.</p>
           <div class="setup">
             <button class="big-button" id="startButton" type="button">Старт с ботами</button>
             <button class="ghost-button" id="resetButton" type="button">Заново</button>
             <button class="ghost-button" id="minusButton" type="button">- игрок</button>
             <button class="ghost-button" id="plusButton" type="button">+ игрок</button>
           </div>
-          <p>W/S или ↑/↓ — ходьба, ←/→ — поворот экрана, A/D — шаг боком, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, H — аптечка.</p>
+          <p>W/S или ↑/↓ — ходьба, ←/→ — поворот экрана, A/D — шаг боком, мышь — прицел, Space/клик — выстрел, R — перезарядка, C/Ctrl — присесть, H — аптечка, V — сменить вид.</p>
         </section>
 
         <section class="panel">
@@ -594,7 +594,7 @@
         playerCount: 4,
         timeLeft: 180,
         playerSkin: "character-female-a",
-        view: "third",
+        view: "first",
         yaw: 0,
         pitch: 0,
         recoil: 0,
@@ -3258,6 +3258,7 @@
         state.shots = 0;
         state.yaw = 0;
         state.pitch = 0;
+        state.view = "first";
         state.player.position.set(-4.5, 1.75, 6.5);
         state.player.velocity.set(0, 0, 0);
         state.player.eyeHeight = 1.75;
@@ -4028,7 +4029,7 @@
           ? (state.downedTimer > 0
             ? `ТЫ РАНЕН | H вылечиться аптечкой (${state.player.medkits}) | осталось ${Math.ceil(state.downedTimer)} сек`
             : "ТЫ УМЕР | Нажми Заново или Старт для нового раунда")
-          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | СЕРИЯ ${state.streak} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""}${state.enemyGrace > 0 ? ` | боты осматриваются ${Math.ceil(state.enemyGrace)}с` : ""} | ← → обзор, A/D боком | ${onlineStatus} | игроков ${remotePlayers.size + 1}${state.view === "third" ? " | 3rd person" : ""}`;
+          : `HP ${state.player.hp} | AMMO ${state.player.ammo} | СЕРИЯ ${state.streak} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""}${state.enemyGrace > 0 ? ` | боты осматриваются ${Math.ceil(state.enemyGrace)}с` : ""} | ← → обзор, A/D боком | ${onlineStatus} | игроков ${remotePlayers.size + 1} | ${state.view === "first" ? "1st person" : "3rd person"}`;
       }
 
       function renderScores() {
