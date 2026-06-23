@@ -232,6 +232,40 @@
         font-weight: 850;
       }
 
+      .hero-picker {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+
+      .hero-choice {
+        min-height: 78px;
+        display: grid;
+        place-items: center;
+        gap: 3px;
+        padding: 6px;
+        border: 2px solid rgba(255,255,255,.18);
+        border-radius: 8px;
+        color: #fff7df;
+        background: rgba(255,255,255,.08);
+        font-size: 11px;
+        font-weight: 950;
+      }
+
+      .hero-choice img {
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
+        filter: drop-shadow(0 7px 0 rgba(0,0,0,.24));
+        pointer-events: none;
+      }
+
+      .hero-choice.active {
+        border-color: #ffd76a;
+        background: linear-gradient(180deg, rgba(255,215,106,.28), rgba(212,91,69,.22));
+        box-shadow: 0 0 0 3px rgba(255,215,106,.12);
+      }
+
       .controls {
         display: grid;
         gap: 12px;
@@ -454,6 +488,12 @@
           <div class="start-card">
             <h2>Нажми кнопку</h2>
             <p>Игра не начнётся сама. Сначала спокойно посмотри арену, потом запускай ботов.</p>
+            <div class="hero-picker" aria-label="Выбор героя">
+              <button class="hero-choice active" data-hero="character-female-a" type="button"><img src="../../assets/sprites/kenney-mini-characters/character-female-a.png" alt="">Яна</button>
+              <button class="hero-choice" data-hero="character-female-b" type="button"><img src="../../assets/sprites/kenney-mini-characters/character-female-b.png" alt="">Роза</button>
+              <button class="hero-choice" data-hero="character-male-a" type="button"><img src="../../assets/sprites/kenney-mini-characters/character-male-a.png" alt="">Макс</button>
+              <button class="hero-choice" data-hero="character-male-d" type="button"><img src="../../assets/sprites/kenney-mini-characters/character-male-d.png" alt="">Норд</button>
+            </div>
             <button class="start-play-button" id="startOverlayButton" type="button">Играть</button>
             <span class="start-small">После кнопки: W/S ходьба, мышь прицел, Space выстрел.</span>
           </div>
@@ -520,6 +560,7 @@
       const startButton = document.querySelector("#startButton");
       const startOverlay = document.querySelector("#startScreen");
       const startOverlayButton = document.querySelector("#startOverlayButton");
+      const heroButtons = [...document.querySelectorAll("[data-hero]")];
       const resetButton = document.querySelector("#resetButton");
       const plusButton = document.querySelector("#plusButton");
       const minusButton = document.querySelector("#minusButton");
@@ -552,6 +593,7 @@
         running: false,
         playerCount: 4,
         timeLeft: 180,
+        playerSkin: "character-female-a",
         view: "third",
         yaw: 0,
         pitch: 0,
@@ -1921,7 +1963,7 @@
         addTarget(-9.4, -24.6);
         addTarget(9.4, 24.6);
 
-        playerModel = createSoldier("character-female-a", true);
+        playerModel = createSoldier(state.playerSkin, true);
         scene.add(playerModel.group);
         weapon = createWeapon();
         camera.add(weapon);
@@ -3228,6 +3270,7 @@
         state.player.cooldown = 0;
         state.player.reload = 0;
         startOverlay.classList.remove("hidden");
+        refreshHeroButtons();
         spawnEnemies();
         renderPads();
         updateHud();
@@ -3239,6 +3282,29 @@
         startOverlay.classList.add("hidden");
         showTip(location.protocol === "file:" ? "Режим с ботами: держись за укрытиями" : "Арена запущена: боты плюс онлайн-игроки", 3);
         canvas.focus();
+      }
+
+      function refreshHeroButtons() {
+        heroButtons.forEach((button) => {
+          button.classList.toggle("active", button.dataset.hero === state.playerSkin);
+        });
+      }
+
+      function setPlayerSkin(skin) {
+        state.playerSkin = skin;
+        refreshHeroButtons();
+        if (playerModel) {
+          const wasVisible = playerModel.group.visible;
+          const position = playerModel.group.position.clone();
+          const rotationY = playerModel.group.rotation.y;
+          scene.remove(playerModel.group);
+          playerModel = createSoldier(state.playerSkin, true);
+          playerModel.group.position.copy(position);
+          playerModel.group.rotation.y = rotationY;
+          playerModel.group.visible = wasVisible;
+          scene.add(playerModel.group);
+        }
+        showTip("Герой выбран", 1.4);
       }
 
       function clearMovementInput() {
@@ -4067,6 +4133,9 @@
         virtualMove.side = 0;
       });
       window.addEventListener("pointercancel", clearMovementInput);
+      heroButtons.forEach((button) => {
+        button.addEventListener("click", () => setPlayerSkin(button.dataset.hero));
+      });
       startButton.addEventListener("click", startGame);
       startOverlayButton.addEventListener("click", startGame);
       resetButton.addEventListener("click", resetGame);
