@@ -32,7 +32,7 @@
         min-height: 100vh;
         margin: 0;
         color: var(--ink);
-        font-family: Arial Black, Arial, Helvetica, sans-serif;
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
         background:
           linear-gradient(90deg, rgba(218, 210, 190, .05) 1px, transparent 1px),
           linear-gradient(0deg, rgba(218, 210, 190, .04) 1px, transparent 1px),
@@ -107,9 +107,29 @@
       }
 
       .brand {
+        position: relative;
+        overflow: hidden;
         color: white;
-        background: linear-gradient(135deg, #2b2d2f, #56514a);
-        text-shadow: 0 2px 0 rgba(0,0,0,.38), 0 0 18px rgba(255,215,106,.16);
+        letter-spacing: .2px;
+        background:
+          linear-gradient(135deg, rgba(255,255,255,.14), transparent 38%),
+          linear-gradient(135deg, #312f2d, #6e6044);
+        text-shadow: 0 2px 0 rgba(0,0,0,.46), 0 0 18px rgba(255,215,106,.18);
+      }
+
+      .brand::after {
+        content: "";
+        position: absolute;
+        inset: -40% auto -40% -60%;
+        width: 42%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.34), transparent);
+        transform: rotate(18deg);
+        animation: logoShine 4.8s ease-in-out infinite;
+      }
+
+      @keyframes logoShine {
+        0%, 58% { left: -60%; }
+        78%, 100% { left: 120%; }
       }
 
       .portal-bar nav,
@@ -163,6 +183,7 @@
       .hud strong {
         display: block;
         margin-top: 2px;
+        font-family: Arial Black, "Trebuchet MS", Arial, sans-serif;
         font-size: 22px;
         line-height: 1;
         color: #fff7df;
@@ -188,8 +209,11 @@
         place-items: center;
         padding: 24px;
         background:
+          linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px),
+          linear-gradient(0deg, rgba(255,255,255,.035) 1px, transparent 1px),
           radial-gradient(circle at 50% 34%, rgba(255, 228, 149, .22), transparent 28%),
           linear-gradient(180deg, rgba(12, 14, 16, .54), rgba(8, 9, 10, .78));
+        background-size: 34px 34px, 34px 34px, auto, auto;
         backdrop-filter: blur(3px);
       }
 
@@ -198,6 +222,8 @@
       }
 
       .start-card {
+        position: relative;
+        overflow: hidden;
         width: min(430px, 92%);
         display: grid;
         gap: 14px;
@@ -205,20 +231,40 @@
         border: 2px solid rgba(255,255,255,.22);
         border-radius: 8px;
         color: #fff7df;
-        background: linear-gradient(145deg, rgba(30, 34, 35, .94), rgba(93, 72, 45, .88));
-        box-shadow: 0 24px 70px rgba(0,0,0,.44);
+        background:
+          linear-gradient(135deg, rgba(255,255,255,.12), transparent 34%),
+          linear-gradient(145deg, rgba(28, 31, 31, .96), rgba(91, 68, 40, .91));
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,.18),
+          0 24px 70px rgba(0,0,0,.48),
+          0 0 0 6px rgba(0,0,0,.12);
         text-align: center;
+      }
+
+      .start-card::before {
+        content: "★";
+        position: absolute;
+        right: 18px;
+        top: 14px;
+        color: rgba(255, 215, 106, .48);
+        font-size: 22px;
+        text-shadow: 0 0 18px rgba(255,215,106,.42);
       }
 
       .start-card h2 {
         margin: 0;
+        font-family: Arial Black, "Trebuchet MS", Arial, sans-serif;
         font-size: clamp(28px, 5vw, 42px);
         line-height: .95;
-        color: #ffeaa4;
+        letter-spacing: .8px;
+        color: transparent;
+        background: linear-gradient(180deg, #fff8cf 8%, #ffd76a 46%, #d58439 92%);
+        -webkit-background-clip: text;
+        background-clip: text;
         text-transform: uppercase;
         text-shadow:
-          0 3px 0 #4a2d20,
-          0 7px 18px rgba(0,0,0,.58),
+          0 3px 0 rgba(74,45,32,.9),
+          0 8px 18px rgba(0,0,0,.62),
           0 0 22px rgba(255,215,106,.35);
       }
 
@@ -230,14 +276,36 @@
       }
 
       .start-play-button {
+        position: relative;
+        overflow: hidden;
         min-height: 58px;
         border-radius: 8px;
         color: white;
-        background: linear-gradient(135deg, #d45b45, #c59b4a);
-        box-shadow: 0 12px 0 rgba(0,0,0,.22);
+        background:
+          linear-gradient(135deg, rgba(255,255,255,.22), transparent 36%),
+          linear-gradient(135deg, #d85d44, #d5a64c);
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,.22),
+          0 12px 0 rgba(0,0,0,.22),
+          0 18px 36px rgba(212,91,69,.22);
+        font-family: Arial Black, "Trebuchet MS", Arial, sans-serif;
         font-size: 22px;
         font-weight: 950;
         text-shadow: 0 3px 0 rgba(94,45,31,.6), 0 0 16px rgba(255,255,255,.22);
+        transition: transform 140ms ease, filter 140ms ease;
+      }
+
+      .start-play-button:hover {
+        filter: brightness(1.08);
+        transform: translateY(-1px);
+      }
+
+      .start-play-button:active {
+        transform: translateY(4px);
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,.22),
+          0 7px 0 rgba(0,0,0,.24),
+          0 12px 28px rgba(212,91,69,.18);
       }
 
       .start-small {
@@ -302,9 +370,13 @@
       }
 
       .panel h1 {
+        font-family: Arial Black, "Trebuchet MS", Arial, sans-serif;
         font-size: 28px;
         line-height: 1;
-        color: #ffeaa4;
+        color: transparent;
+        background: linear-gradient(180deg, #fff8cf 6%, #ffd76a 50%, #d4833a 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
         text-shadow:
           0 3px 0 rgba(70,43,30,.85),
           0 8px 20px rgba(0,0,0,.45),
@@ -316,10 +388,13 @@
         aspect-ratio: 16 / 9;
         margin-bottom: 12px;
         object-fit: cover;
-        border: 2px solid rgba(238, 231, 216, .18);
+        border: 2px solid rgba(255, 215, 106, .3);
         border-radius: 8px;
         background: #1d1f20;
-        box-shadow: 0 16px 38px rgba(0, 0, 0, .24);
+        box-shadow:
+          inset 0 0 0 1px rgba(255,255,255,.12),
+          0 16px 38px rgba(0, 0, 0, .26),
+          0 0 28px rgba(255,215,106,.12);
       }
 
       .panel h2 {
@@ -342,11 +417,14 @@
       }
 
       .big-button {
+        font-family: Arial Black, "Trebuchet MS", Arial, sans-serif;
         min-height: 46px;
         border-radius: 8px;
         color: white;
         font-weight: 950;
-        background: linear-gradient(135deg, #b44736, #60543f);
+        background:
+          linear-gradient(135deg, rgba(255,255,255,.16), transparent 36%),
+          linear-gradient(135deg, #b44736, #6c5840);
         box-shadow: 0 14px 30px rgba(0, 0, 0, .28);
         text-shadow: 0 2px 0 rgba(0,0,0,.45), 0 0 14px rgba(255,215,106,.2);
       }
