@@ -356,6 +356,77 @@
         background: rgba(13, 29, 36, .7);
       }
 
+      .online-lobby {
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+        border: 1px solid rgba(158, 231, 255, .28);
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, rgba(56, 189, 248, .16), transparent 52%),
+          rgba(7, 18, 24, .52);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 14px 28px rgba(0,0,0,.18);
+      }
+
+      .online-lobby-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        color: #eafcff;
+        font-weight: 950;
+        text-shadow: 0 2px 0 rgba(0,0,0,.48);
+      }
+
+      .online-dot {
+        width: 10px;
+        height: 10px;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        background: #8a8f8f;
+        box-shadow: 0 0 0 4px rgba(138,143,143,.16);
+      }
+
+      .online-dot.live {
+        background: #51f58d;
+        box-shadow: 0 0 0 4px rgba(81,245,141,.16), 0 0 18px rgba(81,245,141,.5);
+      }
+
+      .online-count {
+        padding: 5px 8px;
+        border-radius: 8px;
+        color: #102018;
+        background: linear-gradient(135deg, #9dffbd, #54ddff);
+        font-size: 12px;
+        font-weight: 950;
+      }
+
+      .online-lobby p {
+        margin: 0;
+        color: #c7e9ef;
+        font-size: 12px;
+        line-height: 1.3;
+      }
+
+      .online-players {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .online-players span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 7px;
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 8px;
+        color: #fff8cf;
+        background: rgba(255,255,255,.08);
+        font-size: 11px;
+        font-weight: 950;
+      }
+
       .preview-hero,
       .preview-bot,
       .preview-crate {
@@ -819,6 +890,17 @@
             </div>
             <span class="start-mode">Матч с ботами</span>
             <h2>Выбери героя</h2>
+            <div class="online-lobby" aria-live="polite">
+              <div class="online-lobby-head">
+                <span class="online-dot" id="onlineDot"></span>
+                <strong>Онлайн-арена</strong>
+                <span class="online-count" id="onlineCount">...</span>
+              </div>
+              <p id="onlineLobbyText">Подключаю общий сервер. Если кто-то уже играет, ты увидишь его здесь и сможешь зайти в этот же матч.</p>
+              <div class="online-players" id="onlinePlayers">
+                <span>Вы</span>
+              </div>
+            </div>
             <div class="start-mission">
               <b>Миссия</b>
               <p>Выбери скин, зайди на арену, прячься за укрытиями и держи аптечку наготове.</p>
@@ -834,7 +916,7 @@
               <span>Укрытия есть</span>
               <span>Аптечка спасает</span>
             </div>
-            <button class="start-play-button" id="startOverlayButton" type="button">Старт матча</button>
+            <button class="start-play-button" id="startOverlayButton" type="button">Зайти в матч</button>
             <span class="start-small">Камера от 1 лица: W/S ходьба, мышь прицел, Space выстрел.</span>
           </div>
         </div>
@@ -901,6 +983,10 @@
       const startOverlay = document.querySelector("#startScreen");
       const startOverlayButton = document.querySelector("#startOverlayButton");
       const heroButtons = [...document.querySelectorAll("[data-hero]")];
+      const onlineDotEl = document.querySelector("#onlineDot");
+      const onlineCountEl = document.querySelector("#onlineCount");
+      const onlineLobbyTextEl = document.querySelector("#onlineLobbyText");
+      const onlinePlayersEl = document.querySelector("#onlinePlayers");
       const resetButton = document.querySelector("#resetButton");
       const plusButton = document.querySelector("#plusButton");
       const minusButton = document.querySelector("#minusButton");
@@ -990,6 +1076,7 @@
       let networkSocket;
       let networkId = "";
       let networkTimer = 0;
+      let onlineTotal = 1;
       let onlineStatus = location.protocol === "file:" ? "боты: локальная игра" : "онлайн: подключение...";
       let audioContext;
       const virtualMove = { forward: 0, side: 0 };
@@ -3481,9 +3568,38 @@
         }
       }
 
+      function updateOnlineLobby() {
+        const connected = Boolean(networkSocket && networkSocket.readyState === WebSocket.OPEN);
+        const total = Math.max(1, onlineTotal, remotePlayers.size + 1);
+        if (onlineDotEl) onlineDotEl.classList.toggle("live", connected);
+        if (onlineCountEl) onlineCountEl.textContent = connected ? `${total} онлайн` : (location.protocol === "file:" ? "локально" : "поиск...");
+        if (onlineLobbyTextEl) {
+          if (location.protocol === "file:") {
+            onlineLobbyTextEl.textContent = "Файл открыт локально: будет матч с ботами. Для игры вместе открой сайт barbarpatapim.com.";
+          } else if (!connected) {
+            onlineLobbyTextEl.textContent = "Подключаю общий сервер. Когда кто-то зайдёт на сайт, он появится здесь.";
+          } else if (total > 1 || remotePlayers.size > 0) {
+            onlineLobbyTextEl.textContent = "Кто-то уже на арене. Нажми «Зайти в матч», и вы будете играть вместе.";
+          } else {
+            onlineLobbyTextEl.textContent = "Ты первый игрок на арене. Когда мама, папа или сестра откроют сайт, они появятся рядом.";
+          }
+        }
+        if (onlinePlayersEl) {
+          const remoteLabels = [...remotePlayers.values()].slice(0, 5).map((remote, index) => {
+            const hp = Math.max(0, Math.round(remote.state.hp || 100));
+            return `<span>Онлайн ${index + 1} · HP ${hp}</span>`;
+          });
+          const waiting = connected && remoteLabels.length === 0 && total > 1
+            ? Array.from({ length: Math.min(4, total - 1) }, (_, index) => `<span>Игрок ${index + 2} подключается</span>`)
+            : [];
+          onlinePlayersEl.innerHTML = [`<span>Вы</span>`, ...remoteLabels, ...waiting].join("");
+        }
+      }
+
       function connectArena() {
         if (location.protocol === "file:") {
           onlineStatus = "боты: локальная игра";
+          updateOnlineLobby();
           return;
         }
         const isLocalPreview = location.hostname === "127.0.0.1" || location.hostname === "localhost";
@@ -3494,16 +3610,28 @@
           networkSocket = new WebSocket(endpoint);
         } catch {
           onlineStatus = "онлайн: не подключено";
+          updateOnlineLobby();
           return;
         }
         networkSocket.addEventListener("open", () => {
           onlineStatus = isLocalPreview ? "онлайн: общий сервер" : "онлайн: подключено";
+          updateOnlineLobby();
         });
         networkSocket.addEventListener("message", (event) => {
           const message = JSON.parse(event.data);
           if (message.type === "welcome") {
             networkId = message.id;
+            onlineTotal = Number(message.count) || ((message.peers || []).length + 1);
             for (const peer of message.peers || []) upsertRemotePlayer(peer);
+            updateOnlineLobby();
+          }
+          if (message.type === "lobby") {
+            onlineTotal = Number(message.count) || 1;
+            updateOnlineLobby();
+          }
+          if (message.type === "join") {
+            onlineTotal = Math.max(onlineTotal, remotePlayers.size + 2);
+            updateOnlineLobby();
           }
           if (message.type === "peer") upsertRemotePlayer(message);
           if (message.type === "hit" && message.targetId === networkId && !state.downed) {
@@ -3511,14 +3639,20 @@
             state.damageFlash = 1;
             playHitSound();
           }
-          if (message.type === "leave") removeRemotePlayer(message.id);
+          if (message.type === "leave") {
+            removeRemotePlayer(message.id);
+            onlineTotal = Math.max(1, Number(message.count) || (remotePlayers.size + 1));
+            updateOnlineLobby();
+          }
         });
         networkSocket.addEventListener("close", () => {
           onlineStatus = "онлайн: переподключение...";
+          updateOnlineLobby();
           setTimeout(connectArena, 1800);
         });
         networkSocket.addEventListener("error", () => {
           onlineStatus = "онлайн: ошибка";
+          updateOnlineLobby();
         });
       }
 
@@ -3533,6 +3667,8 @@
         }
         remote.state = peer;
         remote.lastSeen = performance.now();
+        onlineTotal = Math.max(onlineTotal, remotePlayers.size + 1);
+        updateOnlineLobby();
       }
 
       function removeRemotePlayer(id) {
@@ -3540,6 +3676,8 @@
         if (!remote) return;
         scene.remove(remote.model.group);
         remotePlayers.delete(id);
+        onlineTotal = Math.max(1, remotePlayers.size + 1);
+        updateOnlineLobby();
       }
 
       function updateRemotePlayers(delta) {
@@ -4351,7 +4489,7 @@
       }
 
       function updateHud() {
-        playersCountEl.textContent = state.playerCount;
+        playersCountEl.textContent = state.playerCount + remotePlayers.size;
         roundTimeEl.textContent = Math.ceil(state.timeLeft);
         starsLeftEl.textContent = state.player.reload > 0 ? "..." : state.player.ammo;
         leaderNameEl.textContent = `${state.score}`;
@@ -4370,6 +4508,7 @@
             ? `ТЫ РАНЕН | H вылечиться аптечкой (${state.player.medkits}) | осталось ${Math.ceil(state.downedTimer)} сек`
             : "ТЫ УМЕР | Нажми Заново или Старт для нового раунда")
           : `HP ${state.player.hp} | AMMO ${state.player.ammo} | СЕРИЯ ${state.streak} | РЮКЗАК аптечки ${state.player.medkits}, патроны ${state.player.ammoPacks}${nearWounded ? " | рядом раненый: подойди помочь" : ""}${state.enemyGrace > 0 ? ` | боты осматриваются ${Math.ceil(state.enemyGrace)}с` : ""} | ← → обзор, A/D боком | ${onlineStatus} | игроков ${remotePlayers.size + 1} | ${state.view === "first" ? "1st person" : "3rd person"}`;
+        updateOnlineLobby();
       }
 
       function renderScores() {

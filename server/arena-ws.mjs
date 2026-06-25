@@ -24,6 +24,14 @@ function broadcast(data, exceptId = "") {
   }
 }
 
+function peers() {
+  return [...clients.values()].map((item) => item.state).filter(Boolean);
+}
+
+function broadcastLobby() {
+  broadcast({ type: "lobby", count: clients.size });
+}
+
 function parseFrames(buffer) {
   const messages = [];
   let offset = 0;
@@ -77,8 +85,9 @@ server.on("upgrade", (req, socket) => {
   const id = crypto.randomUUID().slice(0, 8);
   const client = { id, socket, rest: Buffer.alloc(0), state: null };
   clients.set(id, client);
-  send(socket, { type: "welcome", id, peers: [...clients.values()].filter((item) => item.id !== id).map((item) => item.state).filter(Boolean) });
-  broadcast({ type: "join", id }, id);
+  send(socket, { type: "welcome", id, count: clients.size, peers: peers().filter((item) => item.id !== id) });
+  broadcast({ type: "join", id, count: clients.size }, id);
+  broadcastLobby();
 
   socket.on("data", (chunk) => {
     const parsed = parseFrames(Buffer.concat([client.rest, chunk]));
@@ -118,11 +127,13 @@ server.on("upgrade", (req, socket) => {
 
   socket.on("close", () => {
     clients.delete(id);
-    broadcast({ type: "leave", id });
+    broadcast({ type: "leave", id, count: clients.size });
+    broadcastLobby();
   });
   socket.on("error", () => {
     clients.delete(id);
-    broadcast({ type: "leave", id });
+    broadcast({ type: "leave", id, count: clients.size });
+    broadcastLobby();
   });
 });
 
