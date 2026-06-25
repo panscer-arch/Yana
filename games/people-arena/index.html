@@ -224,10 +224,10 @@
       .start-card {
         position: relative;
         overflow: hidden;
-        width: min(430px, 92%);
+        width: min(560px, 94%);
         display: grid;
-        gap: 14px;
-        padding: 22px;
+        gap: 12px;
+        padding: 18px;
         border: 2px solid rgba(255,255,255,.22);
         border-radius: 8px;
         color: #fff7df;
@@ -249,6 +249,94 @@
         color: rgba(255, 215, 106, .48);
         font-size: 22px;
         text-shadow: 0 0 18px rgba(255,215,106,.42);
+      }
+
+      .start-preview {
+        min-height: 118px;
+        position: relative;
+        overflow: hidden;
+        border: 2px solid rgba(255, 215, 106, .26);
+        border-radius: 8px;
+        background:
+          linear-gradient(180deg, rgba(130, 194, 230, .72) 0 38%, transparent 38%),
+          linear-gradient(90deg, rgba(96, 75, 54, .74) 0 18%, transparent 18% 48%, rgba(80, 67, 49, .78) 48% 66%, transparent 66%),
+          linear-gradient(180deg, transparent 0 38%, #b98a59 38% 100%);
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,.22),
+          0 12px 26px rgba(0,0,0,.25);
+      }
+
+      .start-preview::before {
+        content: "";
+        position: absolute;
+        inset: 48% 0 0;
+        background:
+          linear-gradient(90deg, rgba(255,255,255,.18) 1px, transparent 1px),
+          linear-gradient(0deg, rgba(65,45,30,.26) 1px, transparent 1px);
+        background-size: 42px 100%, 100% 32px;
+        transform: perspective(180px) rotateX(44deg);
+        transform-origin: top;
+      }
+
+      .start-preview::after {
+        content: "";
+        position: absolute;
+        width: 42px;
+        height: 42px;
+        right: 46px;
+        top: 17px;
+        border-radius: 50%;
+        background: #ffe077;
+        box-shadow: 0 0 34px rgba(255,224,119,.55);
+      }
+
+      .preview-title {
+        position: absolute;
+        left: 14px;
+        top: 12px;
+        z-index: 2;
+        font-family: Arial Black, "Trebuchet MS", Arial, sans-serif;
+        color: #fff8cf;
+        text-align: left;
+        text-shadow: 0 3px 0 rgba(65,43,25,.66), 0 0 18px rgba(0,0,0,.36);
+      }
+
+      .preview-hero,
+      .preview-bot,
+      .preview-crate {
+        position: absolute;
+        z-index: 2;
+        filter: drop-shadow(0 12px 10px rgba(0,0,0,.32));
+      }
+
+      .preview-hero {
+        left: 42%;
+        bottom: 16px;
+        width: 52px;
+        height: 64px;
+        background: url("../../assets/sprites/kenney-mini-characters/character-female-a.png") center / contain no-repeat;
+      }
+
+      .preview-bot {
+        left: 57%;
+        bottom: 28px;
+        width: 42px;
+        height: 52px;
+        background: url("../../assets/sprites/kenney-mini-characters/character-male-a.png") center / contain no-repeat;
+        opacity: .86;
+      }
+
+      .preview-crate {
+        right: 84px;
+        bottom: 16px;
+        width: 58px;
+        height: 42px;
+        border: 2px solid rgba(67,43,27,.42);
+        border-radius: 6px;
+        background:
+          linear-gradient(135deg, transparent 44%, rgba(72,45,25,.35) 45% 55%, transparent 56%),
+          linear-gradient(45deg, transparent 44%, rgba(72,45,25,.32) 45% 55%, transparent 56%),
+          linear-gradient(135deg, #b77745, #7c4e2e);
       }
 
       .start-card h2 {
@@ -329,24 +417,52 @@
         border: 2px solid rgba(255,255,255,.18);
         border-radius: 8px;
         color: #fff7df;
-        background: rgba(255,255,255,.08);
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.1), transparent),
+          rgba(255,255,255,.08);
         font-size: 11px;
         font-weight: 950;
         text-shadow: 0 2px 0 rgba(0,0,0,.44);
+        transition: transform 140ms ease, border-color 140ms ease, filter 140ms ease;
       }
 
       .hero-choice img {
-        width: 42px;
-        height: 42px;
+        width: 48px;
+        height: 48px;
         object-fit: contain;
         filter: drop-shadow(0 7px 0 rgba(0,0,0,.24));
         pointer-events: none;
+      }
+
+      .hero-choice:hover {
+        filter: brightness(1.08);
+        transform: translateY(-2px);
       }
 
       .hero-choice.active {
         border-color: #ffd76a;
         background: linear-gradient(180deg, rgba(255,215,106,.28), rgba(212,91,69,.22));
         box-shadow: 0 0 0 3px rgba(255,215,106,.12);
+      }
+
+      .start-steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .start-steps span {
+        min-height: 34px;
+        display: grid;
+        place-items: center;
+        padding: 6px 8px;
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 8px;
+        color: #ffeaa4;
+        background: rgba(11, 13, 14, .36);
+        font-size: 11px;
+        font-weight: 950;
+        text-shadow: 0 2px 0 rgba(0,0,0,.45);
       }
 
       .controls {
@@ -550,6 +666,15 @@
           grid-template-columns: repeat(2, 1fr);
         }
 
+        .start-card {
+          width: min(500px, 96%);
+          padding: 14px;
+        }
+
+        .start-preview {
+          min-height: 96px;
+        }
+
         .pads {
           grid-template-columns: repeat(3, 1fr);
         }
@@ -557,7 +682,8 @@
 
       @media (max-width: 620px) {
         .setup,
-        .pads {
+        .pads,
+        .start-steps {
           grid-template-columns: 1fr;
         }
 
@@ -589,13 +715,24 @@
         <canvas id="arena" width="1120" height="700" tabindex="0"></canvas>
         <div class="start-screen" id="startScreen">
           <div class="start-card">
-            <h2>Нажми кнопку</h2>
-            <p>Игра не начнётся сама. Сначала спокойно посмотри арену, потом запускай ботов.</p>
+            <div class="start-preview" aria-hidden="true">
+              <span class="preview-title">Суперстарт</span>
+              <span class="preview-hero"></span>
+              <span class="preview-bot"></span>
+              <span class="preview-crate"></span>
+            </div>
+            <h2>Выбери героя</h2>
+            <p>Сначала выбери скин, посмотри арену и только потом запускай матч с ботами.</p>
             <div class="hero-picker" aria-label="Выбор героя">
               <button class="hero-choice active" data-hero="character-female-a" type="button"><img src="../../assets/sprites/kenney-mini-characters/character-female-a.png" alt="">Яна</button>
               <button class="hero-choice" data-hero="character-female-b" type="button"><img src="../../assets/sprites/kenney-mini-characters/character-female-b.png" alt="">Роза</button>
               <button class="hero-choice" data-hero="character-male-a" type="button"><img src="../../assets/sprites/kenney-mini-characters/character-male-a.png" alt="">Макс</button>
               <button class="hero-choice" data-hero="character-male-d" type="button"><img src="../../assets/sprites/kenney-mini-characters/character-male-d.png" alt="">Норд</button>
+            </div>
+            <div class="start-steps" aria-label="Что будет в матче">
+              <span>Боты бегают</span>
+              <span>Укрытия есть</span>
+              <span>Аптечка спасает</span>
             </div>
             <button class="start-play-button" id="startOverlayButton" type="button">Играть</button>
             <span class="start-small">Камера от 1 лица: W/S ходьба, мышь прицел, Space выстрел.</span>
