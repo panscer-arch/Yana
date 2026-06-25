@@ -206,8 +206,8 @@
         inset: 0;
         z-index: 15;
         display: grid;
-        place-items: center;
-        padding: 24px;
+        place-items: start center;
+        padding: clamp(12px, 3vh, 22px) 24px 24px;
         background:
           linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px),
           linear-gradient(0deg, rgba(255,255,255,.035) 1px, transparent 1px),
@@ -225,6 +225,7 @@
         position: relative;
         overflow: hidden;
         width: min(680px, 94%);
+        margin-top: 0;
         display: grid;
         grid-template-columns: 1.15fr .85fr;
         gap: 14px;
@@ -259,7 +260,7 @@
       }
 
       .start-preview {
-        min-height: 330px;
+        min-height: 310px;
         position: relative;
         overflow: hidden;
         grid-row: span 6;
@@ -410,7 +411,7 @@
       .start-play-button {
         position: relative;
         overflow: hidden;
-        min-height: 58px;
+        min-height: 54px;
         border-radius: 8px;
         color: white;
         background:
@@ -469,7 +470,7 @@
       }
 
       .hero-choice {
-        min-height: 70px;
+        min-height: 66px;
         display: grid;
         grid-template-columns: 48px 1fr;
         align-items: center;
