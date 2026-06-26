@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Милый домик</title>
-    <meta name="description" content="Милый домик: уютная игра про строительство и украшение дома с комнатами, мебелью и маленьким персонажем.">
+    <title>Милый домик: эмоции</title>
+    <meta name="description" content="Милый домик: уютная игра про дом, персонажей, эмоции, одежду, комнаты, мебель и маленькие истории.">
     <meta name="theme-color" content="#ff72ad">
     <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
     <style>
@@ -556,6 +556,38 @@
         filter: drop-shadow(0 10px 0 rgba(36,31,53,.14));
       }
 
+      .emotion-bubble {
+        position: absolute;
+        left: 50%;
+        top: -28px;
+        z-index: 4;
+        min-width: 42px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        padding: 0 8px;
+        border: 3px solid rgba(36,31,53,.14);
+        border-radius: 999px;
+        background: rgba(255,255,255,.92);
+        box-shadow: 0 7px 0 rgba(36,31,53,.1);
+        font-size: 22px;
+        transform: translateX(-50%);
+        pointer-events: none;
+      }
+
+      .emotion-bubble::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -8px;
+        width: 12px;
+        height: 12px;
+        border-right: 3px solid rgba(36,31,53,.14);
+        border-bottom: 3px solid rgba(36,31,53,.14);
+        background: rgba(255,255,255,.92);
+        transform: translateX(-50%) rotate(45deg);
+      }
+
       .person::before {
         content: "";
         position: absolute;
@@ -662,6 +694,8 @@
       .buttons,
       .character-buttons,
       .outfit-buttons,
+      .emotion-buttons,
+      .story-buttons,
       .palette,
       .room-buttons {
         display: grid;
@@ -670,7 +704,9 @@
 
       .buttons { grid-template-columns: 1fr 1fr; }
       .character-buttons,
-      .outfit-buttons { grid-template-columns: 1fr 1fr 1fr; }
+      .outfit-buttons,
+      .story-buttons { grid-template-columns: 1fr 1fr 1fr; }
+      .emotion-buttons { grid-template-columns: repeat(5, 1fr); }
       .room-buttons { grid-template-columns: 1fr 1fr; }
       .palette { grid-template-columns: 1fr 1fr; }
 
@@ -820,10 +856,12 @@
               </div>
               <button class="person" id="person" type="button" aria-label="Героиня домика">
                 <img src="../../assets/cozy-house/character-yana.png" alt="">
+                <span class="emotion-bubble" id="emotionPerson">😊</span>
                 <span class="held" id="heldPerson"></span>
               </button>
               <button class="person guest" id="guest" type="button" aria-label="Подружка в домике" style="--hero-x: 210px; --hero-y: 338px">
                 <img src="../../assets/cozy-house/character-friend.png" alt="">
+                <span class="emotion-bubble" id="emotionGuest">😊</span>
                 <span class="held" id="heldGuest"></span>
               </button>
               <div class="thought" id="thought">Давай строить дом!</div>
@@ -835,7 +873,7 @@
           <img src="../../assets/covers/generated/cozy-house.svg" alt="" style="width:100%;border:3px solid var(--line);border-radius:8px;background:#fff">
           <div>
             <h1>Милый домик</h1>
-            <p class="lead">Строй уютный дом: выбирай комнату, ставь мебель, двигай предметы и придумывай истории.</p>
+            <p class="lead">Строй уютный дом: выбирай комнату, двигай человечков, включай эмоции, меняй одежду и придумывай истории.</p>
           </div>
 
           <section aria-labelledby="people-title">
@@ -853,6 +891,26 @@
               <button class="button tiny active" data-outfit="home">Дом</button>
               <button class="button tiny" data-outfit="party">Праздник</button>
               <button class="button tiny" data-outfit="sleep">Пижама</button>
+            </div>
+          </section>
+
+          <section aria-labelledby="emotions-title">
+            <h2 id="emotions-title">Эмоции</h2>
+            <div class="emotion-buttons">
+              <button class="button tiny" data-emotion="happy" type="button">😊</button>
+              <button class="button tiny" data-emotion="love" type="button">💖</button>
+              <button class="button tiny" data-emotion="wow" type="button">😮</button>
+              <button class="button tiny" data-emotion="sad" type="button">😢</button>
+              <button class="button tiny" data-emotion="angry" type="button">😠</button>
+            </div>
+          </section>
+
+          <section aria-labelledby="stories-title">
+            <h2 id="stories-title">Сценки</h2>
+            <div class="story-buttons">
+              <button class="button tiny" data-story="party" type="button">Вечеринка</button>
+              <button class="button tiny" data-story="school" type="button">Школа</button>
+              <button class="button tiny" data-story="sleepover" type="button">Ночёвка</button>
             </div>
           </section>
 
@@ -899,7 +957,7 @@
           </div>
 
           <div class="log" id="log">Нажми комнату или кнопку комнаты. Мебель можно перетаскивать мышкой или пальцем.</div>
-          <div class="help">Идея: это уютная игра про дом и истории. Можно развивать дальше: одежда, питомцы, магазин, гости, задания дня.</div>
+          <div class="help">Идея: это уютная игра про дом, эмоции и сценки. Можно развивать дальше: магазин одежды, питомцы, школа, кафе, новые гости и задания дня.</div>
         </aside>
       </div>
     </main>
@@ -922,8 +980,12 @@
       const guest = document.querySelector("#guest");
       const heldPerson = document.querySelector("#heldPerson");
       const heldGuest = document.querySelector("#heldGuest");
+      const emotionPerson = document.querySelector("#emotionPerson");
+      const emotionGuest = document.querySelector("#emotionGuest");
       const personButtons = [...document.querySelectorAll("[data-person]")];
       const outfitButtons = [...document.querySelectorAll("[data-outfit]")];
+      const emotionButtons = [...document.querySelectorAll("[data-emotion]")];
+      const storyButtons = [...document.querySelectorAll("[data-story]")];
       const thought = document.querySelector("#thought");
       const logEl = document.querySelector("#log");
       const roomNameEl = document.querySelector("#roomName");
@@ -937,6 +999,13 @@
         bath: "Ванная",
         play: "Игровая",
         attic: "Чердак"
+      };
+      const emotions = {
+        happy: { icon: "😊", text: "радость" },
+        love: { icon: "💖", text: "сердечки" },
+        wow: { icon: "😮", text: "удивление" },
+        sad: { icon: "😢", text: "грусть" },
+        angry: { icon: "😠", text: "злость" }
       };
       const itemSizes = {
         sofa: [118, 74],
@@ -1005,8 +1074,8 @@
         night: false,
         selectedPerson: "person",
         people: {
-          person: { x: 108, y: 284, holding: "", outfit: "home" },
-          guest: { x: 188, y: 288, holding: "", outfit: "home" }
+          person: { x: 108, y: 284, holding: "", outfit: "home", emotion: "happy" },
+          guest: { x: 188, y: 288, holding: "", outfit: "home", emotion: "happy" }
         },
         items: [
           { id: "start-sofa", kind: "sofa", x: 42, y: 352 },
@@ -1024,6 +1093,8 @@
       state.people.guest.holding ||= "";
       state.people.person.outfit ||= "home";
       state.people.guest.outfit ||= "home";
+      state.people.person.emotion ||= "happy";
+      state.people.guest.emotion ||= "happy";
       state.selectedPerson ||= "person";
 
       function setLog(text) {
@@ -1050,8 +1121,11 @@
         guest.classList.toggle("selected", state.selectedPerson === "guest");
         heldPerson.className = `held ${state.people.person.holding} ${state.people.person.holding ? "show" : ""}`;
         heldGuest.className = `held ${state.people.guest.holding} ${state.people.guest.holding ? "show" : ""}`;
+        emotionPerson.textContent = emotions[state.people.person.emotion]?.icon || "😊";
+        emotionGuest.textContent = emotions[state.people.guest.emotion]?.icon || "😊";
         personButtons.forEach((button) => button.classList.toggle("active", button.dataset.person === state.selectedPerson));
         outfitButtons.forEach((button) => button.classList.toggle("active", button.dataset.outfit === state.people[state.selectedPerson].outfit));
+        emotionButtons.forEach((button) => button.classList.toggle("active", button.dataset.emotion === state.people[state.selectedPerson].emotion));
         person.classList.add("walking");
         setTimeout(() => person.classList.remove("walking"), 520);
       }
@@ -1245,6 +1319,51 @@
         renderPerson();
       }
 
+      function setEmotion(emotion) {
+        state.people[state.selectedPerson].emotion = emotion;
+        const label = emotions[emotion]?.text || "эмоцию";
+        state.mood = Math.min(100, state.mood + (emotion === "sad" || emotion === "angry" ? 1 : 4));
+        setLog(`У персонажа теперь эмоция: ${label}.`);
+        createSparkle(state.people[state.selectedPerson].x + 34, state.people[state.selectedPerson].y - 14);
+        renderStats();
+        renderPerson();
+      }
+
+      function playStory(story) {
+        if (story === "party") {
+          state.room = "living";
+          state.people.person.outfit = "party";
+          state.people.guest.outfit = "party";
+          state.people.person.emotion = "love";
+          state.people.guest.emotion = "happy";
+          state.night = false;
+          goRoom("living");
+          dance();
+          setLog("Сценка: вечеринка с музыкой и сердечками!");
+          return;
+        }
+        if (story === "school") {
+          state.room = "play";
+          state.people.person.outfit = "home";
+          state.people.guest.outfit = "home";
+          state.people.person.emotion = "wow";
+          state.people.guest.emotion = "happy";
+          goRoom("play");
+          if (!state.items.some((item) => item.kind === "book")) addItem("book");
+          if (!state.items.some((item) => item.kind === "backpack")) addItem("backpack");
+          setLog("Сценка: школа дома, книжки и рюкзак готовы.");
+          return;
+        }
+        state.room = "bedroom";
+        state.people.person.outfit = "sleep";
+        state.people.guest.outfit = "sleep";
+        state.people.person.emotion = "happy";
+        state.people.guest.emotion = "love";
+        state.night = true;
+        goRoom("bedroom");
+        setLog("Сценка: ночёвка, пижамы и тихая комната.");
+      }
+
       function dance() {
         [person, guest].forEach((hero) => {
           hero.classList.add("walking");
@@ -1271,8 +1390,8 @@
         state.night = false;
         state.selectedPerson = "person";
         state.people = {
-          person: { x: 108, y: 284, holding: "", outfit: "home" },
-          guest: { x: 188, y: 288, holding: "", outfit: "home" }
+          person: { x: 108, y: 284, holding: "", outfit: "home", emotion: "happy" },
+          guest: { x: 188, y: 288, holding: "", outfit: "home", emotion: "happy" }
         };
         state.items = [
           { id: "start-sofa", kind: "sofa", x: 42, y: 352 },
@@ -1302,6 +1421,14 @@
 
       outfitButtons.forEach((button) => {
         button.addEventListener("click", () => changeOutfit(button.dataset.outfit));
+      });
+
+      emotionButtons.forEach((button) => {
+        button.addEventListener("click", () => setEmotion(button.dataset.emotion));
+      });
+
+      storyButtons.forEach((button) => {
+        button.addEventListener("click", () => playStory(button.dataset.story));
       });
 
       document.querySelector("#danceButton").addEventListener("click", dance);
