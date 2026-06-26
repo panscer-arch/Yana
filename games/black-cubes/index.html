@@ -3,18 +3,18 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Чёрнокубие: тёмная кубическая песочница Яны с блоками, деревом, камнем, кристаллами, крафтом факелов и днём-ночью.">
-    <meta name="theme-color" content="#080a12">
-    <title>Чёрнокубие</title>
+    <meta name="description" content="Кубиковая долина: красивая блочная песочница Яны с поворотом камеры, добычей блоков, сундуком, кроватью, факелами и днём-ночью.">
+    <meta name="theme-color" content="#6fc4ff">
+    <title>Кубиковая долина</title>
     <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
     <style>
       :root {
-        --ink: #f7f0ff;
-        --muted: #b7adc9;
-        --panel: rgba(13, 15, 26, .92);
+        --ink: #fff8e8;
+        --muted: #d7caaa;
+        --panel: rgba(43, 35, 24, .92);
         --line: rgba(255, 255, 255, .14);
-        --violet: #8d6bff;
-        --pink: #ff68ae;
+        --violet: #58a6ff;
+        --pink: #ff9a52;
         --gold: #ffd76a;
         --cyan: #68e7ff;
       }
@@ -27,9 +27,9 @@
         color: var(--ink);
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         background:
-          radial-gradient(circle at 16% 12%, rgba(141, 107, 255, .22), transparent 28%),
-          radial-gradient(circle at 84% 20%, rgba(255, 104, 174, .16), transparent 30%),
-          linear-gradient(135deg, #080a12, #151326 52%, #080a12);
+          radial-gradient(circle at 16% 12%, rgba(104, 231, 255, .28), transparent 28%),
+          radial-gradient(circle at 84% 20%, rgba(255, 215, 106, .2), transparent 30%),
+          linear-gradient(135deg, #152c3b, #285130 52%, #1b3226);
       }
 
       a { color: inherit; }
@@ -88,7 +88,7 @@
       }
 
       .brand {
-        background: linear-gradient(135deg, #281d54, #6c3bd6);
+        background: linear-gradient(135deg, #2c5b39, #6c9f45);
       }
 
       .topbar nav,
@@ -108,6 +108,7 @@
       }
 
       .game-shell {
+        position: relative;
         overflow: hidden;
         border: 2px solid var(--line);
         border-radius: 8px;
@@ -150,6 +151,71 @@
         background: #080a12;
       }
 
+      .start-overlay {
+        position: absolute;
+        inset: 49px 0 0;
+        z-index: 10;
+        display: grid;
+        place-items: start center;
+        padding: 18px;
+        background:
+          radial-gradient(circle at 48% 20%, rgba(255, 215, 106, .24), transparent 28%),
+          linear-gradient(180deg, rgba(27, 44, 32, .36), rgba(8, 10, 12, .74));
+        backdrop-filter: blur(2px);
+      }
+
+      .start-overlay.hidden {
+        display: none;
+      }
+
+      .start-card {
+        width: min(560px, 94%);
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+        border: 2px solid rgba(255,255,255,.22);
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, rgba(255,255,255,.16), transparent 38%),
+          linear-gradient(145deg, rgba(58, 44, 28, .94), rgba(35, 67, 39, .9));
+        box-shadow: 0 24px 70px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.16);
+        text-align: center;
+      }
+
+      .start-card h2 {
+        margin: 0;
+        color: #ffeaa4;
+        font-size: clamp(30px, 5vw, 48px);
+        line-height: .95;
+        text-transform: uppercase;
+        text-shadow: 0 4px 0 rgba(74,45,32,.82), 0 0 24px rgba(255,215,106,.35);
+      }
+
+      .start-card p {
+        margin: 0;
+        color: #efe4c7;
+        font-weight: 850;
+        line-height: 1.38;
+      }
+
+      .start-tags {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .start-tags span {
+        min-height: 34px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(255,255,255,.18);
+        border-radius: 8px;
+        color: #122014;
+        background: linear-gradient(180deg, #9ff7ff, #8bf07b);
+        font-size: 12px;
+        font-weight: 950;
+      }
+
       .panel {
         display: grid;
         gap: 12px;
@@ -186,8 +252,8 @@
         border: 2px solid rgba(255,255,255,.16);
         border-radius: 8px;
         background:
-          radial-gradient(circle at 68% 30%, rgba(104,231,255,.25), transparent 16%),
-          linear-gradient(180deg, #0d1130 0 46%, #18121d 47% 100%);
+          radial-gradient(circle at 68% 24%, rgba(255,215,106,.65), transparent 14%),
+          linear-gradient(180deg, #78cfff 0 46%, #79b85b 47% 100%);
       }
 
       .cover-grid {
@@ -202,13 +268,13 @@
 
       .cover-grid i {
         border-radius: 4px;
-        background: #171a27;
-        box-shadow: inset 0 0 0 2px rgba(255,255,255,.04);
+        background: #7cbb58;
+        box-shadow: inset 0 0 0 2px rgba(255,255,255,.16), 0 6px 0 rgba(0,0,0,.16);
       }
 
-      .cover-grid i:nth-child(5n) { background: #2a2144; }
-      .cover-grid i:nth-child(7n) { background: #0e3b49; box-shadow: 0 0 18px rgba(104,231,255,.38); }
-      .cover-grid i:nth-child(13n) { background: #6a3b13; box-shadow: 0 0 18px rgba(255,215,106,.32); }
+      .cover-grid i:nth-child(5n) { background: #8b5d35; }
+      .cover-grid i:nth-child(7n) { background: #4c9b52; box-shadow: 0 0 18px rgba(104,231,255,.22); }
+      .cover-grid i:nth-child(13n) { background: #60d6ff; box-shadow: 0 0 18px rgba(104,231,255,.45); }
 
       .actions,
       .inventory,
@@ -280,6 +346,10 @@
         canvas {
           aspect-ratio: 1 / 1;
         }
+
+        .start-tags {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -295,7 +365,7 @@
     </header>
 
     <main id="content">
-      <section class="game-shell" aria-label="Чёрнокубие">
+      <section class="game-shell" aria-label="Кубиковая долина">
         <div class="hud">
           <div><span>Сердца</span><strong id="crystals">♥♥♥♥♥</strong></div>
           <div><span>Факелы</span><strong id="torches">0 / 6</strong></div>
@@ -303,6 +373,18 @@
           <div><span>Время</span><strong id="depth">день</strong></div>
         </div>
         <canvas id="game" width="960" height="600" tabindex="0"></canvas>
+        <div class="start-overlay" id="startOverlay">
+          <div class="start-card">
+            <h2>Кубиковая долина</h2>
+            <p>Своя блочная песочница: поворачивай экран мышкой или стрелками, ходи по миру, ломай и ставь кубы, открывай сундук и спи на кровати.</p>
+            <div class="start-tags" aria-label="Возможности игры">
+              <span>Поворот камеры</span>
+              <span>Ломать кубы</span>
+              <span>Строить дом</span>
+            </div>
+            <button class="primary" id="startOverlayButton" type="button">Войти в мир</button>
+          </div>
+        </div>
       </section>
 
       <aside class="panel">
@@ -315,8 +397,8 @@
             <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
           </div>
         </div>
-        <h1>Чёрнокубие</h1>
-        <p>Тёмный кубический мир: бегай, прыгай, ломай блоки, добывай дерево, камень и кристаллы, крафти факелы, строй укрытия и переживай ночь.</p>
+        <h1>Кубиковая долина</h1>
+        <p>Красивая блочная песочница: поворачивай камеру, ходи по кубическому миру, ломай блоки, добывай дерево, камень и кристаллы, крафти факелы, строй укрытия и переживай ночь.</p>
         <div class="actions">
           <button class="primary" id="start" type="button">Старт</button>
           <button id="reset" type="button">Новый мир</button>
@@ -324,7 +406,7 @@
         <h2>Инвентарь</h2>
         <div class="inventory" id="inventory"></div>
         <div class="log" id="log">Цель: открой сундук, собери кристаллы, скрафти факелы и зажги шахту.</div>
-        <p>3D-режим: стрелки влево/вправо поворачивают экран, W/↑ и S/↓ ходят, A/D идут боком. E — ломать куб перед собой, F — ставить, X — сундук или кровать, C — крафт факела.</p>
+        <p>3D-режим: зажми мышку/палец на экране и поворачивай камеру, W/↑ и S/↓ ходят, A/D идут боком. E — ломать куб перед собой, F — ставить, X — сундук или кровать, C — крафт факела.</p>
         <div class="touch" aria-label="Кнопки управления">
           <button data-key="ArrowLeft" type="button">←</button>
           <button data-key="ArrowUp" type="button">↑</button>
@@ -354,6 +436,8 @@
       const blocksEl = document.querySelector("#blocks");
       const depthEl = document.querySelector("#depth");
       const startButton = document.querySelector("#start");
+      const startOverlay = document.querySelector("#startOverlay");
+      const startOverlayButton = document.querySelector("#startOverlayButton");
       const resetButton = document.querySelector("#reset");
       const inventoryEl = document.querySelector("#inventory");
       const logEl = document.querySelector("#log");
@@ -375,6 +459,7 @@
       let selected = 1;
       let last = 0;
       let messageTime = 0;
+      const lookDrag = { active: false, x: 0, y: 0, moved: 0 };
       const bag = { 1: 0, 2: 0, 3: 0, 4: 3, 5: 0, 6: 0, 7: 0, 8: 1, 9: 1 };
       const chestLoot = { 1: 12, 2: 8, 4: 3, 6: 4, 8: 1 };
       const player = { x: 120, y: 128, w: 26, h: 54, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0, hp: 5, day: 0, chestOpened: false };
@@ -385,6 +470,13 @@
       function say(text) {
         logEl.textContent = text;
         messageTime = 2.8;
+      }
+
+      function startWorld() {
+        running = true;
+        startOverlay.classList.add("hidden");
+        canvas.focus();
+        say("Мир открыт. Зажми мышку на экране и поворачивай камеру.");
       }
 
       function makeWorld() {
@@ -1012,6 +1104,17 @@
         ctx.fillRect(stripe, top, width + 1, height);
         ctx.fillStyle = "rgba(255,255,255,.06)";
         ctx.fillRect(stripe, top + 4, width + 1, Math.max(2, height * .08));
+        if (stripe % 24 === 0) {
+          ctx.fillStyle = "rgba(255,255,255,.08)";
+          ctx.fillRect(stripe, top, width + 1, height);
+        }
+      }
+
+      function drawCloud(cx, cy, scale = 1) {
+        ctx.fillStyle = "rgba(255,255,255,.78)";
+        ctx.fillRect(cx, cy, 46 * scale, 14 * scale);
+        ctx.fillRect(cx + 14 * scale, cy - 10 * scale, 42 * scale, 18 * scale);
+        ctx.fillRect(cx + 44 * scale, cy + 2 * scale, 34 * scale, 12 * scale);
       }
 
       function draw3dSprite(sprite, scale, yShift = 0) {
@@ -1076,15 +1179,42 @@
       function draw3d() {
         const night = (Math.sin(player3d.day * 0.18) + 1) / 2;
         const sky = ctx.createLinearGradient(0, 0, 0, H * .52);
-        sky.addColorStop(0, night > .52 ? "#10162f" : "#65b9ff");
-        sky.addColorStop(1, night > .52 ? "#28304a" : "#cfefff");
+        sky.addColorStop(0, night > .52 ? "#10162f" : "#56b8ff");
+        sky.addColorStop(1, night > .52 ? "#28304a" : "#d9f4ff");
         ctx.fillStyle = sky;
         ctx.fillRect(0, 0, W, H * .52);
+        ctx.fillStyle = night > .52 ? "#e6ecff" : "#ffd76a";
+        ctx.shadowColor = night > .52 ? "rgba(210,230,255,.6)" : "rgba(255,215,106,.72)";
+        ctx.shadowBlur = 28;
+        ctx.beginPath();
+        ctx.arc(W - 118, 86, 34, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        if (night <= .52) {
+          drawCloud(110 - Math.sin(player3d.a) * 28, 72, 1);
+          drawCloud(430 + Math.cos(player3d.a) * 34, 104, .72);
+        }
         const floor = ctx.createLinearGradient(0, H * .52, 0, H);
-        floor.addColorStop(0, night > .52 ? "#26321f" : "#5d9e45");
-        floor.addColorStop(1, night > .52 ? "#11150e" : "#2e5d2f");
+        floor.addColorStop(0, night > .52 ? "#26321f" : "#75b85c");
+        floor.addColorStop(1, night > .52 ? "#11150e" : "#365f2f");
         ctx.fillStyle = floor;
         ctx.fillRect(0, H * .52, W, H * .48);
+        ctx.strokeStyle = night > .52 ? "rgba(0,0,0,.22)" : "rgba(255,255,255,.12)";
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 22; i += 1) {
+          const y = H * .54 + i * i * .9;
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(W, y);
+          ctx.stroke();
+        }
+        for (let i = -12; i <= 12; i += 1) {
+          const x = W / 2 + i * 70;
+          ctx.beginPath();
+          ctx.moveTo(x, H * .52);
+          ctx.lineTo(W / 2 + i * 210, H);
+          ctx.stroke();
+        }
 
         const fov = Math.PI / 3;
         for (let x = 0; x < W; x += 3) {
@@ -1119,9 +1249,47 @@
         ctx.fillRect(18, H - 72, 310, 48);
         ctx.fillStyle = "#fff7d9";
         ctx.font = "900 18px system-ui";
-        ctx.fillText("3D-кубомир: поворачивай стрелками, ходи W/S", 30, H - 42);
+        ctx.fillText("Зажми экран и поворачивай камеру. W/S ходьба", 30, H - 42);
+        draw3dHand();
+        drawHotbar();
         draw3dMiniMap();
         updateHud();
+      }
+
+      function draw3dHand() {
+        ctx.save();
+        ctx.translate(W - 190, H - 116);
+        ctx.rotate(-0.16);
+        ctx.fillStyle = "rgba(0,0,0,.26)";
+        ctx.fillRect(18, 18, 110, 34);
+        ctx.fillStyle = "#e7b78b";
+        ctx.fillRect(0, 26, 92, 36);
+        ctx.fillStyle = "#3d7fe0";
+        ctx.fillRect(58, 20, 86, 42);
+        ctx.fillStyle = "#8b5d35";
+        ctx.fillRect(112, 0, 24, 96);
+        ctx.fillStyle = "#d8dde2";
+        ctx.fillRect(98, -6, 50, 26);
+        ctx.restore();
+      }
+
+      function drawHotbar() {
+        const ids = [1, 2, 3, 4, 6, 7, 8, 9];
+        const cell = 46;
+        const ox = W / 2 - (ids.length * cell) / 2;
+        const oy = H - 58;
+        ids.forEach((id, index) => {
+          const x = ox + index * cell;
+          ctx.fillStyle = id === selected ? "rgba(255,215,106,.9)" : "rgba(12,16,18,.72)";
+          ctx.fillRect(x, oy, cell - 5, 42);
+          ctx.strokeStyle = id === selected ? "#fff8cf" : "rgba(255,255,255,.18)";
+          ctx.strokeRect(x + 1, oy + 1, cell - 7, 40);
+          ctx.fillStyle = colors[id] || "#fff";
+          ctx.fillRect(x + 12, oy + 9, 18, 18);
+          ctx.fillStyle = id === selected ? "#142014" : "#fff8cf";
+          ctx.font = "900 10px system-ui";
+          ctx.fillText(String(bag[id] || 0), x + 26, oy + 34);
+        });
       }
 
       function updateHud() {
@@ -1170,6 +1338,15 @@
       window.addEventListener("keyup", (event) => keys.delete(event.code));
       window.addEventListener("blur", () => keys.clear());
       canvas.addEventListener("pointermove", (event) => {
+        if (view3d && lookDrag.active) {
+          const dx = event.clientX - lookDrag.x;
+          const dy = event.clientY - lookDrag.y;
+          lookDrag.x = event.clientX;
+          lookDrag.y = event.clientY;
+          lookDrag.moved += Math.abs(dx) + Math.abs(dy);
+          player3d.a += dx * 0.006;
+          return;
+        }
         const rect = canvas.getBoundingClientRect();
         aim.x = camera.x + (event.clientX - rect.left) * (W / rect.width);
         aim.y = camera.y + (event.clientY - rect.top) * (H / rect.height);
@@ -1177,7 +1354,15 @@
       });
       canvas.addEventListener("pointerdown", (event) => {
         canvas.focus();
-        if (!running) running = true;
+        if (!running) startWorld();
+        if (view3d) {
+          lookDrag.active = true;
+          lookDrag.x = event.clientX;
+          lookDrag.y = event.clientY;
+          lookDrag.moved = 0;
+          canvas.setPointerCapture?.(event.pointerId);
+          return;
+        }
         const rect = canvas.getBoundingClientRect();
         aim.x = camera.x + (event.clientX - rect.left) * (W / rect.width);
         aim.y = camera.y + (event.clientY - rect.top) * (H / rect.height);
@@ -1185,14 +1370,26 @@
         if (event.shiftKey || event.button === 2) place();
         else mine();
       });
+      canvas.addEventListener("pointerup", (event) => {
+        if (!view3d || !lookDrag.active) return;
+        lookDrag.active = false;
+        canvas.releasePointerCapture?.(event.pointerId);
+        if (lookDrag.moved < 10) {
+          if (event.shiftKey || event.button === 2) place();
+          else mine();
+        }
+      });
+      canvas.addEventListener("pointercancel", () => {
+        lookDrag.active = false;
+      });
       canvas.addEventListener("contextmenu", (event) => event.preventDefault());
       startButton.addEventListener("click", () => {
-        running = true;
-        canvas.focus();
-        say("Игра началась. Ломай блоки и зажигай шахту.");
+        startWorld();
       });
+      startOverlayButton.addEventListener("click", startWorld);
       resetButton.addEventListener("click", () => {
         running = false;
+        startOverlay.classList.remove("hidden");
         makeWorld();
       });
       document.querySelectorAll("[data-key]").forEach((button) => {
