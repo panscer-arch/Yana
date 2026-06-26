@@ -861,10 +861,18 @@
         justify-content: center;
         color: var(--ink);
         font-family: "Courier New", monospace;
-        font-size: clamp(28px, 6vw, 54px);
+        font-size: clamp(24px, 5vw, 48px);
         font-weight: 900;
         line-height: 1.05;
         white-space: pre;
+      }
+
+      .example-note {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 850;
+        text-align: center;
       }
 
       .answer-panel {
@@ -1767,7 +1775,7 @@
                 Вид
                 <select id="viewMode">
                   <option value="line">В строку</option>
-                  <option value="column">В столбик</option>
+                  <option value="column">В столбик / уголком</option>
                 </select>
               </label>
 
@@ -1786,7 +1794,10 @@
             </div>
 
             <div class="problem">
-              <div class="example" id="example">7 + 5 = ?</div>
+              <div>
+                <div class="example" id="example">7 + 5 = ?</div>
+                <div class="example-note" id="exampleNote">Введи итоговый ответ.</div>
+              </div>
               <div class="answer-panel">
                 <button id="checkAnswer" type="button">Проверить</button>
                 <div class="small-actions">
@@ -1996,6 +2007,7 @@
       const viewMode = document.querySelector("#viewMode");
       const answer = document.querySelector("#answer");
       const example = document.querySelector("#example");
+      const exampleNote = document.querySelector("#exampleNote");
       const result = document.querySelector("#result");
       const rightCount = document.querySelector("#rightCount");
       const wrongCount = document.querySelector("#wrongCount");
@@ -2133,15 +2145,15 @@
         }
 
         if (op === "mul") {
-          a = randomInt(2, 10);
-          b = randomInt(2, 10);
+          a = randomInt(12, 98);
+          b = Math.random() > 0.55 ? randomInt(2, 9) : randomInt(11, 24);
           symbol = "×";
           correct = a * b;
         }
 
         if (op === "div") {
-          b = randomInt(2, 10);
-          correct = randomInt(2, 10);
+          b = randomInt(2, 12);
+          correct = randomInt(11, 99);
           a = b * correct;
           symbol = "÷";
         }
@@ -2154,17 +2166,55 @@
       }
 
       function renderTask() {
-        if (viewMode.value === "column" && (task.op === "+" || task.op === "-")) {
-          const width = String(Math.max(task.a, task.b)).length + 2;
-          example.textContent =
-            String(task.a).padStart(width, " ") + "\n" +
-            task.op + String(task.b).padStart(width - 1, " ") + "\n" +
-            "─".repeat(width) + "\n" +
-            "?".padStart(width, " ");
-          return;
+        if (viewMode.value === "column") {
+          if (task.op === "+" || task.op === "-") {
+            const width = String(Math.max(task.a, task.b)).length + 2;
+            example.textContent =
+              String(task.a).padStart(width, " ") + "\n" +
+              task.op + String(task.b).padStart(width - 1, " ") + "\n" +
+              "─".repeat(width) + "\n" +
+              "?".padStart(width, " ");
+            exampleNote.textContent = "Введи итоговый ответ из столбика.";
+            return;
+          }
+
+          if (task.op === "×") {
+            const totalWidth = Math.max(String(task.a).length, String(task.b).length + 1, String(task.answer).length) + 2;
+            const partials = String(task.b).length > 1
+              ? String(task.b).split("").reverse().map((digit, index) => {
+                const value = task.a * Number(digit) * (10 ** index);
+                return (index === 0 ? " " : "+") + String(value || 0).padStart(totalWidth - 1, " ");
+              })
+              : [];
+            example.textContent = [
+              String(task.a).padStart(totalWidth, " "),
+              "×" + String(task.b).padStart(totalWidth - 1, " "),
+              "─".repeat(totalWidth),
+              ...(partials.length > 1 ? partials : []),
+              partials.length > 1 ? "─".repeat(totalWidth) : "",
+              "?".padStart(totalWidth, " ")
+            ].filter(Boolean).join("\n");
+            exampleNote.textContent = "Введи итоговый ответ умножения.";
+            return;
+          }
+
+          if (task.op === "÷") {
+            const dividend = String(task.a);
+            const divisor = String(task.b);
+            const resultWidth = Math.max(String(task.answer).length, divisor.length);
+            example.textContent =
+              `${dividend} │ ${divisor}\n` +
+              `${" ".repeat(dividend.length)} │${"─".repeat(resultWidth + 1)}\n` +
+              `${" ".repeat(dividend.length)} │ ?`;
+            exampleNote.textContent = "Введи частное, то есть ответ деления.";
+            return;
+          }
         }
 
         example.textContent = `${task.a} ${task.op} ${task.b} = ?`;
+        exampleNote.textContent = viewMode.value === "column"
+          ? "Введи итоговый ответ из столбика."
+          : "Введи итоговый ответ.";
       }
 
       function updateScore() {
@@ -2203,11 +2253,15 @@
         }
 
         if (task.op === "×") {
-          result.textContent = `Подсказка: ${task.a} нужно взять ${task.b} раз.`;
+          result.textContent = viewMode.value === "column"
+            ? `Подсказка: умножай ${task.a} на каждую цифру числа ${task.b}, потом сложи строки.`
+            : `Подсказка: ${task.a} нужно взять ${task.b} раз.`;
           return;
         }
 
-        result.textContent = `Подсказка: найди число, которое при умножении на ${task.b} даст ${task.a}.`;
+        result.textContent = viewMode.value === "column"
+          ? `Подсказка: в уголке найди число, которое при умножении на ${task.b} даст ${task.a}.`
+          : `Подсказка: найди число, которое при умножении на ${task.b} даст ${task.a}.`;
       }
 
       function checkCurrentAnswer() {
