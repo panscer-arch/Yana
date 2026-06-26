@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Милый домик: эмоции</title>
-    <meta name="description" content="Милый домик: уютная игра про дом, персонажей, эмоции, одежду, комнаты, мебель и маленькие истории.">
+    <title>Кавай-домик: студия историй</title>
+    <meta name="description" content="Кавай-домик: уютная игра про персонажей, эмоции, позы, одежду, комнаты, мебель, диалоги и маленькие истории.">
     <meta name="theme-color" content="#ff72ad">
     <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
     <style>
@@ -329,6 +329,30 @@
           linear-gradient(180deg, #ffe88a, #ffc95d);
       }
 
+      .house-wrap.scene-school {
+        background:
+          radial-gradient(circle at 82% 12%, #ffdf67 0 42px, transparent 44px),
+          linear-gradient(180deg, #bcefff 0 42%, #ffdca8 43% 100%);
+      }
+
+      .house-wrap.scene-cafe {
+        background:
+          radial-gradient(circle at 82% 12%, #ffdf67 0 42px, transparent 44px),
+          linear-gradient(180deg, #ffd6ef 0 42%, #e9b27c 43% 100%);
+      }
+
+      .house-wrap.scene-park {
+        background:
+          radial-gradient(circle at 82% 12%, #ffdf67 0 42px, transparent 44px),
+          linear-gradient(180deg, #9ee8ff 0 42%, #7fd66d 43% 100%);
+      }
+
+      .house-wrap.scene-salon {
+        background:
+          radial-gradient(circle at 82% 12%, #ffdf67 0 42px, transparent 44px),
+          linear-gradient(180deg, #ffe6f8 0 42%, #c7b8ff 43% 100%);
+      }
+
       .item {
         position: absolute;
         z-index: 4;
@@ -528,6 +552,11 @@
       }
 
       .person.walking { animation: hop .42s ease-in-out infinite; }
+      .person.pose-wave { transform: rotate(-4deg) translateY(-4px); }
+      .person.pose-sit { transform: translateY(22px) scale(.96); }
+      .person.pose-shy { transform: rotate(3deg) scale(.94); }
+      .person.pose-dance { animation: dancePose .5s ease-in-out infinite alternate; }
+      .person.pose-star { animation: starPose .9s ease-in-out infinite alternate; }
       .person.dragging { cursor: grabbing; transition: none; }
       .person.guest { --shirt-a: #ff9859; --shirt-b: #ff72ad; }
       .person.selected::after {
@@ -546,6 +575,16 @@
       @keyframes hop {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-7px); }
+      }
+
+      @keyframes starPose {
+        from { transform: translateY(-5px) rotate(-3deg); }
+        to { transform: translateY(-13px) rotate(3deg); }
+      }
+
+      @keyframes dancePose {
+        from { transform: translateY(-5px) rotate(-7deg); }
+        to { transform: translateY(-10px) rotate(7deg); }
       }
 
       .person img {
@@ -587,6 +626,26 @@
         background: rgba(255,255,255,.92);
         transform: translateX(-50%) rotate(45deg);
       }
+
+      .style-piece {
+        position: absolute;
+        z-index: 5;
+        left: 50%;
+        top: -2px;
+        width: 52px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        font-size: 28px;
+        transform: translateX(-50%) rotate(-4deg);
+        filter: drop-shadow(0 4px 0 rgba(36,31,53,.16));
+        pointer-events: none;
+      }
+
+      .style-piece.none { display: none; }
+      .style-piece.bow { color: #ff61a8; }
+      .style-piece.crown { top: -12px; font-size: 30px; }
+      .style-piece.glasses { top: 38px; font-size: 24px; transform: translateX(-50%); }
 
       .person::before {
         content: "";
@@ -695,7 +754,10 @@
       .character-buttons,
       .outfit-buttons,
       .emotion-buttons,
+      .pose-buttons,
       .story-buttons,
+      .scene-buttons,
+      .accessory-buttons,
       .palette,
       .room-buttons {
         display: grid;
@@ -705,8 +767,11 @@
       .buttons { grid-template-columns: 1fr 1fr; }
       .character-buttons,
       .outfit-buttons,
+      .accessory-buttons,
       .story-buttons { grid-template-columns: 1fr 1fr 1fr; }
       .emotion-buttons { grid-template-columns: repeat(5, 1fr); }
+      .pose-buttons,
+      .scene-buttons { grid-template-columns: repeat(5, 1fr); }
       .room-buttons { grid-template-columns: 1fr 1fr; }
       .palette { grid-template-columns: 1fr 1fr; }
 
@@ -738,6 +803,22 @@
       .button.active {
         color: #fff;
         background: linear-gradient(180deg, var(--violet), #6f4ee8);
+      }
+
+      .dialog-editor {
+        display: grid;
+        gap: 8px;
+      }
+
+      .dialog-editor input {
+        min-height: 42px;
+        width: 100%;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        padding: 0 10px;
+        color: var(--ink);
+        background: #fff;
+        font-weight: 900;
       }
 
       .tool {
@@ -835,7 +916,7 @@
 
     <main id="content">
       <div class="game-shell">
-        <section class="stage" aria-label="Игра Милый домик">
+        <section class="stage" aria-label="Игра Кавай-домик">
           <div class="status-bar">
             <div><span>Комната</span><strong id="roomName">Гостиная</strong></div>
             <div><span>Настроение</span><strong id="mood">92</strong></div>
@@ -856,11 +937,13 @@
               </div>
               <button class="person" id="person" type="button" aria-label="Героиня домика">
                 <img src="../../assets/cozy-house/character-yana.png" alt="">
+                <span class="style-piece none" id="stylePerson"></span>
                 <span class="emotion-bubble" id="emotionPerson">😊</span>
                 <span class="held" id="heldPerson"></span>
               </button>
               <button class="person guest" id="guest" type="button" aria-label="Подружка в домике" style="--hero-x: 210px; --hero-y: 338px">
                 <img src="../../assets/cozy-house/character-friend.png" alt="">
+                <span class="style-piece none" id="styleGuest"></span>
                 <span class="emotion-bubble" id="emotionGuest">😊</span>
                 <span class="held" id="heldGuest"></span>
               </button>
@@ -872,8 +955,8 @@
         <aside class="panel">
           <img src="../../assets/covers/generated/cozy-house.svg" alt="" style="width:100%;border:3px solid var(--line);border-radius:8px;background:#fff">
           <div>
-            <h1>Милый домик</h1>
-            <p class="lead">Строй уютный дом: выбирай комнату, двигай человечков, включай эмоции, меняй одежду и придумывай истории.</p>
+            <h1>Кавай-домик</h1>
+            <p class="lead">Делай истории с человечками: выбирай эмоции, позы, фон, одежду, реплики и двигай героев по комнатам.</p>
           </div>
 
           <section aria-labelledby="people-title">
@@ -902,6 +985,47 @@
               <button class="button tiny" data-emotion="wow" type="button">😮</button>
               <button class="button tiny" data-emotion="sad" type="button">😢</button>
               <button class="button tiny" data-emotion="angry" type="button">😠</button>
+            </div>
+          </section>
+
+          <section aria-labelledby="poses-title">
+            <h2 id="poses-title">Позы</h2>
+            <div class="pose-buttons">
+              <button class="button tiny active" data-pose="stand" type="button">Стоит</button>
+              <button class="button tiny" data-pose="wave" type="button">Привет</button>
+              <button class="button tiny" data-pose="sit" type="button">Сидит</button>
+              <button class="button tiny" data-pose="shy" type="button">Мило</button>
+              <button class="button tiny" data-pose="dance" type="button">Танец</button>
+              <button class="button tiny" data-pose="star" type="button">Звезда</button>
+            </div>
+          </section>
+
+          <section aria-labelledby="accessory-title">
+            <h2 id="accessory-title">Аксессуары</h2>
+            <div class="accessory-buttons">
+              <button class="button tiny active" data-accessory="none" type="button">Нет</button>
+              <button class="button tiny" data-accessory="bow" type="button">Бант</button>
+              <button class="button tiny" data-accessory="crown" type="button">Корона</button>
+              <button class="button tiny" data-accessory="glasses" type="button">Очки</button>
+            </div>
+          </section>
+
+          <section aria-labelledby="dialog-title">
+            <h2 id="dialog-title">Реплика</h2>
+            <div class="dialog-editor">
+              <input id="dialogInput" type="text" maxlength="42" value="Привет! Давай играть!" aria-label="Реплика персонажа">
+              <button class="button tiny" id="sayButton" type="button">Сказать</button>
+            </div>
+          </section>
+
+          <section aria-labelledby="scenes-title">
+            <h2 id="scenes-title">Фон</h2>
+            <div class="scene-buttons">
+              <button class="button tiny active" data-scene="house" type="button">Дом</button>
+              <button class="button tiny" data-scene="school" type="button">Школа</button>
+              <button class="button tiny" data-scene="cafe" type="button">Кафе</button>
+              <button class="button tiny" data-scene="park" type="button">Парк</button>
+              <button class="button tiny" data-scene="salon" type="button">Салон</button>
             </div>
           </section>
 
@@ -957,13 +1081,13 @@
           </div>
 
           <div class="log" id="log">Нажми комнату или кнопку комнаты. Мебель можно перетаскивать мышкой или пальцем.</div>
-          <div class="help">Идея: это уютная игра про дом, эмоции и сценки. Можно развивать дальше: магазин одежды, питомцы, школа, кафе, новые гости и задания дня.</div>
+          <div class="help">Это своя студия историй: персонажи, эмоции, позы, реплики, фон и комнаты. Дальше можно добавить магазин одежды, больше героев, причёски и питомцев.</div>
         </aside>
       </div>
     </main>
 
     <footer>
-      <p>Милый домик добавлен в игровую лабораторию Яны.</p>
+      <p>Кавай-домик добавлен в игровую лабораторию Яны.</p>
       <nav aria-label="Быстрые ссылки в подвале">
         <a href="../../index.html">Главная</a>
         <a href="../index.html">Игры</a>
@@ -982,10 +1106,17 @@
       const heldGuest = document.querySelector("#heldGuest");
       const emotionPerson = document.querySelector("#emotionPerson");
       const emotionGuest = document.querySelector("#emotionGuest");
+      const stylePerson = document.querySelector("#stylePerson");
+      const styleGuest = document.querySelector("#styleGuest");
       const personButtons = [...document.querySelectorAll("[data-person]")];
       const outfitButtons = [...document.querySelectorAll("[data-outfit]")];
       const emotionButtons = [...document.querySelectorAll("[data-emotion]")];
+      const poseButtons = [...document.querySelectorAll("[data-pose]")];
+      const accessoryButtons = [...document.querySelectorAll("[data-accessory]")];
       const storyButtons = [...document.querySelectorAll("[data-story]")];
+      const sceneButtons = [...document.querySelectorAll("[data-scene]")];
+      const dialogInput = document.querySelector("#dialogInput");
+      const sayButton = document.querySelector("#sayButton");
       const thought = document.querySelector("#thought");
       const logEl = document.querySelector("#log");
       const roomNameEl = document.querySelector("#roomName");
@@ -1006,6 +1137,33 @@
         wow: { icon: "😮", text: "удивление" },
         sad: { icon: "😢", text: "грусть" },
         angry: { icon: "😠", text: "злость" }
+      };
+      const poseLabels = {
+        stand: "обычная поза",
+        wave: "машет рукой",
+        sit: "сидит",
+        shy: "стесняется",
+        dance: "танцует",
+        star: "звёздная поза"
+      };
+      const sceneLabels = {
+        house: "дом",
+        school: "школа",
+        cafe: "кафе",
+        park: "парк",
+        salon: "салон образов"
+      };
+      const accessoryLabels = {
+        none: "без аксессуара",
+        bow: "розовый бант",
+        crown: "корона",
+        glasses: "очки"
+      };
+      const accessoryIcons = {
+        none: "",
+        bow: "🎀",
+        crown: "👑",
+        glasses: "👓"
       };
       const itemSizes = {
         sofa: [118, 74],
@@ -1072,10 +1230,11 @@
         cozy: 38,
         coins: 12,
         night: false,
+        scene: "house",
         selectedPerson: "person",
         people: {
-          person: { x: 108, y: 284, holding: "", outfit: "home", emotion: "happy" },
-          guest: { x: 188, y: 288, holding: "", outfit: "home", emotion: "happy" }
+          person: { x: 108, y: 284, holding: "", outfit: "home", emotion: "happy", pose: "stand", accessory: "none" },
+          guest: { x: 188, y: 288, holding: "", outfit: "home", emotion: "happy", pose: "stand", accessory: "bow" }
         },
         items: [
           { id: "start-sofa", kind: "sofa", x: 42, y: 352 },
@@ -1095,6 +1254,11 @@
       state.people.guest.outfit ||= "home";
       state.people.person.emotion ||= "happy";
       state.people.guest.emotion ||= "happy";
+      state.people.person.pose ||= "stand";
+      state.people.guest.pose ||= "stand";
+      state.people.person.accessory ||= "none";
+      state.people.guest.accessory ||= "bow";
+      state.scene ||= "house";
       state.selectedPerson ||= "person";
 
       function setLog(text) {
@@ -1108,6 +1272,10 @@
         cozyEl.textContent = Math.round(state.cozy);
         coinsEl.textContent = state.coins;
         houseWrap.classList.toggle("night", state.night);
+        houseWrap.classList.toggle("scene-school", state.scene === "school");
+        houseWrap.classList.toggle("scene-cafe", state.scene === "cafe");
+        houseWrap.classList.toggle("scene-park", state.scene === "park");
+        houseWrap.classList.toggle("scene-salon", state.scene === "salon");
       }
 
       function renderPerson() {
@@ -1117,6 +1285,15 @@
         guest.style.setProperty("--hero-y", `${state.people.guest.y}px`);
         person.querySelector("img").src = outfitImages.person[state.people.person.outfit];
         guest.querySelector("img").src = outfitImages.guest[state.people.guest.outfit];
+        [person, guest].forEach((hero) => {
+          hero.classList.remove("pose-wave", "pose-sit", "pose-shy", "pose-dance", "pose-star");
+        });
+        if (state.people.person.pose !== "stand") person.classList.add(`pose-${state.people.person.pose}`);
+        if (state.people.guest.pose !== "stand") guest.classList.add(`pose-${state.people.guest.pose}`);
+        stylePerson.className = `style-piece ${state.people.person.accessory || "none"}`;
+        styleGuest.className = `style-piece ${state.people.guest.accessory || "none"}`;
+        stylePerson.textContent = accessoryIcons[state.people.person.accessory] || "";
+        styleGuest.textContent = accessoryIcons[state.people.guest.accessory] || "";
         person.classList.toggle("selected", state.selectedPerson === "person");
         guest.classList.toggle("selected", state.selectedPerson === "guest");
         heldPerson.className = `held ${state.people.person.holding} ${state.people.person.holding ? "show" : ""}`;
@@ -1126,6 +1303,9 @@
         personButtons.forEach((button) => button.classList.toggle("active", button.dataset.person === state.selectedPerson));
         outfitButtons.forEach((button) => button.classList.toggle("active", button.dataset.outfit === state.people[state.selectedPerson].outfit));
         emotionButtons.forEach((button) => button.classList.toggle("active", button.dataset.emotion === state.people[state.selectedPerson].emotion));
+        poseButtons.forEach((button) => button.classList.toggle("active", button.dataset.pose === state.people[state.selectedPerson].pose));
+        accessoryButtons.forEach((button) => button.classList.toggle("active", button.dataset.accessory === state.people[state.selectedPerson].accessory));
+        sceneButtons.forEach((button) => button.classList.toggle("active", button.dataset.scene === state.scene));
         person.classList.add("walking");
         setTimeout(() => person.classList.remove("walking"), 520);
       }
@@ -1329,13 +1509,51 @@
         renderPerson();
       }
 
+      function setPose(pose) {
+        state.people[state.selectedPerson].pose = pose;
+        state.mood = Math.min(100, state.mood + 2);
+        setLog(`Поза: ${poseLabels[pose] || "новая поза"}.`);
+        renderStats();
+        renderPerson();
+      }
+
+      function setAccessory(accessory) {
+        state.people[state.selectedPerson].accessory = accessory;
+        state.scene = "salon";
+        state.mood = Math.min(100, state.mood + 3);
+        setLog(`Образ: ${accessoryLabels[accessory] || "новый аксессуар"}.`);
+        createSparkle(state.people[state.selectedPerson].x + 34, state.people[state.selectedPerson].y - 18);
+        render();
+      }
+
+      function setScene(scene) {
+        state.scene = scene;
+        state.mood = Math.min(100, state.mood + 2);
+        setLog(`Фон сцены: ${sceneLabels[scene] || "новая сцена"}.`);
+        render();
+      }
+
+      function sayDialog() {
+        const text = dialogInput.value.trim() || "Привет! Давай играть!";
+        setLog(text);
+        state.people[state.selectedPerson].emotion = text.includes("!") ? "wow" : state.people[state.selectedPerson].emotion;
+        state.mood = Math.min(100, state.mood + 2);
+        renderStats();
+        renderPerson();
+      }
+
       function playStory(story) {
         if (story === "party") {
           state.room = "living";
+          state.scene = "cafe";
           state.people.person.outfit = "party";
           state.people.guest.outfit = "party";
           state.people.person.emotion = "love";
           state.people.guest.emotion = "happy";
+          state.people.person.pose = "star";
+          state.people.guest.pose = "wave";
+          state.people.person.accessory = "crown";
+          state.people.guest.accessory = "bow";
           state.night = false;
           goRoom("living");
           dance();
@@ -1344,10 +1562,15 @@
         }
         if (story === "school") {
           state.room = "play";
+          state.scene = "school";
           state.people.person.outfit = "home";
           state.people.guest.outfit = "home";
           state.people.person.emotion = "wow";
           state.people.guest.emotion = "happy";
+          state.people.person.pose = "wave";
+          state.people.guest.pose = "stand";
+          state.people.person.accessory = "glasses";
+          state.people.guest.accessory = "none";
           goRoom("play");
           if (!state.items.some((item) => item.kind === "book")) addItem("book");
           if (!state.items.some((item) => item.kind === "backpack")) addItem("backpack");
@@ -1355,10 +1578,15 @@
           return;
         }
         state.room = "bedroom";
+        state.scene = "house";
         state.people.person.outfit = "sleep";
         state.people.guest.outfit = "sleep";
         state.people.person.emotion = "happy";
         state.people.guest.emotion = "love";
+        state.people.person.pose = "sit";
+        state.people.guest.pose = "sit";
+        state.people.person.accessory = "none";
+        state.people.guest.accessory = "bow";
         state.night = true;
         goRoom("bedroom");
         setLog("Сценка: ночёвка, пижамы и тихая комната.");
@@ -1388,10 +1616,11 @@
         state.cozy = 38;
         state.coins = 12;
         state.night = false;
+        state.scene = "house";
         state.selectedPerson = "person";
         state.people = {
-          person: { x: 108, y: 284, holding: "", outfit: "home", emotion: "happy" },
-          guest: { x: 188, y: 288, holding: "", outfit: "home", emotion: "happy" }
+          person: { x: 108, y: 284, holding: "", outfit: "home", emotion: "happy", pose: "stand", accessory: "none" },
+          guest: { x: 188, y: 288, holding: "", outfit: "home", emotion: "happy", pose: "stand", accessory: "bow" }
         };
         state.items = [
           { id: "start-sofa", kind: "sofa", x: 42, y: 352 },
@@ -1425,6 +1654,23 @@
 
       emotionButtons.forEach((button) => {
         button.addEventListener("click", () => setEmotion(button.dataset.emotion));
+      });
+
+      poseButtons.forEach((button) => {
+        button.addEventListener("click", () => setPose(button.dataset.pose));
+      });
+
+      accessoryButtons.forEach((button) => {
+        button.addEventListener("click", () => setAccessory(button.dataset.accessory));
+      });
+
+      sceneButtons.forEach((button) => {
+        button.addEventListener("click", () => setScene(button.dataset.scene));
+      });
+
+      sayButton.addEventListener("click", sayDialog);
+      dialogInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") sayDialog();
       });
 
       storyButtons.forEach((button) => {
