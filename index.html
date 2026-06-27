@@ -1754,7 +1754,7 @@
       <section id="learn" aria-labelledby="learn-title">
         <div class="section-title">
           <h2 id="learn-title">Обучение</h2>
-          <p>Математика с примерами, счетом побед и таблицей умножения.</p>
+          <p>Математика с понятными примерами, счётом побед, таблицей умножения и мягким режимом в столбик.</p>
         </div>
 
         <div class="learn-grid">
@@ -2132,28 +2132,38 @@
         const op = operation.value === "mixed"
           ? modes[randomInt(0, modes.length - 1)]
           : operation.value;
-        let a = randomInt(12, 120);
-        let b = randomInt(8, 90);
+        let a = randomInt(10, 80);
+        let b = randomInt(2, 35);
         let symbol = "+";
         let correct = a + b;
 
         if (op === "sub") {
-          a = randomInt(30, 150);
-          b = randomInt(8, a - 1);
+          a = randomInt(20, 99);
+          b = randomInt(2, Math.min(45, a - 1));
           symbol = "-";
           correct = a - b;
         }
 
         if (op === "mul") {
-          a = randomInt(12, 98);
-          b = Math.random() > 0.55 ? randomInt(2, 9) : randomInt(11, 24);
+          if (viewMode.value === "column") {
+            a = randomInt(11, 49);
+            b = Math.random() > 0.8 ? randomInt(6, 9) : randomInt(2, 5);
+          } else {
+            a = randomInt(2, 10);
+            b = randomInt(2, 10);
+          }
           symbol = "×";
           correct = a * b;
         }
 
         if (op === "div") {
-          b = randomInt(2, 12);
-          correct = randomInt(11, 99);
+          if (viewMode.value === "column") {
+            b = randomInt(2, 5);
+            correct = randomInt(2, 20);
+          } else {
+            b = randomInt(2, 10);
+            correct = randomInt(2, 10);
+          }
           a = b * correct;
           symbol = "÷";
         }
@@ -2194,7 +2204,7 @@
               partials.length > 1 ? "─".repeat(totalWidth) : "",
               "?".padStart(totalWidth, " ")
             ].filter(Boolean).join("\n");
-            exampleNote.textContent = "Введи итоговый ответ умножения.";
+            exampleNote.textContent = "Небольшое умножение в столбик. Введи итоговый ответ.";
             return;
           }
 
@@ -2206,7 +2216,7 @@
               `${dividend} │ ${divisor}\n` +
               `${" ".repeat(dividend.length)} │${"─".repeat(resultWidth + 1)}\n` +
               `${" ".repeat(dividend.length)} │ ?`;
-            exampleNote.textContent = "Введи частное, то есть ответ деления.";
+            exampleNote.textContent = "Небольшое деление уголком. Введи частное.";
             return;
           }
         }
