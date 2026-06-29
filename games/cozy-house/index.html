@@ -660,6 +660,37 @@
         filter: drop-shadow(0 10px 0 rgba(36,31,53,.14));
       }
 
+      .pet {
+        position: absolute;
+        z-index: 7;
+        left: var(--pet-x, 278px);
+        top: var(--pet-y, 404px);
+        width: 86px;
+        height: 72px;
+        border: 0;
+        background: transparent;
+        transition: left .45s ease, top .45s ease, transform .2s ease;
+        touch-action: none;
+        cursor: grab;
+      }
+
+      .pet.hidden { display: none; }
+      .pet.happy { animation: petHappy .62s ease-in-out infinite alternate; }
+      .pet.sleepy { transform: translateY(10px) rotate(-5deg) scale(.92); filter: saturate(.82); }
+
+      .pet img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+        filter: drop-shadow(0 8px 0 rgba(36,31,53,.13));
+      }
+
+      @keyframes petHappy {
+        from { transform: translateY(0) rotate(-4deg); }
+        to { transform: translateY(-7px) rotate(4deg); }
+      }
+
       .emotion-bubble {
         position: absolute;
         left: 50%;
@@ -824,6 +855,8 @@
       .scene-buttons,
       .accessory-buttons,
       .director-buttons,
+      .pet-buttons,
+      .quick-dialog-buttons,
       .palette,
       .room-buttons {
         display: grid;
@@ -835,6 +868,7 @@
       .outfit-buttons,
       .accessory-buttons,
       .director-buttons,
+      .pet-buttons,
       .story-buttons { grid-template-columns: 1fr 1fr 1fr; }
       .emotion-buttons { grid-template-columns: repeat(5, 1fr); }
       .pose-buttons,
@@ -889,6 +923,7 @@
       }
 
       .director-buttons { grid-template-columns: 1fr 1fr; }
+      .quick-dialog-buttons { grid-template-columns: 1fr 1fr; }
 
       .tool {
         min-height: 74px;
@@ -1022,6 +1057,9 @@
                 <span class="emotion-bubble" id="emotionGuest">😊</span>
                 <span class="held" id="heldGuest"></span>
               </button>
+              <button class="pet" id="pet" type="button" aria-label="Питомец Пуся" style="--pet-x: 278px; --pet-y: 404px">
+                <img src="../../assets/sprites/care-kitten.png" alt="">
+              </button>
               <div class="thought" id="thought">Давай строить дом!</div>
             </div>
           </div>
@@ -1091,6 +1129,12 @@
               <input id="dialogInput" type="text" maxlength="42" value="Привет! Давай играть!" aria-label="Реплика персонажа">
               <button class="button tiny" id="sayButton" type="button">Сказать</button>
             </div>
+            <div class="quick-dialog-buttons">
+              <button class="button tiny" data-line="Это мой самый уютный день!" type="button">Уют</button>
+              <button class="button tiny" data-line="Пуся, иди к нам!" type="button">Питомец</button>
+              <button class="button tiny" data-line="Снимаем новую серию!" type="button">Серия</button>
+              <button class="button tiny" data-line="Сегодня будет праздник!" type="button">Праздник</button>
+            </div>
           </section>
 
           <section aria-labelledby="scenes-title">
@@ -1118,6 +1162,16 @@
             <div class="director-buttons">
               <button class="button tiny" id="randomStoryButton" type="button">Сюрприз</button>
               <button class="button tiny" id="photoButton" type="button">Фото</button>
+            </div>
+          </section>
+
+          <section aria-labelledby="pet-title">
+            <h2 id="pet-title">Питомец Пуся</h2>
+            <div class="pet-buttons">
+              <button class="button tiny" data-pet-action="call" type="button">Позвать</button>
+              <button class="button tiny" data-pet-action="feed" type="button">Корм</button>
+              <button class="button tiny" data-pet-action="play" type="button">Играть</button>
+              <button class="button tiny" data-pet-action="sleep" type="button">Спать</button>
             </div>
           </section>
 
@@ -1185,6 +1239,7 @@
       const houseWrap = document.querySelector("#houseWrap");
       const person = document.querySelector("#person");
       const guest = document.querySelector("#guest");
+      const pet = document.querySelector("#pet");
       const heldPerson = document.querySelector("#heldPerson");
       const heldGuest = document.querySelector("#heldGuest");
       const emotionPerson = document.querySelector("#emotionPerson");
@@ -1198,6 +1253,8 @@
       const accessoryButtons = [...document.querySelectorAll("[data-accessory]")];
       const storyButtons = [...document.querySelectorAll("[data-story]")];
       const sceneButtons = [...document.querySelectorAll("[data-scene]")];
+      const quickDialogButtons = [...document.querySelectorAll("[data-line]")];
+      const petButtons = [...document.querySelectorAll("[data-pet-action]")];
       const dialogInput = document.querySelector("#dialogInput");
       const sayButton = document.querySelector("#sayButton");
       const randomStoryButton = document.querySelector("#randomStoryButton");
@@ -1259,7 +1316,7 @@
         "Выбери эмоцию персонажу.",
         "Поставь красивую позу.",
         "Напиши реплику и нажми «Сказать».",
-        "Сделай фото сцены."
+        "Позови Пусю или сделай фото сцены."
       ];
       const itemSizes = {
         sofa: [118, 74],
@@ -1329,6 +1386,7 @@
         scene: "house",
         missionProgress: 0,
         selectedPerson: "person",
+        pet: { x: 278, y: 404, visible: true, mood: "happy" },
         people: {
           person: { x: 108, y: 284, holding: "", outfit: "home", emotion: "happy", pose: "stand", accessory: "none" },
           guest: { x: 188, y: 288, holding: "", outfit: "home", emotion: "happy", pose: "stand", accessory: "bow" }
@@ -1355,6 +1413,11 @@
       state.people.guest.pose ||= "stand";
       state.people.person.accessory ||= "none";
       state.people.guest.accessory ||= "bow";
+      state.pet ||= { x: 278, y: 404, visible: true, mood: "happy" };
+      state.pet.x ||= 278;
+      state.pet.y ||= 404;
+      state.pet.mood ||= "happy";
+      if (state.pet.visible === undefined) state.pet.visible = true;
       state.scene ||= "house";
       state.missionProgress ||= 0;
       state.selectedPerson ||= "person";
@@ -1423,6 +1486,14 @@
         setTimeout(() => person.classList.remove("walking"), 520);
       }
 
+      function renderPet() {
+        pet.style.setProperty("--pet-x", `${state.pet.x}px`);
+        pet.style.setProperty("--pet-y", `${state.pet.y}px`);
+        pet.classList.toggle("hidden", !state.pet.visible);
+        pet.classList.toggle("happy", state.pet.mood === "happy" || state.pet.mood === "play");
+        pet.classList.toggle("sleepy", state.pet.mood === "sleep");
+      }
+
       function renderItems() {
         house.querySelectorAll(".item").forEach((item) => item.remove());
         for (const item of state.items) {
@@ -1446,6 +1517,7 @@
       function render() {
         renderStats();
         renderPerson();
+        renderPet();
         renderItems();
       }
 
@@ -1456,6 +1528,8 @@
         state.people.person.y = y;
         state.people.guest.x = Math.min(x + 86, 660);
         state.people.guest.y = y + 4;
+        state.pet.x = Math.min(x + 160, 680);
+        state.pet.y = y + 92;
         state.mood = Math.min(100, state.mood + 1);
         setLog(`Идём в комнату: ${roomNames[room]}.`);
         render();
@@ -1531,6 +1605,18 @@
         if (kind === "wardrobe") changeOutfit(state.people[targetId].outfit === "party" ? "home" : "party");
         if (kind === "bed" || kind === "petbed") changeOutfit("sleep");
         if (kind === "food") state.coins += 1;
+        if (kind === "food") {
+          state.pet.visible = true;
+          state.pet.mood = "happy";
+          state.pet.x = Math.max(12, Math.min(x + 22, 660));
+          state.pet.y = Math.max(150, Math.min(y + 26, 520));
+        }
+        if (kind === "petbed") {
+          state.pet.visible = true;
+          state.pet.mood = "sleep";
+          state.pet.x = Math.max(12, Math.min(x + 14, 660));
+          state.pet.y = Math.max(150, Math.min(y + 16, 520));
+        }
         setLog(messages[kind] || "Предмет ожил в истории.");
         createSparkle(x + 38, y - 4);
         renderStats();
@@ -1541,13 +1627,14 @@
         event.preventDefault();
         const el = event.currentTarget;
         const personId = el.classList.contains("person") ? el.id : "";
+        const petId = el.classList.contains("pet") ? "pet" : "";
         const item = personId ? null : state.items.find((entry) => entry.id === el.dataset.id);
-        if (!item && !personId) return;
+        if (!item && !personId && !petId) return;
         const rect = house.getBoundingClientRect();
-        const current = personId ? state.people[personId] : item;
+        const current = petId ? state.pet : personId ? state.people[personId] : item;
         activeDrag = {
-          id: personId || item.id,
-          type: personId ? "person" : "item",
+          id: petId || personId || item.id,
+          type: petId ? "pet" : personId ? "person" : "item",
           dx: event.clientX - rect.left - current.x,
           dy: event.clientY - rect.top - current.y
         };
@@ -1558,6 +1645,13 @@
       function dragMove(event) {
         if (!activeDrag) return;
         const rect = house.getBoundingClientRect();
+        if (activeDrag.type === "pet") {
+          state.pet.x = Math.max(0, Math.min(rect.width - 86, event.clientX - rect.left - activeDrag.dx));
+          state.pet.y = Math.max(150, Math.min(rect.height - 72, event.clientY - rect.top - activeDrag.dy));
+          pet.style.setProperty("--pet-x", `${state.pet.x}px`);
+          pet.style.setProperty("--pet-y", `${state.pet.y}px`);
+          return;
+        }
         if (activeDrag.type === "person") {
           const hero = state.people[activeDrag.id];
           hero.x = Math.max(0, Math.min(rect.width - 86, event.clientX - rect.left - activeDrag.dx));
@@ -1586,7 +1680,7 @@
         activeDrag = null;
         state.cozy = Math.min(100, state.cozy + 1);
         state.mood = Math.min(100, state.mood + 1);
-        setLog(finishedType === "person" ? "Персонаж переехал в новое место." : "Предмет переставлен.");
+        setLog(finishedType === "person" ? "Персонаж переехал в новое место." : finishedType === "pet" ? "Пуся выбрала новое место." : "Предмет переставлен.");
         renderStats();
       }
 
@@ -1658,6 +1752,38 @@
         renderStats();
         renderPerson();
         advanceMission("Реплика добавлена.");
+      }
+
+      function useQuickLine(line) {
+        dialogInput.value = line;
+        sayDialog();
+      }
+
+      function petAction(action) {
+        state.pet.visible = true;
+        const selected = state.people[state.selectedPerson];
+        if (action === "call") {
+          state.pet.mood = "happy";
+          state.pet.x = Math.max(0, selected.x + 78);
+          state.pet.y = Math.max(150, selected.y + 60);
+          setLog("Пуся прибежала к персонажу.");
+        } else if (action === "feed") {
+          state.pet.mood = "happy";
+          state.coins += 1;
+          setLog("Пуся покушала и довольно мурчит.");
+          if (!state.items.some((item) => item.kind === "food")) addItem("food");
+        } else if (action === "play") {
+          state.pet.mood = "play";
+          state.mood = Math.min(100, state.mood + 7);
+          setLog("Пуся играет, а сцена стала веселее.");
+          createSparkle(state.pet.x + 30, state.pet.y - 8);
+        } else {
+          state.pet.mood = "sleep";
+          state.night = true;
+          setLog("Пуся легла спать. В домике стало тихо.");
+        }
+        render();
+        advanceMission("Пуся добавила жизни в сцену.");
       }
 
       function randomStory() {
@@ -1754,6 +1880,7 @@
         state.scene = "house";
         state.missionProgress = 0;
         state.selectedPerson = "person";
+        state.pet = { x: 278, y: 404, visible: true, mood: "happy" };
         state.people = {
           person: { x: 108, y: 284, holding: "", outfit: "home", emotion: "happy", pose: "stand", accessory: "none" },
           guest: { x: 188, y: 288, holding: "", outfit: "home", emotion: "happy", pose: "stand", accessory: "bow" }
@@ -1809,6 +1936,14 @@
         if (event.key === "Enter") sayDialog();
       });
 
+      quickDialogButtons.forEach((button) => {
+        button.addEventListener("click", () => useQuickLine(button.dataset.line));
+      });
+
+      petButtons.forEach((button) => {
+        button.addEventListener("click", () => petAction(button.dataset.petAction));
+      });
+
       storyButtons.forEach((button) => {
         button.addEventListener("click", () => playStory(button.dataset.story));
       });
@@ -1827,6 +1962,9 @@
           renderPerson();
         });
       });
+
+      pet.addEventListener("pointerdown", startDrag);
+      pet.addEventListener("click", () => petAction("play"));
 
       document.querySelector("#dayButton").addEventListener("click", () => {
         state.night = !state.night;
