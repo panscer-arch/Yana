@@ -227,6 +227,71 @@
         transform: translateX(-50%);
       }
 
+      .director-card {
+        position: absolute;
+        left: 18px;
+        top: 18px;
+        z-index: 12;
+        width: min(330px, calc(100% - 36px));
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+        border: 3px solid rgba(36,31,53,.14);
+        border-radius: 8px;
+        background: rgba(255,253,247,.94);
+        box-shadow: 0 9px 0 rgba(36,31,53,.1);
+      }
+
+      .director-card span {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .director-card strong {
+        font-size: 18px;
+        line-height: 1.16;
+      }
+
+      .mission-track {
+        height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(36,31,53,.12);
+      }
+
+      .mission-track i {
+        display: block;
+        width: var(--mission-progress, 0%);
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--mint), var(--blue));
+        transition: width .28s ease;
+      }
+
+      .photo-flash {
+        position: absolute;
+        inset: 0;
+        z-index: 14;
+        display: grid;
+        place-items: center;
+        color: var(--ink);
+        background: rgba(255,255,255,.78);
+        font-size: 48px;
+        font-weight: 900;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .photo-flash.show { animation: photoFlash .72s ease; }
+
+      @keyframes photoFlash {
+        0% { opacity: 0; transform: scale(.96); }
+        30% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(1.04); }
+      }
+
       .house::after {
         content: "";
         position: absolute;
@@ -758,6 +823,7 @@
       .story-buttons,
       .scene-buttons,
       .accessory-buttons,
+      .director-buttons,
       .palette,
       .room-buttons {
         display: grid;
@@ -768,6 +834,7 @@
       .character-buttons,
       .outfit-buttons,
       .accessory-buttons,
+      .director-buttons,
       .story-buttons { grid-template-columns: 1fr 1fr 1fr; }
       .emotion-buttons { grid-template-columns: repeat(5, 1fr); }
       .pose-buttons,
@@ -820,6 +887,8 @@
         background: #fff;
         font-weight: 900;
       }
+
+      .director-buttons { grid-template-columns: 1fr 1fr; }
 
       .tool {
         min-height: 74px;
@@ -924,6 +993,12 @@
             <div><span>Монетки</span><strong id="coins">12</strong></div>
           </div>
           <div class="house-wrap" id="houseWrap">
+            <div class="director-card" aria-live="polite">
+              <span>Задание дня</span>
+              <strong id="missionText">Сделай уютную сценку: выбери фон, позу и поставь мебель.</strong>
+              <div class="mission-track" aria-label="Прогресс задания"><i id="missionFill"></i></div>
+            </div>
+            <div class="photo-flash" id="photoFlash">Снимок готов!</div>
             <div class="cloud"></div>
             <div class="house" id="house">
               <div class="roof"></div>
@@ -1038,6 +1113,14 @@
             </div>
           </section>
 
+          <section aria-labelledby="director-title">
+            <h2 id="director-title">Режиссёр</h2>
+            <div class="director-buttons">
+              <button class="button tiny" id="randomStoryButton" type="button">Сюрприз</button>
+              <button class="button tiny" id="photoButton" type="button">Фото</button>
+            </div>
+          </section>
+
           <section aria-labelledby="rooms-title">
             <h2 id="rooms-title">Комнаты</h2>
             <div class="room-buttons">
@@ -1117,6 +1200,11 @@
       const sceneButtons = [...document.querySelectorAll("[data-scene]")];
       const dialogInput = document.querySelector("#dialogInput");
       const sayButton = document.querySelector("#sayButton");
+      const randomStoryButton = document.querySelector("#randomStoryButton");
+      const photoButton = document.querySelector("#photoButton");
+      const missionText = document.querySelector("#missionText");
+      const missionFill = document.querySelector("#missionFill");
+      const photoFlash = document.querySelector("#photoFlash");
       const thought = document.querySelector("#thought");
       const logEl = document.querySelector("#log");
       const roomNameEl = document.querySelector("#roomName");
@@ -1165,6 +1253,14 @@
         crown: "👑",
         glasses: "👓"
       };
+      const missionSteps = [
+        "Выбери фон для истории.",
+        "Поставь любой предмет в комнату.",
+        "Выбери эмоцию персонажу.",
+        "Поставь красивую позу.",
+        "Напиши реплику и нажми «Сказать».",
+        "Сделай фото сцены."
+      ];
       const itemSizes = {
         sofa: [118, 74],
         bed: [118, 78],
@@ -1231,6 +1327,7 @@
         coins: 12,
         night: false,
         scene: "house",
+        missionProgress: 0,
         selectedPerson: "person",
         people: {
           person: { x: 108, y: 284, holding: "", outfit: "home", emotion: "happy", pose: "stand", accessory: "none" },
@@ -1259,7 +1356,18 @@
       state.people.person.accessory ||= "none";
       state.people.guest.accessory ||= "bow";
       state.scene ||= "house";
+      state.missionProgress ||= 0;
       state.selectedPerson ||= "person";
+
+      function advanceMission(reason = "") {
+        const before = state.missionProgress;
+        state.missionProgress = Math.min(missionSteps.length, state.missionProgress + 1);
+        if (state.missionProgress === missionSteps.length && before < missionSteps.length) {
+          state.coins += 5;
+          setLog(`${reason} Задание дня готово! Награда: 5 монеток.`);
+        }
+        renderStats();
+      }
 
       function setLog(text) {
         logEl.textContent = text;
@@ -1271,6 +1379,11 @@
         moodEl.textContent = Math.round(state.mood);
         cozyEl.textContent = Math.round(state.cozy);
         coinsEl.textContent = state.coins;
+        const progress = Math.round((state.missionProgress / missionSteps.length) * 100);
+        missionFill.style.setProperty("--mission-progress", `${progress}%`);
+        missionText.textContent = state.missionProgress >= missionSteps.length
+          ? "Сценка готова! Можно сохранить или сделать новую."
+          : missionSteps[state.missionProgress];
         houseWrap.classList.toggle("night", state.night);
         houseWrap.classList.toggle("scene-school", state.scene === "school");
         houseWrap.classList.toggle("scene-cafe", state.scene === "cafe");
@@ -1378,6 +1491,7 @@
         state.coins = Math.max(0, state.coins - 1);
         setLog(`Поставили ${itemNames[kind]}. Можно двигать.`);
         render();
+        advanceMission("Предмет появился в сцене.");
       }
 
       function createSparkle(x, y) {
@@ -1507,6 +1621,7 @@
         createSparkle(state.people[state.selectedPerson].x + 34, state.people[state.selectedPerson].y - 14);
         renderStats();
         renderPerson();
+        advanceMission("Эмоция выбрана.");
       }
 
       function setPose(pose) {
@@ -1515,6 +1630,7 @@
         setLog(`Поза: ${poseLabels[pose] || "новая поза"}.`);
         renderStats();
         renderPerson();
+        advanceMission("Поза готова.");
       }
 
       function setAccessory(accessory) {
@@ -1531,6 +1647,7 @@
         state.mood = Math.min(100, state.mood + 2);
         setLog(`Фон сцены: ${sceneLabels[scene] || "новая сцена"}.`);
         render();
+        advanceMission("Фон выбран.");
       }
 
       function sayDialog() {
@@ -1540,6 +1657,24 @@
         state.mood = Math.min(100, state.mood + 2);
         renderStats();
         renderPerson();
+        advanceMission("Реплика добавлена.");
+      }
+
+      function randomStory() {
+        const stories = ["party", "school", "sleepover"];
+        playStory(stories[randomInt(0, stories.length - 1)]);
+        advanceMission("Сюрприз-сценка включена.");
+      }
+
+      function takePhoto() {
+        photoFlash.classList.remove("show");
+        void photoFlash.offsetWidth;
+        photoFlash.classList.add("show");
+        state.mood = Math.min(100, state.mood + 5);
+        setLog("Снимок сцены готов. Получилось как мини-мультик!");
+        createSparkle(state.people.person.x + 24, state.people.person.y - 12);
+        createSparkle(state.people.guest.x + 24, state.people.guest.y - 12);
+        advanceMission("Фото сделано.");
       }
 
       function playStory(story) {
@@ -1617,6 +1752,7 @@
         state.coins = 12;
         state.night = false;
         state.scene = "house";
+        state.missionProgress = 0;
         state.selectedPerson = "person";
         state.people = {
           person: { x: 108, y: 284, holding: "", outfit: "home", emotion: "happy", pose: "stand", accessory: "none" },
@@ -1677,6 +1813,8 @@
         button.addEventListener("click", () => playStory(button.dataset.story));
       });
 
+      randomStoryButton.addEventListener("click", randomStory);
+      photoButton.addEventListener("click", takePhoto);
       document.querySelector("#danceButton").addEventListener("click", dance);
 
       [person, guest].forEach((hero) => {
