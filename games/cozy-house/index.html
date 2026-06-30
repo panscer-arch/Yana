@@ -254,6 +254,33 @@
         line-height: 1.16;
       }
 
+      .episode-badge {
+        position: absolute;
+        right: 18px;
+        top: 18px;
+        z-index: 12;
+        max-width: 260px;
+        display: grid;
+        gap: 4px;
+        padding: 12px;
+        border: 3px solid rgba(36,31,53,.14);
+        border-radius: 8px;
+        background: rgba(255,253,247,.94);
+        box-shadow: 0 9px 0 rgba(36,31,53,.1);
+      }
+
+      .episode-badge span {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .episode-badge strong {
+        font-size: 17px;
+        line-height: 1.16;
+      }
+
       .mission-track {
         height: 10px;
         overflow: hidden;
@@ -911,7 +938,23 @@
         gap: 8px;
       }
 
+      .episode-editor {
+        display: grid;
+        gap: 8px;
+      }
+
       .dialog-editor input {
+        min-height: 42px;
+        width: 100%;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        padding: 0 10px;
+        color: var(--ink);
+        background: #fff;
+        font-weight: 900;
+      }
+
+      .episode-editor input {
         min-height: 42px;
         width: 100%;
         border: 2px solid var(--line);
@@ -1032,6 +1075,10 @@
               <span>Задание дня</span>
               <strong id="missionText">Сделай уютную сценку: выбери фон, позу и поставь мебель.</strong>
               <div class="mission-track" aria-label="Прогресс задания"><i id="missionFill"></i></div>
+            </div>
+            <div class="episode-badge" aria-live="polite">
+              <span id="episodeNumber">Серия 1</span>
+              <strong id="episodeTitleView">Праздник в домике</strong>
             </div>
             <div class="photo-flash" id="photoFlash">Снимок готов!</div>
             <div class="cloud"></div>
@@ -1165,6 +1212,14 @@
             </div>
           </section>
 
+          <section aria-labelledby="episode-title">
+            <h2 id="episode-title">Серия</h2>
+            <div class="episode-editor">
+              <input id="episodeInput" type="text" maxlength="36" value="Праздник в домике" aria-label="Название серии">
+              <button class="button tiny" id="saveEpisodeButton" type="button">Сохранить серию</button>
+            </div>
+          </section>
+
           <section aria-labelledby="pet-title">
             <h2 id="pet-title">Питомец Пуся</h2>
             <div class="pet-buttons">
@@ -1259,6 +1314,10 @@
       const sayButton = document.querySelector("#sayButton");
       const randomStoryButton = document.querySelector("#randomStoryButton");
       const photoButton = document.querySelector("#photoButton");
+      const episodeInput = document.querySelector("#episodeInput");
+      const saveEpisodeButton = document.querySelector("#saveEpisodeButton");
+      const episodeNumber = document.querySelector("#episodeNumber");
+      const episodeTitleView = document.querySelector("#episodeTitleView");
       const missionText = document.querySelector("#missionText");
       const missionFill = document.querySelector("#missionFill");
       const photoFlash = document.querySelector("#photoFlash");
@@ -1385,6 +1444,8 @@
         night: false,
         scene: "house",
         missionProgress: 0,
+        episodeCount: 1,
+        episodeTitle: "Праздник в домике",
         selectedPerson: "person",
         pet: { x: 278, y: 404, visible: true, mood: "happy" },
         people: {
@@ -1420,6 +1481,8 @@
       if (state.pet.visible === undefined) state.pet.visible = true;
       state.scene ||= "house";
       state.missionProgress ||= 0;
+      state.episodeCount ||= 1;
+      state.episodeTitle ||= "Праздник в домике";
       state.selectedPerson ||= "person";
 
       function advanceMission(reason = "") {
@@ -1447,6 +1510,9 @@
         missionText.textContent = state.missionProgress >= missionSteps.length
           ? "Сценка готова! Можно сохранить или сделать новую."
           : missionSteps[state.missionProgress];
+        episodeNumber.textContent = `Серия ${state.episodeCount}`;
+        episodeTitleView.textContent = state.episodeTitle;
+        if (document.activeElement !== episodeInput) episodeInput.value = state.episodeTitle;
         houseWrap.classList.toggle("night", state.night);
         houseWrap.classList.toggle("scene-school", state.scene === "school");
         houseWrap.classList.toggle("scene-cafe", state.scene === "cafe");
@@ -1803,6 +1869,17 @@
         advanceMission("Фото сделано.");
       }
 
+      function saveEpisode() {
+        const title = episodeInput.value.trim() || "Новая серия";
+        state.episodeTitle = title;
+        state.episodeCount += 1;
+        state.missionProgress = 0;
+        state.coins += 3;
+        state.cozy = Math.min(100, state.cozy + 4);
+        setLog(`Серия «${title}» сохранена! Новая серия началась, награда: 3 монетки.`);
+        render();
+      }
+
       function playStory(story) {
         if (story === "party") {
           state.room = "living";
@@ -1879,6 +1956,8 @@
         state.night = false;
         state.scene = "house";
         state.missionProgress = 0;
+        state.episodeCount = 1;
+        state.episodeTitle = "Праздник в домике";
         state.selectedPerson = "person";
         state.pet = { x: 278, y: 404, visible: true, mood: "happy" };
         state.people = {
@@ -1950,6 +2029,10 @@
 
       randomStoryButton.addEventListener("click", randomStory);
       photoButton.addEventListener("click", takePhoto);
+      saveEpisodeButton.addEventListener("click", saveEpisode);
+      episodeInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") saveEpisode();
+      });
       document.querySelector("#danceButton").addEventListener("click", dance);
 
       [person, guest].forEach((hero) => {
