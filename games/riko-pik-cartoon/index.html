@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Рико и Пик: мультсериал</title>
-    <meta name="description" content="Оригинальный мультсериал про Рико и маленького робота Пика: 3D-сцена, город, реплики и короткий первый эпизод.">
+    <meta name="description" content="Оригинальный мультсериал про Рико и маленького робота Пика: 3D-сцена, город, реплики и озвучка.">
     <meta name="theme-color" content="#57c7ff">
     <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
     <style>
@@ -20,9 +20,7 @@
         --line: rgba(23, 32, 51, .16);
         --shadow: 0 14px 0 rgba(23, 32, 51, .12);
       }
-
       * { box-sizing: border-box; }
-
       body {
         margin: 0;
         min-height: 100vh;
@@ -33,10 +31,8 @@
           radial-gradient(circle at 86% 10%, rgba(255,255,255,.68) 0 6%, transparent 7%),
           linear-gradient(135deg, #abe7ff 0%, #ffe0ef 48%, #fff2a7 100%);
       }
-
       button { font: inherit; cursor: pointer; }
       a { color: inherit; }
-
       .skip-link {
         position: fixed;
         left: 16px;
@@ -53,9 +49,7 @@
         font-weight: 900;
         text-decoration: none;
       }
-
       .skip-link:focus-visible { transform: translateY(0); }
-
       .topbar {
         position: sticky;
         top: 0;
@@ -64,7 +58,6 @@
         background: rgba(255,253,246,.9);
         backdrop-filter: blur(12px);
       }
-
       .topbar-inner {
         width: min(1180px, calc(100% - 28px));
         min-height: 72px;
@@ -74,7 +67,6 @@
         justify-content: space-between;
         gap: 12px;
       }
-
       .brand,
       nav a {
         min-height: 40px;
@@ -86,7 +78,6 @@
         font-weight: 900;
         text-decoration: none;
       }
-
       .brand { gap: 10px; font-size: 22px; }
       .mark {
         width: 46px;
@@ -96,38 +87,21 @@
         background: #fff center / cover no-repeat url("../../assets/yana-unicorn-logo.png");
         box-shadow: 0 5px 0 rgba(23,32,51,.12);
       }
-
-      nav {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        gap: 8px;
-      }
-
-      nav a {
-        padding: 0 12px;
-        border: 2px solid transparent;
-      }
-
+      nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+      nav a { padding: 0 12px; border: 2px solid transparent; }
       nav a:hover,
-      nav a:focus-visible {
-        border-color: var(--line);
-        background: #fff;
-      }
-
+      nav a:focus-visible { border-color: var(--line); background: #fff; }
       main {
         width: min(1180px, calc(100% - 28px));
         margin: 0 auto;
         padding: 24px 0 48px;
       }
-
       .movie-shell {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 320px;
         gap: 14px;
         align-items: start;
       }
-
       .screen,
       .panel,
       .episode-card {
@@ -136,20 +110,13 @@
         background: rgba(255,253,246,.94);
         box-shadow: var(--shadow);
       }
-
-      .screen {
-        position: relative;
-        min-height: 680px;
-        overflow: hidden;
-      }
-
+      .screen { position: relative; min-height: 680px; overflow: hidden; }
       #scene {
         width: 100%;
         height: 680px;
         display: block;
         background: linear-gradient(180deg, #9bdcff, #fff3bb);
       }
-
       .scene-title {
         position: absolute;
         left: 18px;
@@ -162,7 +129,6 @@
         background: rgba(255,253,246,.94);
         box-shadow: 0 9px 0 rgba(23,32,51,.1);
       }
-
       .scene-title span {
         display: block;
         color: var(--muted);
@@ -170,14 +136,7 @@
         font-weight: 900;
         text-transform: uppercase;
       }
-
-      .scene-title strong {
-        display: block;
-        margin-top: 4px;
-        font-size: 26px;
-        line-height: 1.06;
-      }
-
+      .scene-title strong { display: block; margin-top: 4px; font-size: 26px; line-height: 1.06; }
       .subtitle {
         position: absolute;
         left: 18px;
@@ -195,40 +154,18 @@
         background: rgba(23,32,51,.82);
         box-shadow: 0 9px 0 rgba(23,32,51,.18);
       }
-
-      .subtitle span {
-        color: #bdefff;
-        font-weight: 900;
-      }
-
-      .subtitle strong {
-        font-size: 21px;
-        line-height: 1.22;
-      }
-
-      .panel {
-        padding: 14px;
-        display: grid;
-        gap: 14px;
-      }
-
+      .subtitle span { color: #bdefff; font-weight: 900; }
+      .subtitle strong { font-size: 21px; line-height: 1.22; }
+      .panel { padding: 14px; display: grid; gap: 14px; }
       h1, h2, h3, p { margin: 0; }
       h1 { font-size: 32px; line-height: 1; }
       h2 { font-size: 20px; }
-      .lead {
-        color: var(--muted);
-        font-weight: 800;
-        line-height: 1.42;
-      }
-
+      .lead { color: var(--muted); font-weight: 800; line-height: 1.42; }
       .controls,
-      .scene-buttons {
-        display: grid;
-        gap: 8px;
-      }
-
+      .voice-panel,
+      .scene-buttons { display: grid; gap: 8px; }
       .controls { grid-template-columns: 1fr 1fr; }
-
+      .voice-panel { grid-template-columns: 1fr; }
       .button {
         min-height: 44px;
         border: 0;
@@ -238,13 +175,7 @@
         box-shadow: 0 7px 0 rgba(23,32,51,.12);
         font-weight: 900;
       }
-
-      .button.secondary {
-        color: var(--ink);
-        background: #fff;
-        border: 2px solid var(--line);
-      }
-
+      .button.secondary { color: var(--ink); background: #fff; border: 2px solid var(--line); }
       .scene-buttons { grid-template-columns: 1fr; }
       .scene-buttons .button {
         color: var(--ink);
@@ -253,29 +184,13 @@
         text-align: left;
         padding: 0 10px;
       }
-      .scene-buttons .button.active {
-        color: #fff;
-        background: linear-gradient(180deg, #6e8dff, #5a5be8);
-      }
-
-      .episode-list {
-        display: grid;
-        gap: 8px;
-      }
-
-      .episode-card {
-        padding: 12px;
-        box-shadow: 0 7px 0 rgba(23,32,51,.09);
-      }
-
+      .scene-buttons .button.active { color: #fff; background: linear-gradient(180deg, #6e8dff, #5a5be8); }
+      .episode-list { display: grid; gap: 8px; }
+      .episode-card { padding: 12px; box-shadow: 0 7px 0 rgba(23,32,51,.09); }
       .episode-card strong { display: block; margin-bottom: 4px; }
-      .episode-card p {
-        color: var(--muted);
-        font-weight: 800;
-        line-height: 1.34;
-      }
-
-      .note {
+      .episode-card p { color: var(--muted); font-weight: 800; line-height: 1.34; }
+      .note,
+      .voice-status {
         padding: 12px;
         border: 2px solid rgba(23,32,51,.12);
         border-radius: 8px;
@@ -284,7 +199,7 @@
         font-weight: 800;
         line-height: 1.38;
       }
-
+      .voice-status { min-height: 42px; display: grid; align-content: center; font-weight: 900; }
       footer {
         width: min(1180px, calc(100% - 28px));
         margin: 0 auto;
@@ -293,7 +208,6 @@
         font-weight: 900;
         text-align: center;
       }
-
       @media (max-width: 960px) {
         .movie-shell { grid-template-columns: 1fr; }
         #scene, .screen { min-height: 560px; height: 560px; }
@@ -341,6 +255,14 @@
             <button class="button secondary" id="nextButton" type="button">Дальше</button>
           </div>
 
+          <section aria-labelledby="voice-title">
+            <h2 id="voice-title">Озвучка</h2>
+            <div class="voice-panel">
+              <button class="button secondary" id="voiceButton" type="button">Включить голоса</button>
+              <div class="voice-status" id="voiceStatus">Рико и Пик будут говорить разными голосами.</div>
+            </div>
+          </section>
+
           <section aria-labelledby="scenes-title">
             <h2 id="scenes-title">Кадры серии</h2>
             <div class="scene-buttons" id="sceneButtons"></div>
@@ -364,7 +286,7 @@
             </div>
           </section>
 
-          <div class="note">Это первая версия мультстраницы: здесь уже используются 3D-модели и готовые ассеты, а не круги-плейсхолдеры. Следующий шаг — добавить отдельную 3D-модель Пика и озвучку.</div>
+          <div class="note">Сейчас работает безопасная озвучка в браузере: разные тембры для Рико и Пика. Для ElevenLabs, Cartesia, PlayAI или OpenAI TTS нужен серверный API-ключ, его нельзя хранить в открытом HTML.</div>
         </aside>
       </div>
     </main>
@@ -397,6 +319,8 @@
       const speaker = document.querySelector("#speaker");
       const line = document.querySelector("#line");
       const sceneButtons = document.querySelector("#sceneButtons");
+      const voiceButton = document.querySelector("#voiceButton");
+      const voiceStatus = document.querySelector("#voiceStatus");
 
       const frames = [
         {
@@ -412,7 +336,7 @@
         {
           title: "Пик всё понял буквально",
           speaker: "Пик",
-          line: "Вывеска сказала «свежие облака». Я заказал одно маленькое.",
+          line: "Вывеска сказала свежие облака. Я заказал одно маленькое.",
           camera: [3.9, 2.8, 5.6],
           look: [.15, 1.1, .2],
           riko: [-.65, 0, .25],
@@ -432,7 +356,7 @@
         {
           title: "План спасения",
           speaker: "Пик",
-          line: "Предлагаю всё проверить. Но сначала проверю, что значит слово «проверить».",
+          line: "Предлагаю всё проверить. Но сначала проверю, что значит слово проверить.",
           camera: [4.2, 3.1, 5.4],
           look: [.15, 1, .15],
           riko: [-.85, 0, .05],
@@ -469,7 +393,6 @@
 
       const hemi = new THREE.HemisphereLight(0xffffff, 0x7ca1c8, 2.2);
       world.add(hemi);
-
       const sun = new THREE.DirectionalLight(0xfff1c1, 4.2);
       sun.position.set(6, 9, 4);
       sun.castShadow = true;
@@ -516,24 +439,20 @@
         body.castShadow = true;
         body.position.y = .15;
         group.add(body);
-
         const head = new THREE.Mesh(new THREE.BoxGeometry(.86, .46, .36), darkMat);
         head.castShadow = true;
         head.position.y = .82;
         group.add(head);
-
         const eyeLeft = new THREE.Mesh(new THREE.BoxGeometry(.16, .09, .035), glowMat);
         const eyeRight = eyeLeft.clone();
         eyeLeft.position.set(-.18, .86, .2);
         eyeRight.position.set(.18, .86, .2);
         group.add(eyeLeft, eyeRight);
-
         const antenna = new THREE.Mesh(new THREE.CylinderGeometry(.025, .035, .42, 10), glowMat);
         antenna.position.set(.25, 1.2, 0);
         antenna.rotation.z = -.45;
         antenna.castShadow = true;
         group.add(antenna);
-
         const armGeo = new THREE.CapsuleGeometry(.055, .36, 6, 12);
         const leftArm = new THREE.Mesh(armGeo, bodyMat);
         const rightArm = new THREE.Mesh(armGeo, bodyMat);
@@ -543,7 +462,6 @@
         rightArm.rotation.z = -.35;
         leftArm.castShadow = rightArm.castShadow = true;
         group.add(leftArm, rightArm);
-
         const footGeo = new THREE.BoxGeometry(.24, .12, .28);
         const leftFoot = new THREE.Mesh(footGeo, darkMat);
         const rightFoot = leftFoot.clone();
@@ -559,11 +477,10 @@
       world.add(riko);
       const pik = makePik();
       world.add(pik.group);
-
       const buildings = new THREE.Group();
       world.add(buildings);
 
-      async function loadModel(path) {
+      function loadModel(path) {
         return new Promise((resolve, reject) => loader.load(path, resolve, undefined, reject));
       }
 
@@ -581,7 +498,6 @@
       async function buildWorld() {
         const hero = await loadModel("../../assets/models/kenney-mini-characters/character-male-a.glb");
         riko.add(setupModel(hero.scene, 1.12));
-
         const buildingFiles = [
           "building-sample-house-a.glb",
           "building-sample-house-b.glb",
@@ -612,6 +528,50 @@
       let currentFrame = 0;
       let playing = false;
       let timer = 0;
+      let voiceEnabled = false;
+      let voices = [];
+      const voiceProfiles = {
+        "Рико": { pitch: 1.32, rate: .95, volume: 1 },
+        "Пик": { pitch: 1.72, rate: 1.08, volume: .95 }
+      };
+
+      function loadVoices() {
+        if (!("speechSynthesis" in window)) {
+          voiceButton.disabled = true;
+          voiceStatus.textContent = "В этом браузере нет встроенной озвучки.";
+          return;
+        }
+        voices = window.speechSynthesis.getVoices();
+        voiceStatus.textContent = voices.length
+          ? "Голоса готовы. Рико и Пик говорят разными тембрами."
+          : "Голоса загружаются. Нажми ещё раз через секунду.";
+      }
+
+      function pickVoice(character) {
+        const ruVoices = voices.filter((voice) => voice.lang?.toLowerCase().startsWith("ru"));
+        const pool = ruVoices.length ? ruVoices : voices;
+        if (!pool.length) return null;
+        if (character === "Пик") return pool.find((voice) => /male|maxim|alex|google/i.test(voice.name)) || pool[1] || pool[0];
+        return pool.find((voice) => /female|milena|oksana|anna|google/i.test(voice.name)) || pool[0];
+      }
+
+      function stopVoice() {
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      }
+
+      function speakFrame() {
+        if (!voiceEnabled || !("speechSynthesis" in window)) return;
+        const frame = frames[currentFrame];
+        stopVoice();
+        const utterance = new SpeechSynthesisUtterance(frame.line);
+        const profile = voiceProfiles[frame.speaker] || voiceProfiles["Рико"];
+        utterance.lang = "ru-RU";
+        utterance.pitch = profile.pitch;
+        utterance.rate = profile.rate;
+        utterance.volume = profile.volume;
+        utterance.voice = pickVoice(frame.speaker);
+        window.speechSynthesis.speak(utterance);
+      }
 
       function setFrame(index) {
         currentFrame = (index + frames.length) % frames.length;
@@ -632,6 +592,7 @@
         camera.position.set(...frame.camera);
         target.set(...frame.look);
         camera.lookAt(target);
+        speakFrame();
       }
 
       function createButtons() {
@@ -642,6 +603,7 @@
           button.textContent = `${index + 1}. ${frame.title}`;
           button.addEventListener("click", () => {
             playing = false;
+            stopVoice();
             setFrame(index);
           });
           sceneButtons.appendChild(button);
@@ -675,18 +637,36 @@
       document.querySelector("#playButton").addEventListener("click", () => {
         playing = true;
         timer = 0;
+        speakFrame();
       });
       document.querySelector("#pauseButton").addEventListener("click", () => {
         playing = false;
+        stopVoice();
       });
       document.querySelector("#prevButton").addEventListener("click", () => {
         playing = false;
+        stopVoice();
         setFrame(currentFrame - 1);
       });
       document.querySelector("#nextButton").addEventListener("click", () => {
         playing = false;
+        stopVoice();
         setFrame(currentFrame + 1);
       });
+      voiceButton.addEventListener("click", () => {
+        loadVoices();
+        voiceEnabled = !voiceEnabled;
+        voiceButton.textContent = voiceEnabled ? "Выключить голоса" : "Включить голоса";
+        voiceStatus.textContent = voiceEnabled
+          ? "Озвучка включена. На каждом кадре звучит свой персонаж."
+          : "Озвучка выключена.";
+        if (voiceEnabled) speakFrame();
+        else stopVoice();
+      });
+      if ("speechSynthesis" in window) {
+        loadVoices();
+        window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
+      }
 
       createButtons();
       buildWorld().catch((error) => {
