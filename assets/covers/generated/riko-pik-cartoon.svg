@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Рико и Пик</title>
+  <desc id="desc">Обложка оригинального мультсериала про мальчика Рико и робота Пика в необычном городе.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#94e5ff"/>
+      <stop offset=".48" stop-color="#ffd3ec"/>
+      <stop offset="1" stop-color="#fff0a4"/>
+    </linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#728197"/>
+      <stop offset="1" stop-color="#3f4c61"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="16" stdDeviation="8" flood-color="#172033" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect width="960" height="540" rx="18" fill="url(#sky)"/>
+  <circle cx="812" cy="88" r="48" fill="#ffd763"/>
+  <g opacity=".9">
+    <rect x="74" y="126" width="126" height="234" rx="16" fill="#ffb879"/>
+    <rect x="218" y="82" width="168" height="290" rx="18" fill="#73d5ff"/>
+    <rect x="608" y="108" width="158" height="264" rx="18" fill="#a78bff"/>
+    <rect x="784" y="145" width="108" height="222" rx="15" fill="#67d4a1"/>
+    <g fill="#fff7cf" opacity=".9">
+      <rect x="105" y="168" width="34" height="46" rx="8"/>
+      <rect x="152" y="168" width="34" height="46" rx="8"/>
+      <rect x="254" y="126" width="40" height="52" rx="9"/>
+      <rect x="316" y="126" width="40" height="52" rx="9"/>
+      <rect x="648" y="156" width="42" height="52" rx="9"/>
+      <rect x="708" y="156" width="42" height="52" rx="9"/>
+      <rect x="812" y="190" width="34" height="48" rx="8"/>
+    </g>
+  </g>
+  <path d="M0 414 C176 356 278 382 436 412 C585 440 724 388 960 414 L960 540 L0 540 Z" fill="url(#road)"/>
+  <path d="M480 414 L514 540 L446 540 Z" fill="#fff5a8" opacity=".8"/>
+  <g filter="url(#shadow)">
+    <g transform="translate(306 188)">
+      <path d="M88 46 C126 52 152 82 154 126 C157 186 120 232 72 232 C28 232 0 188 6 129 C10 79 42 40 88 46Z" fill="#ffb77b"/>
+      <path d="M22 104 C26 48 60 10 110 22 C132 28 146 43 151 64 C122 54 103 67 80 72 C52 79 42 72 22 104Z" fill="#7a4a2a"/>
+      <path d="M48 124 C58 112 82 110 94 124 C80 135 62 135 48 124Z" fill="#fff"/>
+      <circle cx="70" cy="123" r="8" fill="#243047"/>
+      <path d="M104 124 C116 112 138 114 148 126 C133 136 116 135 104 124Z" fill="#fff"/>
+      <circle cx="128" cy="124" r="8" fill="#243047"/>
+      <path d="M80 164 C98 178 120 177 138 164" fill="none" stroke="#7a382f" stroke-width="8" stroke-linecap="round"/>
+      <path d="M30 234 C50 208 122 207 144 236 L166 344 L12 344Z" fill="#ff7b58"/>
+      <path d="M46 248 L132 248 L122 342 L56 342Z" fill="#2dd1c8"/>
+      <path d="M20 288 C-14 310 -24 356 10 374 C36 390 56 356 48 326Z" fill="#ffb77b"/>
+      <path d="M156 288 C195 310 206 354 172 374 C145 390 126 356 134 326Z" fill="#ffb77b"/>
+      <path d="M56 342 L46 430 L88 430 L98 342Z" fill="#33425c"/>
+      <path d="M118 342 L126 430 L168 430 L158 342Z" fill="#33425c"/>
+      <rect x="34" y="424" width="58" height="24" rx="12" fill="#1f283a"/>
+      <rect x="118" y="424" width="58" height="24" rx="12" fill="#1f283a"/>
+    </g>
+    <g transform="translate(586 240)">
+      <rect x="0" y="58" width="130" height="118" rx="28" fill="#62d7ff"/>
+      <rect x="12" y="0" width="106" height="72" rx="24" fill="#293348"/>
+      <rect x="28" y="20" width="28" height="16" rx="8" fill="#a5fff7"/>
+      <rect x="75" y="20" width="28" height="16" rx="8" fill="#a5fff7"/>
+      <rect x="48" y="-28" width="12" height="36" rx="6" fill="#a5fff7"/>
+      <circle cx="55" cy="-32" r="10" fill="#ffd763"/>
+      <rect x="-22" y="88" width="28" height="76" rx="14" fill="#62d7ff" transform="rotate(18 -8 126)"/>
+      <rect x="124" y="88" width="28" height="76" rx="14" fill="#62d7ff" transform="rotate(-18 138 126)"/>
+      <rect x="24" y="168" width="32" height="26" rx="12" fill="#293348"/>
+      <rect x="76" y="168" width="32" height="26" rx="12" fill="#293348"/>
+    </g>
+  </g>
+  <text x="56" y="84" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="900" fill="#172033">Рико и Пик</text>
+  <text x="58" y="128" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="900" fill="#465269">мультсериал</text>
+</svg>

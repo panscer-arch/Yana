@@ -1,4 +1,4 @@
-const CACHE_NAME = "yana-unicorn-v64";
+const CACHE_NAME = "yana-unicorn-v65";
 const CACHE_PATHS = [
   "./",
   "./index.html",
@@ -15,6 +15,7 @@ const CACHE_PATHS = [
   "./games/cozy-house/index.html",
   "./games/animation-studio/index.html",
   "./games/lost-cloud/index.html",
+  "./games/riko-pik-cartoon/index.html",
   "./games/kolobok/index.html",
   "./games/kolobok/game.js",
   "./games/kolobok/styles.css",
@@ -64,6 +65,7 @@ const CACHE_PATHS = [
   "./assets/cozy-house/character-friend-sleep.png",
   "./assets/covers/generated/goose-artist.png",
   "./assets/covers/generated/lost-cloud.svg",
+  "./assets/covers/generated/riko-pik-cartoon.svg",
   "./assets/covers/generated/kolobok.png",
   "./assets/covers/generated/snake-clash.png",
   "./assets/covers/generated/people-arena.png",
