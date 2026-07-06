@@ -1773,6 +1773,15 @@
           <div class="trainer">
             <div class="controls">
               <label>
+                Сложность
+                <select id="difficulty">
+                  <option value="easy">Легко</option>
+                  <option value="medium">Средне</option>
+                  <option value="hard">Сложно</option>
+                </select>
+              </label>
+
+              <label>
                 Действие
                 <select id="operation">
                   <option value="mixed">Микс</option>
@@ -1800,7 +1809,7 @@
             <div class="daily-goal">
               <div>
                 <strong>Цель на сегодня</strong>
-                <span id="goalText" aria-live="polite">Реши 10 примеров правильно.</span>
+                <span id="goalText" aria-live="polite">Реши 10 лёгких примеров правильно.</span>
               </div>
               <div class="goal-track" aria-label="Прогресс цели"><span id="goalFill"></span></div>
             </div>
@@ -1808,7 +1817,7 @@
             <div class="problem">
               <div>
                 <div class="example" id="example">7 + 5 = ?</div>
-                <div class="example-note" id="exampleNote">Введи итоговый ответ.</div>
+                <div class="example-note" id="exampleNote">Лёгкий режим: считай спокойно, без тяжёлых примеров.</div>
               </div>
               <div class="answer-panel">
                 <button id="checkAnswer" type="button">Проверить</button>
@@ -2139,43 +2148,75 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
       }
 
+      function getDifficultySettings() {
+        const mode = difficulty.value || "easy";
+
+        if (mode === "hard") {
+          return {
+            name: "сложный",
+            modes: ["add", "sub", "mul", "div"],
+            addMax: viewMode.value === "column" ? 999 : 200,
+            subMax: viewMode.value === "column" ? 999 : 200,
+            mulA: viewMode.value === "column" ? [11, 99] : [2, 12],
+            mulB: viewMode.value === "column" ? [2, 9] : [2, 12],
+            divB: [2, 9],
+            divAnswer: viewMode.value === "column" ? [10, 99] : [2, 12]
+          };
+        }
+
+        if (mode === "medium") {
+          return {
+            name: "средний",
+            modes: ["add", "sub", "mul", "div"],
+            addMax: viewMode.value === "column" ? 199 : 80,
+            subMax: viewMode.value === "column" ? 199 : 80,
+            mulA: viewMode.value === "column" ? [6, 24] : [2, 8],
+            mulB: [2, 6],
+            divB: [2, 6],
+            divAnswer: viewMode.value === "column" ? [2, 30] : [2, 8]
+          };
+        }
+
+        return {
+          name: "лёгкий",
+          modes: ["add", "sub"],
+          addMax: viewMode.value === "column" ? 99 : 30,
+          subMax: viewMode.value === "column" ? 99 : 30,
+          mulA: [1, 5],
+          mulB: [1, 5],
+          divB: [2, 5],
+          divAnswer: [1, 5]
+        };
+      }
+
       function makeTask() {
-        const modes = ["add", "sub", "mul", "div"];
+        const settings = getDifficultySettings();
+        const modes = settings.modes;
         const op = operation.value === "mixed"
           ? modes[randomInt(0, modes.length - 1)]
           : operation.value;
-        let a = randomInt(10, 80);
-        let b = randomInt(2, 35);
+        let a = randomInt(1, settings.addMax);
+        let b = randomInt(1, settings.addMax);
         let symbol = "+";
         let correct = a + b;
 
         if (op === "sub") {
-          a = randomInt(20, 99);
-          b = randomInt(2, Math.min(45, a - 1));
+          a = randomInt(2, settings.subMax);
+          b = randomInt(1, a - 1);
           symbol = "-";
           correct = a - b;
         }
 
         if (op === "mul") {
-          if (viewMode.value === "column") {
-            a = randomInt(11, 49);
-            b = Math.random() > 0.8 ? randomInt(6, 9) : randomInt(2, 5);
-          } else {
-            a = randomInt(2, 10);
-            b = randomInt(2, 10);
-          }
+          a = randomInt(settings.mulA[0], settings.mulA[1]);
+          b = randomInt(settings.mulB[0], settings.mulB[1]);
           symbol = "×";
           correct = a * b;
         }
 
         if (op === "div") {
-          if (viewMode.value === "column") {
-            b = randomInt(2, 5);
-            correct = randomInt(2, 20);
-          } else {
-            b = randomInt(2, 10);
-            correct = randomInt(2, 10);
-          }
+          b = randomInt(settings.divB[0], settings.divB[1]);
+          correct = randomInt(settings.divAnswer[0], settings.divAnswer[1]);
           a = b * correct;
           symbol = "÷";
         }
@@ -2196,7 +2237,7 @@
               task.op + String(task.b).padStart(width - 1, " ") + "\n" +
               "─".repeat(width) + "\n" +
               "?".padStart(width, " ");
-            exampleNote.textContent = "Введи итоговый ответ из столбика.";
+            exampleNote.textContent = "Столбик. Введи только итоговый ответ.";
             return;
           }
 
@@ -2216,7 +2257,7 @@
               partials.length > 1 ? "─".repeat(totalWidth) : "",
               "?".padStart(totalWidth, " ")
             ].filter(Boolean).join("\n");
-            exampleNote.textContent = "Небольшое умножение в столбик. Введи итоговый ответ.";
+            exampleNote.textContent = "Умножение в столбик. Можно считать через умножение и плюс.";
             return;
           }
 
@@ -2228,15 +2269,13 @@
               `${dividend} │ ${divisor}\n` +
               `${" ".repeat(dividend.length)} │${"─".repeat(resultWidth + 1)}\n` +
               `${" ".repeat(dividend.length)} │ ?`;
-            exampleNote.textContent = "Небольшое деление уголком. Введи частное.";
+            exampleNote.textContent = "Деление уголком. Ищи цифру через умножение и минус.";
             return;
           }
         }
 
         example.textContent = `${task.a} ${task.op} ${task.b} = ?`;
-        exampleNote.textContent = viewMode.value === "column"
-          ? "Введи итоговый ответ из столбика."
-          : "Введи итоговый ответ.";
+        exampleNote.textContent = `${getDifficultySettings().name[0].toUpperCase()}${getDifficultySettings().name.slice(1)} режим. Введи итоговый ответ.`;
       }
 
       function updateScore() {
@@ -2245,9 +2284,10 @@
         streakCount.textContent = score.streak;
         const progress = Math.min(score.right / dailyTarget, 1) * 100;
         goalFill.style.width = `${progress}%`;
+        const settings = getDifficultySettings();
         goalText.textContent = score.right >= dailyTarget
           ? "Цель выполнена. Можно отдохнуть или решить ещё."
-          : `Реши ${dailyTarget - score.right} из ${dailyTarget} примеров.`;
+          : `Режим: ${settings.name}. Осталось ${dailyTarget - score.right} из ${dailyTarget}.`;
         if (score.streak >= 10) {
           achievement.textContent = "Суперсерия: 10 правильных подряд!";
         } else if (score.streak >= 5) {
@@ -2277,13 +2317,13 @@
         if (task.op === "×") {
           result.textContent = viewMode.value === "column"
             ? `Подсказка: умножай ${task.a} на каждую цифру числа ${task.b}, потом сложи строки.`
-            : `Подсказка: ${task.a} нужно взять ${task.b} раз.`;
+            : `Подсказка: считай как повторный плюс: ${task.a} + ${task.a} + ... всего ${task.b} раз.`;
           return;
         }
 
         result.textContent = viewMode.value === "column"
-          ? `Подсказка: в уголке найди число, которое при умножении на ${task.b} даст ${task.a}.`
-          : `Подсказка: найди число, которое при умножении на ${task.b} даст ${task.a}.`;
+          ? `Подсказка: ищи через умножение и минус: ${task.b} × ? должно быть близко к ${task.a}, но не больше.`
+          : `Подсказка: спроси так: ${task.b} × ? = ${task.a}.`;
       }
 
       function checkCurrentAnswer() {
@@ -2391,8 +2431,12 @@
         journalStatus.textContent = "Идея генератора записана в дневник.";
       }
 
+      difficulty.addEventListener("change", () => {
+        makeTask();
+        updateScore();
+      });
       operation.addEventListener("change", makeTask);
-      viewMode.addEventListener("change", renderTask);
+      viewMode.addEventListener("change", makeTask);
       checkAnswer.addEventListener("click", checkCurrentAnswer);
       newTask.addEventListener("click", makeTask);
       hintTask.addEventListener("click", showHint);
