@@ -200,6 +200,30 @@
         line-height: 1.38;
       }
       .voice-status { min-height: 42px; display: grid; align-content: center; font-weight: 900; }
+      .movie-progress {
+        display: grid;
+        gap: 6px;
+      }
+      .movie-progress span {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 900;
+      }
+      .progress-track {
+        height: 14px;
+        overflow: hidden;
+        border: 2px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+      }
+      .progress-track i {
+        display: block;
+        width: 0%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--mint), var(--blue), var(--pink));
+        transition: width .18s linear;
+      }
       footer {
         width: min(1180px, calc(100% - 28px));
         margin: 0 auto;
@@ -253,6 +277,11 @@
             <button class="button secondary" id="pauseButton" type="button">Пауза</button>
             <button class="button secondary" id="prevButton" type="button">Назад</button>
             <button class="button secondary" id="nextButton" type="button">Дальше</button>
+          </div>
+
+          <div class="movie-progress" aria-label="Прогресс серии">
+            <span id="progressText">Кадр 1 из 8</span>
+            <div class="progress-track"><i id="progressFill"></i></div>
           </div>
 
           <section aria-labelledby="voice-title">
@@ -321,12 +350,14 @@
       const sceneButtons = document.querySelector("#sceneButtons");
       const voiceButton = document.querySelector("#voiceButton");
       const voiceStatus = document.querySelector("#voiceStatus");
+      const progressText = document.querySelector("#progressText");
+      const progressFill = document.querySelector("#progressFill");
 
       const frames = [
         {
           title: "Город перепутанных вывесок",
           speaker: "Рико",
-          line: "Пик, почему булочная продаёт зонтики?",
+          line: "Пик, почему булочная продаёт зонтики? И почему у аптеки висит вывеска с кексом?",
           camera: [5.4, 3.2, 7.4],
           look: [0, 1.15, 0],
           riko: [-1.1, 0, .45],
@@ -336,7 +367,7 @@
         {
           title: "Пик всё понял буквально",
           speaker: "Пик",
-          line: "Вывеска сказала свежие облака. Я заказал одно маленькое.",
+          line: "Вывеска сказала свежие облака. Я заказал одно маленькое, но продавец дал мне пакет с пуговицами.",
           camera: [3.9, 2.8, 5.6],
           look: [.15, 1.1, .2],
           riko: [-.65, 0, .25],
@@ -354,9 +385,29 @@
           robotMood: "thinking"
         },
         {
+          title: "Проверка у витрины",
+          speaker: "Пик",
+          line: "Я сравнил три вывески. У магазина игрушек написано рыба, у рыбного магазина написано сапоги, а сапоги почему-то молчат.",
+          camera: [4.8, 3.2, 6.4],
+          look: [.05, 1.08, -.2],
+          riko: [-1.15, 0, -.15],
+          pik: [.9, .68, -.08],
+          robotMood: "focused"
+        },
+        {
+          title: "Рико замечает улику",
+          speaker: "Рико",
+          line: "Смотри! На всех табличках одинаковая синяя пыль. Значит, их перепутал не город, а кто-то один.",
+          camera: [5.8, 3.6, 6.6],
+          look: [-.2, 1.1, -.35],
+          riko: [-.75, 0, -.05],
+          pik: [1.05, .66, -.15],
+          robotMood: "curious"
+        },
+        {
           title: "План спасения",
           speaker: "Пик",
-          line: "Предлагаю всё проверить. Но сначала проверю, что значит слово проверить.",
+          line: "Предлагаю всё проверить по карте города. Но сначала проверю, что значит слово проверить.",
           camera: [4.2, 3.1, 5.4],
           look: [.15, 1, .15],
           riko: [-.85, 0, .05],
@@ -366,11 +417,21 @@
         {
           title: "Полезный вывод",
           speaker: "Рико",
-          line: "Сначала уточни, потом действуй. Так меньше смешных аварий!",
+          line: "Сначала уточни, потом действуй. Так меньше смешных аварий и меньше зонтиков в булочной!",
           camera: [5.2, 3.4, 6.2],
           look: [0, 1.15, .1],
           riko: [-.6, 0, .2],
           pik: [.9, .7, .12],
+          robotMood: "happy"
+        },
+        {
+          title: "Пик делает заметку",
+          speaker: "Пик",
+          line: "Записываю правило: если город выглядит странно, не паникуй. Сначала спроси, потом чини.",
+          camera: [4.7, 3.15, 5.9],
+          look: [.1, 1.05, .1],
+          riko: [-.5, 0, .25],
+          pik: [.95, .72, .18],
           robotMood: "happy"
         }
       ];
@@ -530,6 +591,10 @@
       let timer = 0;
       let voiceEnabled = false;
       let voices = [];
+      let autoAdvanceTimer = 0;
+      let currentSpeechToken = 0;
+      let frameStartedAt = 0;
+      let frameDuration = 5200;
       const voiceProfiles = {
         "Рико": { pitch: 1.32, rate: .95, volume: 1 },
         "Пик": { pitch: 1.72, rate: 1.08, volume: .95 }
@@ -556,13 +621,42 @@
       }
 
       function stopVoice() {
+        currentSpeechToken += 1;
         if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       }
 
-      function speakFrame() {
+      function clearAutoAdvance() {
+        if (autoAdvanceTimer) window.clearTimeout(autoAdvanceTimer);
+        autoAdvanceTimer = 0;
+      }
+
+      function estimateSpeechTime(text) {
+        return Math.max(4800, Math.min(10500, text.length * 92 + 1600));
+      }
+
+      function finishOrAdvance() {
+        if (!playing) return;
+        if (currentFrame >= frames.length - 1) {
+          playing = false;
+          voiceStatus.textContent = voiceEnabled
+            ? "Серия закончилась, голоса договорили до конца."
+            : "Серия закончилась.";
+          return;
+        }
+        setFrame(currentFrame + 1, { autoAdvance: true });
+      }
+
+      function scheduleAutoAdvance(delay = frameDuration) {
+        clearAutoAdvance();
+        autoAdvanceTimer = window.setTimeout(finishOrAdvance, delay);
+      }
+
+      function speakFrame({ autoAdvance = false } = {}) {
         if (!voiceEnabled || !("speechSynthesis" in window)) return;
         const frame = frames[currentFrame];
         stopVoice();
+        const token = currentSpeechToken + 1;
+        currentSpeechToken = token;
         const utterance = new SpeechSynthesisUtterance(frame.line);
         const profile = voiceProfiles[frame.speaker] || voiceProfiles["Рико"];
         utterance.lang = "ru-RU";
@@ -570,16 +664,35 @@
         utterance.rate = profile.rate;
         utterance.volume = profile.volume;
         utterance.voice = pickVoice(frame.speaker);
+        utterance.onstart = () => {
+          if (token !== currentSpeechToken) return;
+          voiceStatus.textContent = `${frame.speaker} говорит: реплика идёт до конца.`;
+        };
+        utterance.onend = () => {
+          if (token !== currentSpeechToken) return;
+          voiceStatus.textContent = autoAdvance
+            ? "Реплика закончилась. Перехожу к следующему кадру."
+            : "Реплика закончилась.";
+          if (autoAdvance) scheduleAutoAdvance(650);
+        };
+        utterance.onerror = () => {
+          if (token !== currentSpeechToken) return;
+          voiceStatus.textContent = "Голос не успел загрузиться, кадр всё равно продолжается.";
+          if (autoAdvance) scheduleAutoAdvance(1200);
+        };
         window.speechSynthesis.speak(utterance);
       }
 
-      function setFrame(index) {
+      function setFrame(index, options = {}) {
+        const { narrate = true, autoAdvance = false } = options;
         currentFrame = (index + frames.length) % frames.length;
         const frame = frames[currentFrame];
         sceneKicker.textContent = `Эпизод 1 · кадр ${currentFrame + 1}/${frames.length}`;
         sceneTitle.textContent = frame.title;
         speaker.textContent = frame.speaker;
         line.textContent = frame.line;
+        progressText.textContent = `Кадр ${currentFrame + 1} из ${frames.length}`;
+        progressFill.style.width = `${(currentFrame / frames.length) * 100}%`;
         riko.position.set(...frame.riko);
         pik.group.position.set(...frame.pik);
         pik.eyes.forEach((eye) => {
@@ -592,7 +705,14 @@
         camera.position.set(...frame.camera);
         target.set(...frame.look);
         camera.lookAt(target);
-        speakFrame();
+        frameStartedAt = performance.now();
+        frameDuration = estimateSpeechTime(frame.line);
+        clearAutoAdvance();
+        if (narrate && voiceEnabled) {
+          speakFrame({ autoAdvance });
+        } else if (autoAdvance) {
+          scheduleAutoAdvance(frameDuration);
+        }
       }
 
       function createButtons() {
@@ -617,6 +737,16 @@
         camera.updateProjectionMatrix();
       }
 
+      function updateProgress() {
+        if (!playing) {
+          progressFill.style.width = `${(currentFrame / frames.length) * 100}%`;
+          return;
+        }
+        const frameProgress = Math.min((performance.now() - frameStartedAt) / frameDuration, 1);
+        const totalProgress = ((currentFrame + frameProgress) / frames.length) * 100;
+        progressFill.style.width = `${Math.min(totalProgress, 100)}%`;
+      }
+
       function animate() {
         requestAnimationFrame(animate);
         resize();
@@ -627,29 +757,30 @@
         pik.group.rotation.y = Math.sin(timer * 1.8) * .18;
         riko.rotation.y = Math.sin(timer * .8) * .06;
         pik.antenna.rotation.x = Math.sin(timer * 4) * .18;
-        if (playing && timer > 4.2) {
-          timer = 0;
-          setFrame(currentFrame + 1);
-        }
+        updateProgress();
         renderer.render(world, camera);
       }
 
       document.querySelector("#playButton").addEventListener("click", () => {
         playing = true;
         timer = 0;
-        speakFrame();
+        setFrame(currentFrame, { autoAdvance: true });
       });
       document.querySelector("#pauseButton").addEventListener("click", () => {
         playing = false;
+        clearAutoAdvance();
         stopVoice();
+        voiceStatus.textContent = "Пауза. Озвучка остановлена.";
       });
       document.querySelector("#prevButton").addEventListener("click", () => {
         playing = false;
+        clearAutoAdvance();
         stopVoice();
         setFrame(currentFrame - 1);
       });
       document.querySelector("#nextButton").addEventListener("click", () => {
         playing = false;
+        clearAutoAdvance();
         stopVoice();
         setFrame(currentFrame + 1);
       });
@@ -658,9 +789,9 @@
         voiceEnabled = !voiceEnabled;
         voiceButton.textContent = voiceEnabled ? "Выключить голоса" : "Включить голоса";
         voiceStatus.textContent = voiceEnabled
-          ? "Озвучка включена. На каждом кадре звучит свой персонаж."
+          ? "Озвучка включена. Теперь кадр ждёт, пока персонаж договорит."
           : "Озвучка выключена.";
-        if (voiceEnabled) speakFrame();
+        if (voiceEnabled) speakFrame({ autoAdvance: playing });
         else stopVoice();
       });
       if ("speechSynthesis" in window) {
