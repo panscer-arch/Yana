@@ -927,6 +927,70 @@
         font-weight: 900;
       }
 
+      .tutor-card {
+        display: grid;
+        grid-template-columns: 64px minmax(0, 1fr);
+        gap: 12px;
+        align-items: start;
+        padding: 14px;
+        border: 3px solid rgba(84, 184, 255, .28);
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 10% 15%, rgba(255, 212, 92, .38), transparent 28%),
+          linear-gradient(135deg, rgba(255, 255, 255, .94), rgba(222, 245, 255, .86));
+      }
+
+      .tutor-avatar {
+        width: 64px;
+        height: 64px;
+        display: grid;
+        place-items: center;
+        border: 3px solid var(--ink);
+        border-radius: 50%;
+        background: linear-gradient(180deg, #fff, #c9f2ff);
+        box-shadow: 0 7px 0 rgba(36, 31, 53, .1);
+        font-size: 30px;
+        font-weight: 900;
+      }
+
+      .tutor-body {
+        display: grid;
+        gap: 10px;
+      }
+
+      .tutor-body strong {
+        display: block;
+        font-size: 18px;
+      }
+
+      .tutor-body p {
+        color: var(--muted);
+        font-weight: 850;
+        line-height: 1.38;
+      }
+
+      .tutor-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .tutor-actions button {
+        min-height: 40px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        padding: 0 12px;
+        color: var(--ink);
+        background: #fff;
+        font-weight: 900;
+      }
+
+      .tutor-actions button:first-child {
+        color: #fff;
+        border-color: transparent;
+        background: linear-gradient(180deg, var(--blue), #2d8fd3);
+      }
+
       .score-row {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1766,7 +1830,7 @@
       <section id="learn" aria-labelledby="learn-title">
         <div class="section-title">
           <h2 id="learn-title">Обучение</h2>
-          <p>Математика с понятными примерами, счётом побед, таблицей умножения и мягким режимом в столбик.</p>
+          <p>Математика с наставником: примеры, подсказки по шагам, мягкие уровни сложности и таблица умножения без спешки.</p>
         </div>
 
         <div class="learn-grid">
@@ -1829,6 +1893,21 @@
                 <div class="result" id="result" aria-live="polite">Реши пример.</div>
               </div>
             </div>
+
+            <section class="tutor-card" aria-labelledby="tutor-title">
+              <div class="tutor-avatar" aria-hidden="true">?</div>
+              <div class="tutor-body">
+                <div>
+                  <strong id="tutor-title">Наставник по математике</strong>
+                  <p id="tutorText" aria-live="polite">Я помогу шагами: не буду сразу прыгать к ответу, а подскажу, куда смотреть.</p>
+                </div>
+                <div class="tutor-actions">
+                  <button id="tutorNext" type="button">Следующий шаг</button>
+                  <button id="tutorSimple" type="button">Объяснить проще</button>
+                  <button id="tutorRestart" type="button">Начать заново</button>
+                </div>
+              </div>
+            </section>
 
             <div class="score-row" aria-label="Результаты">
               <div class="score"><span>Правильно</span><strong id="rightCount">0</strong></div>
@@ -2024,6 +2103,7 @@
     </footer>
 
     <script>
+      const difficulty = document.querySelector("#difficulty");
       const operation = document.querySelector("#operation");
       const viewMode = document.querySelector("#viewMode");
       const answer = document.querySelector("#answer");
@@ -2056,8 +2136,14 @@
       const questType = document.querySelector("#questType");
       const questTitle = document.querySelector("#questTitle");
       const questText = document.querySelector("#questText");
+      const tutorText = document.querySelector("#tutorText");
+      const tutorNext = document.querySelector("#tutorNext");
+      const tutorSimple = document.querySelector("#tutorSimple");
+      const tutorRestart = document.querySelector("#tutorRestart");
 
       let task = { a: 7, b: 5, op: "+", answer: 12 };
+      let tutorSteps = [];
+      let tutorStepIndex = 0;
       let score = loadScore();
       let activeTable = 2;
       const dailyTarget = 10;
@@ -2148,6 +2234,80 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
       }
 
+      function splitTensOnes(number) {
+        return {
+          tens: Math.floor(number / 10) * 10,
+          ones: number % 10
+        };
+      }
+
+      function buildTutorSteps() {
+        const steps = [
+          `Сначала спокойно посмотри на пример: ${task.a} ${task.op} ${task.b}. Не надо спешить к ответу.`
+        ];
+
+        if (task.op === "+") {
+          const parts = splitTensOnes(task.b);
+          steps.push(`Это сложение. Начни с ${task.a}.`);
+          if (parts.tens > 0) steps.push(`Сначала прибавь десятки: ${task.a} + ${parts.tens}.`);
+          if (parts.ones > 0) steps.push(`Потом прибавь единицы: ещё + ${parts.ones}.`);
+          steps.push("Теперь посмотри, какое число получилось, и напиши его в поле ответа.");
+          steps.push("Проверка: если от твоего ответа убрать второе число, должно вернуться первое.");
+        } else if (task.op === "-") {
+          const parts = splitTensOnes(task.b);
+          steps.push(`Это вычитание. Начни с ${task.a}.`);
+          if (parts.tens > 0) steps.push(`Сначала убери десятки: ${task.a} - ${parts.tens}.`);
+          if (parts.ones > 0) steps.push(`Потом убери единицы: ещё - ${parts.ones}.`);
+          steps.push("Теперь запиши число, которое осталось.");
+          steps.push("Проверка: если к твоему ответу прибавить то, что вычитали, должно получиться первое число.");
+        } else if (task.op === "×") {
+          steps.push("Это умножение. Его можно считать как повторный плюс.");
+          steps.push(`Представь: число ${task.a} нужно взять ${task.b} раз.`);
+          steps.push(`Если таблица пока трудная, складывай: ${task.a} + ${task.a} + ... пока не будет ${task.b} одинаковых чисел.`);
+          steps.push("Запиши то, что получилось после повторного сложения.");
+          steps.push("Проверка: можно поменять числа местами, результат должен быть тот же.");
+        } else {
+          steps.push("Это деление. Будем решать через умножение и минус, как в тетради.");
+          steps.push(`Спроси себя: ${task.b} × ? должно дать ${task.a}.`);
+          steps.push(`Если сразу сложно, бери числа по порядку: ${task.b} × 1, потом ${task.b} × 2, потом ${task.b} × 3.`);
+          steps.push(`Остановись там, где получилось ровно ${task.a}. Это число и есть ответ.`);
+          steps.push("Если это деление уголком, каждый раз ищи цифру через умножение, потом делай минус и сноси следующую цифру.");
+        }
+
+        return steps;
+      }
+
+      function resetTutor(message) {
+        tutorSteps = buildTutorSteps();
+        tutorStepIndex = 0;
+        tutorText.textContent = message || tutorSteps[0];
+      }
+
+      function showNextTutorStep() {
+        if (!tutorSteps.length) resetTutor();
+        tutorText.textContent = tutorSteps[Math.min(tutorStepIndex, tutorSteps.length - 1)];
+        tutorStepIndex += 1;
+      }
+
+      function explainSimply() {
+        if (task.op === "+") {
+          tutorText.textContent = "Проще: было число, к нему добавили ещё. Считай вперёд маленькими кусочками.";
+          return;
+        }
+
+        if (task.op === "-") {
+          tutorText.textContent = "Проще: было число, часть забрали. Сначала убери крупный кусок, потом маленький.";
+          return;
+        }
+
+        if (task.op === "×") {
+          tutorText.textContent = "Проще: умножение — это много одинаковых плюсов. Например 4 × 3 значит 4 + 4 + 4.";
+          return;
+        }
+
+        tutorText.textContent = "Проще: деление — это поиск через умножение. Не дели в голове, спрашивай: на что умножить делитель?";
+      }
+
       function getDifficultySettings() {
         const mode = difficulty.value || "easy";
 
@@ -2225,6 +2385,7 @@
         renderTask();
         answer.value = "";
         result.textContent = "Реши пример.";
+        resetTutor("Я рядом. Нажми «Следующий шаг», и я поведу тебя без готового ответа.");
         answer.focus();
       }
 
@@ -2344,7 +2505,8 @@
 
         score.wrong += 1;
         score.streak = 0;
-        result.textContent = `Почти. Правильный ответ: ${task.answer}.`;
+        result.textContent = "Почти. Давай не сдаёмся: наставник покажет шаг, где можно проверить себя.";
+        resetTutor("Не страшно. Начнём проверку с первого шага, а ответ попробуешь найти сама.");
         updateScore();
       }
 
@@ -2440,6 +2602,11 @@
       checkAnswer.addEventListener("click", checkCurrentAnswer);
       newTask.addEventListener("click", makeTask);
       hintTask.addEventListener("click", showHint);
+      tutorNext.addEventListener("click", showNextTutorStep);
+      tutorSimple.addEventListener("click", explainSimply);
+      tutorRestart.addEventListener("click", () => {
+        resetTutor("Начинаем заново. Смотри только на первый шаг, дальше пока не бежим.");
+      });
       saveJournal.addEventListener("click", saveJournalEntry);
       clearJournal.addEventListener("click", clearJournalEntry);
       magicQuestButton.addEventListener("click", generateMagicQuest);
