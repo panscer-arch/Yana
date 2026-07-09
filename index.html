@@ -969,6 +969,17 @@
         line-height: 1.38;
       }
 
+      .tutor-topics {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: end;
+      }
+
+      .tutor-topics select {
+        min-height: 40px;
+      }
+
       .tutor-actions {
         display: flex;
         flex-wrap: wrap;
@@ -1901,9 +1912,27 @@
                   <strong id="tutor-title">Наставник по математике</strong>
                   <p id="tutorText" aria-live="polite">Я помогу шагами: не буду сразу прыгать к ответу, а подскажу, куда смотреть.</p>
                 </div>
+                <div class="tutor-topics">
+                  <label>
+                    Тема
+                    <select id="tutorTopic">
+                      <option value="current">Текущий пример</option>
+                      <option value="addition">Сложение</option>
+                      <option value="subtraction">Вычитание</option>
+                      <option value="multiplication">Умножение</option>
+                      <option value="division">Деление</option>
+                      <option value="column">Столбик</option>
+                      <option value="longDivision">Деление уголком</option>
+                      <option value="wordProblem">Задачи с текстом</option>
+                      <option value="timesTable">Таблица умножения</option>
+                    </select>
+                  </label>
+                  <button id="tutorApplyTopic" type="button">Открыть тему</button>
+                </div>
                 <div class="tutor-actions">
                   <button id="tutorNext" type="button">Следующий шаг</button>
                   <button id="tutorSimple" type="button">Объяснить проще</button>
+                  <button id="tutorDiagnose" type="button">Что учить?</button>
                   <button id="tutorRestart" type="button">Начать заново</button>
                 </div>
               </div>
@@ -2137,8 +2166,11 @@
       const questTitle = document.querySelector("#questTitle");
       const questText = document.querySelector("#questText");
       const tutorText = document.querySelector("#tutorText");
+      const tutorTopic = document.querySelector("#tutorTopic");
+      const tutorApplyTopic = document.querySelector("#tutorApplyTopic");
       const tutorNext = document.querySelector("#tutorNext");
       const tutorSimple = document.querySelector("#tutorSimple");
+      const tutorDiagnose = document.querySelector("#tutorDiagnose");
       const tutorRestart = document.querySelector("#tutorRestart");
 
       let task = { a: 7, b: 5, op: "+", answer: 12 };
@@ -2239,6 +2271,136 @@
           tens: Math.floor(number / 10) * 10,
           ones: number % 10
         };
+      }
+
+      function buildTopicSteps(topic) {
+        const topicSteps = {
+          addition: [
+            "Тема: сложение. Это когда к числу добавляют ещё.",
+            "Первый способ: прибавляй по частям. Например, сначала десятки, потом единицы.",
+            "Если пример 27 + 14, можно сделать так: 27 + 10, потом ещё + 4.",
+            "Проверка: от ответа вычти второе число. Если вернулось первое — всё хорошо."
+          ],
+          subtraction: [
+            "Тема: вычитание. Это когда часть забрали или нужно узнать разницу.",
+            "Первый способ: убирай по частям. Сначала десятки, потом единицы.",
+            "Если пример 53 - 18, можно сделать так: 53 - 10, потом ещё - 8.",
+            "Проверка: к ответу прибавь то, что вычитали. Должно получиться первое число."
+          ],
+          multiplication: [
+            "Тема: умножение. Это короткая запись одинакового сложения.",
+            "Например 4 × 3 значит 4 + 4 + 4.",
+            "Если таблица пока плохо помнится, не угадывай. Сложи одинаковые числа или посмотри таблицу справа.",
+            "Проверка: 4 × 3 и 3 × 4 дают один и тот же ответ."
+          ],
+          division: [
+            "Тема: деление. Самый удобный способ — искать ответ через умножение.",
+            "Например 28 ÷ 4: спроси себя, 4 × сколько = 28?",
+            "Если не знаешь сразу, пробуй по порядку: 4 × 1, 4 × 2, 4 × 3...",
+            "Проверка: ответ × делитель должен вернуть число, которое делили."
+          ],
+          column: [
+            "Тема: столбик. Главное — ставить единицы под единицами, десятки под десятками.",
+            "Сложение в столбик: начинай справа, с единиц.",
+            "Вычитание в столбик: если верхняя цифра меньше нижней, занимай у соседнего разряда слева.",
+            "После каждого разряда проверяй: цифра записана под своей колонкой."
+          ],
+          longDivision: [
+            "Тема: деление уголком. Его можно делать без страшного слова «делить».",
+            "Каждый шаг такой: ищу цифру через умножение, потом делаю минус, потом сношу следующую цифру.",
+            "Например: нужно 28 ÷ 4. Спроси: 4 × ? = 28. Это 7.",
+            "Если получилось не ровно, бери число меньше, но самое близкое."
+          ],
+          wordProblem: [
+            "Тема: задачи с текстом. Сначала не считай, а пойми историю.",
+            "Шаг 1: подчеркни, что известно.",
+            "Шаг 2: найди вопрос задачи. Что именно нужно узнать?",
+            "Шаг 3: если написано «в 3 раза меньше» — это деление. Если «вместе» — сложение.",
+            "Шаг 4: после решения напиши ответ словами, не только числом."
+          ],
+          timesTable: [
+            "Тема: таблица умножения. Её не надо учить всю сразу.",
+            "Выбери одно число справа, например 4, и повторяй только его строку.",
+            "Сначала учи лёгкие: ×1, ×2, ×5, ×10. Потом остальные.",
+            "Если забыла, считай повторным сложением. Это нормально."
+          ]
+        };
+
+        return topicSteps[topic] || buildTutorSteps();
+      }
+
+      function applyTutorTopic() {
+        const topic = tutorTopic.value;
+        if (topic === "current") {
+          resetTutor("Разбираем текущий пример. Нажимай «Следующий шаг».");
+          return;
+        }
+
+        if (topic === "addition") {
+          operation.value = "add";
+          viewMode.value = "line";
+          difficulty.value = "easy";
+        } else if (topic === "subtraction") {
+          operation.value = "sub";
+          viewMode.value = "line";
+          difficulty.value = "easy";
+        } else if (topic === "multiplication") {
+          operation.value = "mul";
+          viewMode.value = "line";
+          difficulty.value = "easy";
+        } else if (topic === "division") {
+          operation.value = "div";
+          viewMode.value = "line";
+          difficulty.value = "easy";
+        } else if (topic === "column") {
+          operation.value = "mixed";
+          viewMode.value = "column";
+          difficulty.value = "easy";
+        } else if (topic === "longDivision") {
+          operation.value = "div";
+          viewMode.value = "column";
+          difficulty.value = "easy";
+        } else if (topic === "timesTable") {
+          operation.value = "mul";
+          viewMode.value = "line";
+          difficulty.value = "easy";
+        }
+
+        if (topic !== "wordProblem") makeTask();
+        tutorTopic.value = topic;
+        tutorSteps = buildTopicSteps(topic);
+        tutorStepIndex = 0;
+        tutorText.textContent = tutorSteps[0];
+        updateScore();
+      }
+
+      function diagnoseTutorTopic() {
+        if (score.wrong >= 3 && score.right < 3) {
+          tutorTopic.value = "addition";
+          tutorSteps = [
+            "Начнём с базы: сложение и вычитание. Без умножения, без деления.",
+            "Сейчас выбери лёгкий режим и реши 3 примера подряд.",
+            "Если будет ошибка, нажми «Следующий шаг», а не пытайся угадать ответ."
+          ];
+        } else if (operation.value === "mul") {
+          tutorTopic.value = "timesTable";
+          tutorSteps = buildTopicSteps("timesTable");
+        } else if (operation.value === "div") {
+          tutorTopic.value = viewMode.value === "column" ? "longDivision" : "division";
+          tutorSteps = buildTopicSteps(tutorTopic.value);
+        } else if (viewMode.value === "column") {
+          tutorTopic.value = "column";
+          tutorSteps = buildTopicSteps("column");
+        } else {
+          tutorTopic.value = "current";
+          tutorSteps = [
+            "Сейчас лучше тренировать текущий пример маленькими шагами.",
+            "Сначала скажи, какое действие в примере: плюс, минус, умножить или делить.",
+            "Потом нажимай «Следующий шаг», и я поведу по решению."
+          ];
+        }
+        tutorStepIndex = 0;
+        tutorText.textContent = tutorSteps[0];
       }
 
       function buildTutorSteps() {
@@ -2385,6 +2547,7 @@
         renderTask();
         answer.value = "";
         result.textContent = "Реши пример.";
+        tutorTopic.value = "current";
         resetTutor("Я рядом. Нажми «Следующий шаг», и я поведу тебя без готового ответа.");
         answer.focus();
       }
@@ -2602,10 +2765,18 @@
       checkAnswer.addEventListener("click", checkCurrentAnswer);
       newTask.addEventListener("click", makeTask);
       hintTask.addEventListener("click", showHint);
+      tutorApplyTopic.addEventListener("click", applyTutorTopic);
       tutorNext.addEventListener("click", showNextTutorStep);
       tutorSimple.addEventListener("click", explainSimply);
+      tutorDiagnose.addEventListener("click", diagnoseTutorTopic);
       tutorRestart.addEventListener("click", () => {
-        resetTutor("Начинаем заново. Смотри только на первый шаг, дальше пока не бежим.");
+        if (tutorTopic.value === "current") {
+          resetTutor("Начинаем заново. Смотри только на первый шаг, дальше пока не бежим.");
+        } else {
+          tutorSteps = buildTopicSteps(tutorTopic.value);
+          tutorStepIndex = 0;
+          tutorText.textContent = tutorSteps[0];
+        }
       });
       saveJournal.addEventListener("click", saveJournalEntry);
       clearJournal.addEventListener("click", clearJournalEntry);
