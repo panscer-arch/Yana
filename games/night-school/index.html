@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ночная школа пушистиков</title>
+    <meta name="description" content="Мило-страшная 3D-игра: найди дневник и наклейки в ночной школе пушистиков.">
+    <meta name="theme-color" content="#111827">
+    <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #f8fafc;
+        --muted: #b7c4d7;
+        --panel: rgba(8, 13, 24, .82);
+        --line: rgba(255, 255, 255, .16);
+        --pink: #ff75b7;
+        --blue: #65d8ff;
+        --gold: #ffd36b;
+        --mint: #65e5a7;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        overflow: hidden;
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+        background: #070b14;
+      }
+      button, a { font: inherit; }
+      a { color: inherit; }
+      .skip-link {
+        position: fixed;
+        left: 16px;
+        top: 12px;
+        z-index: 30;
+        transform: translateY(-160%);
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 14px;
+        border-radius: 10px;
+        color: #111827;
+        background: #fff;
+        font-weight: 950;
+        text-decoration: none;
+      }
+      .skip-link:focus-visible { transform: translateY(0); }
+      .topnav {
+        position: fixed;
+        left: 14px;
+        top: 14px;
+        z-index: 6;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        max-width: min(560px, calc(100vw - 28px));
+      }
+      .topnav a {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 2px solid var(--line);
+        border-radius: 10px;
+        color: #fff;
+        background: rgba(5, 8, 18, .72);
+        font-weight: 900;
+        text-decoration: none;
+        backdrop-filter: blur(12px);
+      }
+      #game {
+        position: fixed;
+        inset: 0;
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        background: #050812;
+      }
+      .hud {
+        position: fixed;
+        inset: 64px 14px auto 14px;
+        z-index: 5;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        justify-content: space-between;
+        pointer-events: none;
+      }
+      .panel {
+        max-width: min(520px, calc(100vw - 28px));
+        padding: 12px 14px;
+        border: 2px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, .35);
+        backdrop-filter: blur(12px);
+      }
+      .panel h1 {
+        margin: 0 0 6px;
+        font-size: clamp(22px, 4vw, 34px);
+        line-height: 1;
+      }
+      .panel p {
+        margin: 0;
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.35;
+      }
+      .stats {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .stat {
+        min-width: 104px;
+        padding: 10px 12px;
+        border: 2px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        text-align: center;
+        font-weight: 900;
+        backdrop-filter: blur(12px);
+      }
+      .stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+      .message {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        z-index: 7;
+        width: min(760px, calc(100vw - 28px));
+        transform: translateX(-50%);
+        padding: 14px 16px;
+        border: 2px solid rgba(255, 255, 255, .2);
+        border-radius: 10px;
+        color: #fff;
+        background: rgba(5, 8, 18, .88);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, .44);
+        font-size: 18px;
+        font-weight: 900;
+        line-height: 1.25;
+        text-align: center;
+        backdrop-filter: blur(12px);
+      }
+      .danger {
+        position: fixed;
+        inset: 0;
+        z-index: 4;
+        pointer-events: none;
+        opacity: 0;
+        background:
+          radial-gradient(circle at 50% 52%, transparent 32%, rgba(255, 43, 85, .38) 72%),
+          linear-gradient(180deg, rgba(255, 43, 85, .12), rgba(255, 183, 77, .08));
+        transition: opacity .18s ease;
+      }
+      .danger.active { opacity: 1; }
+      .center-reticle {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        z-index: 5;
+        width: 34px;
+        height: 34px;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+      }
+      .center-reticle::before,
+      .center-reticle::after {
+        content: "";
+        position: absolute;
+        background: rgba(255, 255, 255, .72);
+        box-shadow: 0 0 12px rgba(101, 216, 255, .35);
+      }
+      .center-reticle::before {
+        left: 15px;
+        top: 0;
+        width: 2px;
+        height: 34px;
+      }
+      .center-reticle::after {
+        left: 0;
+        top: 15px;
+        width: 34px;
+        height: 2px;
+      }
+      .controls {
+        position: fixed;
+        right: 14px;
+        bottom: 14px;
+        z-index: 6;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .action-hint {
+        position: fixed;
+        left: 50%;
+        top: 62%;
+        z-index: 7;
+        transform: translateX(-50%);
+        min-height: 42px;
+        display: none;
+        align-items: center;
+        padding: 0 14px;
+        border: 2px solid rgba(255, 255, 255, .2);
+        border-radius: 10px;
+        color: #111827;
+        background: linear-gradient(180deg, #fff7c2, #ffd36b);
+        font-weight: 950;
+        box-shadow: 0 12px 34px rgba(0, 0, 0, .35);
+      }
+      .action-hint.visible { display: inline-flex; }
+      .controls button,
+      .controls a {
+        min-height: 42px;
+        padding: 0 12px;
+        border: 2px solid var(--line);
+        border-radius: 10px;
+        color: #fff;
+        background: rgba(5, 8, 18, .76);
+        font-weight: 900;
+        text-decoration: none;
+        backdrop-filter: blur(12px);
+      }
+      .start {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+        background:
+          radial-gradient(circle at 50% 35%, rgba(101, 216, 255, .18), transparent 35%),
+          rgba(3, 6, 14, .72);
+      }
+      .start-card {
+        width: min(620px, 100%);
+        display: grid;
+        gap: 14px;
+        padding: 22px;
+        border: 2px solid var(--line);
+        border-radius: 14px;
+        background: rgba(9, 15, 28, .9);
+        box-shadow: 0 22px 80px rgba(0, 0, 0, .55);
+        text-align: center;
+      }
+      .start-card h2 { margin: 0; font-size: clamp(34px, 7vw, 58px); line-height: .94; }
+      .start-card p { margin: 0; color: var(--muted); font-size: 18px; font-weight: 850; line-height: 1.4; }
+      .start-card button {
+        min-height: 54px;
+        border: 0;
+        border-radius: 12px;
+        color: #111827;
+        background: linear-gradient(180deg, var(--gold), #ff9f43);
+        font-size: 19px;
+        font-weight: 950;
+        cursor: pointer;
+      }
+      .hidden { display: none; }
+      footer {
+        position: fixed;
+        left: 14px;
+        bottom: 14px;
+        z-index: 6;
+        max-width: min(620px, calc(100vw - 28px));
+        padding: 10px 12px;
+        border: 2px solid var(--line);
+        border-radius: 10px;
+        color: var(--muted);
+        background: rgba(5, 8, 18, .68);
+        font-size: 13px;
+        font-weight: 850;
+        backdrop-filter: blur(12px);
+      }
+      footer nav {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+      }
+      footer a { color: #fff; font-weight: 900; text-decoration: none; }
+      @media (max-width: 760px) {
+        .hud { display: grid; }
+        .stats { justify-content: flex-start; }
+        .message { font-size: 15px; }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header>
+      <nav class="topnav" aria-label="Навигация">
+        <a href="../../index.html">Главная</a>
+        <a href="../index.html">Игры</a>
+        <a href="../../school/index.html">Учёба</a>
+      </nav>
+    </header>
+    <main id="content">
+      <canvas id="game"></canvas>
+      <div class="hud">
+      <section class="panel" aria-label="Задание">
+        <h1>Ночная школа пушистиков</h1>
+        <p id="mission">Найди 5 наклеек и дневник. Не бойся: школа пугает смешно.</p>
+      </section>
+      <div class="stats" aria-label="Счёт">
+        <div class="stat"><span>Наклейки</span><strong id="stickers">0 / 5</strong></div>
+        <div class="stat"><span>Ключи</span><strong id="keysFound">0 / 2</strong></div>
+        <div class="stat"><span>Дневник</span><strong id="diary">нет</strong></div>
+        <div class="stat"><span>Смелость</span><strong id="courage">100</strong></div>
+        <div class="stat"><span>Звонок</span><strong id="timer">02:30</strong></div>
+        <div class="stat"><span>Шум</span><strong id="noise">тихо</strong></div>
+      </div>
+    </div>
+    <div class="danger" id="danger"></div>
+    <div class="center-reticle" aria-hidden="true"></div>
+    <div class="action-hint" id="actionHint">E — спрятаться</div>
+    <div class="message" id="message">Нажми «Играть», включи фонарик и иди по коридору.</div>
+    <div class="controls">
+      <a href="../index.html">Игры</a>
+      <button id="restart" type="button">Заново</button>
+    </div>
+    <div class="start" id="start">
+      <div class="start-card">
+        <h2>Ночная школа пушистиков</h2>
+        <p>Мило, смешно и чуть-чуть страшно: фонарик, сторож-директор, прятки в шкафчиках, ключи, наклейки и дневник, который надо найти до звонка.</p>
+        <p>Управление: WASD или стрелки, мышкой поворачивай камеру. E — спрятаться рядом со шкафчиком. Собери 5 наклеек, 2 ключа, дневник и вернись к выходу.</p>
+        <button id="startButton" type="button">Играть</button>
+      </div>
+    </div>
+    </main>
+    <footer>
+      <p>Ночная школа пушистиков добавлена в игровую лабораторию Яны.</p>
+      <nav aria-label="Быстрые ссылки в подвале">
+        <a href="../../index.html">Главная</a>
+        <a href="../index.html">Игры</a>
+        <a href="../cat-chase/index.html">Кошачья погоня</a>
+        <a href="../../school/index.html">Учёба</a>
+      </nav>
+    </footer>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from "three";
+      import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+      const canvas = document.querySelector("#game");
+      const stickersText = document.querySelector("#stickers");
+      const keysFoundText = document.querySelector("#keysFound");
+      const diaryText = document.querySelector("#diary");
+      const courageText = document.querySelector("#courage");
+      const timerText = document.querySelector("#timer");
+      const noiseText = document.querySelector("#noise");
+      const message = document.querySelector("#message");
+      const start = document.querySelector("#start");
+      const danger = document.querySelector("#danger");
+      const actionHint = document.querySelector("#actionHint");
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = .92;
+
+      const world = new THREE.Scene();
+      world.background = new THREE.Color(0x070b14);
+      world.fog = new THREE.Fog(0x070b14, 10, 33);
+
+      const camera = new THREE.PerspectiveCamera(55, 1, .1, 100);
+      const loader = new GLTFLoader();
+      const clock = new THREE.Clock();
+      const keys = new Set();
+      const collectibles = [];
+      const spookyProps = [];
+      const hideSpots = [];
+      const keyItems = [];
+      const player = new THREE.Group();
+      const guard = new THREE.Group();
+      const velocity = new THREE.Vector3();
+      const direction = new THREE.Vector3();
+      const guardTarget = new THREE.Vector3();
+      let yaw = 0;
+      let stickers = 0;
+      let keysFound = 0;
+      let hasDiary = false;
+      let playing = false;
+      let noise = 0;
+      let courage = 100;
+      let timeLeft = 150;
+      let hidden = false;
+      let caughtCooldown = 0;
+      let nearestHideSpot = null;
+      let audioCtx = null;
+
+      world.add(new THREE.HemisphereLight(0x9fcaff, 0x17111b, 1.8));
+      const moon = new THREE.DirectionalLight(0xc7dbff, 2.2);
+      moon.position.set(-7, 10, 8);
+      moon.castShadow = true;
+      moon.shadow.mapSize.set(2048, 2048);
+      moon.shadow.camera.left = -18;
+      moon.shadow.camera.right = 18;
+      moon.shadow.camera.top = 18;
+      moon.shadow.camera.bottom = -18;
+      world.add(moon);
+
+      const flashlight = new THREE.SpotLight(0xfff1b8, 8, 14, .42, .65, 1.1);
+      flashlight.castShadow = true;
+      flashlight.shadow.mapSize.set(1024, 1024);
+      world.add(flashlight);
+      const flashlightTarget = new THREE.Object3D();
+      world.add(flashlightTarget);
+      flashlight.target = flashlightTarget;
+
+      function mat(color, roughness = .75, metalness = .02) {
+        return new THREE.MeshStandardMaterial({ color, roughness, metalness });
+      }
+
+      function playTone(type = "click") {
+        audioCtx ||= new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const patterns = {
+          click: [660, .08, .05],
+          key: [880, .12, .07],
+          danger: [140, .18, .09],
+          win: [740, .12, .08],
+          lose: [90, .45, .12]
+        };
+        const [freq, length, volume] = patterns[type] || patterns.click;
+        osc.type = type === "danger" || type === "lose" ? "sawtooth" : "triangle";
+        osc.frequency.setValueAtTime(freq, now);
+        if (type === "win") osc.frequency.exponentialRampToValueAtTime(freq * 1.7, now + length);
+        if (type === "lose") osc.frequency.exponentialRampToValueAtTime(48, now + length);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(volume, now + .015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + length);
+        osc.start(now);
+        osc.stop(now + length + .04);
+      }
+
+      function formatTime(value) {
+        const safe = Math.max(0, Math.ceil(value));
+        const minutes = String(Math.floor(safe / 60)).padStart(2, "0");
+        const seconds = String(safe % 60).padStart(2, "0");
+        return `${minutes}:${seconds}`;
+      }
+
+      function box(name, size, position, material) {
+        const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), material);
+        mesh.name = name;
+        mesh.position.set(...position);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        world.add(mesh);
+        return mesh;
+      }
+
+      function makeSchool() {
+        const floorMat = mat(0x2a2d37, .86);
+        const wallMat = mat(0x5b6478, .9);
+        const trimMat = mat(0x2f394b, .82);
+        const lockerMat = mat(0x31445c, .72, .05);
+        box("floor", [16, .22, 34], [0, -.11, -8], floorMat);
+        box("ceiling", [16, .22, 34], [0, 4.2, -8], mat(0x161c29, .9));
+        box("left-wall", [.32, 4.4, 34], [-8, 2, -8], wallMat);
+        box("right-wall", [.32, 4.4, 34], [8, 2, -8], wallMat);
+        box("back-wall", [16, 4.4, .32], [0, 2, -25], wallMat);
+        box("front-door", [4, 3.6, .22], [0, 1.8, 8.8], mat(0x3d2b21, .7));
+        box("exit-glow", [4.7, .08, .08], [0, 3.72, 8.62], mat(0x65e5a7, .34, .12));
+        const exitLight = new THREE.PointLight(0x65e5a7, 2.6, 8);
+        exitLight.position.set(0, 2.9, 7.6);
+        world.add(exitLight);
+
+        for (let z = 5; z > -24; z -= 5) {
+          box("floor-tile-line", [15.6, .025, .035], [0, .02, z], trimMat);
+          box("wall-trim-left", [.05, .12, 4.2], [-7.79, 1.2, z - 2], trimMat);
+          box("wall-trim-right", [.05, .12, 4.2], [7.79, 1.2, z - 2], trimMat);
+        }
+
+        for (let i = 0; i < 7; i += 1) {
+          const z = 4 - i * 4.2;
+          const leftLocker = box("locker", [.55, 2.2, 1.35], [-7.45, 1.1, z], lockerMat);
+          const rightLocker = box("locker", [.55, 2.2, 1.35], [7.45, 1.1, z - 1.6], lockerMat);
+          if (i === 1 || i === 3 || i === 5) {
+            hideSpots.push({ mesh: leftLocker, position: leftLocker.position.clone().add(new THREE.Vector3(.75, 0, 0)), side: "left" });
+            hideSpots.push({ mesh: rightLocker, position: rightLocker.position.clone().add(new THREE.Vector3(-.75, 0, 0)), side: "right" });
+          }
+          box("class-door", [.22, 2.7, 1.35], [-7.72, 1.35, z - 2.1], mat(0x4b3328, .76));
+          box("class-door", [.22, 2.7, 1.35], [7.72, 1.35, z + .5], mat(0x4b3328, .76));
+        }
+
+        for (let i = 0; i < 8; i += 1) {
+          const z = 4.5 - i * 3.7;
+          box("desk-top", [1.5, .16, .9], [-3.6, .8, z], mat(0x78563e, .68));
+          box("desk-leg", [.14, .75, .14], [-4.15, .38, z - .28], mat(0x28221e, .7));
+          box("desk-leg", [.14, .75, .14], [-3.05, .38, z + .28], mat(0x28221e, .7));
+          box("chair", [.9, .24, .75], [3.55, .52, z - 1.1], mat(0x42536d, .72));
+          box("chair-back", [.9, .9, .16], [3.55, 1, z - 1.45], mat(0x42536d, .72));
+        }
+
+        for (let i = 0; i < 6; i += 1) {
+          const z = 2.5 - i * 4.7;
+          box("moon-window", [.05, 1.25, 1.55], [-7.82, 2.55, z], mat(0xb7e4ff, .18, .04));
+          const light = new THREE.PointLight(0x95caff, .85, 4.5);
+          light.position.set(-7.25, 2.7, z);
+          world.add(light);
+          box("poster", [.05, .9, 1.2], [7.79, 2.35, z - 1.3], mat(i % 2 ? 0xff75b7 : 0xffd36b, .7));
+        }
+      }
+
+      function makeSticker(x, z, color) {
+        const group = new THREE.Group();
+        const star = new THREE.Mesh(new THREE.OctahedronGeometry(.32, 0), mat(color, .36, .08));
+        star.castShadow = true;
+        const glow = new THREE.PointLight(color, 1.8, 4);
+        group.add(star, glow);
+        group.position.set(x, .85, z);
+        world.add(group);
+        collectibles.push({ group, type: "sticker", taken: false });
+      }
+
+      function makeDiary() {
+        const group = new THREE.Group();
+        const cover = new THREE.Mesh(new THREE.BoxGeometry(.9, .16, 1.15), mat(0x8b5cf6, .42));
+        const label = new THREE.Mesh(new THREE.BoxGeometry(.48, .175, .32), mat(0xfff7c2, .55));
+        label.position.set(0, .03, .08);
+        group.add(cover, label, new THREE.PointLight(0xd8b4fe, 2.2, 5));
+        group.position.set(0, .85, -23.2);
+        group.rotation.y = .4;
+        world.add(group);
+        collectibles.push({ group, type: "diary", taken: false });
+      }
+
+      function makeKey(x, z, color) {
+        const group = new THREE.Group();
+        const head = new THREE.Mesh(new THREE.TorusGeometry(.22, .045, 10, 24), mat(color, .35, .35));
+        const stem = new THREE.Mesh(new THREE.BoxGeometry(.12, .08, .58), mat(color, .35, .35));
+        const tooth = new THREE.Mesh(new THREE.BoxGeometry(.28, .08, .12), mat(color, .35, .35));
+        stem.position.z = .34;
+        tooth.position.set(.08, 0, .63);
+        group.add(head, stem, tooth, new THREE.PointLight(color, 1.6, 3.8));
+        group.position.set(x, .95, z);
+        group.rotation.x = Math.PI / 2;
+        world.add(group);
+        collectibles.push({ group, type: "key", taken: false });
+        keyItems.push(group);
+      }
+
+      function makeGuard() {
+        const coat = mat(0x29313f, .66);
+        const scarf = mat(0xff6b6b, .52);
+        const skin = mat(0xd9aa7f, .58);
+        const boot = mat(0x121722, .68);
+        const body = new THREE.Mesh(new THREE.BoxGeometry(.72, 1.25, .42), coat);
+        body.position.y = 1.05;
+        const head = new THREE.Mesh(new THREE.BoxGeometry(.54, .54, .48), skin);
+        head.position.y = 1.92;
+        const hair = new THREE.Mesh(new THREE.BoxGeometry(.62, .18, .52), mat(0x3b2519, .72));
+        hair.position.y = 2.25;
+        const scarfMesh = new THREE.Mesh(new THREE.BoxGeometry(.82, .16, .5), scarf);
+        scarfMesh.position.y = 1.55;
+        const armL = new THREE.Mesh(new THREE.BoxGeometry(.22, .9, .22), coat);
+        const armR = armL.clone();
+        armL.position.set(-.55, 1.05, 0);
+        armR.position.set(.55, 1.05, 0);
+        const legL = new THREE.Mesh(new THREE.BoxGeometry(.26, .78, .26), boot);
+        const legR = legL.clone();
+        legL.position.set(-.23, .32, 0);
+        legR.position.set(.23, .32, 0);
+        const lamp = new THREE.SpotLight(0xffc56b, 3.8, 10, .38, .5, 1.2);
+        lamp.position.set(.45, 1.55, .1);
+        const lampTarget = new THREE.Object3D();
+        guard.add(body, head, hair, scarfMesh, armL, armR, legL, legR, lamp, lampTarget);
+        guard.userData = { armL, armR, legL, legR, lamp, lampTarget, patrol: [new THREE.Vector3(-5, 0, -19), new THREE.Vector3(5.2, 0, -12), new THREE.Vector3(-4.2, 0, -4), new THREE.Vector3(3.5, 0, 5)], patrolIndex: 0 };
+        lamp.target = lampTarget;
+        guard.position.set(-5, 0, -19);
+        guard.traverse((node) => {
+          if (node.isMesh) {
+            node.castShadow = true;
+            node.receiveShadow = true;
+          }
+        });
+        world.add(guard);
+      }
+
+      function makeSpookyProps() {
+        const ruler = box("alive-ruler", [2.1, .12, .18], [-2.5, .45, -6], mat(0xd8b45f, .52));
+        const globeBase = box("globe-base", [.65, .18, .65], [4.9, .52, -10], mat(0x42352d, .7));
+        const globe = new THREE.Mesh(new THREE.SphereGeometry(.55, 32, 16), mat(0x478fb5, .45));
+        globe.position.set(4.9, 1.12, -10);
+        globe.castShadow = true;
+        world.add(globe);
+        const chalk = box("sneaky-chalk", [.18, .18, 1.2], [1.8, .6, -17.2], mat(0xf3f4f6, .5));
+        spookyProps.push({ mesh: ruler, base: ruler.position.clone(), kind: "ruler" });
+        spookyProps.push({ mesh: globe, base: globe.position.clone(), kind: "globe" });
+        spookyProps.push({ mesh: chalk, base: chalk.position.clone(), kind: "chalk" });
+        spookyProps.push({ mesh: globeBase, base: globeBase.position.clone(), kind: "base" });
+      }
+
+      function resetGame() {
+        player.position.set(0, 0, 6.2);
+        yaw = Math.PI;
+        stickers = 0;
+        keysFound = 0;
+        hasDiary = false;
+        noise = 0;
+        courage = 100;
+        timeLeft = 150;
+        hidden = false;
+        caughtCooldown = 0;
+        guard.position.set(-5, 0, -19);
+        guard.userData.patrolIndex = 0;
+        danger.classList.remove("active");
+        collectibles.forEach((item) => {
+          item.taken = false;
+          item.group.visible = true;
+        });
+        updateHud();
+        message.textContent = "Найди 5 наклеек, 2 ключа и дневник. Если сторож рядом — спрячься у шкафчика.";
+      }
+
+      function updateHud() {
+        stickersText.textContent = `${stickers} / 5`;
+        keysFoundText.textContent = `${keysFound} / 2`;
+        diaryText.textContent = hasDiary ? "есть" : "нет";
+        courageText.textContent = Math.max(0, Math.ceil(courage));
+        timerText.textContent = formatTime(timeLeft);
+        noiseText.textContent = noise > 70 ? "звонок!" : noise > 35 ? "шорох" : "тихо";
+      }
+
+      function collectNearby() {
+        collectibles.forEach((item) => {
+          if (item.taken) return;
+          const distance = player.position.distanceTo(item.group.position);
+          if (distance < 1.15) {
+            if (item.type === "diary" && keysFound < 2) {
+              message.textContent = "Дневник закрыт на два смешных ключа. Найди оба ключа сначала.";
+              return;
+            }
+            item.taken = true;
+            item.group.visible = false;
+            if (item.type === "sticker") {
+              stickers += 1;
+              noise += 9;
+              playTone("click");
+              message.textContent = `Наклейка найдена! Осталось ${Math.max(0, 5 - stickers)}. Где-то хихикнула линейка.`;
+            } else if (item.type === "key") {
+              keysFound += 1;
+              noise += 12;
+              playTone("key");
+              message.textContent = keysFound >= 2 ? "Оба ключа есть! Теперь можно открыть дневник." : "Первый ключ найден. Где-то спрятан второй.";
+            } else {
+              hasDiary = true;
+              noise += 18;
+              playTone("key");
+              message.textContent = "Дневник найден! Теперь собери все наклейки и иди к выходу.";
+            }
+            updateHud();
+          }
+        });
+      }
+
+      function checkWin() {
+        if (stickers >= 5 && hasDiary && player.position.z > 7.2) {
+          playing = false;
+          playTone("win");
+          message.textContent = "Победа! Школа включила свет и подарила пушистику медаль за храбрость.";
+          start.classList.remove("hidden");
+          document.querySelector("#startButton").textContent = "Сыграть ещё раз";
+        }
+      }
+
+      function gameOver(text) {
+        playing = false;
+        playTone("lose");
+        danger.classList.add("active");
+        message.textContent = text;
+        start.classList.remove("hidden");
+        document.querySelector("#startButton").textContent = "Попробовать ещё раз";
+      }
+
+      function updatePlayer(delta) {
+        timeLeft -= delta;
+        if (timeLeft <= 0) {
+          gameOver("Звонок прозвенел! Школа проснулась, дневник спрятался обратно. Попробуй быстрее.");
+          return;
+        }
+        direction.set(0, 0, 0);
+        if (!hidden) {
+          if (keys.has("KeyW") || keys.has("ArrowUp")) direction.z -= 1;
+          if (keys.has("KeyS") || keys.has("ArrowDown")) direction.z += 1;
+          if (keys.has("KeyA") || keys.has("ArrowLeft")) direction.x -= 1;
+          if (keys.has("KeyD") || keys.has("ArrowRight")) direction.x += 1;
+        }
+        if (direction.lengthSq() > 0) {
+          direction.normalize();
+          const forward = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw));
+          const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+          velocity.copy(forward).multiplyScalar(direction.z).add(right.multiplyScalar(direction.x));
+          player.position.addScaledVector(velocity, delta * 4.2);
+          player.rotation.y = yaw + Math.atan2(direction.x, direction.z);
+          noise = Math.min(100, noise + delta * 5);
+        } else {
+          noise = Math.max(0, noise - delta * (hidden ? 15 : 8));
+        }
+        player.position.x = THREE.MathUtils.clamp(player.position.x, -6.5, 6.5);
+        player.position.z = THREE.MathUtils.clamp(player.position.z, -24.2, 7.8);
+        player.visible = !hidden;
+        updateHideHint();
+        updateHud();
+      }
+
+      function updateHideHint() {
+        nearestHideSpot = null;
+        let best = 1.45;
+        hideSpots.forEach((spot) => {
+          const distance = player.position.distanceTo(spot.position);
+          if (distance < best) {
+            best = distance;
+            nearestHideSpot = spot;
+          }
+        });
+        actionHint.classList.toggle("visible", Boolean(nearestHideSpot) || hidden);
+        actionHint.textContent = hidden ? "E — выйти из шкафчика" : "E — спрятаться в шкафчик";
+      }
+
+      function toggleHide() {
+        if (!playing) return;
+        if (hidden) {
+          hidden = false;
+          player.position.x += nearestHideSpot?.side === "left" ? 1.2 : -1.2;
+          message.textContent = "Ты вышла из шкафчика. Иди тихо, сторож слушает шаги.";
+          return;
+        }
+        updateHideHint();
+        if (nearestHideSpot) {
+          hidden = true;
+          noise = Math.max(0, noise - 30);
+          player.position.copy(nearestHideSpot.position);
+          message.textContent = "Ты спряталась. Сторож пройдёт мимо, если не шуметь.";
+          playTone("click");
+        }
+      }
+
+      function canGuardSeePlayer() {
+        if (hidden) return false;
+        const distance = guard.position.distanceTo(player.position);
+        if (distance > 8.5) return false;
+        const toPlayer = player.position.clone().sub(guard.position).normalize();
+        const guardForward = new THREE.Vector3(Math.sin(guard.rotation.y), 0, Math.cos(guard.rotation.y));
+        return toPlayer.dot(guardForward) > .32 || noise > 58;
+      }
+
+      function updateGuard(delta, time) {
+        const data = guard.userData;
+        const seesPlayer = canGuardSeePlayer();
+        const target = seesPlayer ? player.position : data.patrol[data.patrolIndex];
+        guardTarget.copy(target);
+        const move = guardTarget.clone().sub(guard.position);
+        move.y = 0;
+        const distance = move.length();
+        if (!seesPlayer && distance < .4) data.patrolIndex = (data.patrolIndex + 1) % data.patrol.length;
+        if (distance > .05) {
+          move.normalize();
+          const speed = seesPlayer ? 2.65 : 1.35;
+          guard.position.addScaledVector(move, delta * speed);
+          guard.rotation.y = Math.atan2(move.x, move.z);
+        }
+        const swing = Math.sin(time * (seesPlayer ? 9 : 4)) * .34;
+        data.armL.rotation.x = swing;
+        data.armR.rotation.x = -swing;
+        data.legL.rotation.x = -swing;
+        data.legR.rotation.x = swing;
+        data.lampTarget.position.set(0, 1.05, 4);
+        const dangerLevel = seesPlayer ? THREE.MathUtils.clamp(1 - distance / 8.5, 0, 1) : 0;
+        danger.style.opacity = String(dangerLevel * .9);
+        danger.classList.toggle("active", dangerLevel > .08);
+        if (seesPlayer && caughtCooldown <= 0) {
+          courage -= delta * (distance < 2.1 ? 55 : 18);
+          if (Math.random() < delta * 1.8) playTone("danger");
+          if (distance < 1.3) {
+            courage -= 24;
+            caughtCooldown = 1.2;
+            message.textContent = "Сторож почти поймал! Быстро к шкафчику или к выходу.";
+          }
+        }
+        caughtCooldown = Math.max(0, caughtCooldown - delta);
+        if (courage <= 0) {
+          gameOver("Поймали! Но это смешная школа: сторож просто отправил пушистика перепроходить квест.");
+        } else if (seesPlayer && distance < 5) {
+          message.textContent = "Сторож заметил тебя! Прячься у шкафчика или убегай за угол.";
+        }
+      }
+
+      function updateCamera() {
+        const camOffset = new THREE.Vector3(Math.sin(yaw) * -5, 3.4, Math.cos(yaw) * -5);
+        camera.position.lerp(player.position.clone().add(camOffset), .12);
+        camera.lookAt(player.position.x, player.position.y + 1.35, player.position.z);
+        flashlight.position.copy(player.position).add(new THREE.Vector3(0, 1.6, 0));
+        flashlightTarget.position.set(
+          player.position.x + Math.sin(yaw) * 6,
+          player.position.y + .8,
+          player.position.z + Math.cos(yaw) * 6
+        );
+      }
+
+      function animateProps(time) {
+        collectibles.forEach((item, index) => {
+          if (item.taken) return;
+          item.group.rotation.y += .028;
+          item.group.position.y = .85 + Math.sin(time * 2 + index) * .12;
+        });
+        spookyProps.forEach((item, index) => {
+          if (item.kind === "base") return;
+          item.mesh.rotation.y += item.kind === "globe" ? .012 : Math.sin(time + index) * .006;
+          item.mesh.position.y = item.base.y + Math.sin(time * 2.4 + index) * .08;
+          if (player.position.distanceTo(item.mesh.position) < 2.2) {
+            if (item.kind === "ruler") message.textContent = "Линейка прошептала: «Я меряю смелость!»";
+            if (item.kind === "globe") message.textContent = "Глобус ворчит: «Не крути меня, я сам кружусь!»";
+            if (item.kind === "chalk") message.textContent = "Мел написал на полу: «Бу! То есть мяу.»";
+          }
+        });
+      }
+
+      function resize() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      }
+
+      async function loadHero() {
+        try {
+          const model = await new Promise((resolve, reject) => {
+            loader.load("../../assets/models/kenney-mini-characters/character-female-c.glb", resolve, undefined, reject);
+          });
+          model.scene.traverse((node) => {
+            if (node.isMesh) {
+              node.castShadow = true;
+              node.receiveShadow = true;
+            }
+          });
+          model.scene.scale.setScalar(1.15);
+          player.add(model.scene);
+        } catch (error) {
+          const fallback = new THREE.Mesh(new THREE.BoxGeometry(.75, 1.55, .42), mat(0xffb4d8, .45));
+          fallback.position.y = .78;
+          fallback.castShadow = true;
+          player.add(fallback);
+        }
+      }
+
+      function loop() {
+        requestAnimationFrame(loop);
+        resize();
+        const delta = Math.min(clock.getDelta(), .04);
+        const time = clock.elapsedTime;
+        if (playing) {
+          updatePlayer(delta);
+          updateGuard(delta, time);
+          collectNearby();
+          checkWin();
+        }
+        animateProps(time);
+        updateCamera();
+        renderer.render(world, camera);
+      }
+
+      window.addEventListener("keydown", (event) => {
+        keys.add(event.code);
+        if (event.code === "KeyE") toggleHide();
+      });
+      window.addEventListener("keyup", (event) => keys.delete(event.code));
+      window.addEventListener("mousemove", (event) => {
+        if (!playing) return;
+        if (event.buttons || document.pointerLockElement) yaw -= event.movementX * .004;
+      });
+      canvas.addEventListener("click", () => canvas.requestPointerLock?.());
+      document.querySelector("#startButton").addEventListener("click", () => {
+        start.classList.add("hidden");
+        playing = true;
+        audioCtx?.resume?.();
+        resetGame();
+        canvas.requestPointerLock?.();
+      });
+      document.querySelector("#restart").addEventListener("click", () => {
+        playing = true;
+        start.classList.add("hidden");
+        audioCtx?.resume?.();
+        resetGame();
+      });
+
+      makeSchool();
+      makeSticker(-4.8, 3.6, 0xff75b7);
+      makeSticker(4.7, .5, 0x65d8ff);
+      makeSticker(-3.5, -7.5, 0xffd36b);
+      makeSticker(3.4, -14.2, 0x65e5a7);
+      makeSticker(-5.1, -20.5, 0xd8b4fe);
+      makeKey(5.3, -5.5, 0xffd36b);
+      makeKey(-4.7, -16.3, 0x65d8ff);
+      makeDiary();
+      makeSpookyProps();
+      makeGuard();
+      world.add(player);
+      await loadHero();
+      resetGame();
+      loop();
+    </script>
+    <script src="../../assets/site.js"></script>
+  </body>
+</html>

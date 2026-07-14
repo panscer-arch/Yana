@@ -1,4 +1,4 @@
-const CACHE_NAME = "yana-unicorn-v70";
+const CACHE_NAME = "yana-unicorn-v72";
 const CACHE_PATHS = [
   "./",
   "./index.html",
@@ -7,6 +7,7 @@ const CACHE_PATHS = [
   "./games/cat-chase/index.html",
   "./games/animal-meadow/index.html",
   "./games/plush-escape/index.html",
+  "./games/night-school/index.html",
   "./games/black-cubes/index.html",
   "./games/parkour/index.html",
   "./games/parkour/game.js",
@@ -36,6 +37,7 @@ const CACHE_PATHS = [
   "./assets/covers/generated/cat-chase.png",
   "./assets/covers/generated/animal-meadow.svg",
   "./assets/covers/generated/plush-escape.svg",
+  "./assets/covers/generated/night-school.svg",
   "./assets/covers/generated/parkour.png",
   "./assets/covers/generated/kitten-care.png",
   "./assets/covers/generated/cozy-house.svg",
