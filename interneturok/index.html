@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Интернет-урок Яны</title>
+    <meta name="description" content="Вкладка Интернет-урок: журнал, предметы 6 класса, обязательные задания и чек-лист аттестации.">
+    <meta name="theme-color" content="#ff72ad">
+    <link rel="icon" type="image/png" href="../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #241f35;
+        --muted: #665b7b;
+        --paper: #fffdf7;
+        --soft: rgba(255, 253, 247, .92);
+        --line: rgba(36, 31, 53, .14);
+        --pink: #ff72ad;
+        --violet: #8e67ff;
+        --blue: #54b8ff;
+        --mint: #42c995;
+        --orange: #ff9f43;
+        --sun: #ffd45c;
+        --shadow: 0 16px 0 rgba(36, 31, 53, .08);
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 10% 14%, rgba(255, 255, 255, .92) 0 7%, transparent 8%),
+          radial-gradient(circle at 86% 16%, rgba(255, 244, 164, .82) 0 8%, transparent 9%),
+          linear-gradient(135deg, #bdefff 0%, #fbd6ff 48%, #fff0aa 100%);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      button, input { font: inherit; }
+      a { color: inherit; }
+      h1, h2, h3, p { margin: 0; }
+      .shell {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+      .skip-link {
+        position: fixed;
+        left: 16px;
+        top: 12px;
+        z-index: 20;
+        transform: translateY(-150%);
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 14px;
+        border-radius: 8px;
+        color: #fff;
+        background: var(--ink);
+        font-weight: 900;
+        text-decoration: none;
+        transition: transform .15s ease;
+      }
+      .skip-link:focus-visible { transform: translateY(0); }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        border-bottom: 3px solid var(--line);
+        background: rgba(255, 253, 247, .92);
+        backdrop-filter: blur(12px);
+      }
+      .topbar-inner {
+        min-height: 74px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .brand,
+      .button,
+      .mini-button {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+      .brand { gap: 10px; color: var(--ink); }
+      .mark {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 auto;
+        border: 3px solid var(--line);
+        border-radius: 50%;
+        background: center / cover no-repeat url("../assets/yana-unicorn-logo.png");
+      }
+      .nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .nav a {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+      .nav a:hover,
+      .nav a:focus-visible,
+      .nav a[aria-current="page"] {
+        border-color: var(--line);
+        background: #fff;
+      }
+      .hero {
+        min-height: 520px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, .88fr);
+        gap: 28px;
+        align-items: center;
+        padding: 42px 0 18px;
+      }
+      .tag {
+        width: fit-content;
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .76);
+        color: #653f94;
+        font-size: 14px;
+        font-weight: 900;
+      }
+      h1 {
+        max-width: 760px;
+        margin-top: 16px;
+        font-size: clamp(42px, 8vw, 82px);
+        line-height: .95;
+      }
+      .lead {
+        max-width: 680px;
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.45;
+      }
+      .hero-actions,
+      .card-actions,
+      .source-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+      }
+      .button,
+      .mini-button {
+        padding: 0 16px;
+        border: 0;
+        color: #fff;
+        background: linear-gradient(180deg, var(--pink), #df4f9a);
+        box-shadow: 0 8px 0 rgba(36, 31, 53, .12);
+        cursor: pointer;
+      }
+      .button.secondary,
+      .mini-button.secondary {
+        color: var(--ink);
+        background: #fff;
+      }
+      .hero-card,
+      .panel,
+      .subject,
+      .stat-card,
+      .rule-card {
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background: var(--soft);
+        box-shadow: var(--shadow);
+      }
+      .hero-card {
+        display: grid;
+        gap: 14px;
+        padding: 20px;
+      }
+      .hero-card h2 { font-size: 28px; }
+      .hero-card p,
+      .panel p,
+      .rule-card p,
+      .subject p {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.45;
+      }
+      .journal-art {
+        min-height: 260px;
+        position: relative;
+        overflow: hidden;
+        border: 3px solid var(--line);
+        border-radius: 8px;
+        background:
+          linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px) 0 0 / 56px 56px,
+          linear-gradient(rgba(255,255,255,.52) 1px, transparent 1px) 0 0 / 56px 56px,
+          linear-gradient(135deg, #e8f7ff, #fff0c5 58%, #ffd9ea);
+      }
+      .journal-art::before {
+        content: "";
+        position: absolute;
+        left: 34px;
+        right: 34px;
+        bottom: 30px;
+        height: 108px;
+        border: 3px solid rgba(36, 31, 53, .16);
+        border-radius: 8px;
+        background:
+          linear-gradient(90deg, #fff 0 24%, #ffe9a8 24% 41%, #c9f7df 41% 58%, #ffd4e7 58% 76%, #d8edff 76% 100%);
+        box-shadow: 0 12px 0 rgba(36, 31, 53, .08);
+      }
+      .journal-art::after {
+        content: "6";
+        position: absolute;
+        right: 46px;
+        top: 28px;
+        width: 92px;
+        height: 92px;
+        display: grid;
+        place-items: center;
+        border: 4px solid rgba(36, 31, 53, .14);
+        border-radius: 50%;
+        color: #653f94;
+        background: #fff;
+        font-size: 54px;
+        font-weight: 950;
+      }
+      .mascot {
+        position: absolute;
+        left: 42px;
+        top: 42px;
+        width: 132px;
+        height: 156px;
+      }
+      .mascot span {
+        position: absolute;
+        display: block;
+        border: 4px solid #241f35;
+        background: #fff;
+      }
+      .mascot .head { left: 32px; top: 0; width: 68px; height: 62px; border-radius: 24px; }
+      .mascot .ear-a { left: 22px; top: -8px; width: 28px; height: 34px; transform: rotate(-24deg); border-radius: 6px; }
+      .mascot .ear-b { right: 22px; top: -8px; width: 28px; height: 34px; transform: rotate(24deg); border-radius: 6px; }
+      .mascot .body { left: 22px; top: 58px; width: 88px; height: 88px; border-radius: 30px; background: #fff7c2; }
+      .mascot .book { left: 12px; top: 86px; width: 108px; height: 46px; border-radius: 8px; background: #ff72ad; }
+      .mascot .eye-a,
+      .mascot .eye-b { top: 28px; width: 8px; height: 8px; border: 0; border-radius: 50%; background: #241f35; }
+      .mascot .eye-a { left: 52px; }
+      .mascot .eye-b { left: 74px; }
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin: 22px 0;
+      }
+      .stat-card {
+        min-height: 128px;
+        padding: 18px;
+      }
+      .stat-card span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+      .stat-card strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 34px;
+        line-height: 1;
+      }
+      .stat-card p { margin-top: 10px; font-size: 14px; }
+      .panel {
+        margin: 22px 0;
+        padding: 22px;
+      }
+      .panel h2 {
+        margin-bottom: 14px;
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1;
+      }
+      .rules-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .rule-card {
+        padding: 18px;
+      }
+      .rule-card strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 20px;
+      }
+      .subjects-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .subject {
+        min-height: 132px;
+        padding: 16px;
+      }
+      .subject h3 {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 20px;
+      }
+      .dot {
+        width: 14px;
+        height: 14px;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        background: var(--pink);
+        box-shadow: inset 0 -3px 0 rgba(36, 31, 53, .12);
+      }
+      .dot.math { background: var(--orange); }
+      .dot.lang { background: var(--blue); }
+      .dot.world { background: var(--violet); }
+      .dot.nature { background: var(--mint); }
+      .dot.art { background: var(--pink); }
+      .subject.optional {
+        background: rgba(255, 255, 255, .64);
+      }
+      .subject.optional h3::after {
+        content: "факультатив";
+        min-height: 24px;
+        display: inline-flex;
+        align-items: center;
+        margin-left: auto;
+        padding: 0 8px;
+        border-radius: 8px;
+        color: #653f94;
+        background: #f1e8ff;
+        font-size: 11px;
+        font-weight: 950;
+        text-transform: uppercase;
+      }
+      .tracker {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, .72fr);
+        gap: 16px;
+      }
+      .checklist {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .checkline {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 12px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--muted);
+        font-weight: 850;
+        line-height: 1.35;
+      }
+      .checkline input {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        accent-color: var(--pink);
+      }
+      .mini-form {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .mini-form label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 900;
+      }
+      .mini-form input {
+        min-height: 44px;
+        width: 100%;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        padding: 0 12px;
+        color: var(--ink);
+        background: #fff;
+        font-weight: 900;
+      }
+      .source-row {
+        margin-top: 16px;
+      }
+      .source-row a {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+      footer {
+        margin-top: 38px;
+        padding: 28px 0 36px;
+        color: var(--muted);
+        font-weight: 800;
+      }
+      footer nav {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      footer a { font-weight: 900; text-decoration: none; }
+      @media (max-width: 900px) {
+        .hero,
+        .tracker {
+          grid-template-columns: 1fr;
+        }
+        .stats-grid,
+        .rules-grid,
+        .subjects-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 620px) {
+        .shell { width: min(100% - 20px, 1120px); }
+        .topbar-inner { align-items: flex-start; flex-direction: column; padding: 12px 0; }
+        .nav { width: 100%; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+        .hero { min-height: auto; padding-top: 26px; }
+        .stats-grid,
+        .rules-grid,
+        .subjects-grid {
+          grid-template-columns: 1fr;
+        }
+        .journal-art { min-height: 220px; }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header class="topbar">
+      <div class="shell topbar-inner">
+        <a class="brand" href="../index.html" aria-label="Яна Единорог">
+          <span class="mark" aria-hidden="true"></span>
+          <span>Яна Единорог</span>
+        </a>
+        <nav class="nav" aria-label="Главное меню">
+          <a href="../index.html">Главная</a>
+          <a href="../games/index.html">Игры</a>
+          <a href="../school/index.html">Школа</a>
+          <a aria-current="page" href="./index.html">Интернет-урок</a>
+          <a href="../schedule/index.html">План</a>
+          <a href="../parents/index.html">Родителям</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="content" class="shell">
+      <section class="hero" aria-label="Интернет-урок">
+        <div>
+          <span class="tag">6 класс · журнал · аттестация</span>
+          <h1>Интернет-урок</h1>
+          <p class="lead">Одна вкладка, где видно, что делать в журнале: предметы 6 класса, обязательные работы, минимум оценок за четверть и быстрый переход в личный кабинет.</p>
+          <div class="hero-actions">
+            <a class="button" href="https://interneturok.ru/h/journal?quarter=1" target="_blank" rel="noopener">Открыть журнал</a>
+            <a class="button secondary" href="#subjects">Предметы 6 класса</a>
+            <a class="button secondary" href="#tracker">Мой чек-лист</a>
+          </div>
+        </div>
+        <aside class="hero-card">
+          <div class="journal-art" aria-hidden="true">
+            <div class="mascot">
+              <span class="ear-a"></span>
+              <span class="ear-b"></span>
+              <span class="head"></span>
+              <span class="body"></span>
+              <span class="book"></span>
+              <span class="eye-a"></span>
+              <span class="eye-b"></span>
+            </div>
+          </div>
+          <h2>Что важно смотреть</h2>
+          <p>В журнале обязательные работы отмечаются значком/выделением. Именно их нельзя пропускать, а ещё нужно набрать минимум оценок за четверть.</p>
+        </aside>
+      </section>
+
+      <section class="grid stats-grid" aria-label="Основные показатели">
+        <article class="stat-card">
+          <span>Основные предметы</span>
+          <strong>13</strong>
+          <p>Предметы 6 класса без факультативов по официальной странице класса.</p>
+        </article>
+        <article class="stat-card">
+          <span>Факультативы</span>
+          <strong>6</strong>
+          <p>Их удобно держать отдельно, чтобы не путать с главным минимумом.</p>
+        </article>
+        <article class="stat-card">
+          <span>I четверть</span>
+          <strong>5</strong>
+          <p>Минимум оценок по предмету, если уроки идут каждую неделю.</p>
+        </article>
+        <article class="stat-card">
+          <span>Технология</span>
+          <strong>1</strong>
+          <p>Для 5–9 классов указано исключение: достаточно одной оценки за четверть.</p>
+        </article>
+      </section>
+
+      <section class="panel" id="rules" aria-label="Правила журнала">
+        <h2>Правила, которые надо помнить</h2>
+        <div class="grid rules-grid">
+          <article class="rule-card">
+            <strong>Обязательные работы</strong>
+            <p>Их надо выполнить обязательно. В журнале они выделяются значком, а в расписании — оранжевой рамкой.</p>
+          </article>
+          <article class="rule-card">
+            <strong>Если урок каждую неделю</strong>
+            <p>Для 2–11 классов минимум оценок: I четверть — 5, II — 5, III — 7, IV — 5 по каждому предмету.</p>
+          </article>
+          <article class="rule-card">
+            <strong>Если урок не каждую неделю</strong>
+            <p>Для аттестации нужно выполнить все обязательные работы. Для технологии в 5–9 классах достаточно одной оценки за четверть.</p>
+          </article>
+        </div>
+        <div class="source-row" aria-label="Источники">
+          <a href="https://interneturok.ru/domashnyaya_shkola/" target="_blank" rel="noopener">Правила аттестации</a>
+          <a href="https://interneturok.ru/shkola/obuchenie_po_klassam/6_klass_online/" target="_blank" rel="noopener">Предметы 6 класса</a>
+          <a href="https://interneturok.ru/h/journal?quarter=1" target="_blank" rel="noopener">Журнал</a>
+        </div>
+      </section>
+
+      <section class="panel" id="subjects" aria-label="Предметы 6 класса">
+        <h2>Предметы 6 класса</h2>
+        <div class="grid subjects-grid">
+          <article class="subject"><h3><span class="dot math"></span>Математика</h3><p>Основной предмет. Следи за обязательными работами и минимумом оценок.</p></article>
+          <article class="subject"><h3><span class="dot math"></span>Информатика</h3><p>Основной предмет по списку 6 класса.</p></article>
+          <article class="subject"><h3><span class="dot lang"></span>Русский язык</h3><p>Основной предмет. Обычно требует регулярной письменной практики.</p></article>
+          <article class="subject"><h3><span class="dot lang"></span>Литература</h3><p>Основной предмет: чтение, ответы, задания по произведениям.</p></article>
+          <article class="subject"><h3><span class="dot lang"></span>Английский язык</h3><p>Основной иностранный язык.</p></article>
+          <article class="subject optional"><h3><span class="dot lang"></span>Немецкий язык</h3><p>Факультативный предмет.</p></article>
+          <article class="subject"><h3><span class="dot world"></span>История</h3><p>Основной предмет: даты, события, пересказ и задания.</p></article>
+          <article class="subject optional"><h3><span class="dot world"></span>Обществознание</h3><p>Факультативный предмет.</p></article>
+          <article class="subject"><h3><span class="dot nature"></span>Биология</h3><p>Основной предмет о живой природе.</p></article>
+          <article class="subject"><h3><span class="dot nature"></span>География</h3><p>Основной предмет: карты, материки, страны, природные зоны.</p></article>
+          <article class="subject"><h3><span class="dot art"></span>ИЗО</h3><p>Основной неакадемический предмет, иногда возможны особые условия по справке.</p></article>
+          <article class="subject"><h3><span class="dot art"></span>Музыка</h3><p>Основной неакадемический предмет.</p></article>
+          <article class="subject"><h3><span class="dot art"></span>Технология</h3><p>Основной предмет с исключением: в 5–9 классах достаточно одной оценки за четверть.</p></article>
+          <article class="subject"><h3><span class="dot art"></span>Физкультура</h3><p>Основной предмет. Для кружков/секций у школы есть отдельные условия по справкам.</p></article>
+          <article class="subject optional"><h3><span class="dot art"></span>ОБЖ</h3><p>Факультативный предмет по списку страницы 6 класса.</p></article>
+          <article class="subject"><h3><span class="dot world"></span>ОДНКНР</h3><p>Основной предмет из списка 6 класса.</p></article>
+          <article class="subject optional"><h3><span class="dot art"></span>Финансовая грамотность</h3><p>Факультативный предмет.</p></article>
+          <article class="subject optional"><h3><span class="dot art"></span>Разговоры о важном</h3><p>Факультативный предмет.</p></article>
+          <article class="subject optional"><h3><span class="dot lang"></span>Китайский язык</h3><p>Факультативный предмет.</p></article>
+        </div>
+      </section>
+
+      <section class="panel tracker" id="tracker" aria-label="Чек-лист журнала">
+        <div>
+          <h2>Чек-лист на неделю</h2>
+          <p>Отмечай пункты прямо здесь. Отметки сохраняются в этом браузере, без пароля и без доступа к личному кабинету.</p>
+          <div class="checklist">
+            <label class="checkline"><input type="checkbox" data-check="journal-opened">Открыла журнал и посмотрела I четверть.</label>
+            <label class="checkline"><input type="checkbox" data-check="required-found">Нашла обязательные работы с выделением/значком.</label>
+            <label class="checkline"><input type="checkbox" data-check="debts-written">Выписала предметы, где есть долги или мало оценок.</label>
+            <label class="checkline"><input type="checkbox" data-check="plan-updated">Добавила задания в план недели.</label>
+            <label class="checkline"><input type="checkbox" data-check="teacher-chat">Если непонятно — написала учителю или взрослому.</label>
+          </div>
+        </div>
+        <aside class="rule-card">
+          <strong>Мои показатели</strong>
+          <p>Можно быстро записать текущую сводку из журнала.</p>
+          <form class="mini-form" id="journalForm">
+            <label>Средняя оценка <input id="avgMark" inputmode="decimal" placeholder="например, 4.6"></label>
+            <label>Обязательных работ осталось <input id="requiredLeft" inputmode="numeric" placeholder="например, 3"></label>
+            <label>Предметы под вниманием <input id="focusSubjects" placeholder="например, математика, русский"></label>
+            <button class="mini-button" type="submit">Сохранить</button>
+          </form>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="shell">
+      <p>Вкладка сделана как безопасный помощник: она не хранит логин и пароль от Интернет-урока.</p>
+      <nav aria-label="Быстрые ссылки в подвале">
+        <a href="../index.html">Главная</a>
+        <a href="../school/index.html">Школа</a>
+        <a href="../schedule/index.html">План</a>
+        <a href="https://interneturok.ru/h/journal?quarter=1" target="_blank" rel="noopener">Журнал Интернет-урока</a>
+      </nav>
+    </footer>
+
+    <script>
+      const checks = document.querySelectorAll("[data-check]");
+      const form = document.querySelector("#journalForm");
+      const inputs = ["avgMark", "requiredLeft", "focusSubjects"].map((id) => document.querySelector(`#${id}`));
+      const checkKey = "yana-interneturok-checks";
+      const formKey = "yana-interneturok-summary";
+
+      function loadChecks() {
+        const saved = JSON.parse(localStorage.getItem(checkKey) || "{}");
+        checks.forEach((item) => {
+          item.checked = Boolean(saved[item.dataset.check]);
+          item.addEventListener("change", () => {
+            saved[item.dataset.check] = item.checked;
+            localStorage.setItem(checkKey, JSON.stringify(saved));
+          });
+        });
+      }
+
+      function loadForm() {
+        const saved = JSON.parse(localStorage.getItem(formKey) || "{}");
+        inputs.forEach((input) => {
+          input.value = saved[input.id] || "";
+        });
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const next = {};
+          inputs.forEach((input) => {
+            next[input.id] = input.value.trim();
+          });
+          localStorage.setItem(formKey, JSON.stringify(next));
+        });
+      }
+
+      loadChecks();
+      loadForm();
+    </script>
+    <script src="../assets/site.js"></script>
+  </body>
+</html>
