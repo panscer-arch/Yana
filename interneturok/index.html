@@ -34,7 +34,7 @@
           linear-gradient(135deg, #bdefff 0%, #fbd6ff 48%, #fff0aa 100%);
         font-family: Arial, Helvetica, sans-serif;
       }
-      button, input { font: inherit; }
+      button, input, select { font: inherit; }
       a { color: inherit; }
       h1, h2, h3, p { margin: 0; }
       .shell {
@@ -415,6 +415,117 @@
         font-weight: 900;
         text-decoration: none;
       }
+      .notice-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: center;
+        margin: 22px 0;
+        padding: 18px;
+        border: 3px solid rgba(255, 159, 67, .55);
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(255, 245, 201, .94), rgba(255, 255, 255, .88));
+        box-shadow: var(--shadow);
+      }
+      .notice-card strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 22px;
+      }
+      .notice-card p {
+        color: var(--muted);
+        font-weight: 850;
+        line-height: 1.45;
+      }
+      .journal-board {
+        display: grid;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .journal-row {
+        display: grid;
+        grid-template-columns: minmax(160px, 1.2fr) 120px 110px 140px minmax(130px, .8fr);
+        gap: 10px;
+        align-items: center;
+        padding: 12px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+      .journal-row.head {
+        color: #653f94;
+        background: #f7edff;
+        font-size: 13px;
+        font-weight: 950;
+        text-transform: uppercase;
+      }
+      .subject-name {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-weight: 950;
+      }
+      .subject-name small {
+        color: var(--muted);
+        font-weight: 850;
+      }
+      .journal-row input,
+      .journal-row select {
+        min-height: 40px;
+        width: 100%;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        padding: 0 10px;
+        color: var(--ink);
+        background: #fff;
+        font-weight: 900;
+      }
+      .status-pill {
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 10px;
+        border-radius: 8px;
+        color: #225d43;
+        background: #daf7e9;
+        font-size: 13px;
+        font-weight: 950;
+        text-align: center;
+      }
+      .status-pill.warn {
+        color: #8b4c00;
+        background: #fff1c4;
+      }
+      .status-pill.danger {
+        color: #9d174d;
+        background: #ffe0ed;
+      }
+      .summary-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .summary-chip {
+        min-height: 76px;
+        padding: 12px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+      .summary-chip span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 950;
+        text-transform: uppercase;
+      }
+      .summary-chip strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 26px;
+      }
       footer {
         margin-top: 38px;
         padding: 28px 0 36px;
@@ -435,8 +546,16 @@
         }
         .stats-grid,
         .rules-grid,
-        .subjects-grid {
+        .subjects-grid,
+        .summary-strip {
           grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .notice-card,
+        .journal-row {
+          grid-template-columns: 1fr;
+        }
+        .journal-row.head {
+          display: none;
         }
       }
       @media (max-width: 620px) {
@@ -446,7 +565,8 @@
         .hero { min-height: auto; padding-top: 26px; }
         .stats-grid,
         .rules-grid,
-        .subjects-grid {
+        .subjects-grid,
+        .summary-strip {
           grid-template-columns: 1fr;
         }
         .journal-art { min-height: 220px; }
@@ -524,6 +644,14 @@
         </article>
       </section>
 
+      <section class="notice-card" aria-label="Безопасное подключение журнала">
+        <div>
+          <strong>Журнал открывается отдельно</strong>
+          <p>Логин и пароль нельзя хранить внутри сайта. Поэтому вкладка работает как безопасный помощник: открываешь настоящий журнал, переносишь цифры сюда, а сайт показывает, где хватает оценок и где остались обязательные работы.</p>
+        </div>
+        <a class="button" href="https://interneturok.ru/h/journal?quarter=1" target="_blank" rel="noopener">Войти в журнал</a>
+      </section>
+
       <section class="panel" id="rules" aria-label="Правила журнала">
         <h2>Правила, которые надо помнить</h2>
         <div class="grid rules-grid">
@@ -595,6 +723,26 @@
           </form>
         </aside>
       </section>
+
+      <section class="panel" id="journal-board" aria-label="Показатели по журналу">
+        <h2>Журнал по предметам</h2>
+        <p>Перепиши из Интернет-урока, сколько уже есть оценок и сколько обязательных работ осталось. Сайт сам подсветит предметы: зелёный — всё спокойно, жёлтый — надо проверить, розовый — срочно доделать.</p>
+        <div class="summary-strip" aria-label="Сводка журнала">
+          <div class="summary-chip"><span>Предметов в красной зоне</span><strong id="dangerCount">0</strong></div>
+          <div class="summary-chip"><span>Нужно добрать оценок</span><strong id="marksLeft">0</strong></div>
+          <div class="summary-chip"><span>Обязательных осталось</span><strong id="requiredTotal">0</strong></div>
+          <div class="summary-chip"><span>Факультативов в списке</span><strong>6</strong></div>
+        </div>
+        <div class="journal-board" id="subjectBoard">
+          <div class="journal-row head" aria-hidden="true">
+            <span>Предмет</span>
+            <span>Тип</span>
+            <span>Норма</span>
+            <span>Сейчас / осталось</span>
+            <span>Статус</span>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="shell">
@@ -610,9 +758,35 @@
     <script>
       const checks = document.querySelectorAll("[data-check]");
       const form = document.querySelector("#journalForm");
+      const subjectBoard = document.querySelector("#subjectBoard");
+      const dangerCount = document.querySelector("#dangerCount");
+      const marksLeft = document.querySelector("#marksLeft");
+      const requiredTotal = document.querySelector("#requiredTotal");
       const inputs = ["avgMark", "requiredLeft", "focusSubjects"].map((id) => document.querySelector(`#${id}`));
       const checkKey = "yana-interneturok-checks";
       const formKey = "yana-interneturok-summary";
+      const subjectKey = "yana-interneturok-subjects-v2";
+      const subjects = [
+        { name: "Математика", type: "Основной", norm: 5 },
+        { name: "Информатика", type: "Основной", norm: 5 },
+        { name: "Русский язык", type: "Основной", norm: 5 },
+        { name: "Литература", type: "Основной", norm: 5 },
+        { name: "Английский язык", type: "Основной", norm: 5 },
+        { name: "История", type: "Основной", norm: 5 },
+        { name: "Биология", type: "Основной", norm: 5 },
+        { name: "География", type: "Основной", norm: 5 },
+        { name: "ИЗО", type: "Основной", norm: 5 },
+        { name: "Музыка", type: "Основной", norm: 5 },
+        { name: "Технология", type: "Особое правило", norm: 1 },
+        { name: "Физкультура", type: "Основной", norm: 5 },
+        { name: "ОДНКНР", type: "Основной", norm: 5 },
+        { name: "Немецкий язык", type: "Факультатив", norm: 0 },
+        { name: "Обществознание", type: "Факультатив", norm: 0 },
+        { name: "ОБЖ", type: "Факультатив", norm: 0 },
+        { name: "Финансовая грамотность", type: "Факультатив", norm: 0 },
+        { name: "Разговоры о важном", type: "Факультатив", norm: 0 },
+        { name: "Китайский язык", type: "Факультатив", norm: 0 }
+      ];
 
       function loadChecks() {
         const saved = JSON.parse(localStorage.getItem(checkKey) || "{}");
@@ -640,8 +814,99 @@
         });
       }
 
+      function readSubjectState() {
+        return JSON.parse(localStorage.getItem(subjectKey) || "{}");
+      }
+
+      function saveSubjectState(state) {
+        localStorage.setItem(subjectKey, JSON.stringify(state));
+      }
+
+      function statusFor(subject, marks, required) {
+        if (required > 0) {
+          return { text: "Есть обязательные", className: "danger" };
+        }
+        if (subject.norm === 0) {
+          return { text: "Проверить по желанию", className: "warn" };
+        }
+        if (marks >= subject.norm) {
+          return { text: "Норма закрыта", className: "" };
+        }
+        return { text: `Добрать ${subject.norm - marks}`, className: marks > 0 ? "warn" : "danger" };
+      }
+
+      function escapeAttr(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        }[char]));
+      }
+
+      function updateBoardSummary() {
+        const rows = subjectBoard.querySelectorAll(".journal-row[data-subject]");
+        let danger = 0;
+        let missingMarks = 0;
+        let required = 0;
+        rows.forEach((row) => {
+          const subject = subjects.find((item) => item.name === row.dataset.subject);
+          const marks = Number(row.querySelector("[data-field='marks']").value || 0);
+          const req = Number(row.querySelector("[data-field='required']").value || 0);
+          const status = statusFor(subject, marks, req);
+          const pill = row.querySelector(".status-pill");
+          pill.textContent = status.text;
+          pill.className = `status-pill ${status.className}`.trim();
+          required += req;
+          if (subject.norm > 0 && marks < subject.norm) {
+            missingMarks += subject.norm - marks;
+          }
+          if (status.className === "danger") {
+            danger += 1;
+          }
+        });
+        dangerCount.textContent = String(danger);
+        marksLeft.textContent = String(missingMarks);
+        requiredTotal.textContent = String(required);
+      }
+
+      function renderSubjectBoard() {
+        const saved = readSubjectState();
+        subjects.forEach((subject) => {
+          const row = document.createElement("div");
+          row.className = "journal-row";
+          row.dataset.subject = subject.name;
+          const current = saved[subject.name] || {};
+          row.innerHTML = `
+            <span class="subject-name">${subject.name}<small>${subject.type === "Особое правило" ? "Технология: достаточно 1 оценки" : "I четверть"}</small></span>
+            <span>${subject.type}</span>
+            <span>${subject.norm ? `${subject.norm} оценок` : "по желанию"}</span>
+            <span>
+              <input data-field="marks" inputmode="numeric" aria-label="${subject.name}: оценок сейчас" placeholder="оценок" value="${escapeAttr(current.marks || "")}">
+              <input data-field="required" inputmode="numeric" aria-label="${subject.name}: обязательных осталось" placeholder="обяз." value="${escapeAttr(current.required || "")}">
+            </span>
+            <span class="status-pill">Проверить</span>
+          `;
+          row.querySelectorAll("input").forEach((input) => {
+            input.addEventListener("input", () => {
+              const next = readSubjectState();
+              next[subject.name] = {
+                marks: row.querySelector("[data-field='marks']").value.trim(),
+                required: row.querySelector("[data-field='required']").value.trim()
+              };
+              saveSubjectState(next);
+              updateBoardSummary();
+            });
+          });
+          subjectBoard.append(row);
+        });
+        updateBoardSummary();
+      }
+
       loadChecks();
       loadForm();
+      renderSubjectBoard();
     </script>
     <script src="../assets/site.js"></script>
   </body>
