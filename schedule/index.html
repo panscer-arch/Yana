@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>План недели Яны</title>
-    <meta name="description" content="Недельный план Яны: утро, чтение, математика, Codex, учёба, прогулка и вечерние дела.">
+    <meta name="description" content="Супер-план недели Яны: утро, GPT, вайб-кодинг, математика, Интернет-урок, кошка, тренировка, прогулка и сон.">
     <meta name="theme-color" content="#ff72ad">
     <link rel="icon" type="image/png" href="../assets/yana-unicorn-logo.png">
     <style>
@@ -428,6 +428,36 @@
         background: rgba(255, 114, 173, .08);
       }
 
+      .schedule-row.coding {
+        border-color: rgba(142, 103, 255, .32);
+        background: linear-gradient(90deg, rgba(142, 103, 255, .14), rgba(84, 184, 255, .12));
+      }
+
+      .schedule-row.math {
+        border-color: rgba(255, 159, 67, .32);
+        background: linear-gradient(90deg, rgba(255, 212, 92, .2), rgba(255, 159, 67, .1));
+      }
+
+      .schedule-row.internet {
+        border-color: rgba(84, 184, 255, .34);
+        background: linear-gradient(90deg, rgba(84, 184, 255, .16), rgba(66, 201, 149, .1));
+      }
+
+      .schedule-row.move {
+        border-color: rgba(66, 201, 149, .34);
+        background: linear-gradient(90deg, rgba(66, 201, 149, .16), rgba(189, 239, 255, .18));
+      }
+
+      .schedule-row.home {
+        border-color: rgba(255, 212, 92, .36);
+        background: rgba(255, 250, 219, .88);
+      }
+
+      .schedule-row.sleep {
+        border-color: rgba(142, 103, 255, .24);
+        background: linear-gradient(90deg, rgba(36, 31, 53, .08), rgba(142, 103, 255, .12));
+      }
+
       .task-check {
         width: 20px;
         height: 20px;
@@ -634,8 +664,8 @@
       <section class="hero" aria-label="План недели">
         <div>
           <span class="tag">План недели</span>
-          <h1>Неделя Яны: учёба, Codex, прогулки и тренировки</h1>
-          <p class="lead">План помогает видеть день целиком: утро, чтение, математика, веб-кодинг, проекты, прогулка, помощь дома и спокойный сон.</p>
+          <h1>Супер-план Яны на неделю</h1>
+          <p class="lead">Красивый спокойный план: GPT и вайб-кодинг, текст, математика, Интернет-урок, чтение, отчёт папе, кошка, тренировка, прогулка и сон в 21:30.</p>
           <div class="hero-actions">
             <a class="button" href="#week">Смотреть неделю</a>
             <button class="print-button secondary" id="printPlan" type="button">Распечатать</button>
@@ -646,38 +676,38 @@
         <aside class="hero-card">
           <img src="../assets/yana-unicorn-logo.png" alt="">
           <h2>Главное правило</h2>
-          <p>Если день пошёл не идеально, план не ругается. Он просто помогает вернуться к следующему делу.</p>
+          <p>План не ругается. Он помогает спокойно вернуться к следующему делу и видеть, что день уже получается.</p>
         </aside>
       </section>
 
       <section id="week" aria-labelledby="week-title">
         <div class="section-title">
           <h2 id="week-title">Расписание по дням</h2>
-          <p>Каждый день похож по ритму, а тренировки уже встроены так, чтобы хватило времени на сборы, дорогу и отдых.</p>
+          <p>Один понятный ритм на всю неделю. Галочки сохраняются в браузере, а цветные блоки помогают быстро увидеть математику, кодинг, отдых и прогулку.</p>
         </div>
 
         <div class="week-summary" aria-label="Короткая сводка недели">
           <div class="summary-card"><strong>7</strong><span>дней с понятным планом</span></div>
-          <div class="summary-card"><strong>10</strong><span>примеров по математике утром</span></div>
-          <div class="summary-card"><strong>2 ч</strong><span>Codex и веб-кодинг до обеда</span></div>
-          <div class="summary-card"><strong>3</strong><span>тренировки в неделю</span></div>
+          <div class="summary-card"><strong>20</strong><span>дел в каждом дне</span></div>
+          <div class="summary-card"><strong>1.5 ч</strong><span>GPT и вайб-кодинг утром</span></div>
+          <div class="summary-card"><strong>21:30</strong><span>спокойный сон</span></div>
         </div>
 
         <div class="plan-note" aria-label="Официальный план Яны">
           <article class="plan-note-card">
-            <strong>Полный план добавлен</strong>
-            <p>На этой странице стоит новый план: учёба, Codex, прогулки, отдых и тренировки во вторник, четверг и субботу.</p>
+            <strong>Новый план добавлен</strong>
+            <p>На этой странице стоит твой новый недельный план: без старых шкафов, без лишнего, только нужный ритм на каждый день.</p>
           </article>
           <article class="plan-note-card">
             <strong>Ежедневный ритм</strong>
             <div class="daily-rhythm" aria-label="Главные блоки дня">
               <span>7:30 подъём</span>
-              <span>9:20 чтение</span>
-              <span>9:30 математика</span>
-              <span>10:00 Codex</span>
-              <span>тренировки 3 раза</span>
-              <span>18:00 прогулка</span>
-              <span>22:00 сон</span>
+              <span>9:00 GPT</span>
+              <span>11:00 деление</span>
+              <span>12:30 Интернет-урок</span>
+              <span>15:15 кошка</span>
+              <span>16:00 тренировка</span>
+              <span>21:30 сон</span>
             </div>
           </article>
         </div>
@@ -704,17 +734,17 @@
         <div class="rules-grid">
           <article class="rules-card">
             <h3>Утро</h3>
-            <p>Сначала простые повторяющиеся дела: ванная, кровать, проветривание, завтрак.</p>
+            <p>Начинаем мягко: порядок, завтрак, убрать после завтрака и спокойно войти в день.</p>
           </article>
 
           <article class="rules-card">
             <h3>Учёба</h3>
-            <p>Чтение, математика, таблица умножения и Codex идут короткими понятными блоками.</p>
+            <p>Кодинг, текст, деление в столбик, сложение, вычитание, умножение и Интернет-урок идут блоками.</p>
           </article>
 
           <article class="rules-card">
             <h3>Вечер</h3>
-            <p>После прогулки остаются помощь на кухне, подготовка ко сну и спокойный финал дня.</p>
+            <p>После прогулки день уже не разгоняем: отдых, спокойный вечер и сон в 21:30.</p>
           </article>
         </div>
       </section>
@@ -733,33 +763,36 @@
 
     <script>
       const sharedRows = [
-        ["7:30", "подъём"],
-        ["7:40", "умыться"],
-        ["7:50", "почистить зубы"],
-        ["8:00", "выйти из ванной"],
-        ["8:05", "заправить кровать"],
-        ["8:10", "запустить робота-пылесоса и проветрить комнату"],
-        ["8:20", "завтрак"],
-        ["9:20–9:30", "чтение книги"],
-        ["9:30–9:50", "10 примеров по математике"],
-        ["9:50–10:00", "таблица умножения"],
-        ["10:00–12:00", "Codex, веб-кодинг, создание игр"],
-        ["12:00", "обед"],
-        ["12:30–16:00", "учёба, проекты, Codex"],
-        ["18:00–20:00", "прогулка"],
-        ["20:30", "помощь на кухне, посуда"],
-        ["21:20", "подготовка ко сну"],
-        ["22:00", "сон"]
+        ["07:30", "подъём"],
+        ["07:30–08:00", "умыться, привести себя в порядок"],
+        ["08:00–08:30", "завтрак"],
+        ["08:30–08:40", "убрать после завтрака"],
+        ["09:00–10:30", "GPT + вайб-кодинг", true],
+        ["10:30–11:00", "писать текст"],
+        ["11:00–12:00", "деление в столбик", true],
+        ["12:00–12:30", "сложение, вычитание + умножение", true],
+        ["12:30–12:40", "Интернет-урок", true],
+        ["12:40–13:00", "чтение книги 10 минут"],
+        ["13:00–13:30", "отчёт папе"],
+        ["14:00–15:00", "обед"],
+        ["15:00–15:10", "убрать после обеда"],
+        ["15:10", "запуск робота и робота-пылесоса"],
+        ["15:15", "поиграть с кошкой"],
+        ["15:30–16:00", "свободное время / идеи для новых проектов", true],
+        ["16:00–16:30", "тренировка", true],
+        ["16:30–17:30", "прогулка", true],
+        ["17:30", "отдых на прогулке"],
+        ["21:30", "сон", true]
       ];
 
       const days = [
-        { name: "Понедельник", focus: "16:00–17:00 — творческая мастерская: игра, рисунок или проект" },
-        { name: "Вторник", training: "16:00–18:30 — тренировка" },
-        { name: "Среда", focus: "16:00–17:00 — школьные задания и спокойный проект" },
-        { name: "Четверг", training: "16:00–18:30 — тренировка" },
-        { name: "Пятница", focus: "16:00–17:00 — свободный Codex-проект или повторение математики" },
-        { name: "Суббота", training: "11:30–13:30 — тренировка" },
-        { name: "Воскресенье", focus: "16:00–17:00 — выбрать идеи на новую неделю и отдохнуть" }
+        { name: "Понедельник", mood: "старт недели" },
+        { name: "Вторник", mood: "держим ритм" },
+        { name: "Среда", mood: "середина недели" },
+        { name: "Четверг", mood: "спокойная сила" },
+        { name: "Пятница", mood: "финиш учёбы" },
+        { name: "Суббота", mood: "мягкий режим" },
+        { name: "Воскресенье", mood: "подготовка к новой неделе" }
       ];
 
       const weekGrid = document.querySelector("#weekGrid");
@@ -792,35 +825,18 @@
       }
 
       function dayRows(day) {
-        if (day.name === "Вторник" || day.name === "Четверг") {
-          return [
-            ...sharedRows.slice(0, 12),
-            ["12:30–15:00", "учёба, проекты, Codex"],
-            ["15:00–15:30", "собраться на тренировку"],
-            ["15:30–16:00", "дорога и разминка"],
-            ["16:00–18:30", "тренировка", true],
-            ["18:30–19:10", "дорога домой и отдых"],
-            ["19:10–20:00", "ужин или спокойная прогулка"],
-            ...sharedRows.slice(14)
-          ];
-        }
-        if (day.name === "Суббота") {
-          return [
-            ...sharedRows.slice(0, 10),
-            ["10:00–10:45", "короткий Codex или рисунок"],
-            ["10:45–11:15", "собраться на тренировку"],
-            ["11:15–11:30", "дорога и разминка"],
-            ["11:30–13:30", "тренировка", true],
-            ["13:30–14:10", "дорога домой и отдых"],
-            ["14:10", "обед"],
-            ["15:00–17:30", "учёба, проекты или спокойная игра"],
-            ["18:00–20:00", "прогулка"],
-            ...sharedRows.slice(14)
-          ];
-        }
-        const rows = [...sharedRows];
-        rows.splice(13, 0, [day.focus.split(" — ")[0], day.focus.split(" — ")[1], true]);
-        return rows;
+        return sharedRows;
+      }
+
+      function rowCategory(text) {
+        const lower = text.toLowerCase();
+        if (lower.includes("gpt") || lower.includes("кодинг") || lower.includes("проект")) return "coding";
+        if (lower.includes("деление") || lower.includes("сложение") || lower.includes("умножение")) return "math";
+        if (lower.includes("интернет")) return "internet";
+        if (lower.includes("тренировка") || lower.includes("прогул")) return "move";
+        if (lower.includes("завтрак") || lower.includes("обед") || lower.includes("убрать") || lower.includes("робот")) return "home";
+        if (lower.includes("сон")) return "sleep";
+        return "";
       }
 
       function renderWeek() {
@@ -833,7 +849,7 @@
           title.textContent = day.name;
           const pill = document.createElement("span");
           pill.className = "room-task";
-          pill.textContent = day.training ? "тренировка" : "проект";
+          pill.textContent = day.mood;
           header.append(title, pill);
 
           const list = document.createElement("dl");
@@ -841,7 +857,7 @@
           for (const [time, text, special] of dayRows(day)) {
             const key = taskKey(day.name, time, text);
             const row = document.createElement("div");
-            row.className = special ? "schedule-row special" : "schedule-row";
+            row.className = ["schedule-row", special ? "special" : "", rowCategory(text)].filter(Boolean).join(" ");
             const check = document.createElement("input");
             check.className = "task-check";
             check.type = "checkbox";
@@ -870,11 +886,16 @@
       }
 
       function totalTasks() {
-        return days.reduce((sum, [, roomTask]) => sum + dayRows(roomTask).length, 0);
+        return days.reduce((sum, day) => sum + dayRows(day).length, 0);
+      }
+
+      function currentTaskKeys() {
+        return new Set(days.flatMap((day) => dayRows(day).map(([time, text]) => taskKey(day.name, time, text))));
       }
 
       function doneCount() {
-        return Object.keys(doneMap).length;
+        const keys = currentTaskKeys();
+        return Object.keys(doneMap).filter((key) => keys.has(key)).length;
       }
 
       function updateProgress() {
