@@ -21,7 +21,7 @@
         --mint: #42c995;
         --orange: #ff9f43;
         --sun: #ffd45c;
-        --shadow: 0 16px 0 rgba(36, 31, 53, .08);
+        --shadow: 0 18px 42px rgba(62, 47, 91, .14);
       }
 
       * { box-sizing: border-box; }
@@ -29,8 +29,9 @@
         margin: 0;
         color: var(--ink);
         background:
-          radial-gradient(circle at 10% 14%, rgba(255, 255, 255, .92) 0 7%, transparent 8%),
-          radial-gradient(circle at 86% 16%, rgba(255, 244, 164, .82) 0 8%, transparent 9%),
+          radial-gradient(circle at 12% 12%, rgba(255, 255, 255, .92) 0 8%, transparent 9%),
+          radial-gradient(circle at 88% 10%, rgba(255, 244, 164, .82) 0 9%, transparent 10%),
+          linear-gradient(90deg, rgba(255,255,255,.26) 1px, transparent 1px) 0 0 / 38px 38px,
           linear-gradient(135deg, #bdefff 0%, #fbd6ff 48%, #fff0aa 100%);
         font-family: Arial, Helvetica, sans-serif;
       }
@@ -178,15 +179,15 @@
       .subject,
       .stat-card,
       .rule-card {
-        border: 3px solid var(--line);
-        border-radius: 8px;
+        border: 1px solid rgba(36, 31, 53, .12);
+        border-radius: 18px;
         background: var(--soft);
         box-shadow: var(--shadow);
       }
       .hero-card {
         display: grid;
         gap: 14px;
-        padding: 20px;
+        padding: 16px;
       }
       .hero-card h2 { font-size: 28px; }
       .hero-card p,
@@ -198,67 +199,135 @@
         line-height: 1.45;
       }
       .journal-art {
-        min-height: 260px;
+        min-height: 330px;
         position: relative;
         overflow: hidden;
-        border: 3px solid var(--line);
-        border-radius: 8px;
+        border: 1px solid rgba(36, 31, 53, .12);
+        border-radius: 18px;
         background:
-          linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px) 0 0 / 56px 56px,
-          linear-gradient(rgba(255,255,255,.52) 1px, transparent 1px) 0 0 / 56px 56px,
-          linear-gradient(135deg, #e8f7ff, #fff0c5 58%, #ffd9ea);
+          radial-gradient(circle at 18% 18%, rgba(255,255,255,.7) 0 9%, transparent 10%),
+          linear-gradient(145deg, #eaf7ff 0%, #fff6d4 48%, #ffdceb 100%);
+        box-shadow: inset 0 -18px 44px rgba(113, 86, 150, .12);
       }
       .journal-art::before {
         content: "";
         position: absolute;
-        left: 34px;
-        right: 34px;
-        bottom: 30px;
-        height: 108px;
-        border: 3px solid rgba(36, 31, 53, .16);
-        border-radius: 8px;
-        background:
-          linear-gradient(90deg, #fff 0 24%, #ffe9a8 24% 41%, #c9f7df 41% 58%, #ffd4e7 58% 76%, #d8edff 76% 100%);
-        box-shadow: 0 12px 0 rgba(36, 31, 53, .08);
+        left: 28px;
+        right: 28px;
+        bottom: 22px;
+        height: 56px;
+        border-radius: 50%;
+        background: rgba(77, 55, 104, .16);
+        filter: blur(8px);
       }
       .journal-art::after {
-        content: "6";
+        content: "";
         position: absolute;
-        right: 46px;
-        top: 28px;
-        width: 92px;
-        height: 92px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 78px;
+        background: linear-gradient(180deg, transparent, rgba(255,255,255,.62));
+      }
+      .real-journal {
+        position: absolute;
+        inset: 28px 20px 28px;
+        z-index: 1;
         display: grid;
-        place-items: center;
-        border: 4px solid rgba(36, 31, 53, .14);
-        border-radius: 50%;
-        color: #653f94;
-        background: #fff;
-        font-size: 54px;
+        grid-template-columns: 110px minmax(0, 1fr);
+        overflow: hidden;
+        border: 1px solid rgba(36,31,53,.12);
+        border-radius: 18px;
+        background: rgba(255,255,255,.9);
+        box-shadow: 0 18px 36px rgba(74, 52, 99, .2);
+      }
+      .journal-spine {
+        padding: 18px 12px;
+        background: linear-gradient(180deg, #7e63ff, #ff6ca9);
+        color: #fff;
+      }
+      .journal-spine b {
+        display: block;
+        font-size: 34px;
+        line-height: 1;
+      }
+      .journal-spine span {
+        display: block;
+        margin-top: 8px;
+        font-size: 13px;
+        font-weight: 900;
+        line-height: 1.25;
+      }
+      .journal-page {
+        padding: 18px;
+        background:
+          linear-gradient(rgba(84,184,255,.12) 1px, transparent 1px) 0 54px / 100% 35px,
+          #fffdf8;
+      }
+      .journal-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid rgba(36,31,53,.1);
         font-weight: 950;
       }
-      .mascot {
-        position: absolute;
-        left: 42px;
-        top: 42px;
-        width: 132px;
-        height: 156px;
+      .journal-title span {
+        color: #8e67ff;
+        font-size: 13px;
       }
-      .mascot span {
-        position: absolute;
-        display: block;
-        border: 4px solid #241f35;
-        background: #fff;
+      .preview-table {
+        display: grid;
+        gap: 7px;
+        margin-top: 14px;
       }
-      .mascot .head { left: 32px; top: 0; width: 68px; height: 62px; border-radius: 24px; }
-      .mascot .ear-a { left: 22px; top: -8px; width: 28px; height: 34px; transform: rotate(-24deg); border-radius: 6px; }
-      .mascot .ear-b { right: 22px; top: -8px; width: 28px; height: 34px; transform: rotate(24deg); border-radius: 6px; }
-      .mascot .body { left: 22px; top: 58px; width: 88px; height: 88px; border-radius: 30px; background: #fff7c2; }
-      .mascot .book { left: 12px; top: 86px; width: 108px; height: 46px; border-radius: 8px; background: #ff72ad; }
-      .mascot .eye-a,
-      .mascot .eye-b { top: 28px; width: 8px; height: 8px; border: 0; border-radius: 50%; background: #241f35; }
-      .mascot .eye-a { left: 52px; }
-      .mascot .eye-b { left: 74px; }
+      .preview-row {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 8px;
+        align-items: center;
+        min-height: 34px;
+        padding: 0 10px;
+        border-radius: 10px;
+        background: rgba(255,255,255,.82);
+        box-shadow: inset 0 0 0 1px rgba(36,31,53,.08);
+        font-size: 13px;
+        font-weight: 900;
+      }
+      .preview-row.important {
+        background: #fff3cf;
+        box-shadow: inset 0 0 0 2px rgba(255,159,67,.48);
+      }
+      .mark-badge {
+        min-width: 30px;
+        min-height: 26px;
+        display: inline-grid;
+        place-items: center;
+        border-radius: 8px;
+        color: #235d43;
+        background: #d9f7e7;
+        font-weight: 950;
+      }
+      .mark-badge.warn {
+        color: #9d174d;
+        background: #ffe0ed;
+      }
+      .paper-note {
+        position: absolute;
+        right: 16px;
+        bottom: 18px;
+        z-index: 2;
+        width: 156px;
+        padding: 12px;
+        transform: rotate(-3deg);
+        border-radius: 14px;
+        background: #fff4b8;
+        box-shadow: 0 12px 26px rgba(74, 52, 99, .18);
+        font-size: 13px;
+        font-weight: 950;
+        line-height: 1.25;
+      }
       .grid {
         display: grid;
         gap: 16px;
@@ -270,6 +339,9 @@
       .stat-card {
         min-height: 128px;
         padding: 18px;
+        background:
+          linear-gradient(135deg, rgba(255,255,255,.94), rgba(255,255,255,.7)),
+          radial-gradient(circle at 90% 8%, rgba(255,212,92,.5), transparent 30%);
       }
       .stat-card span {
         display: block;
@@ -288,6 +360,9 @@
       .panel {
         margin: 22px 0;
         padding: 22px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,253,247,.9)),
+          linear-gradient(90deg, rgba(84,184,255,.1) 1px, transparent 1px) 0 0 / 32px 32px;
       }
       .panel h2 {
         margin-bottom: 14px;
@@ -311,6 +386,18 @@
       .subject {
         min-height: 132px;
         padding: 16px;
+        position: relative;
+        overflow: hidden;
+      }
+      .subject::after {
+        content: "";
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        width: 46px;
+        height: 28px;
+        border-radius: 12px 12px 8px 8px;
+        background: linear-gradient(135deg, rgba(255,255,255,.78), rgba(255,255,255,0));
       }
       .subject h3 {
         display: flex;
@@ -448,9 +535,10 @@
         gap: 10px;
         align-items: center;
         padding: 12px;
-        border: 2px solid var(--line);
-        border-radius: 8px;
-        background: #fff;
+        border: 1px solid rgba(36, 31, 53, .1);
+        border-radius: 14px;
+        background: rgba(255,255,255,.86);
+        box-shadow: 0 8px 22px rgba(74,52,99,.08);
       }
       .journal-row.head {
         color: #653f94;
@@ -510,9 +598,9 @@
       .summary-chip {
         min-height: 76px;
         padding: 12px;
-        border: 2px solid var(--line);
-        border-radius: 8px;
-        background: #fff;
+        border: 1px solid rgba(36,31,53,.1);
+        border-radius: 14px;
+        background: rgba(255,255,255,.88);
       }
       .summary-chip span {
         display: block;
@@ -606,15 +694,26 @@
         </div>
         <aside class="hero-card">
           <div class="journal-art" aria-hidden="true">
-            <div class="mascot">
-              <span class="ear-a"></span>
-              <span class="ear-b"></span>
-              <span class="head"></span>
-              <span class="body"></span>
-              <span class="book"></span>
-              <span class="eye-a"></span>
-              <span class="eye-b"></span>
+            <div class="real-journal">
+              <div class="journal-spine">
+                <b>6</b>
+                <span>класс<br>журнал<br>Яны</span>
+              </div>
+              <div class="journal-page">
+                <div class="journal-title">
+                  <strong>I четверть</strong>
+                  <span>обязательные работы</span>
+                </div>
+                <div class="preview-table">
+                  <div class="preview-row important"><span>Математика</span><span>осталось</span><b class="mark-badge warn">2</b></div>
+                  <div class="preview-row"><span>Русский язык</span><span>оценок</span><b class="mark-badge">5</b></div>
+                  <div class="preview-row"><span>Литература</span><span>оценок</span><b class="mark-badge">4</b></div>
+                  <div class="preview-row important"><span>Биология</span><span>важно</span><b class="mark-badge warn">!</b></div>
+                  <div class="preview-row"><span>Технология</span><span>норма</span><b class="mark-badge">1</b></div>
+                </div>
+              </div>
             </div>
+            <div class="paper-note">Сначала смотри задания со значком, потом добирай оценки.</div>
           </div>
           <h2>Что важно смотреть</h2>
           <p>В журнале обязательные работы отмечаются значком/выделением. Именно их нельзя пропускать, а ещё нужно набрать минимум оценок за четверть.</p>
