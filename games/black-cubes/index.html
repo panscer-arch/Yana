@@ -406,14 +406,16 @@
         <h2>Инвентарь</h2>
         <div class="inventory" id="inventory"></div>
         <div class="log" id="log">Цель: открой сундук, собери кристаллы, скрафти факелы и зажги шахту.</div>
-        <p>3D-режим: зажми мышку/палец на экране и поворачивай камеру, W/↑ и S/↓ ходят, A/D идут боком. E — ломать куб перед собой, F — ставить, X — сундук или кровать, C — крафт факела.</p>
+        <p>3D-режим: зажми экран и крути взгляд. W/↑ — вперёд, S/↓ — назад, A/D — шаг вбок, ←/→ или Q/R — поворот. E — ломать, F — ставить, X — сундук или кровать, C — крафт факела.</p>
         <div class="touch" aria-label="Кнопки управления">
-          <button data-key="ArrowLeft" type="button">←</button>
-          <button data-key="ArrowUp" type="button">↑</button>
-          <button data-key="ArrowRight" type="button">→</button>
+          <button data-hold="turnLeft" type="button">⟲</button>
+          <button data-hold="forward" type="button">↑</button>
+          <button data-hold="turnRight" type="button">⟳</button>
+          <button data-hold="strafeLeft" type="button">←</button>
+          <button data-hold="back" type="button">↓</button>
+          <button data-hold="strafeRight" type="button">→</button>
           <button data-act="mine" type="button">ломать</button>
           <button data-act="place" type="button">ставить</button>
-          <button data-key="ArrowDown" type="button">↓</button>
           <button data-act="craft" type="button">крафт</button>
           <button data-act="interact" type="button">спать/сундук</button>
         </div>
@@ -460,6 +462,7 @@
       let last = 0;
       let messageTime = 0;
       const lookDrag = { active: false, x: 0, y: 0, moved: 0 };
+      const virtual = { forward: 0, strafe: 0, turn: 0 };
       const bag = { 1: 0, 2: 0, 3: 0, 4: 3, 5: 0, 6: 0, 7: 0, 8: 1, 9: 1 };
       const chestLoot = { 1: 12, 2: 8, 4: 3, 6: 4, 8: 1 };
       const player = { x: 120, y: 128, w: 26, h: 54, vx: 0, vy: 0, face: 1, ground: false, crystals: 0, torches: 0, hp: 5, day: 0, chestOpened: false };
@@ -476,7 +479,7 @@
         running = true;
         startOverlay.classList.add("hidden");
         canvas.focus();
-        say("Мир открыт. Зажми мышку на экране и поворачивай камеру.");
+        say("Мир открыт. Зажми экран, чтобы крутить взгляд. W/↑ вперёд, ←/→ поворот.");
       }
 
       function makeWorld() {
@@ -918,25 +921,29 @@
         if (!running) return;
         player3d.day += delta;
         player.day = player3d.day;
-        const rotate = 2.3 * delta;
-        const speed = 2.8 * delta;
-        if (keys.has("ArrowLeft")) player3d.a -= rotate;
-        if (keys.has("ArrowRight")) player3d.a += rotate;
+        const rotate = 3.1 * delta;
+        const speed = (keys.has("ShiftLeft") || keys.has("ShiftRight") ? 3.65 : 2.95) * delta;
+        const turnLeft = keys.has("ArrowLeft") || keys.has("KeyQ") || virtual.turn < 0;
+        const turnRight = keys.has("ArrowRight") || keys.has("KeyR") || virtual.turn > 0;
+        if (turnLeft) player3d.a -= rotate;
+        if (turnRight) player3d.a += rotate;
         let moveX = 0;
         let moveY = 0;
-        if (keys.has("KeyW") || keys.has("ArrowUp")) {
+        const forwardInput = Number(keys.has("KeyW") || keys.has("ArrowUp") || virtual.forward > 0) - Number(keys.has("KeyS") || keys.has("ArrowDown") || virtual.forward < 0);
+        const strafeInput = Number(keys.has("KeyD") || virtual.strafe > 0) - Number(keys.has("KeyA") || virtual.strafe < 0);
+        if (forwardInput > 0) {
           moveX += Math.cos(player3d.a) * speed;
           moveY += Math.sin(player3d.a) * speed;
         }
-        if (keys.has("KeyS") || keys.has("ArrowDown")) {
+        if (forwardInput < 0) {
           moveX -= Math.cos(player3d.a) * speed;
           moveY -= Math.sin(player3d.a) * speed;
         }
-        if (keys.has("KeyA")) {
+        if (strafeInput < 0) {
           moveX += Math.cos(player3d.a - Math.PI / 2) * speed;
           moveY += Math.sin(player3d.a - Math.PI / 2) * speed;
         }
-        if (keys.has("KeyD")) {
+        if (strafeInput > 0) {
           moveX += Math.cos(player3d.a + Math.PI / 2) * speed;
           moveY += Math.sin(player3d.a + Math.PI / 2) * speed;
         }
@@ -1249,7 +1256,7 @@
         ctx.fillRect(18, H - 72, 310, 48);
         ctx.fillStyle = "#fff7d9";
         ctx.font = "900 18px system-ui";
-        ctx.fillText("Зажми экран и поворачивай камеру. W/S ходьба", 30, H - 42);
+        ctx.fillText("Зажми экран: обзор. W/↑ ходьба, A/D вбок, ←/→ поворот", 30, H - 42);
         draw3dHand();
         drawHotbar();
         draw3dMiniMap();
@@ -1336,7 +1343,13 @@
         }
       });
       window.addEventListener("keyup", (event) => keys.delete(event.code));
-      window.addEventListener("blur", () => keys.clear());
+      window.addEventListener("blur", () => {
+        keys.clear();
+        virtual.forward = 0;
+        virtual.strafe = 0;
+        virtual.turn = 0;
+        lookDrag.active = false;
+      });
       canvas.addEventListener("pointermove", (event) => {
         if (view3d && lookDrag.active) {
           const dx = event.clientX - lookDrag.x;
@@ -1344,7 +1357,7 @@
           lookDrag.x = event.clientX;
           lookDrag.y = event.clientY;
           lookDrag.moved += Math.abs(dx) + Math.abs(dy);
-          player3d.a += dx * 0.006;
+          player3d.a += dx * 0.009;
           return;
         }
         const rect = canvas.getBoundingClientRect();
@@ -1392,11 +1405,30 @@
         startOverlay.classList.remove("hidden");
         makeWorld();
       });
-      document.querySelectorAll("[data-key]").forEach((button) => {
-        const code = button.dataset.key;
-        button.addEventListener("pointerdown", () => keys.add(code));
-        button.addEventListener("pointerup", () => keys.delete(code));
-        button.addEventListener("pointerleave", () => keys.delete(code));
+      function setVirtualControl(name, active) {
+        const value = active ? 1 : 0;
+        if (name === "forward") virtual.forward = value;
+        if (name === "back") virtual.forward = -value;
+        if (name === "strafeLeft") virtual.strafe = -value;
+        if (name === "strafeRight") virtual.strafe = value;
+        if (name === "turnLeft") virtual.turn = -value;
+        if (name === "turnRight") virtual.turn = value;
+      }
+
+      document.querySelectorAll("[data-hold]").forEach((button) => {
+        const name = button.dataset.hold;
+        const press = (event) => {
+          event.preventDefault();
+          canvas.focus();
+          if (!running) startWorld();
+          setVirtualControl(name, true);
+          button.setPointerCapture?.(event.pointerId);
+        };
+        const release = () => setVirtualControl(name, false);
+        button.addEventListener("pointerdown", press);
+        button.addEventListener("pointerup", release);
+        button.addEventListener("pointercancel", release);
+        button.addEventListener("pointerleave", release);
       });
       document.querySelector("[data-act='mine']").addEventListener("click", mine);
       document.querySelector("[data-act='place']").addEventListener("click", place);
