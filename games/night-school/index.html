@@ -231,6 +231,31 @@
         text-decoration: none;
         backdrop-filter: blur(12px);
       }
+      .move-pad {
+        position: fixed;
+        left: 14px;
+        bottom: 112px;
+        z-index: 7;
+        display: grid;
+        grid-template-columns: repeat(3, 48px);
+        gap: 8px;
+      }
+      .move-pad button {
+        min-height: 46px;
+        border: 2px solid rgba(255, 255, 255, .2);
+        border-radius: 12px;
+        color: #fff;
+        background: rgba(5, 8, 18, .72);
+        font-size: 18px;
+        font-weight: 950;
+        backdrop-filter: blur(12px);
+        touch-action: none;
+      }
+      .move-pad button:nth-child(1),
+      .move-pad button:nth-child(3) {
+        color: #111827;
+        background: linear-gradient(180deg, #fff7c2, #ffd36b);
+      }
       .start {
         position: fixed;
         inset: 0;
@@ -292,6 +317,7 @@
         .hud { display: grid; }
         .stats { justify-content: flex-start; }
         .message { font-size: 15px; }
+        .move-pad { bottom: 86px; }
       }
     </style>
   </head>
@@ -328,11 +354,19 @@
       <a href="../index.html">Игры</a>
       <button id="restart" type="button">Заново</button>
     </div>
+    <div class="move-pad" aria-label="Управление">
+      <button data-hold="turnLeft" type="button">⟲</button>
+      <button data-hold="forward" type="button">↑</button>
+      <button data-hold="turnRight" type="button">⟳</button>
+      <button data-hold="left" type="button">←</button>
+      <button data-hold="back" type="button">↓</button>
+      <button data-hold="right" type="button">→</button>
+    </div>
     <div class="start" id="start">
       <div class="start-card">
         <h2>Ночная школа пушистиков</h2>
         <p>Мило, смешно и чуть-чуть страшно: фонарик, сторож-директор, прятки в шкафчиках, ключи, наклейки и дневник, который надо найти до звонка.</p>
-        <p>Управление: WASD или стрелки, мышкой поворачивай камеру. E — спрятаться рядом со шкафчиком. Собери 5 наклеек, 2 ключа, дневник и вернись к выходу.</p>
+        <p>Управление: W/↑ — вперёд, S/↓ — назад, A/D — вбок, ←/→ или Q/R — поворот. Мышкой или пальцем тяни экран, чтобы смотреть по сторонам. E — спрятаться рядом со шкафчиком.</p>
         <button id="startButton" type="button">Играть</button>
       </div>
     </div>
@@ -395,6 +429,8 @@
       const velocity = new THREE.Vector3();
       const direction = new THREE.Vector3();
       const guardTarget = new THREE.Vector3();
+      const virtual = { forward: 0, side: 0, turn: 0 };
+      const lookDrag = { active: false, x: 0, y: 0 };
       let yaw = 0;
       let stickers = 0;
       let keysFound = 0;
@@ -706,15 +742,17 @@
         }
         direction.set(0, 0, 0);
         if (!hidden) {
-          if (keys.has("KeyW") || keys.has("ArrowUp")) direction.z -= 1;
-          if (keys.has("KeyS") || keys.has("ArrowDown")) direction.z += 1;
-          if (keys.has("KeyA") || keys.has("ArrowLeft")) direction.x -= 1;
-          if (keys.has("KeyD") || keys.has("ArrowRight")) direction.x += 1;
+          if (keys.has("KeyW") || keys.has("ArrowUp") || virtual.forward > 0) direction.z += 1;
+          if (keys.has("KeyS") || keys.has("ArrowDown") || virtual.forward < 0) direction.z -= 1;
+          if (keys.has("KeyA") || virtual.side < 0) direction.x -= 1;
+          if (keys.has("KeyD") || virtual.side > 0) direction.x += 1;
         }
+        if (keys.has("ArrowLeft") || keys.has("KeyQ") || virtual.turn < 0) yaw += delta * 3.2;
+        if (keys.has("ArrowRight") || keys.has("KeyR") || virtual.turn > 0) yaw -= delta * 3.2;
         if (direction.lengthSq() > 0) {
           direction.normalize();
           const forward = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw));
-          const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+          const right = new THREE.Vector3(-Math.cos(yaw), 0, Math.sin(yaw));
           velocity.copy(forward).multiplyScalar(direction.z).add(right.multiplyScalar(direction.x));
           player.position.addScaledVector(velocity, delta * 4.2);
           player.rotation.y = yaw + Math.atan2(direction.x, direction.z);
@@ -888,14 +926,66 @@
 
       window.addEventListener("keydown", (event) => {
         keys.add(event.code);
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) event.preventDefault();
         if (event.code === "KeyE") toggleHide();
       });
       window.addEventListener("keyup", (event) => keys.delete(event.code));
+      window.addEventListener("blur", () => {
+        keys.clear();
+        virtual.forward = 0;
+        virtual.side = 0;
+        virtual.turn = 0;
+        lookDrag.active = false;
+      });
       window.addEventListener("mousemove", (event) => {
         if (!playing) return;
-        if (event.buttons || document.pointerLockElement) yaw -= event.movementX * .004;
+        if (document.pointerLockElement) yaw -= event.movementX * .005;
+      });
+      canvas.addEventListener("pointerdown", (event) => {
+        if (!playing) return;
+        lookDrag.active = true;
+        lookDrag.x = event.clientX;
+        lookDrag.y = event.clientY;
+        canvas.setPointerCapture?.(event.pointerId);
+      });
+      canvas.addEventListener("pointermove", (event) => {
+        if (!playing || !lookDrag.active || document.pointerLockElement) return;
+        const dx = event.clientX - lookDrag.x;
+        lookDrag.x = event.clientX;
+        lookDrag.y = event.clientY;
+        yaw -= dx * (event.pointerType === "touch" ? .008 : .005);
+      });
+      canvas.addEventListener("pointerup", (event) => {
+        lookDrag.active = false;
+        canvas.releasePointerCapture?.(event.pointerId);
+      });
+      canvas.addEventListener("pointercancel", () => {
+        lookDrag.active = false;
       });
       canvas.addEventListener("click", () => canvas.requestPointerLock?.());
+      function setVirtual(name, active) {
+        const value = active ? 1 : 0;
+        if (name === "forward") virtual.forward = value;
+        if (name === "back") virtual.forward = -value;
+        if (name === "left") virtual.side = -value;
+        if (name === "right") virtual.side = value;
+        if (name === "turnLeft") virtual.turn = -value;
+        if (name === "turnRight") virtual.turn = value;
+      }
+      document.querySelectorAll("[data-hold]").forEach((button) => {
+        const name = button.dataset.hold;
+        const press = (event) => {
+          event.preventDefault();
+          if (!playing) return;
+          setVirtual(name, true);
+          button.setPointerCapture?.(event.pointerId);
+        };
+        const release = () => setVirtual(name, false);
+        button.addEventListener("pointerdown", press);
+        button.addEventListener("pointerup", release);
+        button.addEventListener("pointercancel", release);
+        button.addEventListener("pointerleave", release);
+      });
       document.querySelector("#startButton").addEventListener("click", () => {
         start.classList.add("hidden");
         playing = true;
