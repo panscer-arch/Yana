@@ -539,6 +539,74 @@
         background: rgba(255,255,255,.65);
       }
 
+      .progress {
+        overflow: hidden;
+        height: 16px;
+        border: 2px solid rgba(36,31,53,.12);
+        border-radius: 999px;
+        background: rgba(255,255,255,.72);
+      }
+
+      .progress span {
+        display: block;
+        width: 0%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--mint), var(--blue), var(--pink));
+        transition: width .25s ease;
+      }
+
+      .codebox {
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+        border: 2px solid rgba(36,31,53,.1);
+        border-radius: 14px;
+        background: rgba(255,255,255,.62);
+      }
+
+      .code-screen {
+        min-height: 46px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        color: #fff;
+        background: #241f35;
+        font-size: 24px;
+        font-weight: 950;
+        letter-spacing: 8px;
+      }
+
+      .keypad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+
+      .keypad button {
+        min-height: 38px;
+        border: 2px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+        color: var(--ink);
+        font-weight: 950;
+      }
+
+      .case-stamp {
+        position: absolute;
+        right: 20px;
+        top: 270px;
+        z-index: 4;
+        min-width: 184px;
+        padding: 12px;
+        border: 3px dashed rgba(36,31,53,.24);
+        border-radius: 18px;
+        background: rgba(255,255,255,.62);
+        color: #6b4a35;
+        font-weight: 950;
+        transform: rotate(4deg);
+      }
+
       footer {
         padding: 0 0 30px;
         color: var(--muted);
@@ -615,13 +683,32 @@
           </button>
 
           <div class="crown" id="crown" aria-hidden="true"><span class="gold"></span></div>
+          <div class="case-stamp" id="caseStamp">Дело открыто<br>Улики: 0 / 6</div>
         </div>
       </section>
 
       <aside class="panel">
         <h2>Дело о короне</h2>
-        <p>Найди все улики. Когда ключ появится, нажми на шкатулку ещё раз.</p>
+        <p>Найди улики, собери код и открой шкатулку. Код прячется в найденных подсказках.</p>
+        <div class="progress" aria-label="Прогресс расследования"><span id="progressBar"></span></div>
         <div class="inventory" id="inventory" aria-label="Улики"></div>
+        <div class="codebox">
+          <div class="code-screen" id="codeScreen">---</div>
+          <div class="keypad" aria-label="Кодовый замок">
+            <button data-key="1" type="button">1</button>
+            <button data-key="2" type="button">2</button>
+            <button data-key="3" type="button">3</button>
+            <button data-key="4" type="button">4</button>
+            <button data-key="5" type="button">5</button>
+            <button data-key="6" type="button">6</button>
+            <button data-key="7" type="button">7</button>
+            <button data-key="8" type="button">8</button>
+            <button data-key="9" type="button">9</button>
+            <button data-key="clear" type="button">стереть</button>
+            <button data-key="0" type="button">0</button>
+            <button data-key="enter" type="button">OK</button>
+          </div>
+        </div>
         <button class="primary" id="hintButton" type="button">Подсказка</button>
         <button class="secondary" id="resetButton" type="button">Заново</button>
         <div class="suspects">
@@ -645,18 +732,24 @@
 
     <script>
       const clues = {
-        glitter: { name: "Блёстки на окне", text: "На подоконнике блёстки. Значит, корону проносили рядом с окном." },
-        feather: { name: "Пёрышко с полки", text: "На полке белое пёрышко. Кто-то задел цветок и спешил." },
-        button: { name: "Пуговица в диване", text: "В диване нашлась пуговица от маленькой жилетки. Подозрительно." },
+        glitter: { name: "Блёстки на окне", text: "На подоконнике блёстки и цифра 3. Значит, первая цифра кода — 3." },
+        feather: { name: "Пёрышко с полки", text: "На полке белое пёрышко. Оно показывает, что вор спешил к дивану." },
+        button: { name: "Пуговица в диване", text: "В диване нашлась пуговица с цифрой 1. Это вторая цифра кода." },
         paw: { name: "След под ковром", text: "Под ковром след лапки и царапина: кто-то тащил что-то блестящее." },
-        ribbon: { name: "Розовая лента", text: "В сундуке лента от короны. Теперь ясно: корону спрятали рядом." },
-        key: { name: "Ключ от шкатулки", text: "Ключ лежал за музыкальной шкатулкой. Теперь можно открыть тайник." }
+        ribbon: { name: "Розовая лента", text: "В сундуке лента от короны и цифра 7. Это последняя цифра кода." },
+        key: { name: "Ключ от шкатулки", text: "Ключ найден. Теперь введи код из цифр на уликах: окно, диван, сундук." }
       };
 
+      const secretCode = "317";
       const found = new Set();
+      let code = "";
+      let opened = false;
       const inventory = document.querySelector("#inventory");
       const log = document.querySelector("#log");
       const crown = document.querySelector("#crown");
+      const caseStamp = document.querySelector("#caseStamp");
+      const progressBar = document.querySelector("#progressBar");
+      const codeScreen = document.querySelector("#codeScreen");
       const hintButton = document.querySelector("#hintButton");
       const resetButton = document.querySelector("#resetButton");
       const items = [...document.querySelectorAll("[data-clue]")];
@@ -665,6 +758,8 @@
         inventory.innerHTML = Object.entries(clues).map(([id, clue]) => (
           `<div class="chip ${found.has(id) ? "done" : ""}"><span>${clue.name}</span><strong>${found.has(id) ? "найдено" : "ищем"}</strong></div>`
         )).join("");
+        progressBar.style.width = `${Math.round(found.size / 6 * 100)}%`;
+        caseStamp.innerHTML = `${opened ? "Дело раскрыто" : "Дело открыто"}<br>Улики: ${found.size} / 6`;
       }
 
       function say(text) {
@@ -673,11 +768,11 @@
 
       function collect(id, item) {
         if (id === "key" && found.size < 5 && !found.has("key")) {
-          say("Шкатулка закрыта. Сначала найди 5 улик в комнате, тогда ключ точно обнаружится.");
+          say("Шкатулка закрыта. Сначала найди 5 улик в комнате. На некоторых уликах есть цифры для кода.");
           return;
         }
         if (found.has(id)) {
-          if (id === "key" && found.size >= 6) finish();
+          if (id === "key" && found.size >= 6) say("Ключ уже есть. Теперь введи код на панели справа.");
           return;
         }
         found.add(id);
@@ -687,13 +782,46 @@
         if (found.size === 5 && !found.has("key")) {
           say("Пять улик собраны. Теперь осмотри музыкальную шкатулку: там должен быть ключ.");
         }
-        if (found.size >= 6) finish();
+        if (found.size >= 6) say("Все улики собраны. Введи код на замке: подсказка — окно, диван, сундук.");
       }
 
       function finish() {
+        if (opened) return;
+        opened = true;
         crown.classList.add("show");
+        renderInventory();
         say("Дело раскрыто! Корона была в тайнике музыкальной шкатулки. Мими сияет: настоящий детектив!");
         playWin();
+      }
+
+      function renderCode() {
+        codeScreen.textContent = code.padEnd(3, "-");
+      }
+
+      function pressKey(value) {
+        if (value === "clear") {
+          code = "";
+          renderCode();
+          say("Код очищен. Ищи цифры на уликах: окно, диван и сундук.");
+          return;
+        }
+        if (value === "enter") {
+          if (found.size < 6) {
+            say("Замок не поддаётся. Сначала собери все улики и ключ.");
+            return;
+          }
+          if (code === secretCode) finish();
+          else {
+            say("Код не подошёл. Проверь цифры: первая была у окна, вторая в диване, третья в сундуке.");
+            code = "";
+            renderCode();
+          }
+          return;
+        }
+        if (code.length < 3) {
+          code += value;
+          renderCode();
+        }
       }
 
       function playWin() {
@@ -728,24 +856,31 @@
           button: "Подсказка: мягкие подушки любят прятать маленькие вещи.",
           paw: "Подсказка: иногда улики лежат прямо под ногами.",
           ribbon: "Подсказка: в сундуке с игрушками что-то розовое.",
-          key: "Подсказка: когда собраны остальные улики, возвращайся к шкатулке."
+          key: "Подсказка: когда собраны остальные улики, возвращайся к шкатулке. Код составь из цифр: окно, диван, сундук."
         };
         say(hints[next]);
       }
 
       function reset() {
         found.clear();
+        code = "";
+        opened = false;
         crown.classList.remove("show");
         items.forEach((item) => item.classList.remove("found"));
         say("Новое расследование началось. Осматривай комнату и собирай улики.");
+        renderCode();
         renderInventory();
       }
 
       items.forEach((item) => {
         item.addEventListener("click", () => collect(item.dataset.clue, item));
       });
+      document.querySelectorAll("[data-key]").forEach((button) => {
+        button.addEventListener("click", () => pressKey(button.dataset.key));
+      });
       hintButton.addEventListener("click", hint);
       resetButton.addEventListener("click", reset);
+      renderCode();
       renderInventory();
     </script>
     <script src="../../assets/site.js"></script>
