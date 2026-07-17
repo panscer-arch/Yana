@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Пушистый детектив: пропажа короны</title>
+    <meta name="description" content="Красивая детективная мини-игра: ищи улики в комнате, открывай тайник и помоги пушистой принцессе найти корону.">
+    <meta name="theme-color" content="#ffd6ec">
+    <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #241f35;
+        --muted: #6b607d;
+        --paper: rgba(255, 253, 247, .94);
+        --line: rgba(36, 31, 53, .14);
+        --pink: #ff72ad;
+        --blue: #6fd0ff;
+        --gold: #ffd76a;
+        --mint: #65d89f;
+        --violet: #8e67ff;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+        background:
+          radial-gradient(circle at 14% 10%, rgba(255,255,255,.9) 0 7%, transparent 8%),
+          radial-gradient(circle at 86% 16%, rgba(255,247,182,.82) 0 8%, transparent 9%),
+          linear-gradient(135deg, #bdefff 0%, #fbd6ff 48%, #fff0aa 100%);
+      }
+
+      a { color: inherit; }
+      button { border: 0; font: inherit; cursor: pointer; }
+
+      .skip-link {
+        position: fixed;
+        left: 14px;
+        top: 12px;
+        z-index: 20;
+        transform: translateY(-150%);
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 10px;
+        color: #fff;
+        background: var(--ink);
+        font-weight: 900;
+      }
+      .skip-link:focus-visible { transform: translateY(0); }
+
+      .topbar,
+      main,
+      footer {
+        width: min(1180px, calc(100vw - 28px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        min-height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+      }
+
+      .brand,
+      .topbar a,
+      footer a {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 2px solid var(--line);
+        border-radius: 10px;
+        color: var(--ink);
+        background: rgba(255,255,255,.72);
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      nav { display: flex; gap: 8px; flex-wrap: wrap; }
+
+      main {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 330px;
+        gap: 16px;
+        align-items: start;
+        padding-bottom: 34px;
+      }
+
+      .stage,
+      .panel {
+        border: 2px solid var(--line);
+        border-radius: 18px;
+        background: var(--paper);
+        box-shadow: 0 22px 56px rgba(55, 40, 90, .16);
+      }
+
+      .stage {
+        position: relative;
+        overflow: hidden;
+        min-height: 660px;
+      }
+
+      .room {
+        position: relative;
+        min-height: 660px;
+        overflow: hidden;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.45), transparent 42%),
+          linear-gradient(180deg, #ffe5ef 0 58%, #e2bf94 58% 100%);
+      }
+
+      .wall-pattern {
+        position: absolute;
+        inset: 0 0 42%;
+        opacity: .42;
+        background:
+          radial-gradient(circle at 18px 18px, #fff 0 4px, transparent 5px),
+          radial-gradient(circle at 76px 52px, #ff9cca 0 3px, transparent 4px);
+        background-size: 96px 76px;
+      }
+
+      .floor-lines {
+        position: absolute;
+        inset: 58% 0 0;
+        background:
+          repeating-linear-gradient(12deg, transparent 0 70px, rgba(91,62,45,.18) 72px 74px),
+          repeating-linear-gradient(90deg, transparent 0 128px, rgba(91,62,45,.14) 130px 132px);
+      }
+
+      h1, h2, p { margin: 0; }
+
+      .title-card {
+        position: absolute;
+        left: 18px;
+        top: 18px;
+        z-index: 5;
+        width: min(440px, calc(100% - 36px));
+        display: grid;
+        gap: 8px;
+        padding: 14px;
+        border: 2px solid rgba(255,255,255,.8);
+        border-radius: 16px;
+        background: rgba(255,255,255,.72);
+        backdrop-filter: blur(10px);
+      }
+
+      .title-card h1 {
+        font-size: clamp(28px, 5vw, 48px);
+        line-height: .96;
+      }
+
+      .title-card p,
+      .panel p,
+      .log {
+        color: var(--muted);
+        font-weight: 850;
+        line-height: 1.42;
+      }
+
+      .sparkles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 32% 20%, #fff 0 3px, transparent 4px),
+          radial-gradient(circle at 74% 24%, #fff5ad 0 4px, transparent 5px),
+          radial-gradient(circle at 55% 46%, #fff 0 3px, transparent 4px),
+          radial-gradient(circle at 18% 74%, #fff5ad 0 4px, transparent 5px);
+      }
+
+      .item {
+        position: absolute;
+        border: 0;
+        padding: 0;
+        background: transparent;
+        transition: transform .14s ease, filter .14s ease;
+      }
+      .item:hover,
+      .item:focus-visible {
+        transform: translateY(-4px) scale(1.02);
+        filter: drop-shadow(0 10px 0 rgba(36,31,53,.08)) saturate(1.08);
+        outline: none;
+      }
+      .item.found { pointer-events: none; opacity: .54; filter: grayscale(.2); }
+
+      .window { left: 64%; top: 78px; width: 220px; height: 170px; }
+      .window .pane {
+        position: absolute;
+        inset: 0;
+        border: 10px solid #fff8ee;
+        border-radius: 22px;
+        background:
+          radial-gradient(circle at 74% 24%, #ffde73 0 22px, transparent 23px),
+          linear-gradient(180deg, #8edcff 0 62%, #8fd07a 63% 100%);
+        box-shadow: inset 0 -16px 0 rgba(74,92,122,.09), 0 10px 0 rgba(36,31,53,.08);
+      }
+      .window .curtain {
+        position: absolute;
+        top: -10px;
+        width: 76px;
+        height: 184px;
+        border-radius: 24px 24px 48px 48px;
+        background: linear-gradient(180deg, #ff87bd, #d95d9e);
+      }
+      .window .left { left: -28px; }
+      .window .right { right: -28px; }
+
+      .shelf { left: 60px; top: 168px; width: 238px; height: 168px; }
+      .shelf .board {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 22px;
+        border-radius: 12px;
+        background: #a86d45;
+        box-shadow: 0 8px 0 rgba(36,31,53,.09);
+      }
+      .shelf .b1 { top: 44px; }
+      .shelf .b2 { top: 112px; }
+      .book {
+        position: absolute;
+        bottom: 64px;
+        width: 24px;
+        height: 58px;
+        border-radius: 7px 7px 3px 3px;
+        background: #6fd0ff;
+      }
+      .book:nth-child(2) { left: 32px; background: #ff72ad; transform: rotate(-4deg); }
+      .book:nth-child(3) { left: 62px; background: #ffd76a; height: 48px; }
+      .book:nth-child(4) { left: 94px; background: #8e67ff; transform: rotate(5deg); }
+      .shelf .plant {
+        position: absolute;
+        right: 36px;
+        top: 10px;
+        width: 54px;
+        height: 70px;
+        border-radius: 12px 12px 20px 20px;
+        background: #ffb36d;
+      }
+      .shelf .leaf {
+        position: absolute;
+        width: 44px;
+        height: 22px;
+        border-radius: 100% 0 100% 0;
+        background: #65d89f;
+      }
+      .shelf .l1 { right: 58px; top: -2px; transform: rotate(-24deg); }
+      .shelf .l2 { right: 18px; top: -8px; transform: rotate(30deg); }
+
+      .sofa { left: 24%; bottom: 74px; width: 360px; height: 210px; }
+      .sofa .back {
+        position: absolute;
+        left: 44px;
+        top: 18px;
+        width: 270px;
+        height: 132px;
+        border-radius: 70px 70px 26px 26px;
+        background: linear-gradient(180deg, #ff9cca, #f06cae);
+        box-shadow: inset 0 -18px 0 rgba(151,38,99,.14);
+      }
+      .sofa .seat {
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        bottom: 20px;
+        height: 88px;
+        border-radius: 48px 48px 34px 34px;
+        background: linear-gradient(180deg, #ffb7d7, #df5f9e);
+        box-shadow: 0 18px 0 rgba(36,31,53,.12);
+      }
+      .sofa .pillow {
+        position: absolute;
+        top: 72px;
+        width: 82px;
+        height: 70px;
+        border-radius: 24px;
+        background: #fff2a9;
+        transform: rotate(-8deg);
+      }
+      .sofa .pillow.two { right: 70px; background: #bdefff; transform: rotate(8deg); }
+
+      .toybox { right: 66px; bottom: 82px; width: 230px; height: 154px; }
+      .toybox .box {
+        position: absolute;
+        inset: 30px 0 0;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #ffd76a, #f5a33d);
+        box-shadow: 0 15px 0 rgba(36,31,53,.1);
+      }
+      .toybox .lid {
+        position: absolute;
+        left: 18px;
+        top: 8px;
+        width: 190px;
+        height: 48px;
+        border-radius: 20px;
+        background: #ff72ad;
+        transform: rotate(-4deg);
+      }
+      .toybox .star {
+        position: absolute;
+        left: 92px;
+        top: 78px;
+        color: #fff;
+        font-size: 46px;
+        font-weight: 900;
+      }
+
+      .rug { left: 32%; bottom: 22px; width: 320px; height: 92px; }
+      .rug .oval {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background:
+          radial-gradient(ellipse at 50% 50%, rgba(255,255,255,.5) 0 22%, transparent 23%),
+          repeating-radial-gradient(ellipse at 50% 50%, #bfefff 0 18px, #9bd9ff 19px 36px);
+      }
+
+      .detective {
+        position: absolute;
+        left: 36px;
+        bottom: 58px;
+        width: 210px;
+        height: 290px;
+        pointer-events: none;
+      }
+      .cat-body {
+        position: absolute;
+        left: 58px;
+        bottom: 0;
+        width: 112px;
+        height: 146px;
+        border-radius: 50px 50px 38px 38px;
+        background: linear-gradient(180deg, #fff, #f1e8da);
+        box-shadow: 0 16px 0 rgba(36,31,53,.1);
+      }
+      .cat-head {
+        position: absolute;
+        left: 42px;
+        top: 20px;
+        width: 142px;
+        height: 124px;
+        border-radius: 54px;
+        background: #fff7ed;
+        border: 4px solid #241f35;
+      }
+      .cat-head::before,
+      .cat-head::after {
+        content: "";
+        position: absolute;
+        top: -34px;
+        width: 46px;
+        height: 58px;
+        background: #fff7ed;
+        border: 4px solid #241f35;
+        clip-path: polygon(50% 0, 100% 100%, 0 100%);
+      }
+      .cat-head::before { left: 10px; transform: rotate(-12deg); }
+      .cat-head::after { right: 10px; transform: rotate(12deg); }
+      .hat {
+        position: absolute;
+        left: 26px;
+        top: -22px;
+        width: 92px;
+        height: 42px;
+        border-radius: 42px 42px 10px 10px;
+        background: #6b4a35;
+        transform: rotate(-6deg);
+      }
+      .hat::after {
+        content: "";
+        position: absolute;
+        left: -16px;
+        right: -16px;
+        bottom: -10px;
+        height: 18px;
+        border-radius: 20px;
+        background: #5a3d2b;
+      }
+      .eye {
+        position: absolute;
+        top: 52px;
+        width: 12px;
+        height: 16px;
+        border-radius: 50%;
+        background: #5bb6ff;
+      }
+      .eye.left { left: 42px; }
+      .eye.right { right: 42px; }
+      .nose {
+        position: absolute;
+        left: 65px;
+        top: 76px;
+        width: 14px;
+        height: 10px;
+        border-radius: 50%;
+        background: #ff9cca;
+      }
+      .coat {
+        position: absolute;
+        left: 44px;
+        bottom: 0;
+        width: 140px;
+        height: 122px;
+        border-radius: 34px 34px 22px 22px;
+        background: #6b4a35;
+        clip-path: polygon(18% 0, 82% 0, 100% 100%, 0 100%);
+      }
+      .glass {
+        position: absolute;
+        right: 0;
+        top: 124px;
+        width: 88px;
+        height: 88px;
+        border: 8px solid #241f35;
+        border-radius: 50%;
+      }
+      .glass::after {
+        content: "";
+        position: absolute;
+        right: -38px;
+        bottom: -24px;
+        width: 56px;
+        height: 10px;
+        border-radius: 10px;
+        background: #241f35;
+        transform: rotate(40deg);
+      }
+
+      .music-box { left: 50%; top: 326px; width: 154px; height: 128px; }
+      .music-box .base {
+        position: absolute;
+        inset: 38px 4px 0;
+        border-radius: 22px;
+        background: linear-gradient(180deg, #8e67ff, #5e46c9);
+        box-shadow: 0 12px 0 rgba(36,31,53,.12);
+      }
+      .music-box .lid {
+        position: absolute;
+        left: 18px;
+        top: 12px;
+        width: 118px;
+        height: 52px;
+        border-radius: 28px 28px 12px 12px;
+        background: #ffd76a;
+      }
+      .music-box .lock {
+        position: absolute;
+        left: 65px;
+        top: 76px;
+        width: 24px;
+        height: 30px;
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .crown {
+        position: absolute;
+        left: 54%;
+        top: 306px;
+        width: 110px;
+        height: 86px;
+        opacity: 0;
+        transform: translateY(24px) scale(.8);
+        transition: opacity .35s ease, transform .35s ease;
+        pointer-events: none;
+      }
+      .crown.show { opacity: 1; transform: translateY(-28px) scale(1); }
+      .crown .gold {
+        position: absolute;
+        inset: 20px 0 0;
+        background: linear-gradient(180deg, #ffe78a, #f5ad30);
+        clip-path: polygon(0 100%, 8% 28%, 32% 58%, 50% 0, 68% 58%, 92% 28%, 100% 100%);
+        filter: drop-shadow(0 8px 0 rgba(36,31,53,.12));
+      }
+
+      .panel {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+      }
+      .panel h2 { font-size: 28px; line-height: 1; }
+
+      .primary,
+      .secondary {
+        min-height: 46px;
+        border-radius: 12px;
+        font-weight: 950;
+      }
+      .primary {
+        color: #fff;
+        background: linear-gradient(180deg, var(--pink), #d94d94);
+        box-shadow: 0 9px 0 rgba(86, 51, 92, .16);
+      }
+      .secondary {
+        border: 2px solid var(--line);
+        color: var(--ink);
+        background: #fff;
+      }
+
+      .inventory,
+      .suspects {
+        display: grid;
+        gap: 8px;
+      }
+      .chip {
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 10px;
+        border: 2px solid rgba(36,31,53,.1);
+        border-radius: 12px;
+        color: var(--muted);
+        background: rgba(255,255,255,.72);
+        font-size: 13px;
+        font-weight: 900;
+      }
+      .chip.done {
+        color: #245d44;
+        background: rgba(101, 216, 159, .2);
+      }
+
+      .log {
+        min-height: 86px;
+        padding: 12px;
+        border: 2px solid rgba(36,31,53,.1);
+        border-radius: 14px;
+        background: rgba(255,255,255,.65);
+      }
+
+      footer {
+        padding: 0 0 30px;
+        color: var(--muted);
+        font-weight: 850;
+      }
+
+      @media (max-width: 920px) {
+        main { grid-template-columns: 1fr; }
+        .stage, .room { min-height: 620px; }
+        .sofa { left: 20%; width: 320px; }
+        .window { left: 52%; }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header class="topbar">
+      <a class="brand" href="../../index.html">Яна Единорог</a>
+      <nav aria-label="Навигация">
+        <a href="../index.html">Игры</a>
+        <a href="../../index.html#games">Главная</a>
+        <a href="../../school/index.html">Учёба</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section class="stage" aria-label="Пушистый детектив">
+        <div class="room">
+          <div class="wall-pattern"></div>
+          <div class="floor-lines"></div>
+          <div class="sparkles"></div>
+
+          <div class="title-card">
+            <h1>Пушистый детектив</h1>
+            <p>У принцессы Мими пропала корона. Нажимай на предметы, собирай улики и открой музыкальную шкатулку.</p>
+          </div>
+
+          <div class="detective" aria-hidden="true">
+            <div class="cat-body"></div>
+            <div class="coat"></div>
+            <div class="cat-head">
+              <div class="hat"></div>
+              <div class="eye left"></div>
+              <div class="eye right"></div>
+              <div class="nose"></div>
+            </div>
+            <div class="glass"></div>
+          </div>
+
+          <button class="item window" data-clue="glitter" aria-label="Осмотреть окно">
+            <span class="pane"></span><span class="curtain left"></span><span class="curtain right"></span>
+          </button>
+
+          <button class="item shelf" data-clue="feather" aria-label="Осмотреть полку">
+            <span class="book"></span><span class="book"></span><span class="book"></span>
+            <span class="plant"></span><span class="leaf l1"></span><span class="leaf l2"></span>
+            <span class="board b1"></span><span class="board b2"></span>
+          </button>
+
+          <button class="item sofa" data-clue="button" aria-label="Осмотреть диван">
+            <span class="back"></span><span class="seat"></span><span class="pillow"></span><span class="pillow two"></span>
+          </button>
+
+          <button class="item rug" data-clue="paw" aria-label="Поднять коврик">
+            <span class="oval"></span>
+          </button>
+
+          <button class="item toybox" data-clue="ribbon" aria-label="Осмотреть сундук с игрушками">
+            <span class="lid"></span><span class="box"></span><span class="star">★</span>
+          </button>
+
+          <button class="item music-box" data-clue="key" aria-label="Осмотреть музыкальную шкатулку">
+            <span class="lid"></span><span class="base"></span><span class="lock"></span>
+          </button>
+
+          <div class="crown" id="crown" aria-hidden="true"><span class="gold"></span></div>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <h2>Дело о короне</h2>
+        <p>Найди все улики. Когда ключ появится, нажми на шкатулку ещё раз.</p>
+        <div class="inventory" id="inventory" aria-label="Улики"></div>
+        <button class="primary" id="hintButton" type="button">Подсказка</button>
+        <button class="secondary" id="resetButton" type="button">Заново</button>
+        <div class="suspects">
+          <div class="chip"><span>Пончик-хомяк</span><strong>любит ленты</strong></div>
+          <div class="chip"><span>Кукла Ляля</span><strong>любит блёстки</strong></div>
+          <div class="chip"><span>Робот Бип</span><strong>любит ключи</strong></div>
+        </div>
+        <div class="log" id="log">Детектив Мими готова. Начни с самых подозрительных предметов: диван, ковёр, сундук, окно, полка и шкатулка.</div>
+      </aside>
+    </main>
+
+    <footer>
+      <p>Это спокойная игра-расследование: тут надо смотреть на сцену, искать детали и открывать тайник.</p>
+      <nav aria-label="Быстрые ссылки в подвале">
+        <a href="../../index.html">Главная</a>
+        <a href="../index.html">Игры</a>
+        <a href="../fluffy-run/index.html">Звёздный забег</a>
+        <a href="../../school/index.html">Учёба</a>
+      </nav>
+    </footer>
+
+    <script>
+      const clues = {
+        glitter: { name: "Блёстки на окне", text: "На подоконнике блёстки. Значит, корону проносили рядом с окном." },
+        feather: { name: "Пёрышко с полки", text: "На полке белое пёрышко. Кто-то задел цветок и спешил." },
+        button: { name: "Пуговица в диване", text: "В диване нашлась пуговица от маленькой жилетки. Подозрительно." },
+        paw: { name: "След под ковром", text: "Под ковром след лапки и царапина: кто-то тащил что-то блестящее." },
+        ribbon: { name: "Розовая лента", text: "В сундуке лента от короны. Теперь ясно: корону спрятали рядом." },
+        key: { name: "Ключ от шкатулки", text: "Ключ лежал за музыкальной шкатулкой. Теперь можно открыть тайник." }
+      };
+
+      const found = new Set();
+      const inventory = document.querySelector("#inventory");
+      const log = document.querySelector("#log");
+      const crown = document.querySelector("#crown");
+      const hintButton = document.querySelector("#hintButton");
+      const resetButton = document.querySelector("#resetButton");
+      const items = [...document.querySelectorAll("[data-clue]")];
+
+      function renderInventory() {
+        inventory.innerHTML = Object.entries(clues).map(([id, clue]) => (
+          `<div class="chip ${found.has(id) ? "done" : ""}"><span>${clue.name}</span><strong>${found.has(id) ? "найдено" : "ищем"}</strong></div>`
+        )).join("");
+      }
+
+      function say(text) {
+        log.textContent = text;
+      }
+
+      function collect(id, item) {
+        if (id === "key" && found.size < 5 && !found.has("key")) {
+          say("Шкатулка закрыта. Сначала найди 5 улик в комнате, тогда ключ точно обнаружится.");
+          return;
+        }
+        if (found.has(id)) {
+          if (id === "key" && found.size >= 6) finish();
+          return;
+        }
+        found.add(id);
+        item.classList.add("found");
+        say(clues[id].text);
+        renderInventory();
+        if (found.size === 5 && !found.has("key")) {
+          say("Пять улик собраны. Теперь осмотри музыкальную шкатулку: там должен быть ключ.");
+        }
+        if (found.size >= 6) finish();
+      }
+
+      function finish() {
+        crown.classList.add("show");
+        say("Дело раскрыто! Корона была в тайнике музыкальной шкатулки. Мими сияет: настоящий детектив!");
+        playWin();
+      }
+
+      function playWin() {
+        try {
+          const audio = playWin.audio || (playWin.audio = new (window.AudioContext || window.webkitAudioContext)());
+          [523, 659, 784, 1046].forEach((freq, index) => {
+            const osc = audio.createOscillator();
+            const gain = audio.createGain();
+            osc.type = "triangle";
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(.035, audio.currentTime + index * .08);
+            gain.gain.exponentialRampToValueAtTime(.001, audio.currentTime + index * .08 + .22);
+            osc.connect(gain);
+            gain.connect(audio.destination);
+            osc.start(audio.currentTime + index * .08);
+            osc.stop(audio.currentTime + index * .08 + .24);
+          });
+        } catch (error) {
+          // Sound is a bonus; the puzzle still works without it.
+        }
+      }
+
+      function hint() {
+        const next = ["glitter", "feather", "button", "paw", "ribbon", "key"].find((id) => !found.has(id));
+        if (!next) {
+          say("Все улики найдены. Корона уже спасена!");
+          return;
+        }
+        const hints = {
+          glitter: "Подсказка: посмотри туда, где светит солнце.",
+          feather: "Подсказка: проверь место с книгами и цветком.",
+          button: "Подсказка: мягкие подушки любят прятать маленькие вещи.",
+          paw: "Подсказка: иногда улики лежат прямо под ногами.",
+          ribbon: "Подсказка: в сундуке с игрушками что-то розовое.",
+          key: "Подсказка: когда собраны остальные улики, возвращайся к шкатулке."
+        };
+        say(hints[next]);
+      }
+
+      function reset() {
+        found.clear();
+        crown.classList.remove("show");
+        items.forEach((item) => item.classList.remove("found"));
+        say("Новое расследование началось. Осматривай комнату и собирай улики.");
+        renderInventory();
+      }
+
+      items.forEach((item) => {
+        item.addEventListener("click", () => collect(item.dataset.clue, item));
+      });
+      hintButton.addEventListener("click", hint);
+      resetButton.addEventListener("click", reset);
+      renderInventory();
+    </script>
+    <script src="../../assets/site.js"></script>
+  </body>
+</html>
