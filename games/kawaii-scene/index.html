@@ -179,20 +179,29 @@
       }
       .avatar {
         position: absolute;
-        bottom: 0;
+        left: var(--x, 24%);
+        top: var(--y, 16%);
         width: 260px;
         height: 420px;
+        cursor: grab;
         filter: drop-shadow(0 18px 0 rgba(36,31,53,.1));
-        transition: transform .2s ease, opacity .2s ease;
+        touch-action: none;
+        transition: filter .2s ease, opacity .2s ease;
       }
-      .avatar.active { transform: translateY(-8px) scale(1.04); }
-      .avatar.left { left: 24%; }
-      .avatar.right { right: 18%; transform: scale(.96); }
-      .avatar.right.active { transform: translateY(-8px) scale(1); }
+      .avatar.active { filter: drop-shadow(0 18px 0 rgba(36,31,53,.1)) drop-shadow(0 0 18px rgba(255,114,173,.55)); }
+      .avatar.dragging { cursor: grabbing; z-index: 8; }
       .doll {
         width: 100%;
         height: 100%;
         overflow: visible;
+        animation: breathe 2.6s ease-in-out infinite;
+        transform-origin: 130px 405px;
+      }
+      .avatar:nth-child(2) .doll { animation-delay: -.8s; }
+      .avatar:nth-child(3) .doll { animation-delay: -1.4s; }
+      @keyframes breathe {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-4px) scale(1.012); }
       }
       .outline {
         stroke: #241f35;
@@ -216,6 +225,18 @@
       }
       .eye-dot { fill: #241f35; }
       .eye-blue { fill: #5bb6ff; stroke: #241f35; stroke-width: 3; }
+      .eye-white { fill: #fff; stroke: #241f35; stroke-width: 4; }
+      .iris { fill: var(--eyes, #5bb6ff); }
+      .pupil { fill: #171326; }
+      .eye-shine { fill: #fff; }
+      .blink {
+        transform-origin: center;
+        animation: blink 4.5s infinite;
+      }
+      @keyframes blink {
+        0%, 92%, 100% { transform: scaleY(0); opacity: 0; }
+        94%, 96% { transform: scaleY(1); opacity: 1; }
+      }
       .mouth-fill { fill: #fff; stroke: #241f35; stroke-width: 5; }
       .pose-dance { --arm-left: -26deg; --arm-right: 24deg; --leg-left: -7deg; --leg-right: 8deg; }
       .pose-wave { --arm-left: -42deg; --arm-right: -5deg; --leg-left: 2deg; --leg-right: -2deg; }
@@ -237,8 +258,9 @@
         color: var(--ink);
         box-shadow: 0 12px 0 rgba(36,31,53,.08);
       }
-      .bubble.left-bubble { left: 20%; top: 210px; }
-      .bubble.right-bubble { right: 11%; top: 178px; }
+      .bubble.left-bubble { left: 18%; top: 210px; }
+      .bubble.right-bubble { right: 8%; top: 178px; }
+      .bubble.boy-bubble { left: 44%; top: 236px; }
       .panel {
         display: grid;
         gap: 12px;
@@ -297,11 +319,10 @@
       @media (max-width: 920px) {
         main { grid-template-columns: 1fr; }
         .stage, .scene { min-height: 620px; }
-        .avatar { width: 220px; transform: scale(.85); transform-origin: bottom center; }
-        .avatar.left { left: 8%; }
-        .avatar.right { right: 2%; }
+        .avatar { width: 220px; }
         .bubble.left-bubble { left: 8%; }
         .bubble.right-bubble { right: 4%; }
+        .bubble.boy-bubble { left: 30%; top: 260px; }
       }
     </style>
   </head>
@@ -324,23 +345,26 @@
           <div class="decor"></div>
           <div class="title-card">
             <h1>Кавай Сцена</h1>
-            <p>Собирай героев, меняй эмоции, одежду, фон и делай свою сценку как в студии аватаров.</p>
+            <p>Собирай героев, двигай их по сцене, меняй эмоции, одежду, фон и делай свой маленький сериал.</p>
           </div>
           <div class="bubble left-bubble" id="bubbleA">Я готова к сценке!</div>
           <div class="bubble right-bubble" id="bubbleB">Давай добавим стиль.</div>
+          <div class="bubble boy-bubble" id="bubbleC">Я тоже в сценке!</div>
           <div class="characters">
-            <div class="avatar left active pose-wave" id="avatarA"></div>
-            <div class="avatar right pose-shy" id="avatarB"></div>
+            <div class="avatar active pose-wave" id="avatarA" data-character="a"></div>
+            <div class="avatar pose-shy" id="avatarB" data-character="b"></div>
+            <div class="avatar pose-dance" id="avatarC" data-character="c"></div>
           </div>
         </div>
       </section>
 
       <aside class="panel">
         <h2>Студия</h2>
-        <p>Выбери персонажа и собери сцену: стиль, эмоция, поза, фон и реплики.</p>
+        <p>Выбери персонажа или перетащи его на сцене. Можно менять стиль, эмоцию, позу, фон и реплики.</p>
         <div class="tabs" aria-label="Персонажи">
           <button class="tab active" data-character="a" type="button">Героиня</button>
           <button class="tab" data-character="b" type="button">Подруга</button>
+          <button class="tab" data-character="c" type="button">Мальчик</button>
         </div>
         <div class="quest">
           <strong id="questTitle">Задание: школьная сценка</strong>
@@ -417,43 +441,65 @@
         active: "a",
         quest: 0,
         scene: "school",
-        a: { emotion: "happy", pose: "wave", outfit: "violet", hair: "brown", accessory: "gold", line: "Я готова к сценке!" },
-        b: { emotion: "happy", pose: "shy", outfit: "pink", hair: "black", accessory: "mint", line: "Давай добавим стиль." }
+        a: { kind: "girl", emotion: "happy", pose: "wave", outfit: "violet", hair: "brown", accessory: "gold", eyes: "#5bb6ff", x: 22, y: 13, line: "Я готова к сценке!" },
+        b: { kind: "girl", emotion: "happy", pose: "shy", outfit: "pink", hair: "black", accessory: "mint", eyes: "#8e67ff", x: 58, y: 17, line: "Давай добавим стиль." },
+        c: { kind: "boy", emotion: "cool", pose: "dance", outfit: "mint", hair: "brown", accessory: "violet", eyes: "#7a4f2b", x: 40, y: 22, line: "Я тоже в сценке!" }
       };
       const scene = document.querySelector("#scene");
       const avatarA = document.querySelector("#avatarA");
       const avatarB = document.querySelector("#avatarB");
+      const avatarC = document.querySelector("#avatarC");
       const bubbleA = document.querySelector("#bubbleA");
       const bubbleB = document.querySelector("#bubbleB");
+      const bubbleC = document.querySelector("#bubbleC");
       const lineInput = document.querySelector("#lineInput");
       const questTitle = document.querySelector("#questTitle");
       const questText = document.querySelector("#questText");
 
+      function eyeMarkup(cx, cy, emotion) {
+        if (emotion === "happy") {
+          return `
+            <path class="face-line" d="M${cx - 11} ${cy + 1}q11 9 22 0"/>
+            <path class="blink" fill="#ffe1bd" d="M${cx - 16} ${cy - 9}h32v26h-32z"/>
+          `;
+        }
+        const wide = emotion === "surprise";
+        const rx = wide ? 11 : 10;
+        const ry = wide ? 15 : 13;
+        return `
+          <ellipse class="eye-white" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>
+          <circle class="iris" cx="${cx}" cy="${cy + 1}" r="${wide ? 6 : 5.5}"/>
+          <circle class="pupil" cx="${cx}" cy="${cy + 2}" r="3"/>
+          <circle class="eye-shine" cx="${cx - 3}" cy="${cy - 4}" r="2.2"/>
+          <path class="blink" fill="#ffe1bd" d="M${cx - 17} ${cy - 12}h34v29h-34z"/>
+        `;
+      }
+
       function faceMarkup(emotion) {
         if (emotion === "happy") {
           return `
-            <path class="face-line" d="M103 130q8 8 18 0"/>
-            <path class="face-line" d="M139 130q8 8 18 0"/>
+            ${eyeMarkup(112, 129, emotion)}
+            ${eyeMarkup(148, 129, emotion)}
             <path class="face-line" d="M118 158q12 13 26 0"/>
           `;
         }
         if (emotion === "surprise") {
           return `
-            <ellipse class="eye-blue" cx="112" cy="130" rx="8" ry="12"/>
-            <ellipse class="eye-blue" cx="148" cy="130" rx="8" ry="12"/>
+            ${eyeMarkup(112, 129, emotion)}
+            ${eyeMarkup(148, 129, emotion)}
             <ellipse class="mouth-fill" cx="130" cy="158" rx="10" ry="14"/>
           `;
         }
         if (emotion === "sad") {
           return `
-            <ellipse class="eye-dot" cx="112" cy="130" rx="6" ry="9"/>
-            <ellipse class="eye-dot" cx="148" cy="130" rx="6" ry="9"/>
+            ${eyeMarkup(112, 129, emotion)}
+            ${eyeMarkup(148, 129, emotion)}
             <path class="face-line" d="M117 166q13-12 27 0"/>
           `;
         }
         return `
-          <path class="face-line" d="M102 130h19"/>
-          <path class="face-line" d="M139 130h19"/>
+          ${eyeMarkup(112, 129, emotion)}
+          ${eyeMarkup(148, 129, emotion)}
           <path class="face-line" d="M118 158q12 8 26 0"/>
           <path class="face-line" d="M96 102q10-8 24-4"/>
           <path class="face-line" d="M140 98q14-5 25 4"/>
@@ -464,10 +510,27 @@
         const accessory = person.emotion === "cool" ? `
           <path class="accessory-fill outline" d="M78 72q26-34 60-6l-6 34q-30-16-58 2z"/>
         ` : "";
+        const hair = person.kind === "boy" ? `
+            <path class="hair-fill outline" d="M73 104c9-48 43-73 83-54 20 9 32 28 34 57-22-10-42-12-60-6-20 7-38 7-57 3z"/>
+            <path class="hair-fill outline" d="M86 84l36-34 6 42z"/>
+            <path class="hair-fill outline" d="M130 72l38-25-6 44z"/>
+        ` : `
+            <path class="hair-fill outline" d="M72 132c-24-58 12-104 58-104s84 44 58 104c-8 22-10 52 12 86-42-12-96-12-140 0 24-34 20-64 12-86z"/>
+        `;
+        const frontHair = person.kind === "boy" ? `
+            <path class="hair-fill outline" d="M70 112c12-46 46-66 76-58 26 7 41 28 44 56-42-18-82-20-120 2z"/>
+        ` : `
+            <path class="hair-fill outline" d="M70 112c6-54 42-82 76-70 25 9 41 32 44 68-46-26-82-26-120 2z"/>
+            <path class="hair-fill outline" d="M117 71c-6 46-24 72-56 84 6-42 17-70 56-84z"/>
+            <path class="hair-fill outline" d="M146 70c12 42 32 67 59 78-2-36-16-70-59-78z"/>
+        `;
+        const outfitShape = person.kind === "boy"
+          ? `<path class="outfit-fill outline" d="M82 212c28-24 68-24 96 0l18 104c-34 20-98 20-132 0z"/>`
+          : `<path class="outfit-fill outline" d="M84 210c26-26 66-28 92 0l26 118c-42 28-102 28-144 0z"/>`;
         return `
           <svg class="doll" viewBox="0 0 260 430" aria-hidden="true">
             <ellipse class="soft-shadow" cx="130" cy="405" rx="72" ry="18"/>
-            <path class="hair-fill outline" d="M72 132c-24-58 12-104 58-104s84 44 58 104c-8 22-10 52 12 86-42-12-96-12-140 0 24-34 20-64 12-86z"/>
+            ${hair}
             ${accessory}
             <g class="svg-left-arm">
               <path class="skin outline" d="M88 220c-26 30-38 62-30 88 5 15 25 13 30-1 7-22 18-42 36-62z"/>
@@ -475,7 +538,7 @@
             <g class="svg-right-arm">
               <path class="skin outline" d="M172 220c26 30 38 62 30 88-5 15-25 13-30-1-7-22-18-42-36-62z"/>
             </g>
-            <path class="outfit-fill outline" d="M84 210c26-26 66-28 92 0l26 118c-42 28-102 28-144 0z"/>
+            ${outfitShape}
             <path class="fabric-shine" d="M112 222c26-9 48-2 60 18l10 58c-22-16-50-20-78-8z"/>
             <path class="outline" fill="rgba(255,255,255,.34)" d="M108 212l22 34 24-34"/>
             <g class="svg-left-leg">
@@ -487,9 +550,7 @@
               <path class="outline" fill="#2d263f" d="M130 386h54q8 0 8 9v10h-70v-10q0-9 8-9z"/>
             </g>
             <path class="skin outline" d="M73 116c0-46 30-76 57-76s57 30 57 76c0 48-25 80-57 80s-57-32-57-80z"/>
-            <path class="hair-fill outline" d="M70 112c6-54 42-82 76-70 25 9 41 32 44 68-46-26-82-26-120 2z"/>
-            <path class="hair-fill outline" d="M117 71c-6 46-24 72-56 84 6-42 17-70 56-84z"/>
-            <path class="hair-fill outline" d="M146 70c12 42 32 67 59 78-2-36-16-70-59-78z"/>
+            ${frontHair}
             <ellipse class="cheek" cx="96" cy="152" rx="16" ry="8"/>
             <ellipse class="cheek" cx="164" cy="152" rx="16" ry="8"/>
             ${faceMarkup(person.emotion)}
@@ -497,21 +558,26 @@
         `;
       }
 
-      function applyPerson(el, person) {
-        el.className = `${el.classList.contains("left") ? "avatar left" : "avatar right"} pose-${person.pose}${state.active === (el === avatarA ? "a" : "b") ? " active" : ""}`;
+      function applyPerson(el, person, id) {
+        el.className = `avatar pose-${person.pose}${state.active === id ? " active" : ""}`;
         el.innerHTML = avatarMarkup(person);
+        el.style.setProperty("--x", `${person.x}%`);
+        el.style.setProperty("--y", `${person.y}%`);
         el.style.setProperty("--hair", palettes.hair[person.hair]);
         el.style.setProperty("--outfit", palettes.outfit[person.outfit]);
         el.style.setProperty("--pants", person.outfit === "gold" ? "#a77720" : "#514070");
         el.style.setProperty("--accessory", palettes.accessory[person.accessory]);
+        el.style.setProperty("--eyes", person.eyes);
       }
 
       function render() {
         scene.className = `scene ${state.scene}`;
-        applyPerson(avatarA, state.a);
-        applyPerson(avatarB, state.b);
+        applyPerson(avatarA, state.a, "a");
+        applyPerson(avatarB, state.b, "b");
+        applyPerson(avatarC, state.c, "c");
         bubbleA.textContent = state.a.line;
         bubbleB.textContent = state.b.line;
+        bubbleC.textContent = state.c.line;
         lineInput.value = state[state.active].line;
         document.querySelectorAll("[data-character]").forEach((button) => button.classList.toggle("active", button.dataset.character === state.active));
         document.querySelectorAll("[data-group='scene'] .choice").forEach((button) => button.classList.toggle("active", button.dataset.value === state.scene));
@@ -548,8 +614,46 @@
         render();
       }
 
+      let dragging = null;
+      function startDrag(event, id) {
+        state.active = id;
+        dragging = {
+          id,
+          pointer: event.pointerId,
+          startX: event.clientX,
+          startY: event.clientY,
+          x: state[id].x,
+          y: state[id].y
+        };
+        event.currentTarget.classList.add("dragging");
+        event.currentTarget.setPointerCapture(event.pointerId);
+        render();
+      }
+
+      function drag(event) {
+        if (!dragging) return;
+        const rect = scene.getBoundingClientRect();
+        const dx = (event.clientX - dragging.startX) / rect.width * 100;
+        const dy = (event.clientY - dragging.startY) / rect.height * 100;
+        state[dragging.id].x = Math.max(0, Math.min(74, dragging.x + dx));
+        state[dragging.id].y = Math.max(4, Math.min(34, dragging.y + dy));
+        render();
+      }
+
+      function endDrag(event) {
+        if (!dragging) return;
+        event.currentTarget.classList.remove("dragging");
+        dragging = null;
+      }
+
       document.querySelectorAll("[data-character]").forEach((button) => {
         button.addEventListener("click", () => setActive(button.dataset.character));
+      });
+      document.querySelectorAll(".avatar[data-character]").forEach((avatar) => {
+        avatar.addEventListener("pointerdown", (event) => startDrag(event, avatar.dataset.character));
+        avatar.addEventListener("pointermove", drag);
+        avatar.addEventListener("pointerup", endDrag);
+        avatar.addEventListener("pointercancel", endDrag);
       });
       document.querySelectorAll("[data-group] .choice").forEach((button) => {
         button.addEventListener("click", () => setChoice(button.closest("[data-group]").dataset.group, button.dataset.value));
