@@ -189,106 +189,41 @@
       .avatar.left { left: 24%; }
       .avatar.right { right: 18%; transform: scale(.96); }
       .avatar.right.active { transform: translateY(-8px) scale(1); }
-      .hair-back, .head, .body, .hair-front, .bang, .arm, .leg, .shoe, .eye, .mouth, .blush, .accessory { position: absolute; }
-      .hair-back {
-        left: 72px; top: 42px; width: 118px; height: 142px;
-        border-radius: 58px 58px 48px 48px;
-        background: var(--hair, #6b3f2d);
+      .doll {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
       }
-      .head {
-        left: 66px; top: 74px; width: 128px; height: 118px;
-        border: 5px solid #241f35;
-        border-radius: 46px;
-        background: #ffe1bd;
+      .outline {
+        stroke: #241f35;
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
       }
-      .hair-front {
-        left: 56px; top: 54px; width: 148px; height: 74px;
-        border-radius: 52px 52px 22px 22px;
-        background: var(--hair, #6b3f2d);
+      .skin { fill: #ffe1bd; }
+      .hair-fill { fill: var(--hair, #6b3f2d); }
+      .outfit-fill { fill: var(--outfit, #8e67ff); }
+      .pants-fill { fill: var(--pants, #514070); }
+      .accessory-fill { fill: var(--accessory, #ffd76a); }
+      .soft-shadow { fill: rgba(36,31,53,.16); }
+      .fabric-shine { fill: rgba(255,255,255,.32); }
+      .cheek { fill: rgba(255,114,173,.48); }
+      .face-line {
+        fill: none;
+        stroke: #241f35;
+        stroke-width: 5;
+        stroke-linecap: round;
       }
-      .bang {
-        left: 92px; top: 94px; width: 44px; height: 54px;
-        border-radius: 0 0 40px 40px;
-        background: var(--hair, #6b3f2d);
-        transform: rotate(18deg);
-      }
-      .body {
-        left: 76px; top: 206px; width: 112px; height: 128px;
-        border: 5px solid #241f35;
-        border-radius: 34px 34px 24px 24px;
-        background: var(--outfit, #8e67ff);
-      }
-      .body::after {
-        content: "";
-        position: absolute;
-        left: 24px; top: 18px; width: 54px; height: 62px;
-        border-radius: 18px;
-        background: rgba(255,255,255,.32);
-      }
-      .arm {
-        top: 220px; width: 38px; height: 98px;
-        border: 5px solid #241f35;
-        border-radius: 22px;
-        background: #ffe1bd;
-      }
-      .arm.left-arm { left: 48px; transform: rotate(var(--arm-left, 16deg)); transform-origin: 50% 14px; }
-      .arm.right-arm { right: 48px; transform: rotate(var(--arm-right, -16deg)); transform-origin: 50% 14px; }
-      .leg {
-        top: 324px; width: 38px; height: 78px;
-        border: 5px solid #241f35;
-        border-radius: 18px;
-        background: var(--pants, #514070);
-      }
-      .leg.left-leg { left: 88px; transform: rotate(var(--leg-left, 2deg)); }
-      .leg.right-leg { right: 88px; transform: rotate(var(--leg-right, -2deg)); }
-      .shoe {
-        top: 386px; width: 58px; height: 24px;
-        border: 5px solid #241f35;
-        border-radius: 18px;
-        background: #2d263f;
-      }
-      .shoe.left-shoe { left: 72px; }
-      .shoe.right-shoe { right: 72px; }
-      .eye {
-        top: 122px; width: 15px; height: 21px;
-        border-radius: 50%;
-        background: #2c2638;
-      }
-      .eye.left-eye { left: 98px; }
-      .eye.right-eye { right: 98px; }
-      .eye.happy { height: 8px; border-radius: 50%; top: 130px; }
-      .eye.surprise { width: 18px; height: 24px; background: #5bb6ff; }
-      .mouth {
-        left: 118px; top: 154px; width: 28px; height: 14px;
-        border: 4px solid #241f35;
-        border-top: 0;
-        border-radius: 0 0 20px 20px;
-      }
-      .mouth.sad { top: 164px; transform: rotate(180deg); }
-      .mouth.surprise {
-        left: 121px; top: 154px; width: 20px; height: 24px;
-        border: 4px solid #241f35;
-        border-radius: 50%;
-        background: #fff;
-      }
-      .blush {
-        top: 148px; width: 24px; height: 12px;
-        border-radius: 50%;
-        background: rgba(255,114,173,.52);
-      }
-      .blush.left-blush { left: 78px; }
-      .blush.right-blush { right: 78px; }
-      .accessory {
-        left: 48px; top: 60px; width: 58px; height: 40px;
-        border: 5px solid #241f35;
-        border-radius: 18px 18px 8px 8px;
-        background: var(--accessory, #ffd76a);
-        transform: rotate(-16deg);
-      }
-      .accessory.none { display: none; }
-      .pose-dance { --arm-left: -44deg; --arm-right: 46deg; --leg-left: -10deg; --leg-right: 12deg; }
-      .pose-wave { --arm-left: -70deg; --arm-right: -8deg; --leg-left: 2deg; --leg-right: -2deg; }
-      .pose-shy { --arm-left: 38deg; --arm-right: -38deg; --leg-left: 6deg; --leg-right: -6deg; }
+      .eye-dot { fill: #241f35; }
+      .eye-blue { fill: #5bb6ff; stroke: #241f35; stroke-width: 3; }
+      .mouth-fill { fill: #fff; stroke: #241f35; stroke-width: 5; }
+      .pose-dance { --arm-left: -26deg; --arm-right: 24deg; --leg-left: -7deg; --leg-right: 8deg; }
+      .pose-wave { --arm-left: -42deg; --arm-right: -5deg; --leg-left: 2deg; --leg-right: -2deg; }
+      .pose-shy { --arm-left: 18deg; --arm-right: -18deg; --leg-left: 5deg; --leg-right: -5deg; }
+      .svg-left-arm { transform: rotate(var(--arm-left, 10deg)); transform-origin: 92px 224px; }
+      .svg-right-arm { transform: rotate(var(--arm-right, -10deg)); transform-origin: 168px 224px; }
+      .svg-left-leg { transform: rotate(var(--leg-left, 2deg)); transform-origin: 112px 318px; }
+      .svg-right-leg { transform: rotate(var(--leg-right, -2deg)); transform-origin: 148px 318px; }
       .bubble {
         position: absolute;
         z-index: 5;
@@ -494,28 +429,71 @@
       const questTitle = document.querySelector("#questTitle");
       const questText = document.querySelector("#questText");
 
-      function avatarMarkup(person) {
-        const eyeClass = person.emotion === "happy" ? "happy" : person.emotion === "surprise" ? "surprise" : "";
-        const mouthClass = person.emotion === "sad" ? "sad" : person.emotion === "surprise" ? "surprise" : "";
-        const accessoryClass = person.emotion === "cool" ? "accessory" : "accessory none";
+      function faceMarkup(emotion) {
+        if (emotion === "happy") {
+          return `
+            <path class="face-line" d="M103 130q8 8 18 0"/>
+            <path class="face-line" d="M139 130q8 8 18 0"/>
+            <path class="face-line" d="M118 158q12 13 26 0"/>
+          `;
+        }
+        if (emotion === "surprise") {
+          return `
+            <ellipse class="eye-blue" cx="112" cy="130" rx="8" ry="12"/>
+            <ellipse class="eye-blue" cx="148" cy="130" rx="8" ry="12"/>
+            <ellipse class="mouth-fill" cx="130" cy="158" rx="10" ry="14"/>
+          `;
+        }
+        if (emotion === "sad") {
+          return `
+            <ellipse class="eye-dot" cx="112" cy="130" rx="6" ry="9"/>
+            <ellipse class="eye-dot" cx="148" cy="130" rx="6" ry="9"/>
+            <path class="face-line" d="M117 166q13-12 27 0"/>
+          `;
+        }
         return `
-          <span class="hair-back"></span>
-          <span class="${accessoryClass}"></span>
-          <span class="head"></span>
-          <span class="hair-front"></span>
-          <span class="bang"></span>
-          <span class="eye left-eye ${eyeClass}"></span>
-          <span class="eye right-eye ${eyeClass}"></span>
-          <span class="mouth ${mouthClass}"></span>
-          <span class="blush left-blush"></span>
-          <span class="blush right-blush"></span>
-          <span class="arm left-arm"></span>
-          <span class="arm right-arm"></span>
-          <span class="body"></span>
-          <span class="leg left-leg"></span>
-          <span class="leg right-leg"></span>
-          <span class="shoe left-shoe"></span>
-          <span class="shoe right-shoe"></span>
+          <path class="face-line" d="M102 130h19"/>
+          <path class="face-line" d="M139 130h19"/>
+          <path class="face-line" d="M118 158q12 8 26 0"/>
+          <path class="face-line" d="M96 102q10-8 24-4"/>
+          <path class="face-line" d="M140 98q14-5 25 4"/>
+        `;
+      }
+
+      function avatarMarkup(person) {
+        const accessory = person.emotion === "cool" ? `
+          <path class="accessory-fill outline" d="M78 72q26-34 60-6l-6 34q-30-16-58 2z"/>
+        ` : "";
+        return `
+          <svg class="doll" viewBox="0 0 260 430" aria-hidden="true">
+            <ellipse class="soft-shadow" cx="130" cy="405" rx="72" ry="18"/>
+            <path class="hair-fill outline" d="M72 132c-24-58 12-104 58-104s84 44 58 104c-8 22-10 52 12 86-42-12-96-12-140 0 24-34 20-64 12-86z"/>
+            ${accessory}
+            <g class="svg-left-arm">
+              <path class="skin outline" d="M88 220c-26 30-38 62-30 88 5 15 25 13 30-1 7-22 18-42 36-62z"/>
+            </g>
+            <g class="svg-right-arm">
+              <path class="skin outline" d="M172 220c26 30 38 62 30 88-5 15-25 13-30-1-7-22-18-42-36-62z"/>
+            </g>
+            <path class="outfit-fill outline" d="M84 210c26-26 66-28 92 0l26 118c-42 28-102 28-144 0z"/>
+            <path class="fabric-shine" d="M112 222c26-9 48-2 60 18l10 58c-22-16-50-20-78-8z"/>
+            <path class="outline" fill="rgba(255,255,255,.34)" d="M108 212l22 34 24-34"/>
+            <g class="svg-left-leg">
+              <path class="pants-fill outline" d="M96 322h38l-8 70H88z"/>
+              <path class="outline" fill="#2d263f" d="M78 386h54q8 0 8 9v10H70v-10q0-9 8-9z"/>
+            </g>
+            <g class="svg-right-leg">
+              <path class="pants-fill outline" d="M126 322h38l10 70h-38z"/>
+              <path class="outline" fill="#2d263f" d="M130 386h54q8 0 8 9v10h-70v-10q0-9 8-9z"/>
+            </g>
+            <path class="skin outline" d="M73 116c0-46 30-76 57-76s57 30 57 76c0 48-25 80-57 80s-57-32-57-80z"/>
+            <path class="hair-fill outline" d="M70 112c6-54 42-82 76-70 25 9 41 32 44 68-46-26-82-26-120 2z"/>
+            <path class="hair-fill outline" d="M117 71c-6 46-24 72-56 84 6-42 17-70 56-84z"/>
+            <path class="hair-fill outline" d="M146 70c12 42 32 67 59 78-2-36-16-70-59-78z"/>
+            <ellipse class="cheek" cx="96" cy="152" rx="16" ry="8"/>
+            <ellipse class="cheek" cx="164" cy="152" rx="16" ry="8"/>
+            ${faceMarkup(person.emotion)}
+          </svg>
         `;
       }
 
