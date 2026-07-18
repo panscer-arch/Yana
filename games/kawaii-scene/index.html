@@ -238,9 +238,30 @@
         94%, 96% { transform: scaleY(1); opacity: 1; }
       }
       .mouth-fill { fill: #fff; stroke: #241f35; stroke-width: 5; }
+      .nose-line {
+        fill: none;
+        stroke: rgba(36, 31, 53, .62);
+        stroke-width: 3.4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .tear {
+        fill: #69d7ff;
+        stroke: #241f35;
+        stroke-width: 2.4;
+        animation: tearFall 1.25s ease-in-out infinite;
+      }
+      .tear.two { animation-delay: .35s; }
+      @keyframes tearFall {
+        0% { transform: translateY(-2px) scale(.78); opacity: 0; }
+        35% { opacity: 1; }
+        100% { transform: translateY(14px) scale(1); opacity: 0; }
+      }
       .pose-dance { --arm-left: -26deg; --arm-right: 24deg; --leg-left: -7deg; --leg-right: 8deg; }
       .pose-wave { --arm-left: -42deg; --arm-right: -5deg; --leg-left: 2deg; --leg-right: -2deg; }
       .pose-shy { --arm-left: 18deg; --arm-right: -18deg; --leg-left: 5deg; --leg-right: -5deg; }
+      .pose-hold-left { --arm-left: 10deg; --arm-right: -64deg; --leg-left: 2deg; --leg-right: -4deg; }
+      .pose-hold-right { --arm-left: 64deg; --arm-right: -10deg; --leg-left: -4deg; --leg-right: 2deg; }
       .svg-left-arm { transform: rotate(var(--arm-left, 10deg)); transform-origin: 92px 224px; }
       .svg-right-arm { transform: rotate(var(--arm-right, -10deg)); transform-origin: 168px 224px; }
       .svg-left-leg { transform: rotate(var(--leg-left, 2deg)); transform-origin: 112px 318px; }
@@ -389,6 +410,7 @@
           <button class="choice active" data-value="wave" type="button">привет</button>
           <button class="choice" data-value="dance" type="button">танец</button>
           <button class="choice" data-value="shy" type="button">милая</button>
+          <button class="choice" data-value="hold-left" type="button">за руку</button>
         </div>
         <h3>Одежда</h3>
         <div class="choices" data-group="outfit">
@@ -408,6 +430,7 @@
         <input id="lineInput" value="Я готова к сценке!" aria-label="Реплика персонажа">
         <div class="actions">
           <button class="primary" id="applyLine" type="button">Сказать</button>
+          <button class="secondary" id="holdHands" type="button">Взяться за руки</button>
           <button class="secondary" id="randomize" type="button">Сюрприз</button>
           <button class="secondary" id="nextQuest" type="button">Новое задание</button>
         </div>
@@ -434,7 +457,8 @@
         { title: "Задание: школьная сценка", text: "Фон школа, эмоция счастье, поза привет.", scene: "school", emotion: "happy", pose: "wave" },
         { title: "Задание: вечеринка", text: "Фон вечеринка, поза танец и яркая одежда.", scene: "party", emotion: "cool", pose: "dance" },
         { title: "Задание: прогулка", text: "Фон парк, милая поза и добрая реплика.", scene: "park", emotion: "happy", pose: "shy" },
-        { title: "Задание: драматичная серия", text: "Фон комната, эмоция грусть, потом придумай реплику.", scene: "room", emotion: "sad", pose: "shy" }
+        { title: "Задание: драматичная серия", text: "Фон комната, эмоция грусть, потом придумай реплику.", scene: "room", emotion: "sad", pose: "shy" },
+        { title: "Задание: дружба", text: "Поставь двух героев рядом и нажми “Взяться за руки”.", scene: "park", emotion: "happy", pose: "hold-left" }
       ];
       const lines = ["Я сегодня суперзвезда!", "Пошли делать сериал!", "Это моя лучшая сцена.", "Вау, какой стиль!", "Я немного стесняюсь.", "Мы команда мечты!"];
       const state = {
@@ -480,6 +504,7 @@
           return `
             ${eyeMarkup(112, 129, emotion)}
             ${eyeMarkup(148, 129, emotion)}
+            <path class="nose-line" d="M130 134q-3 12-1 20q4 2 8-1"/>
             <path class="face-line" d="M118 158q12 13 26 0"/>
           `;
         }
@@ -487,19 +512,26 @@
           return `
             ${eyeMarkup(112, 129, emotion)}
             ${eyeMarkup(148, 129, emotion)}
+            <path class="nose-line" d="M130 134q-3 12-1 20q4 2 8-1"/>
             <ellipse class="mouth-fill" cx="130" cy="158" rx="10" ry="14"/>
           `;
         }
         if (emotion === "sad") {
           return `
+            <path class="face-line" d="M96 113q14-10 30-3"/>
+            <path class="face-line" d="M136 110q16-7 30 3"/>
             ${eyeMarkup(112, 129, emotion)}
             ${eyeMarkup(148, 129, emotion)}
-            <path class="face-line" d="M117 166q13-12 27 0"/>
+            <path class="nose-line" d="M130 134q-3 12-1 20q4 2 8-1"/>
+            <path class="tear" d="M102 145c-10 14-8 24 1 24s12-10 2-24z"/>
+            <path class="tear two" d="M156 145c-10 14-8 24 1 24s12-10 2-24z"/>
+            <path class="face-line" d="M116 169q14-13 29 0"/>
           `;
         }
         return `
           ${eyeMarkup(112, 129, emotion)}
           ${eyeMarkup(148, 129, emotion)}
+          <path class="nose-line" d="M130 134q-3 12-1 20q4 2 8-1"/>
           <path class="face-line" d="M118 158q12 8 26 0"/>
           <path class="face-line" d="M96 102q10-8 24-4"/>
           <path class="face-line" d="M140 98q14-5 25 4"/>
@@ -606,7 +638,7 @@
       function randomize() {
         const person = state[state.active];
         person.emotion = ["happy", "surprise", "sad", "cool"][Math.floor(Math.random() * 4)];
-        person.pose = ["wave", "dance", "shy"][Math.floor(Math.random() * 3)];
+        person.pose = ["wave", "dance", "shy", "hold-left"][Math.floor(Math.random() * 4)];
         person.outfit = ["violet", "pink", "mint", "gold"][Math.floor(Math.random() * 4)];
         person.hair = ["brown", "black", "blonde", "pink"][Math.floor(Math.random() * 4)];
         person.accessory = ["violet", "pink", "mint", "gold"][Math.floor(Math.random() * 4)];
@@ -666,6 +698,20 @@
         if (event.key === "Enter") document.querySelector("#applyLine").click();
       });
       document.querySelector("#randomize").addEventListener("click", randomize);
+      document.querySelector("#holdHands").addEventListener("click", () => {
+        state.a.pose = "hold-left";
+        state.b.pose = "hold-right";
+        state.a.x = 25;
+        state.b.x = 46;
+        state.a.y = 18;
+        state.b.y = 18;
+        state.a.emotion = "happy";
+        state.b.emotion = "happy";
+        state.a.line = "Держимся вместе!";
+        state.b.line = "Теперь сцена понятная.";
+        state.active = "a";
+        render();
+      });
       document.querySelector("#nextQuest").addEventListener("click", () => {
         state.quest = (state.quest + 1) % quests.length;
         render();

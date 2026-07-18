@@ -1,4 +1,4 @@
-const CACHE_NAME = "yana-unicorn-v90";
+const CACHE_NAME = "yana-unicorn-v91";
 const CACHE_PATHS = [
   "./",
   "./index.html",
