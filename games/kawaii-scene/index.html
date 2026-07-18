@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Кавай Сцена: студия персонажей</title>
+    <meta name="description" content="Игра-студия в стиле милых аватаров: собирай персонажей, выбирай одежду, эмоции, позы, фон и создавай сценки.">
+    <meta name="theme-color" content="#ff72ad">
+    <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #241f35;
+        --muted: #665c78;
+        --paper: rgba(255, 253, 247, .94);
+        --line: rgba(36, 31, 53, .14);
+        --pink: #ff72ad;
+        --blue: #63cfff;
+        --gold: #ffd76a;
+        --mint: #65d89f;
+        --violet: #8e67ff;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+        background:
+          radial-gradient(circle at 12% 10%, rgba(255,255,255,.9) 0 7%, transparent 8%),
+          radial-gradient(circle at 86% 12%, rgba(255,244,173,.8) 0 8%, transparent 9%),
+          linear-gradient(135deg, #bdefff 0%, #fbd6ff 50%, #fff0aa 100%);
+      }
+      a, button, input { font: inherit; color: inherit; }
+      button { border: 0; cursor: pointer; }
+      .skip-link {
+        position: fixed;
+        left: 14px;
+        top: 10px;
+        z-index: 30;
+        transform: translateY(-150%);
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 10px;
+        color: #fff;
+        background: var(--ink);
+        font-weight: 950;
+      }
+      .skip-link:focus-visible { transform: translateY(0); }
+      .topbar, main, footer {
+        width: min(1220px, calc(100vw - 28px));
+        margin: 0 auto;
+      }
+      .topbar {
+        min-height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+      }
+      .brand, .topbar a, footer a {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 2px solid var(--line);
+        border-radius: 10px;
+        color: var(--ink);
+        background: rgba(255,255,255,.72);
+        font-weight: 900;
+        text-decoration: none;
+      }
+      nav { display: flex; gap: 8px; flex-wrap: wrap; }
+      main {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 16px;
+        align-items: start;
+        padding-bottom: 34px;
+      }
+      .stage, .panel {
+        border: 2px solid var(--line);
+        border-radius: 18px;
+        background: var(--paper);
+        box-shadow: 0 22px 56px rgba(55, 40, 90, .16);
+      }
+      .stage {
+        position: relative;
+        overflow: hidden;
+        min-height: 690px;
+      }
+      .scene {
+        position: relative;
+        min-height: 690px;
+        overflow: hidden;
+        background: linear-gradient(180deg, #9de7ff 0 54%, #f5d7ad 55% 100%);
+      }
+      .scene.school { background: linear-gradient(180deg, #bdefff 0 48%, #ffe5ef 49% 68%, #e2bf94 69% 100%); }
+      .scene.party { background: radial-gradient(circle at 70% 18%, #ffd76a 0 48px, transparent 49px), linear-gradient(180deg, #442f72 0 55%, #f06cae 56% 100%); }
+      .scene.park { background: linear-gradient(180deg, #8de0ff 0 48%, #92d773 49% 100%); }
+      .scene.room { background: linear-gradient(180deg, #fff0fa 0 60%, #e8c59a 61% 100%); }
+      .wall-dots {
+        position: absolute;
+        inset: 0 0 45%;
+        opacity: .28;
+        background:
+          radial-gradient(circle at 24px 24px, #fff 0 5px, transparent 6px),
+          radial-gradient(circle at 84px 60px, #ff72ad 0 3px, transparent 4px);
+        background-size: 110px 82px;
+      }
+      .floor {
+        position: absolute;
+        inset: 58% 0 0;
+        background:
+          repeating-linear-gradient(10deg, transparent 0 80px, rgba(72,46,35,.12) 82px 84px),
+          linear-gradient(180deg, rgba(255,255,255,.25), transparent);
+      }
+      .decor {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .decor::before {
+        content: "";
+        position: absolute;
+        left: 52px;
+        top: 110px;
+        width: 220px;
+        height: 130px;
+        border: 10px solid rgba(255,255,255,.82);
+        border-radius: 24px;
+        background:
+          radial-gradient(circle at 76% 28%, #ffdf74 0 22px, transparent 23px),
+          linear-gradient(180deg, rgba(141,224,255,.75), rgba(146,215,115,.74));
+        box-shadow: 0 12px 0 rgba(36,31,53,.08);
+      }
+      .decor::after {
+        content: "";
+        position: absolute;
+        right: 54px;
+        bottom: 80px;
+        width: 230px;
+        height: 110px;
+        border-radius: 52px 52px 24px 24px;
+        background: linear-gradient(180deg, rgba(255,114,173,.85), rgba(217,77,148,.9));
+        box-shadow: 0 16px 0 rgba(36,31,53,.1);
+      }
+      .title-card {
+        position: absolute;
+        left: 18px;
+        top: 18px;
+        z-index: 4;
+        width: min(430px, calc(100% - 36px));
+        display: grid;
+        gap: 8px;
+        padding: 14px;
+        border: 2px solid rgba(255,255,255,.78);
+        border-radius: 16px;
+        background: rgba(255,255,255,.72);
+        backdrop-filter: blur(10px);
+      }
+      h1, h2, h3, p { margin: 0; }
+      h1 { font-size: clamp(30px, 5vw, 54px); line-height: .94; }
+      .title-card p, .panel p, .bubble {
+        color: var(--muted);
+        font-weight: 850;
+        line-height: 1.42;
+      }
+      .characters {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 56px;
+        height: 430px;
+      }
+      .avatar {
+        position: absolute;
+        bottom: 0;
+        width: 260px;
+        height: 420px;
+        filter: drop-shadow(0 18px 0 rgba(36,31,53,.1));
+        transition: transform .2s ease, opacity .2s ease;
+      }
+      .avatar.active { transform: translateY(-8px) scale(1.04); }
+      .avatar.left { left: 24%; }
+      .avatar.right { right: 18%; transform: scale(.96); }
+      .avatar.right.active { transform: translateY(-8px) scale(1); }
+      .hair-back, .head, .body, .hair-front, .bang, .arm, .leg, .shoe, .eye, .mouth, .blush, .accessory { position: absolute; }
+      .hair-back {
+        left: 72px; top: 42px; width: 118px; height: 142px;
+        border-radius: 58px 58px 48px 48px;
+        background: var(--hair, #6b3f2d);
+      }
+      .head {
+        left: 66px; top: 74px; width: 128px; height: 118px;
+        border: 5px solid #241f35;
+        border-radius: 46px;
+        background: #ffe1bd;
+      }
+      .hair-front {
+        left: 56px; top: 54px; width: 148px; height: 74px;
+        border-radius: 52px 52px 22px 22px;
+        background: var(--hair, #6b3f2d);
+      }
+      .bang {
+        left: 92px; top: 94px; width: 44px; height: 54px;
+        border-radius: 0 0 40px 40px;
+        background: var(--hair, #6b3f2d);
+        transform: rotate(18deg);
+      }
+      .body {
+        left: 76px; top: 206px; width: 112px; height: 128px;
+        border: 5px solid #241f35;
+        border-radius: 34px 34px 24px 24px;
+        background: var(--outfit, #8e67ff);
+      }
+      .body::after {
+        content: "";
+        position: absolute;
+        left: 24px; top: 18px; width: 54px; height: 62px;
+        border-radius: 18px;
+        background: rgba(255,255,255,.32);
+      }
+      .arm {
+        top: 220px; width: 38px; height: 98px;
+        border: 5px solid #241f35;
+        border-radius: 22px;
+        background: #ffe1bd;
+      }
+      .arm.left-arm { left: 48px; transform: rotate(var(--arm-left, 16deg)); transform-origin: 50% 14px; }
+      .arm.right-arm { right: 48px; transform: rotate(var(--arm-right, -16deg)); transform-origin: 50% 14px; }
+      .leg {
+        top: 324px; width: 38px; height: 78px;
+        border: 5px solid #241f35;
+        border-radius: 18px;
+        background: var(--pants, #514070);
+      }
+      .leg.left-leg { left: 88px; transform: rotate(var(--leg-left, 2deg)); }
+      .leg.right-leg { right: 88px; transform: rotate(var(--leg-right, -2deg)); }
+      .shoe {
+        top: 386px; width: 58px; height: 24px;
+        border: 5px solid #241f35;
+        border-radius: 18px;
+        background: #2d263f;
+      }
+      .shoe.left-shoe { left: 72px; }
+      .shoe.right-shoe { right: 72px; }
+      .eye {
+        top: 122px; width: 15px; height: 21px;
+        border-radius: 50%;
+        background: #2c2638;
+      }
+      .eye.left-eye { left: 98px; }
+      .eye.right-eye { right: 98px; }
+      .eye.happy { height: 8px; border-radius: 50%; top: 130px; }
+      .eye.surprise { width: 18px; height: 24px; background: #5bb6ff; }
+      .mouth {
+        left: 118px; top: 154px; width: 28px; height: 14px;
+        border: 4px solid #241f35;
+        border-top: 0;
+        border-radius: 0 0 20px 20px;
+      }
+      .mouth.sad { top: 164px; transform: rotate(180deg); }
+      .mouth.surprise {
+        left: 121px; top: 154px; width: 20px; height: 24px;
+        border: 4px solid #241f35;
+        border-radius: 50%;
+        background: #fff;
+      }
+      .blush {
+        top: 148px; width: 24px; height: 12px;
+        border-radius: 50%;
+        background: rgba(255,114,173,.52);
+      }
+      .blush.left-blush { left: 78px; }
+      .blush.right-blush { right: 78px; }
+      .accessory {
+        left: 48px; top: 60px; width: 58px; height: 40px;
+        border: 5px solid #241f35;
+        border-radius: 18px 18px 8px 8px;
+        background: var(--accessory, #ffd76a);
+        transform: rotate(-16deg);
+      }
+      .accessory.none { display: none; }
+      .pose-dance { --arm-left: -44deg; --arm-right: 46deg; --leg-left: -10deg; --leg-right: 12deg; }
+      .pose-wave { --arm-left: -70deg; --arm-right: -8deg; --leg-left: 2deg; --leg-right: -2deg; }
+      .pose-shy { --arm-left: 38deg; --arm-right: -38deg; --leg-left: 6deg; --leg-right: -6deg; }
+      .bubble {
+        position: absolute;
+        z-index: 5;
+        min-width: 180px;
+        max-width: 250px;
+        min-height: 56px;
+        padding: 12px 14px;
+        border: 3px solid rgba(36,31,53,.14);
+        border-radius: 18px;
+        background: rgba(255,255,255,.9);
+        color: var(--ink);
+        box-shadow: 0 12px 0 rgba(36,31,53,.08);
+      }
+      .bubble.left-bubble { left: 20%; top: 210px; }
+      .bubble.right-bubble { right: 11%; top: 178px; }
+      .panel {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+      }
+      .tabs, .tools, .choices, .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .tab, .choice, .primary, .secondary {
+        min-height: 42px;
+        border-radius: 12px;
+        font-weight: 950;
+      }
+      .tab, .choice, .secondary {
+        padding: 0 11px;
+        border: 2px solid var(--line);
+        background: #fff;
+      }
+      .tab.active, .choice.active {
+        color: #fff;
+        background: linear-gradient(180deg, var(--violet), #6549c9);
+      }
+      .primary {
+        flex: 1 1 160px;
+        padding: 0 14px;
+        color: #fff;
+        background: linear-gradient(180deg, var(--pink), #d94d94);
+        box-shadow: 0 8px 0 rgba(86,51,92,.16);
+      }
+      .secondary { flex: 1 1 120px; padding: 0 14px; }
+      .quest {
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+        border: 2px solid rgba(36,31,53,.1);
+        border-radius: 14px;
+        background: rgba(255,255,255,.68);
+      }
+      .quest strong { color: #2d7652; }
+      input {
+        width: 100%;
+        min-height: 42px;
+        padding: 0 12px;
+        border: 2px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+        font-weight: 850;
+      }
+      footer {
+        padding: 0 0 30px;
+        color: var(--muted);
+        font-weight: 850;
+      }
+      @media (max-width: 920px) {
+        main { grid-template-columns: 1fr; }
+        .stage, .scene { min-height: 620px; }
+        .avatar { width: 220px; transform: scale(.85); transform-origin: bottom center; }
+        .avatar.left { left: 8%; }
+        .avatar.right { right: 2%; }
+        .bubble.left-bubble { left: 8%; }
+        .bubble.right-bubble { right: 4%; }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header class="topbar">
+      <a class="brand" href="../../index.html">Яна Единорог</a>
+      <nav aria-label="Навигация">
+        <a href="../index.html">Игры</a>
+        <a href="../../index.html#games">Главная</a>
+        <a href="../../school/index.html">Учёба</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section class="stage" aria-label="Кавай Сцена">
+        <div class="scene school" id="scene">
+          <div class="wall-dots"></div>
+          <div class="floor"></div>
+          <div class="decor"></div>
+          <div class="title-card">
+            <h1>Кавай Сцена</h1>
+            <p>Собирай героев, меняй эмоции, одежду, фон и делай свою сценку как в студии аватаров.</p>
+          </div>
+          <div class="bubble left-bubble" id="bubbleA">Я готова к сценке!</div>
+          <div class="bubble right-bubble" id="bubbleB">Давай добавим стиль.</div>
+          <div class="characters">
+            <div class="avatar left active pose-wave" id="avatarA"></div>
+            <div class="avatar right pose-shy" id="avatarB"></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <h2>Студия</h2>
+        <p>Выбери персонажа и собери сцену: стиль, эмоция, поза, фон и реплики.</p>
+        <div class="tabs" aria-label="Персонажи">
+          <button class="tab active" data-character="a" type="button">Героиня</button>
+          <button class="tab" data-character="b" type="button">Подруга</button>
+        </div>
+        <div class="quest">
+          <strong id="questTitle">Задание: школьная сценка</strong>
+          <p id="questText">Сделай фон “школа”, счастливую эмоцию и позу “привет”.</p>
+        </div>
+        <h3>Фон</h3>
+        <div class="choices" data-group="scene">
+          <button class="choice active" data-value="school" type="button">школа</button>
+          <button class="choice" data-value="party" type="button">вечеринка</button>
+          <button class="choice" data-value="park" type="button">парк</button>
+          <button class="choice" data-value="room" type="button">комната</button>
+        </div>
+        <h3>Эмоция</h3>
+        <div class="choices" data-group="emotion">
+          <button class="choice active" data-value="happy" type="button">счастье</button>
+          <button class="choice" data-value="surprise" type="button">вау</button>
+          <button class="choice" data-value="sad" type="button">грусть</button>
+          <button class="choice" data-value="cool" type="button">круто</button>
+        </div>
+        <h3>Поза</h3>
+        <div class="choices" data-group="pose">
+          <button class="choice active" data-value="wave" type="button">привет</button>
+          <button class="choice" data-value="dance" type="button">танец</button>
+          <button class="choice" data-value="shy" type="button">милая</button>
+        </div>
+        <h3>Одежда</h3>
+        <div class="choices" data-group="outfit">
+          <button class="choice active" data-value="violet" type="button">фиолет</button>
+          <button class="choice" data-value="pink" type="button">розовая</button>
+          <button class="choice" data-value="mint" type="button">мята</button>
+          <button class="choice" data-value="gold" type="button">звезда</button>
+        </div>
+        <h3>Волосы</h3>
+        <div class="choices" data-group="hair">
+          <button class="choice active" data-value="brown" type="button">каштан</button>
+          <button class="choice" data-value="black" type="button">чёрные</button>
+          <button class="choice" data-value="blonde" type="button">блонд</button>
+          <button class="choice" data-value="pink" type="button">розовые</button>
+        </div>
+        <h3>Реплика</h3>
+        <input id="lineInput" value="Я готова к сценке!" aria-label="Реплика персонажа">
+        <div class="actions">
+          <button class="primary" id="applyLine" type="button">Сказать</button>
+          <button class="secondary" id="randomize" type="button">Сюрприз</button>
+          <button class="secondary" id="nextQuest" type="button">Новое задание</button>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <p>Это оригинальная студия аватаров Яны: создавай персонажей, эмоции и сценки.</p>
+      <nav aria-label="Быстрые ссылки в подвале">
+        <a href="../../index.html">Главная</a>
+        <a href="../index.html">Игры</a>
+        <a href="../cozy-house/index.html">Кавай-домик</a>
+        <a href="../../school/index.html">Учёба</a>
+      </nav>
+    </footer>
+
+    <script>
+      const palettes = {
+        outfit: { violet: "#8e67ff", pink: "#ff72ad", mint: "#65d89f", gold: "#ffd76a" },
+        hair: { brown: "#6b3f2d", black: "#252033", blonde: "#f2c063", pink: "#f28bbd" },
+        accessory: { violet: "#8e67ff", pink: "#ff72ad", mint: "#65d89f", gold: "#ffd76a" }
+      };
+      const quests = [
+        { title: "Задание: школьная сценка", text: "Фон школа, эмоция счастье, поза привет.", scene: "school", emotion: "happy", pose: "wave" },
+        { title: "Задание: вечеринка", text: "Фон вечеринка, поза танец и яркая одежда.", scene: "party", emotion: "cool", pose: "dance" },
+        { title: "Задание: прогулка", text: "Фон парк, милая поза и добрая реплика.", scene: "park", emotion: "happy", pose: "shy" },
+        { title: "Задание: драматичная серия", text: "Фон комната, эмоция грусть, потом придумай реплику.", scene: "room", emotion: "sad", pose: "shy" }
+      ];
+      const lines = ["Я сегодня суперзвезда!", "Пошли делать сериал!", "Это моя лучшая сцена.", "Вау, какой стиль!", "Я немного стесняюсь.", "Мы команда мечты!"];
+      const state = {
+        active: "a",
+        quest: 0,
+        scene: "school",
+        a: { emotion: "happy", pose: "wave", outfit: "violet", hair: "brown", accessory: "gold", line: "Я готова к сценке!" },
+        b: { emotion: "happy", pose: "shy", outfit: "pink", hair: "black", accessory: "mint", line: "Давай добавим стиль." }
+      };
+      const scene = document.querySelector("#scene");
+      const avatarA = document.querySelector("#avatarA");
+      const avatarB = document.querySelector("#avatarB");
+      const bubbleA = document.querySelector("#bubbleA");
+      const bubbleB = document.querySelector("#bubbleB");
+      const lineInput = document.querySelector("#lineInput");
+      const questTitle = document.querySelector("#questTitle");
+      const questText = document.querySelector("#questText");
+
+      function avatarMarkup(person) {
+        const eyeClass = person.emotion === "happy" ? "happy" : person.emotion === "surprise" ? "surprise" : "";
+        const mouthClass = person.emotion === "sad" ? "sad" : person.emotion === "surprise" ? "surprise" : "";
+        const accessoryClass = person.emotion === "cool" ? "accessory" : "accessory none";
+        return `
+          <span class="hair-back"></span>
+          <span class="${accessoryClass}"></span>
+          <span class="head"></span>
+          <span class="hair-front"></span>
+          <span class="bang"></span>
+          <span class="eye left-eye ${eyeClass}"></span>
+          <span class="eye right-eye ${eyeClass}"></span>
+          <span class="mouth ${mouthClass}"></span>
+          <span class="blush left-blush"></span>
+          <span class="blush right-blush"></span>
+          <span class="arm left-arm"></span>
+          <span class="arm right-arm"></span>
+          <span class="body"></span>
+          <span class="leg left-leg"></span>
+          <span class="leg right-leg"></span>
+          <span class="shoe left-shoe"></span>
+          <span class="shoe right-shoe"></span>
+        `;
+      }
+
+      function applyPerson(el, person) {
+        el.className = `${el.classList.contains("left") ? "avatar left" : "avatar right"} pose-${person.pose}${state.active === (el === avatarA ? "a" : "b") ? " active" : ""}`;
+        el.innerHTML = avatarMarkup(person);
+        el.style.setProperty("--hair", palettes.hair[person.hair]);
+        el.style.setProperty("--outfit", palettes.outfit[person.outfit]);
+        el.style.setProperty("--pants", person.outfit === "gold" ? "#a77720" : "#514070");
+        el.style.setProperty("--accessory", palettes.accessory[person.accessory]);
+      }
+
+      function render() {
+        scene.className = `scene ${state.scene}`;
+        applyPerson(avatarA, state.a);
+        applyPerson(avatarB, state.b);
+        bubbleA.textContent = state.a.line;
+        bubbleB.textContent = state.b.line;
+        lineInput.value = state[state.active].line;
+        document.querySelectorAll("[data-character]").forEach((button) => button.classList.toggle("active", button.dataset.character === state.active));
+        document.querySelectorAll("[data-group='scene'] .choice").forEach((button) => button.classList.toggle("active", button.dataset.value === state.scene));
+        ["emotion", "pose", "outfit", "hair"].forEach((group) => {
+          document.querySelectorAll(`[data-group='${group}'] .choice`).forEach((button) => {
+            button.classList.toggle("active", button.dataset.value === state[state.active][group]);
+          });
+        });
+        const quest = quests[state.quest];
+        const done = state.scene === quest.scene && state[state.active].emotion === quest.emotion && state[state.active].pose === quest.pose;
+        questTitle.textContent = done ? `${quest.title} — готово!` : quest.title;
+        questText.textContent = done ? "Получилось! Теперь можно сделать новую сцену или взять другое задание." : quest.text;
+      }
+
+      function setActive(id) {
+        state.active = id;
+        render();
+      }
+
+      function setChoice(group, value) {
+        if (group === "scene") state.scene = value;
+        else state[state.active][group] = value;
+        render();
+      }
+
+      function randomize() {
+        const person = state[state.active];
+        person.emotion = ["happy", "surprise", "sad", "cool"][Math.floor(Math.random() * 4)];
+        person.pose = ["wave", "dance", "shy"][Math.floor(Math.random() * 3)];
+        person.outfit = ["violet", "pink", "mint", "gold"][Math.floor(Math.random() * 4)];
+        person.hair = ["brown", "black", "blonde", "pink"][Math.floor(Math.random() * 4)];
+        person.accessory = ["violet", "pink", "mint", "gold"][Math.floor(Math.random() * 4)];
+        person.line = lines[Math.floor(Math.random() * lines.length)];
+        render();
+      }
+
+      document.querySelectorAll("[data-character]").forEach((button) => {
+        button.addEventListener("click", () => setActive(button.dataset.character));
+      });
+      document.querySelectorAll("[data-group] .choice").forEach((button) => {
+        button.addEventListener("click", () => setChoice(button.closest("[data-group]").dataset.group, button.dataset.value));
+      });
+      document.querySelector("#applyLine").addEventListener("click", () => {
+        state[state.active].line = lineInput.value.trim() || "Я молчу красиво.";
+        render();
+      });
+      lineInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") document.querySelector("#applyLine").click();
+      });
+      document.querySelector("#randomize").addEventListener("click", randomize);
+      document.querySelector("#nextQuest").addEventListener("click", () => {
+        state.quest = (state.quest + 1) % quests.length;
+        render();
+      });
+      render();
+    </script>
+    <script src="../../assets/site.js"></script>
+  </body>
+</html>
