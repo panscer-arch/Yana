@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Палата №13</title>
+    <meta name="description" content="Мило-страшная мини-игра: найди ключ, батарейку и предохранитель, переживи красный свет и выберись из палаты №13.">
+    <meta name="theme-color" content="#2b2538">
+    <link rel="icon" type="image/png" href="../../assets/yana-unicorn-logo.png">
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #f8f1ff;
+        --muted: #cfc3dc;
+        --panel: rgba(25, 21, 35, .9);
+        --line: rgba(255,255,255,.14);
+        --red: #ff405f;
+        --blue: #82d9ff;
+        --gold: #ffd76a;
+        --green: #65d89f;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+        background:
+          radial-gradient(circle at 18% 18%, rgba(255,64,95,.2), transparent 28%),
+          radial-gradient(circle at 86% 12%, rgba(130,217,255,.14), transparent 28%),
+          linear-gradient(135deg, #14111d 0%, #282235 58%, #17141f 100%);
+      }
+      a, button { color: inherit; font: inherit; }
+      button { border: 0; cursor: pointer; }
+      .skip-link {
+        position: fixed;
+        left: 14px;
+        top: 12px;
+        z-index: 30;
+        transform: translateY(-150%);
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 10px;
+        color: #111;
+        background: #fff;
+        font-weight: 950;
+      }
+      .skip-link:focus-visible { transform: translateY(0); }
+      .topbar, main, footer {
+        width: min(1180px, calc(100vw - 28px));
+        margin: 0 auto;
+      }
+      .topbar {
+        min-height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+      }
+      .brand, .topbar a, footer a {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 2px solid var(--line);
+        border-radius: 10px;
+        color: var(--ink);
+        background: rgba(255,255,255,.08);
+        font-weight: 900;
+        text-decoration: none;
+      }
+      nav { display: flex; gap: 8px; flex-wrap: wrap; }
+      main {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 330px;
+        gap: 16px;
+        align-items: start;
+        padding-bottom: 34px;
+      }
+      .game-shell, .panel {
+        border: 2px solid var(--line);
+        border-radius: 18px;
+        background: var(--panel);
+        box-shadow: 0 22px 56px rgba(0, 0, 0, .28);
+      }
+      .game-shell {
+        position: relative;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        touch-action: none;
+        background: #16131d;
+      }
+      .hud {
+        position: absolute;
+        inset: 12px 12px auto;
+        z-index: 4;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        pointer-events: none;
+      }
+      .stat {
+        min-width: 104px;
+        padding: 8px 10px;
+        border: 2px solid rgba(255,255,255,.14);
+        border-radius: 12px;
+        background: rgba(9, 8, 14, .72);
+        box-shadow: 0 12px 28px rgba(0,0,0,.26);
+        backdrop-filter: blur(10px);
+        font-weight: 950;
+      }
+      .stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+      .status-red { color: #ff8194; }
+      .status-white { color: #bdefff; }
+      .overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+        background:
+          radial-gradient(circle at 50% 35%, rgba(255,64,95,.24), transparent 35%),
+          rgba(12, 10, 18, .52);
+        backdrop-filter: blur(5px);
+      }
+      .overlay.hidden { display: none; }
+      .start-card {
+        width: min(620px, 100%);
+        display: grid;
+        gap: 14px;
+        padding: 20px;
+        border: 2px solid var(--line);
+        border-radius: 18px;
+        background: rgba(26, 22, 36, .96);
+        text-align: center;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, .34);
+      }
+      h1, h2, h3, p { margin: 0; }
+      h1 {
+        color: #fff;
+        font-size: clamp(38px, 7vw, 66px);
+        line-height: .92;
+        text-shadow: 0 0 24px rgba(255,64,95,.36);
+      }
+      .start-card p, .panel p, .tip {
+        color: var(--muted);
+        font-weight: 850;
+        line-height: 1.42;
+      }
+      .tags, .controls {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .tags span {
+        min-height: 30px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border-radius: 999px;
+        color: #1d1628;
+        background: #ffd76a;
+        font-size: 12px;
+        font-weight: 950;
+      }
+      .primary, .secondary, .pad {
+        min-height: 44px;
+        border-radius: 12px;
+        font-weight: 950;
+      }
+      .primary {
+        min-height: 52px;
+        color: #fff;
+        background: linear-gradient(180deg, #ff405f, #b7193a);
+        box-shadow: 0 9px 0 rgba(0,0,0,.18);
+        font-size: 18px;
+      }
+      .secondary, .pad {
+        border: 2px solid var(--line);
+        background: rgba(255,255,255,.08);
+      }
+      .mobile-pad {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        z-index: 6;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        pointer-events: none;
+      }
+      .pad-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 52px);
+        grid-template-rows: repeat(2, 48px);
+        gap: 6px;
+        pointer-events: auto;
+      }
+      .pad {
+        color: #fff;
+        border-color: rgba(255,255,255,.18);
+        background: rgba(9, 8, 14, .72);
+        backdrop-filter: blur(10px);
+      }
+      .pad.up { grid-column: 2; }
+      .pad.left { grid-column: 1; grid-row: 2; }
+      .pad.down { grid-column: 2; grid-row: 2; }
+      .pad.right { grid-column: 3; grid-row: 2; }
+      .pad.action {
+        width: 92px;
+        min-height: 52px;
+        pointer-events: auto;
+        background: rgba(255,64,95,.72);
+      }
+      .panel {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+      }
+      .panel-card {
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+        border: 2px solid rgba(255,255,255,.1);
+        border-radius: 14px;
+        background: rgba(255,255,255,.06);
+      }
+      .items {
+        display: grid;
+        gap: 8px;
+      }
+      .item {
+        min-height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 0 10px;
+        border: 2px solid rgba(255,255,255,.1);
+        border-radius: 10px;
+        color: var(--muted);
+        background: rgba(255,255,255,.05);
+        font-weight: 900;
+      }
+      .item.done {
+        color: #0f2a1f;
+        background: #65d89f;
+      }
+      footer {
+        padding: 0 0 30px;
+        color: var(--muted);
+        font-weight: 850;
+      }
+      @media (max-width: 900px) {
+        main { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    <header class="topbar">
+      <a class="brand" href="../../index.html">Яна Единорог</a>
+      <nav aria-label="Навигация">
+        <a href="../index.html">Игры</a>
+        <a href="../../index.html#games">Главная</a>
+        <a href="../../school/index.html">Учёба</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section class="game-shell" aria-label="Палата №13">
+        <canvas id="game" width="960" height="600"></canvas>
+        <div class="hud">
+          <div class="stat"><span>свет</span><b id="lightStatus" class="status-white">белый</b></div>
+          <div class="stat"><span>таймер</span><b id="timer">0</b> c</div>
+          <div class="stat"><span>предметы</span><b id="itemCount">0</b>/3</div>
+          <div class="stat"><span>опасность</span><b id="danger">тихо</b></div>
+        </div>
+        <div class="mobile-pad" aria-label="Управление">
+          <div class="pad-grid">
+            <button class="pad up" data-key="up" type="button">↑</button>
+            <button class="pad left" data-key="left" type="button">←</button>
+            <button class="pad down" data-key="down" type="button">↓</button>
+            <button class="pad right" data-key="right" type="button">→</button>
+          </div>
+          <button class="pad action" data-key="use" type="button">Взять</button>
+        </div>
+        <div class="overlay" id="overlay">
+          <div class="start-card">
+            <h1>Палата №13</h1>
+            <p id="overlayText">Найди ключ, батарейку и предохранитель. Когда свет красный, стой неподвижно. Когда пациент рядом, смотри на него фонариком.</p>
+            <div class="tags"><span>маленькая карта</span><span>красный свет</span><span>один монстр</span><span>смешной финал</span></div>
+            <button class="primary" id="startButton" type="button">Проснуться</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <h2>Правила</h2>
+        <p>Иди стрелками или WASD. Поверни взгляд мышкой или клавишами Q/E. Пробел/кнопка “Взять” берёт предмет или открывает дверь.</p>
+        <div class="panel-card">
+          <h3>Что найти</h3>
+          <div class="items">
+            <div class="item" id="keyItem"><span>ключ</span><b>□</b></div>
+            <div class="item" id="batteryItem"><span>батарейка</span><b>□</b></div>
+            <div class="item" id="fuseItem"><span>предохранитель</span><b>□</b></div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <h3>Монстр</h3>
+          <p class="tip">Обычный свет: если ты смотришь на пациента, он замирает. Красный свет: не двигайся, иначе он бросится.</p>
+        </div>
+        <button class="secondary" id="restartButton" type="button">Начать заново</button>
+      </aside>
+    </main>
+
+    <footer>
+      <p>Оригинальная мини-карта Яны по идее “Палата №13”: страшно, но без жестокости и с шуточной концовкой.</p>
+      <nav aria-label="Быстрые ссылки в подвале">
+        <a href="../../index.html">Главная</a>
+        <a href="../index.html">Игры</a>
+        <a href="../night-school/index.html">Ночная школа</a>
+      </nav>
+    </footer>
+
+    <script>
+      const canvas = document.querySelector("#game");
+      const ctx = canvas.getContext("2d");
+      const overlay = document.querySelector("#overlay");
+      const overlayText = document.querySelector("#overlayText");
+      const startButton = document.querySelector("#startButton");
+      const restartButton = document.querySelector("#restartButton");
+      const lightStatus = document.querySelector("#lightStatus");
+      const timerEl = document.querySelector("#timer");
+      const itemCount = document.querySelector("#itemCount");
+      const dangerEl = document.querySelector("#danger");
+      const itemEls = {
+        key: document.querySelector("#keyItem"),
+        battery: document.querySelector("#batteryItem"),
+        fuse: document.querySelector("#fuseItem")
+      };
+
+      const keys = {};
+      const wallRects = [
+        { x: 88, y: 82, w: 600, h: 28 },
+        { x: 88, y: 82, w: 28, h: 380 },
+        { x: 88, y: 434, w: 600, h: 28 },
+        { x: 660, y: 82, w: 28, h: 128 },
+        { x: 660, y: 322, w: 28, h: 140 },
+        { x: 688, y: 188, w: 196, h: 28 },
+        { x: 856, y: 188, w: 28, h: 250 },
+        { x: 688, y: 410, w: 196, h: 28 },
+        { x: 688, y: 322, w: 96, h: 28 }
+      ];
+      const furniture = [
+        { x: 145, y: 128, w: 170, h: 84, label: "кровать" },
+        { x: 145, y: 246, w: 78, h: 58, label: "тумба" },
+        { x: 458, y: 130, w: 120, h: 58, label: "шкаф" },
+        { x: 334, y: 338, w: 146, h: 48, label: "стол" },
+        { x: 730, y: 238, w: 82, h: 50, label: "каталка" }
+      ];
+      const state = {
+        running: false,
+        ended: false,
+        player: { x: 212, y: 330, angle: -0.2, speed: 128, moving: false },
+        monster: { x: 758, y: 362, hidden: false, stunned: false, rush: 0 },
+        items: [
+          { id: "key", name: "ключ", x: 538, y: 162, got: false, color: "#ffd76a" },
+          { id: "battery", name: "батарейка", x: 178, y: 276, got: false, color: "#82d9ff" },
+          { id: "fuse", name: "предохранитель", x: 394, y: 362, got: false, color: "#65d89f" }
+        ],
+        time: 0,
+        red: false,
+        redTimer: 18,
+        message: "На стене написано: не смотри на пациентов, когда мигает свет.",
+        shake: 0,
+        endingText: ""
+      };
+
+      function reset() {
+        state.running = true;
+        state.ended = false;
+        state.player.x = 212;
+        state.player.y = 330;
+        state.player.angle = -0.2;
+        state.monster.x = 758;
+        state.monster.y = 362;
+        state.monster.rush = 0;
+        state.time = 0;
+        state.red = false;
+        state.redTimer = 18;
+        state.message = "Найди 3 предмета. Пациент двигается, когда ты не смотришь.";
+        state.shake = 0;
+        state.endingText = "";
+        state.items.forEach((item) => item.got = false);
+        overlay.classList.add("hidden");
+      }
+
+      function endGame(text, won) {
+        state.running = false;
+        state.ended = true;
+        state.endingText = text;
+        overlayText.textContent = won
+          ? "Дверь открылась. Пациент снимает маску: “Фух... наконец-то ты дошёл. Я уже два часа за тобой бегаю.” А зеркало показывает смешной твист: пациентом был ты."
+          : text;
+        startButton.textContent = won ? "Сыграть ещё" : "Попробовать снова";
+        overlay.classList.remove("hidden");
+      }
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function rectHitCircle(rect, x, y, r) {
+        const cx = clamp(x, rect.x, rect.x + rect.w);
+        const cy = clamp(y, rect.y, rect.y + rect.h);
+        return Math.hypot(x - cx, y - cy) < r;
+      }
+
+      function blocked(x, y) {
+        return wallRects.some((rect) => rectHitCircle(rect, x, y, 17)) ||
+          furniture.some((rect) => rectHitCircle(rect, x, y, 18));
+      }
+
+      function tryMove(entity, dx, dy) {
+        const nx = entity.x + dx;
+        const ny = entity.y + dy;
+        if (!blocked(nx, entity.y)) entity.x = nx;
+        if (!blocked(entity.x, ny)) entity.y = ny;
+      }
+
+      function angleTo(a, b) {
+        return Math.atan2(b.y - a.y, b.x - a.x);
+      }
+
+      function angleDiff(a, b) {
+        let d = a - b;
+        while (d > Math.PI) d -= Math.PI * 2;
+        while (d < -Math.PI) d += Math.PI * 2;
+        return Math.abs(d);
+      }
+
+      function playerSeesMonster() {
+        const distance = Math.hypot(state.monster.x - state.player.x, state.monster.y - state.player.y);
+        if (distance > 270) return false;
+        return angleDiff(state.player.angle, angleTo(state.player, state.monster)) < 0.58;
+      }
+
+      function nearDoor() {
+        return state.player.x > 640 && state.player.y > 214 && state.player.y < 322;
+      }
+
+      function collectOrUse() {
+        if (!state.running) return;
+        for (const item of state.items) {
+          if (!item.got && Math.hypot(item.x - state.player.x, item.y - state.player.y) < 42) {
+            item.got = true;
+            state.message = `Ты нашла: ${item.name}.`;
+            state.shake = .4;
+            return;
+          }
+        }
+        if (nearDoor()) {
+          const all = state.items.every((item) => item.got);
+          if (all) endGame("Выход открыт.", true);
+          else state.message = "Дверь заперта. Нужны ключ, батарейка и предохранитель.";
+        }
+      }
+
+      function update(dt) {
+        if (!state.running) return;
+        state.time += dt;
+        state.redTimer -= dt;
+        state.shake = Math.max(0, state.shake - dt * 2.4);
+        if (state.redTimer <= 0) {
+          state.red = !state.red;
+          state.redTimer = state.red ? 7 : 18;
+          state.message = state.red ? "СИРЕНА. Красный свет: стой неподвижно." : "Свет снова белый. Смотри на пациента.";
+          state.shake = state.red ? 1 : .35;
+        }
+
+        const left = keys.ArrowLeft || keys.KeyA;
+        const right = keys.ArrowRight || keys.KeyD;
+        const up = keys.ArrowUp || keys.KeyW;
+        const down = keys.ArrowDown || keys.KeyS;
+        if (keys.KeyQ) state.player.angle -= dt * 3.2;
+        if (keys.KeyE) state.player.angle += dt * 3.2;
+        let dx = 0;
+        let dy = 0;
+        if (left) dx -= 1;
+        if (right) dx += 1;
+        if (up) dy -= 1;
+        if (down) dy += 1;
+        const moving = Math.hypot(dx, dy) > 0;
+        state.player.moving = moving;
+        if (moving) {
+          const len = Math.hypot(dx, dy);
+          dx /= len;
+          dy /= len;
+          state.player.angle = Math.atan2(dy, dx);
+          tryMove(state.player, dx * state.player.speed * dt, dy * state.player.speed * dt);
+        }
+
+        const sees = playerSeesMonster();
+        state.monster.stunned = !state.red && sees;
+        let monsterSpeed = state.red ? 0 : 92;
+        if (state.red && moving) {
+          monsterSpeed = 230;
+          state.monster.rush = 1;
+          state.message = "Ты двинулась в красный свет. Пациент услышал!";
+        }
+        if (state.red && !moving) monsterSpeed = 0;
+        if (!state.monster.stunned && monsterSpeed > 0) {
+          const angle = angleTo(state.monster, state.player);
+          tryMove(state.monster, Math.cos(angle) * monsterSpeed * dt, Math.sin(angle) * monsterSpeed * dt);
+        }
+        state.monster.rush = Math.max(0, state.monster.rush - dt * 1.6);
+
+        const danger = Math.hypot(state.monster.x - state.player.x, state.monster.y - state.player.y);
+        if (danger < 26) {
+          endGame("Пациент догнал тебя. Надо чаще смотреть на него и не двигаться в красный свет.", false);
+        }
+      }
+
+      function roundedRect(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+      }
+
+      function drawRoom() {
+        ctx.fillStyle = "#111019";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const floor = ctx.createLinearGradient(0, 80, 0, 460);
+        floor.addColorStop(0, "#3c3945");
+        floor.addColorStop(1, "#24212d");
+        ctx.fillStyle = floor;
+        roundedRect(88, 82, 600, 380, 4);
+        ctx.fill();
+        ctx.fillStyle = "#2c2934";
+        roundedRect(688, 188, 196, 250, 4);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,.07)";
+        ctx.lineWidth = 1;
+        for (let x = 118; x < 870; x += 44) {
+          ctx.beginPath();
+          ctx.moveTo(x, 90);
+          ctx.lineTo(x, 456);
+          ctx.stroke();
+        }
+        for (let y = 108; y < 450; y += 44) {
+          ctx.beginPath();
+          ctx.moveTo(92, y);
+          ctx.lineTo(884, y);
+          ctx.stroke();
+        }
+        ctx.fillStyle = "#56515f";
+        for (const wall of wallRects) {
+          roundedRect(wall.x, wall.y, wall.w, wall.h, 5);
+          ctx.fill();
+        }
+        ctx.fillStyle = "#16131d";
+        roundedRect(662, 210, 26, 112, 4);
+        ctx.fill();
+        ctx.fillStyle = "#ff405f";
+        ctx.font = "900 24px Arial";
+        ctx.fillText("НЕ СМОТРИ НА ПАЦИЕНТОВ, КОГДА МИГАЕТ СВЕТ", 150, 116);
+      }
+
+      function drawFurniture() {
+        for (const item of furniture) {
+          ctx.save();
+          ctx.fillStyle = item.label === "кровать" ? "#d8d1c4" : "#756f7e";
+          roundedRect(item.x, item.y, item.w, item.h, 10);
+          ctx.fill();
+          ctx.strokeStyle = "rgba(255,255,255,.16)";
+          ctx.lineWidth = 4;
+          ctx.stroke();
+          if (item.label === "кровать") {
+            ctx.fillStyle = "#a4ddff";
+            roundedRect(item.x + 14, item.y + 14, 62, 42, 12);
+            ctx.fill();
+            ctx.fillStyle = "#f5f0e7";
+            roundedRect(item.x + 86, item.y + 10, 68, 62, 12);
+            ctx.fill();
+          }
+          if (item.label === "шкаф") {
+            ctx.strokeStyle = "rgba(0,0,0,.3)";
+            ctx.beginPath();
+            ctx.moveTo(item.x + item.w / 2, item.y + 8);
+            ctx.lineTo(item.x + item.w / 2, item.y + item.h - 8);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+        ctx.fillStyle = "rgba(130,217,255,.2)";
+        roundedRect(276, 82, 86, 10, 4);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,.22)";
+        roundedRect(300, 78, 38, 16, 6);
+        ctx.fill();
+      }
+
+      function drawItem(item) {
+        if (item.got) return;
+        ctx.save();
+        ctx.translate(item.x, item.y);
+        ctx.shadowColor = item.color;
+        ctx.shadowBlur = 14;
+        ctx.fillStyle = item.color;
+        if (item.id === "key") {
+          ctx.beginPath();
+          ctx.arc(-9, 0, 10, 0, Math.PI * 2);
+          ctx.rect(-1, -4, 32, 8);
+          ctx.rect(20, 3, 6, 12);
+          ctx.fill();
+        } else if (item.id === "battery") {
+          roundedRect(-18, -10, 36, 20, 6);
+          ctx.fill();
+          ctx.fillRect(18, -5, 7, 10);
+        } else {
+          ctx.beginPath();
+          ctx.moveTo(0, -18);
+          ctx.lineTo(15, 8);
+          ctx.lineTo(4, 8);
+          ctx.lineTo(8, 20);
+          ctx.lineTo(-12, -4);
+          ctx.lineTo(-1, -4);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawBlockPerson(x, y, angle, bodyColor, faceColor, label, monster = false) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillStyle = "rgba(0,0,0,.34)";
+        ctx.beginPath();
+        ctx.ellipse(0, 22, 24, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = bodyColor;
+        roundedRect(-15, -4, 30, 38, 7);
+        ctx.fill();
+        ctx.strokeStyle = "#111019";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.fillStyle = faceColor;
+        roundedRect(-14, -28, 28, 28, 8);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = monster ? "#1b1520" : "#402f21";
+        roundedRect(-17, -33, 34, 12, 6);
+        ctx.fill();
+        ctx.fillStyle = "#111019";
+        ctx.beginPath();
+        ctx.arc(-6, -15, 2.5, 0, Math.PI * 2);
+        ctx.arc(6, -15, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#111019";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-7, -6);
+        ctx.quadraticCurveTo(0, monster ? -1 : -9, 7, -6);
+        ctx.stroke();
+        ctx.strokeStyle = monster ? "#f3efff" : "#82d9ff";
+        ctx.lineWidth = monster ? 9 : 5;
+        ctx.beginPath();
+        ctx.moveTo(-20, 4);
+        ctx.lineTo(-31, 22);
+        ctx.moveTo(20, 4);
+        ctx.lineTo(31, 22);
+        ctx.stroke();
+        ctx.restore();
+        ctx.fillStyle = monster ? "#ff8194" : "#dff8ff";
+        ctx.font = "900 12px Arial";
+        ctx.fillText(label, x - 22, y + 48);
+      }
+
+      function drawVision() {
+        ctx.save();
+        ctx.translate(state.player.x, state.player.y);
+        ctx.rotate(state.player.angle);
+        const beam = ctx.createRadialGradient(0, 0, 10, 145, 0, 270);
+        beam.addColorStop(0, "rgba(255,247,183,.35)");
+        beam.addColorStop(.72, "rgba(255,247,183,.16)");
+        beam.addColorStop(1, "rgba(255,247,183,0)");
+        ctx.fillStyle = beam;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, 280, -0.52, 0.52);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawEffects() {
+        if (state.red) {
+          ctx.fillStyle = "rgba(255, 30, 60, .22)";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.strokeStyle = "rgba(255, 64, 95, .55)";
+          ctx.lineWidth = 8;
+          ctx.strokeRect(12, 12, canvas.width - 24, canvas.height - 24);
+        } else {
+          const gradient = ctx.createRadialGradient(state.player.x, state.player.y, 80, state.player.x, state.player.y, 470);
+          gradient.addColorStop(0, "rgba(0,0,0,0)");
+          gradient.addColorStop(.64, "rgba(0,0,0,.16)");
+          gradient.addColorStop(1, "rgba(0,0,0,.7)");
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+
+      function drawMessage() {
+        ctx.fillStyle = "rgba(9,8,14,.76)";
+        roundedRect(112, 488, 736, 58, 14);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,.12)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = "#fff";
+        ctx.font = "900 20px Arial";
+        ctx.fillText(state.message, 132, 523);
+      }
+
+      function draw() {
+        ctx.save();
+        if (state.shake > 0) ctx.translate((Math.random() - .5) * state.shake * 8, (Math.random() - .5) * state.shake * 8);
+        drawRoom();
+        drawFurniture();
+        state.items.forEach(drawItem);
+        drawVision();
+        drawBlockPerson(state.monster.x, state.monster.y, angleTo(state.monster, state.player), state.monster.stunned ? "#8a8792" : "#f2eff8", "#ded7cc", "пациент", true);
+        drawBlockPerson(state.player.x, state.player.y, state.player.angle, "#82d9ff", "#ffd7b6", "ты", false);
+        if (nearDoor()) {
+          ctx.fillStyle = "#ffd76a";
+          ctx.font = "900 18px Arial";
+          ctx.fillText("Нажми пробел: открыть дверь", 642, 184);
+        }
+        drawEffects();
+        drawMessage();
+        ctx.restore();
+
+        const got = state.items.filter((item) => item.got).length;
+        lightStatus.textContent = state.red ? "красный" : "белый";
+        lightStatus.className = state.red ? "status-red" : "status-white";
+        timerEl.textContent = Math.ceil(state.redTimer);
+        itemCount.textContent = got;
+        const dist = Math.hypot(state.monster.x - state.player.x, state.monster.y - state.player.y);
+        dangerEl.textContent = dist < 90 ? "рядом" : state.monster.stunned ? "замер" : "тихо";
+        for (const item of state.items) {
+          itemEls[item.id].classList.toggle("done", item.got);
+          itemEls[item.id].querySelector("b").textContent = item.got ? "✓" : "□";
+        }
+      }
+
+      let last = performance.now();
+      function loop(now) {
+        const dt = Math.min(.033, (now - last) / 1000);
+        last = now;
+        update(dt);
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      document.addEventListener("keydown", (event) => {
+        keys[event.code] = true;
+        if (event.code === "Space") {
+          event.preventDefault();
+          collectOrUse();
+        }
+      });
+      document.addEventListener("keyup", (event) => keys[event.code] = false);
+      canvas.addEventListener("pointermove", (event) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width * canvas.width;
+        const y = (event.clientY - rect.top) / rect.height * canvas.height;
+        state.player.angle = Math.atan2(y - state.player.y, x - state.player.x);
+      });
+      document.querySelectorAll("[data-key]").forEach((button) => {
+        const map = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight" };
+        const code = map[button.dataset.key];
+        button.addEventListener("pointerdown", () => {
+          if (button.dataset.key === "use") collectOrUse();
+          else keys[code] = true;
+        });
+        button.addEventListener("pointerup", () => { if (code) keys[code] = false; });
+        button.addEventListener("pointercancel", () => { if (code) keys[code] = false; });
+        button.addEventListener("pointerleave", () => { if (code) keys[code] = false; });
+      });
+      startButton.addEventListener("click", reset);
+      restartButton.addEventListener("click", reset);
+      draw();
+      requestAnimationFrame(loop);
+    </script>
+    <script src="../../assets/site.js"></script>
+  </body>
+</html>
