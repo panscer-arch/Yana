@@ -1,4 +1,4 @@
-const CACHE_NAME = "yana-unicorn-v91";
+const CACHE_NAME = "yana-unicorn-v92";
 const CACHE_PATHS = [
   "./",
   "./index.html",
@@ -11,6 +11,7 @@ const CACHE_PATHS = [
   "./games/fluffy-school-escape/index.html",
   "./games/kawaii-scene/index.html",
   "./games/fluffy-run/index.html",
+  "./games/rainbow-race/index.html",
   "./games/black-cubes/index.html",
   "./games/parkour/index.html",
   "./games/parkour/game.js",
@@ -45,6 +46,7 @@ const CACHE_PATHS = [
   "./assets/covers/generated/fluffy-school-escape.svg",
   "./assets/covers/generated/kawaii-scene.svg",
   "./assets/covers/generated/fluffy-run.svg",
+  "./assets/covers/generated/rainbow-race.svg",
   "./assets/covers/generated/parkour.png",
   "./assets/covers/generated/kitten-care.png",
   "./assets/covers/generated/cozy-house.svg",

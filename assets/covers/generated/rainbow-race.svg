@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 390" role="img" aria-label="Радужные гонки">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#7edcff"/>
+      <stop offset=".62" stop-color="#dff8ff"/>
+      <stop offset="1" stop-color="#fff2b5"/>
+    </linearGradient>
+    <linearGradient id="road" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#666b78"/>
+      <stop offset="1" stop-color="#262937"/>
+    </linearGradient>
+    <linearGradient id="car" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset=".18" stop-color="#ff72ad"/>
+      <stop offset="1" stop-color="#d94d94"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="12" stdDeviation="8" flood-color="#241f35" flood-opacity=".25"/>
+    </filter>
+  </defs>
+  <rect width="720" height="390" fill="url(#sky)"/>
+  <circle cx="612" cy="62" r="44" fill="#ffd76a"/>
+  <g fill="#fff" opacity=".82">
+    <ellipse cx="104" cy="74" rx="54" ry="18"/>
+    <ellipse cx="143" cy="76" rx="38" ry="14"/>
+    <ellipse cx="68" cy="79" rx="34" ry="13"/>
+    <ellipse cx="396" cy="96" rx="58" ry="17"/>
+    <ellipse cx="436" cy="100" rx="34" ry="13"/>
+  </g>
+  <path d="M0 212c116-28 183-44 296-20 138 30 217-18 424 10v188H0z" fill="#79ca69"/>
+  <path d="M275 162h170l235 228H40z" fill="url(#road)"/>
+  <path d="M285 162 54 390M435 162l232 228" fill="none" stroke="#fff6ad" stroke-width="8" stroke-linecap="round"/>
+  <path d="M344 170 270 390M376 170l78 220" fill="none" stroke="#fff" stroke-width="7" stroke-dasharray="28 24" stroke-linecap="round"/>
+  <g filter="url(#shadow)">
+    <path d="M201 250c-40 18-66 50-76 100h92c8-35 26-61 54-79z" fill="#30a8ff"/>
+    <rect x="178" y="306" width="78" height="48" rx="18" fill="#1b2030"/>
+    <rect x="143" y="268" width="106" height="76" rx="26" fill="#31a6ff" stroke="#241f35" stroke-width="8"/>
+    <path d="M166 276h58l-11-25h-36z" fill="#c9f4ff" stroke="#241f35" stroke-width="6"/>
+    <circle cx="174" cy="340" r="15" fill="#151824"/>
+    <circle cx="223" cy="340" r="15" fill="#151824"/>
+  </g>
+  <g filter="url(#shadow)">
+    <ellipse cx="362" cy="355" rx="92" ry="22" fill="#000" opacity=".25"/>
+    <rect x="286" y="247" width="45" height="116" rx="18" fill="#171822"/>
+    <rect x="389" y="247" width="45" height="116" rx="18" fill="#171822"/>
+    <rect x="282" y="206" width="156" height="160" rx="38" fill="url(#car)" stroke="#241f35" stroke-width="9"/>
+    <rect x="310" y="226" width="100" height="58" rx="18" fill="#c9f4ff" stroke="#241f35" stroke-width="7"/>
+    <path d="M305 202h110l-24-30h-62z" fill="#fff5fb" stroke="#241f35" stroke-width="7"/>
+    <rect x="304" y="318" width="34" height="20" rx="10" fill="#ffd76a"/>
+    <rect x="382" y="318" width="34" height="20" rx="10" fill="#ffd76a"/>
+    <path d="M321 365 303 390h34l18-25zm78 0 24 25h-38l-18-25z" fill="#ffd76a" opacity=".95"/>
+  </g>
+  <g transform="translate(531 246)" filter="url(#shadow)">
+    <ellipse cx="0" cy="28" rx="26" ry="8" fill="#000" opacity=".2"/>
+    <ellipse cx="0" cy="0" rx="24" ry="31" fill="#ffd76a" stroke="#8c6400" stroke-width="7"/>
+    <text x="-15" y="10" fill="#fff7bc" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="900">★</text>
+  </g>
+  <text x="38" y="70" fill="#241f35" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="900">Радужные гонки</text>
+</svg>
