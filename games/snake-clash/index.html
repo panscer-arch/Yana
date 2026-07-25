@@ -264,16 +264,6 @@
         box-shadow: 0 24px 90px rgba(0, 0, 0, 0.46);
       }
 
-      .cover-art {
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        margin-bottom: 14px;
-        object-fit: cover;
-        border: 3px solid rgba(65, 232, 183, 0.24);
-        border-radius: 8px;
-        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
-      }
-
       .modal h2 {
         margin: 0 0 8px;
         font-size: 28px;
@@ -376,7 +366,6 @@
 
       <div class="overlay show" id="overlay">
         <div class="modal">
-          <img class="cover-art" src="../../assets/covers/generated/snake-clash.png" alt="" loading="eager">
           <h2 id="modalTitle">Snake Clash</h2>
         <p id="modalText">Собирайте светящиеся точки. Если твоя змейка длиннее другой, ты можешь её съесть. Если другая длиннее тебя, держись подальше.</p>
         <div class="player-select">
@@ -412,8 +401,6 @@
     <script>
       const canvas = document.querySelector("#arena");
       const ctx = canvas.getContext("2d");
-      const snakeSprite = new Image();
-      snakeSprite.src = "../../assets/sprites/snake-sprite.png";
       const lengthEl = document.querySelector("#length");
       const killsEl = document.querySelector("#kills");
       const rankEl = document.querySelector("#rank");
@@ -523,9 +510,6 @@
         bursts = [];
         for (let i = 0; i < 260; i += 1) {
           foods.push(makeFood());
-        }
-        for (let i = 0; i < 12; i += 1) {
-          foods.push(makeFood(rand(80, world.width - 80), rand(80, world.height - 80), 5));
         }
         running = true;
         gameOver = false;
@@ -692,32 +676,13 @@
       }
 
       function drawGrid() {
-        const bg = ctx.createLinearGradient(0, 0, width, height);
-        bg.addColorStop(0, "#111a3a");
-        bg.addColorStop(0.5, "#120d2a");
-        bg.addColorStop(1, "#071018");
-        ctx.fillStyle = bg;
+        ctx.fillStyle = "#080b10";
         ctx.fillRect(0, 0, width, height);
 
         const left = camera.x - width / 2;
         const top = camera.y - height / 2;
-        const glow = [
-          { x: 520, y: 420, r: 420, c: "rgba(65,232,183,.16)" },
-          { x: 2150, y: 780, r: 520, c: "rgba(255,95,126,.14)" },
-          { x: 1480, y: 1640, r: 560, c: "rgba(255,209,102,.14)" },
-          { x: 2860, y: 1640, r: 460, c: "rgba(99,179,237,.13)" }
-        ];
-        glow.forEach((spot) => {
-          const p = worldToScreen(spot);
-          const radial = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, spot.r);
-          radial.addColorStop(0, spot.c);
-          radial.addColorStop(1, "rgba(0,0,0,0)");
-          ctx.fillStyle = radial;
-          ctx.fillRect(0, 0, width, height);
-        });
-
         const grid = 80;
-        ctx.strokeStyle = "rgba(255,255,255,0.07)";
+        ctx.strokeStyle = "rgba(255,255,255,0.045)";
         ctx.lineWidth = 1;
 
         for (let x = -left % grid; x < width; x += grid) {
@@ -733,17 +698,6 @@
           ctx.lineTo(width, y);
           ctx.stroke();
         }
-
-        ctx.save();
-        ctx.globalAlpha = .5;
-        ctx.strokeStyle = "rgba(65,232,183,.2)";
-        ctx.lineWidth = 3;
-        for (let x = -left % 320; x < width; x += 320) {
-          ctx.beginPath();
-          ctx.arc(x, height * .52, 90, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-        ctx.restore();
 
         ctx.strokeStyle = "rgba(255,95,126,0.35)";
         ctx.lineWidth = 4;
@@ -813,43 +767,7 @@
         ctx.stroke();
         ctx.restore();
 
-        ctx.save();
-        ctx.fillStyle = "rgba(255,255,255,.18)";
-        for (let i = 5; i < snake.points.length; i += 9) {
-          const p = worldToScreen(snake.points[i]);
-          ctx.beginPath();
-          ctx.ellipse(p.x, p.y, snake.radius * .46, snake.radius * .22, snake.angle + i * .11, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.restore();
-
         const head = worldToScreen(snake);
-        ctx.save();
-        ctx.translate(head.x, head.y);
-        ctx.rotate(snake.angle);
-        ctx.fillStyle = snake.color;
-        ctx.shadowColor = snake.color;
-        ctx.shadowBlur = 18;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, snake.radius * 1.1, snake.radius * .88, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "rgba(255,255,255,.24)";
-        ctx.beginPath();
-        ctx.ellipse(-4, -5, snake.radius * .38, snake.radius * .16, -.35, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        if (snakeSprite.complete && snakeSprite.naturalWidth > 0) {
-          ctx.save();
-          ctx.translate(head.x, head.y);
-          ctx.rotate(snake.angle);
-          const wiggle = Math.sin(performance.now() / 120 + snake.index) * 0.08;
-          ctx.scale(1 + wiggle, 1 - wiggle * .5);
-          ctx.shadowColor = snake.color;
-          ctx.shadowBlur = 14;
-          ctx.drawImage(snakeSprite, -snake.radius - 10, -snake.radius - 16, snake.radius * 2 + 34, snake.radius * 2 + 34);
-          ctx.restore();
-        }
         const eyeOffset = snake.radius * 0.45;
         const side = snake.angle + Math.PI / 2;
         ctx.fillStyle = "#071018";

@@ -1,4 +1,4 @@
-const CACHE_NAME = "yana-unicorn-v94";
+const CACHE_NAME = "yana-unicorn-v95";
 const CACHE_PATHS = [
   "./",
   "./index.html",
@@ -135,7 +135,6 @@ const CACHE_PATHS = [
   "./assets/sprites/care-kitten.png",
   "./assets/sprites/goose-artist-sprite.png",
   "./assets/sprites/kolobok-sprite.png",
-  "./assets/sprites/snake-sprite.png",
   "./assets/sprites/arena-player-sprite.png",
   "./assets/sprites/math-number-sprite.png",
   "./assets/sprites/unicorn-idea-sprite.png",
