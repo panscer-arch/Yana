@@ -349,6 +349,21 @@
           #f0d8bd;
       }
 
+      .template-button[data-template="goose"] {
+        color: #fff;
+        background:
+          linear-gradient(180deg, rgba(33,29,47,.02), rgba(33,29,47,.34)),
+          center / cover no-repeat url("../../assets/goose-artist-yana.png");
+        text-shadow: 0 2px 8px rgba(33,29,47,.55);
+      }
+
+      .template-button[data-template="goose"]::before {
+        width: 42px;
+        height: 42px;
+        background: rgba(255,255,255,.9);
+        box-shadow: inset 0 0 0 8px rgba(255,111,168,.28);
+      }
+
       .template-button[data-template="unicorn"] {
         background:
           conic-gradient(from 30deg at 52% 18%, #ffd45c, #ff8b45, #ffd45c),
@@ -458,7 +473,7 @@
       }
 
       .template-callout .template-grid {
-        grid-template-columns: repeat(7, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
       }
 
       .quickbar label {
@@ -482,6 +497,69 @@
         background-position: 0 0, 16px 16px;
         background-size: 32px 32px;
         touch-action: none;
+      }
+
+      .canvas-wrap::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at var(--spark-x, 48%) var(--spark-y, 42%), rgba(255,255,255,.24), transparent 18%),
+          linear-gradient(135deg, rgba(255,255,255,.18), transparent 34%, rgba(123,97,255,.08));
+        mix-blend-mode: screen;
+      }
+
+      .mascot-note {
+        position: absolute;
+        right: 14px;
+        bottom: 14px;
+        z-index: 5;
+        width: min(280px, 34%);
+        display: grid;
+        gap: 7px;
+        padding: 9px;
+        border: 3px solid rgba(33,29,47,.12);
+        border-radius: 8px;
+        background: rgba(255,255,255,.84);
+        box-shadow: 0 12px 24px rgba(33,29,47,.14);
+        pointer-events: none;
+        animation: mascotFloat 3.6s ease-in-out infinite;
+      }
+
+      .mascot-note img {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        border-radius: 6px;
+      }
+
+      .mascot-note strong {
+        font-size: 14px;
+      }
+
+      .paint-spark {
+        position: absolute;
+        z-index: 6;
+        width: 14px;
+        height: 14px;
+        border-radius: 52% 48% 58% 42%;
+        background: var(--spark-color);
+        pointer-events: none;
+        transform: translate(-50%, -50%) scale(.45);
+        animation: paintPop .65s ease-out forwards;
+      }
+
+      @keyframes mascotFloat {
+        0%, 100% { transform: translateY(0) rotate(-1deg); }
+        50% { transform: translateY(-8px) rotate(1deg); }
+      }
+
+      @keyframes paintPop {
+        0% { opacity: .95; transform: translate(-50%, -50%) scale(.2); }
+        68% { opacity: .82; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1); }
+        100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.35); }
       }
 
       .canvas-tip {
@@ -728,6 +806,7 @@
 
           <h2>Выбрать рисунок</h2>
           <div class="template-grid" aria-label="Готовые рисунки">
+            <button type="button" class="template-button" data-template="goose">Гусь</button>
             <button type="button" class="template-button" data-template="kitten">Котёнок</button>
             <button type="button" class="template-button" data-template="unicorn">Единорог</button>
             <button type="button" class="template-button" data-template="garden">Сад</button>
@@ -770,6 +849,7 @@
             <h2>Галерея рисунков</h2>
             <p>Выбери красивую заготовку, а потом дорисуй её сама кистью, цветами и словами.</p>
             <div class="template-grid">
+              <button type="button" class="template-button" data-template="goose">Гусь</button>
               <button type="button" class="template-button" data-template="kitten">Котёнок</button>
               <button type="button" class="template-button" data-template="unicorn">Единорог</button>
               <button type="button" class="template-button" data-template="garden">Сад</button>
@@ -782,6 +862,10 @@
           </div>
           <div class="canvas-wrap" id="canvasWrap">
             <div class="canvas-tip" id="canvasTip">Рисуй здесь</div>
+            <div class="mascot-note" aria-hidden="true">
+              <img src="../../assets/goose-artist-yana.png" alt="">
+              <strong>Гусь оживляет кадры краской</strong>
+            </div>
             <canvas id="onionCanvas" width="960" height="720"></canvas>
             <canvas id="drawCanvas" width="960" height="720"></canvas>
           </div>
@@ -849,6 +933,8 @@
       const focusModeButton = document.querySelector("#focusModeButton");
       const phraseInput = document.querySelector("#phraseInput");
       const storageKey = "yana-animation-studio-v1";
+      const gooseImage = new Image();
+      gooseImage.src = "../../assets/goose-artist-yana.png";
       const frames = [];
       let activeFrame = 0;
       let tool = "brush";
@@ -1005,6 +1091,57 @@
         ctx.restore();
       }
 
+      function rand(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      function drawImageCover(image) {
+        const canvasRatio = canvas.width / canvas.height;
+        const imageRatio = image.naturalWidth / image.naturalHeight;
+        let sourceWidth = image.naturalWidth;
+        let sourceHeight = image.naturalHeight;
+        let sourceX = 0;
+        let sourceY = 0;
+
+        if (imageRatio > canvasRatio) {
+          sourceWidth = sourceHeight * canvasRatio;
+          sourceX = (image.naturalWidth - sourceWidth) / 2;
+        } else {
+          sourceHeight = sourceWidth / canvasRatio;
+          sourceY = (image.naturalHeight - sourceHeight) / 2;
+        }
+
+        ctx.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, canvas.width, canvas.height);
+      }
+
+      function drawGooseTemplate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (gooseImage.complete && gooseImage.naturalWidth) {
+          drawImageCover(gooseImage);
+          return Promise.resolve();
+        }
+
+        return new Promise((resolve) => {
+          gooseImage.onload = () => {
+            drawImageCover(gooseImage);
+            resolve();
+          };
+        });
+      }
+
+      function spawnPaintSpark(point, color) {
+        if (Math.random() > .45) return;
+        const spark = document.createElement("span");
+        spark.className = "paint-spark";
+        spark.style.setProperty("--spark-color", color);
+        spark.style.setProperty("--dx", `${Math.round(rand(-34, 34))}px`);
+        spark.style.setProperty("--dy", `${Math.round(rand(-42, 18))}px`);
+        spark.style.left = `${(point.x / canvas.width) * 100}%`;
+        spark.style.top = `${(point.y / canvas.height) * 100}%`;
+        canvasWrap.append(spark);
+        window.setTimeout(() => spark.remove(), 700);
+      }
+
       function line(points, color = "#211d2f", width = 7) {
         ctx.save();
         ctx.lineCap = "round";
@@ -1062,13 +1199,21 @@
         blob(765, 92, 95, 36, "rgba(255,255,255,.74)", "rgba(255,255,255,.74)", 1);
       }
 
-      function drawTemplate(name) {
+      async function drawTemplate(name) {
         pushHistory();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (name === "blank") {
           saveFrame(false);
           renderFrames();
           statusEl.textContent = "Чистый лист готов";
+          return;
+        }
+
+        if (name === "goose") {
+          await drawGooseTemplate();
+          saveFrame();
+          renderFrames();
+          statusEl.textContent = "Гусь-художник готов. Теперь дорисовывай краски и слова!";
           return;
         }
 
@@ -1373,6 +1518,7 @@
         }
         if (tool !== "line") {
           drawLine(startPoint, startPoint);
+          spawnPaintSpark(startPoint, colorPicker.value);
           saveFrame();
         }
       }
@@ -1388,6 +1534,7 @@
             drawLine(startPoint, point);
           } else {
             drawLine(lastPoint, point);
+            spawnPaintSpark(point, colorPicker.value);
             lastPoint = point;
           }
         }
