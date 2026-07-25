@@ -758,6 +758,40 @@
         font-weight: 900;
       }
 
+      .draft-shelf {
+        margin-top: 18px;
+        padding: 14px;
+        border: 3px dashed rgba(36, 31, 53, .18);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .72);
+      }
+
+      .draft-shelf summary {
+        cursor: pointer;
+        color: var(--muted);
+        font-weight: 950;
+      }
+
+      .draft-links {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+
+      .draft-links a {
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        color: var(--muted);
+        background: rgba(255, 255, 255, .76);
+        font-weight: 900;
+        text-decoration: none;
+      }
+
       .learn-grid {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(290px, .75fr);
@@ -1642,19 +1676,19 @@
         </article>
       </section>
 
-      <section class="play-spotlight" aria-labelledby="super-shooter-title">
+      <section class="play-spotlight" aria-labelledby="race-spotlight-title">
         <div class="play-spotlight-head">
           <div>
-            <span class="status ready">Игра прямо на сайте</span>
-            <h2 id="super-shooter-title">Суперстрелялка для всей семьи</h2>
-            <p>Реалистичная 3D-арена открывается прямо здесь. Для Atlas используй отдельную кнопку, чтобы браузер взял свежую серверную версию.</p>
+            <span class="status ready">Красивая быстрая игра</span>
+            <h2 id="race-spotlight-title">Радужные гонки</h2>
+            <p>Самая аккуратная новая аркада: машина, три полосы, монетки, соперники, буст и финиш без тяжёлой 3D-сцены.</p>
           </div>
-          <a class="mini-button" href="https://barbarpatapim.com/games/people-arena/index.html">Открыть в Atlas</a>
+          <a class="mini-button" href="https://barbarpatapim.com/games/rainbow-race/index.html">Открыть в Atlas</a>
         </div>
-        <a class="play-frame" href="games/people-arena/index.html">
+        <a class="play-frame" href="games/rainbow-race/index.html">
           <span>
-            <strong>Открыть суперстрелялку</strong>
-            <span>Игра откроется отдельно, а главная больше не будет грузить тяжёлую 3D-сцену.</span>
+            <strong>Открыть гонку</strong>
+            <span>Игра откроется отдельно: стрелки влево/вправо, пробел для буста, цель — доехать до финиша.</span>
           </span>
         </a>
       </section>
@@ -1735,18 +1769,6 @@
             <div class="card-actions">
               <a class="mini-button" href="games/rainbow-race/index.html">Играть</a>
               <span class="path-label">games/rainbow-race</span>
-            </div>
-          </article>
-
-          <article class="card featured-card">
-            <img class="game-cover" src="assets/covers/generated/ward-13.svg" alt="">
-            <span class="status ready">Новая страшилка</span>
-            <h3>Палата №13</h3>
-            <p>Мини-карта в стиле роблокс-страшилки: найди ключ, батарейку и предохранитель, не двигайся в красный свет и открой выход.</p>
-            <div class="feature-tags"><span>карта</span><span>монстр</span><span>твист</span></div>
-            <div class="card-actions">
-              <a class="mini-button" href="games/ward-13/index.html">Играть</a>
-              <span class="path-label">games/ward-13</span>
             </div>
           </article>
 
@@ -1870,29 +1892,6 @@
             </div>
           </article>
 
-          <article class="card">
-            <img class="game-cover" src="assets/covers/generated/people-arena.png" alt="">
-            <span class="status ready">Реалистичная версия</span>
-            <h3>Суперстрелялка</h3>
-            <p>Большая 3D-арена с камерой сзади героя, укрытиями, ботами, аптечками и игровыми спрайтами вместо временных кругляшков.</p>
-            <div class="feature-tags"><span>боты умнее</span><span>серии</span></div>
-            <div class="card-actions">
-              <a class="mini-button" href="games/people-arena/index.html">Играть</a>
-              <span class="path-label">games/people-arena</span>
-            </div>
-          </article>
-
-          <article class="card featured-card">
-            <img class="game-cover" src="assets/covers/generated/black-cubes.svg" alt="">
-            <span class="status ready">Новая игра</span>
-            <h3>Кубиковая долина</h3>
-            <p>Красивая блочная песочница: 3D-поворот камеры, добыча блоков, строительство, сундук, кровать и факелы.</p>
-            <div class="feature-tags"><span>3D-камера</span><span>стройка</span></div>
-            <div class="card-actions">
-              <a class="mini-button" href="games/black-cubes/index.html">Играть</a>
-              <span class="path-label">games/black-cubes</span>
-            </div>
-          </article>
 
           <article class="card">
             <img class="game-cover" src="assets/covers/generated/unicorn-run.png" alt="">
@@ -1916,6 +1915,15 @@
             </div>
           </article>
         </div>
+
+        <details class="draft-shelf">
+          <summary>Черновики спрятаны, чтобы витрина была красивой</summary>
+          <div class="draft-links">
+            <a href="games/ward-13/index.html">Палата №13</a>
+            <a href="games/people-arena/index.html">Суперстрелялка</a>
+            <a href="games/black-cubes/index.html">Кубиковая долина</a>
+          </div>
+        </details>
       </section>
 
       <section id="learn" aria-labelledby="learn-title">

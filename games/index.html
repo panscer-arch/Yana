@@ -451,6 +451,40 @@
         background: rgba(255, 212, 92, .32);
       }
 
+      .draft-shelf {
+        margin-top: 18px;
+        padding: 14px;
+        border: 3px dashed rgba(33, 29, 47, .18);
+        border-radius: 8px;
+        background: rgba(255, 253, 247, .72);
+      }
+
+      .draft-shelf summary {
+        cursor: pointer;
+        color: var(--muted);
+        font-weight: 950;
+      }
+
+      .draft-links {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+
+      .draft-links a {
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        color: var(--muted);
+        background: rgba(255, 255, 255, .76);
+        font-weight: 900;
+        text-decoration: none;
+      }
+
       ul,
       ol {
         margin: 0;
@@ -598,15 +632,6 @@
           </article>
 
           <article class="game-card">
-            <img class="cover-img" src="../assets/covers/generated/ward-13.svg" alt="">
-            <span class="status ready">Новая страшилка</span>
-            <h3>Палата №13</h3>
-            <p>Небольшая карта: палата, коридор, три предмета, красный свет, пациент-монстр и шуточная концовка.</p>
-            <div class="feature-tags"><span>карта</span><span>монстр</span><span>твист</span></div>
-            <a class="mini-button" href="ward-13/index.html">Играть</a>
-          </article>
-
-          <article class="game-card">
             <img class="cover-img" src="../assets/covers/generated/parkour.png" alt="">
             <span class="status ready">Готовая игра</span>
             <h3>Искорка: Паркур</h3>
@@ -705,23 +730,6 @@
             <a class="mini-button" href="snake-clash/index.html">Играть</a>
           </article>
 
-          <article class="game-card">
-            <img class="cover-img" src="../assets/covers/generated/people-arena.png" alt="">
-            <span class="status ready">Реалистичная версия</span>
-            <h3>Суперстрелялка</h3>
-            <p>Большая 3D-арена с камерой сзади героя, укрытиями, ботами, аптечками и игровыми спрайтами вместо временных кругляшков.</p>
-            <div class="feature-tags"><span>боты умнее</span><span>серии</span></div>
-            <a class="mini-button" href="people-arena/index.html">Играть</a>
-          </article>
-
-          <article class="game-card">
-            <img class="cover-img" src="../assets/covers/generated/black-cubes.svg" alt="">
-            <span class="status ready">Новая игра</span>
-            <h3>Кубиковая долина</h3>
-            <p>Красивая блочная песочница: 3D-поворот камеры, добыча блоков, строительство, сундук, кровать и факелы.</p>
-            <div class="feature-tags"><span>3D-камера</span><span>стройка</span></div>
-            <a class="mini-button" href="black-cubes/index.html">Играть</a>
-          </article>
 
           <article class="game-card">
             <img class="cover-img" src="../assets/covers/generated/unicorn-run.png" alt="">
@@ -739,6 +747,15 @@
             <a class="mini-button secondary" href="../school/index.html">Открыть школу</a>
           </article>
         </div>
+
+        <details class="draft-shelf">
+          <summary>Черновики спрятаны, чтобы красивые игры были первыми</summary>
+          <div class="draft-links">
+            <a href="ward-13/index.html">Палата №13</a>
+            <a href="people-arena/index.html">Суперстрелялка</a>
+            <a href="black-cubes/index.html">Кубиковая долина</a>
+          </div>
+        </details>
       </section>
 
       <section id="next-games" aria-labelledby="next-title">
