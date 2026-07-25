@@ -169,11 +169,8 @@
         border: 4px solid rgba(36, 31, 53, .18);
         border-radius: 8px;
         background:
-          radial-gradient(circle at 83% 16%, #ffe37a 0 7%, transparent 8%),
-          radial-gradient(ellipse at 18% 19%, rgba(255, 255, 255, .95) 0 9%, transparent 10%),
-          radial-gradient(ellipse at 33% 15%, rgba(255, 255, 255, .9) 0 7%, transparent 8%),
-          radial-gradient(ellipse at 72% 25%, rgba(255, 255, 255, .84) 0 10%, transparent 11%),
-          linear-gradient(180deg, #82d7ff 0 47%, #9ddd6d 48% 100%);
+          linear-gradient(180deg, rgba(255,255,255,.04), rgba(36,31,53,.12)),
+          center / cover no-repeat url("../../assets/backgrounds/cat-chase-garden.png");
         box-shadow: 0 18px 0 rgba(36, 31, 53, .08);
         outline: none;
       }
@@ -189,20 +186,14 @@
       }
 
       .stage::before {
-        top: 38%;
-        height: 26%;
+        inset: 0;
         background:
-          radial-gradient(ellipse at 18% 100%, rgba(72, 169, 92, .72) 0 34%, transparent 35%),
-          radial-gradient(ellipse at 56% 100%, rgba(92, 190, 91, .66) 0 38%, transparent 39%),
-          radial-gradient(ellipse at 88% 100%, rgba(64, 153, 86, .62) 0 34%, transparent 35%);
+          radial-gradient(ellipse at 48% 82%, rgba(0,0,0,.16), transparent 46%),
+          linear-gradient(180deg, transparent 0 58%, rgba(255,237,188,.18) 100%);
       }
 
       .stage::after {
-        bottom: -4%;
-        height: 36%;
-        background:
-          repeating-linear-gradient(110deg, rgba(255, 255, 255, .24) 0 2px, transparent 3px 44px),
-          radial-gradient(ellipse at 50% 90%, rgba(69, 132, 62, .28), transparent 58%);
+        display: none;
       }
 
       .scenery {
@@ -293,6 +284,12 @@
         clip-path: polygon(0 35%, 32% 20%, 63% 30%, 100% 0, 100% 100%, 0 100%);
       }
 
+      .scenery,
+      .path,
+      .finish {
+        display: none;
+      }
+
       .finish {
         position: absolute;
         z-index: 2;
@@ -380,9 +377,9 @@
       .cat,
       .lana {
         z-index: 4;
-        width: 88px;
-        height: 68px;
-        filter: drop-shadow(0 8px 0 rgba(36,31,53,.1));
+        width: 136px;
+        height: 104px;
+        filter: drop-shadow(0 16px 8px rgba(36,31,53,.22));
         transition: transform .12s ease;
       }
 
@@ -543,10 +540,10 @@
         position: absolute;
         left: 50%;
         top: 50%;
-        width: 118px;
+        width: 158px;
         height: auto;
         display: block;
-        transform: translate(-50%, -58%);
+        transform: translate(-50%, -62%);
         transform-origin: 50% 72%;
         pointer-events: none;
         animation: spriteIdle 2.2s ease-in-out infinite;
@@ -558,17 +555,17 @@
       }
 
       .lana .character-sprite {
-        width: 124px;
+        width: 174px;
       }
 
       @keyframes spriteIdle {
-        0%, 100% { transform: translate(-50%, -58%) rotate(-1deg) scale(1); }
-        50% { transform: translate(-50%, -63%) rotate(1deg) scale(1.02); }
+        0%, 100% { transform: translate(-50%, -62%) rotate(-1deg) scale(1); }
+        50% { transform: translate(-50%, -68%) rotate(1deg) scale(1.02); }
       }
 
       @keyframes spriteRun {
-        0%, 100% { transform: translate(-50%, -58%) rotate(-4deg) scale(1.04, .96); }
-        50% { transform: translate(-50%, -72%) rotate(5deg) scale(.96, 1.05); }
+        0%, 100% { transform: translate(-50%, -62%) rotate(-4deg) scale(1.04, .96); }
+        50% { transform: translate(-50%, -76%) rotate(5deg) scale(.96, 1.05); }
       }
 
       .cat .tail,
@@ -802,12 +799,12 @@
         comboTimer: 0,
         lives: 3,
         collected: 0,
-        luna: { x: 85, y: 295 },
-        lana: { x: 55, y: 330 },
+        luna: { x: 135, y: 318 },
+        lana: { x: 92, y: 362 },
         keys: new Set(),
         items: [],
-        lastLunaX: 85,
-        lastLanaX: 55
+        lastLunaX: 135,
+        lastLanaX: 92
       };
 
       const itemKinds = [
@@ -858,8 +855,8 @@
         state.comboTimer = 0;
         state.lives = 3;
         state.collected = 0;
-        state.luna = { x: 85, y: 295 };
-        state.lana = { x: 55, y: 330 };
+        state.luna = { x: 135, y: 318 };
+        state.lana = { x: 92, y: 362 };
         state.lastLunaX = state.luna.x;
         state.lastLanaX = state.lana.x;
         resetItems();
@@ -887,7 +884,7 @@
           state.luna.y += (dy / length) * speed;
         }
 
-        state.luna.x = clamp(state.luna.x, 35, rect.width - 35);
+        state.luna.x = clamp(state.luna.x, 70, rect.width - 70);
         state.luna.y = clamp(state.luna.y, 45, rect.height - 35);
       }
 
@@ -918,8 +915,8 @@
       function checkCatch() {
         if (distance(state.luna, state.lana) > 46) return;
         state.lives -= 1;
-        state.luna = { x: 85, y: 295 };
-        state.lana = { x: 55, y: 330 };
+        state.luna = { x: 135, y: 318 };
+        state.lana = { x: 92, y: 362 };
         state.combo = 0;
         state.comboTimer = 0;
         state.lastLunaX = state.luna.x;
