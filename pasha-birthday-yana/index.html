@@ -443,7 +443,7 @@
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: clamp(14px, 2.4vw, 26px);
     }
 
@@ -460,7 +460,8 @@
       box-shadow: inset 0 0 0 3px rgba(255,255,255,.52), 0 18px 38px rgba(57,98,168,.14);
     }
 
-    .party-cat-card img {
+    .party-cat-card img,
+    .party-cat-card video {
       max-width: 100%;
       max-height: 260px;
       object-fit: contain;
@@ -468,8 +469,16 @@
       animation: cakeWiggle 3s ease-in-out infinite;
     }
 
+    .party-cat-card video {
+      width: 100%;
+      aspect-ratio: 844 / 1682;
+      border-radius: 20px;
+      background: #eef3f7;
+    }
+
     .party-cat-card:nth-child(2) img { animation-delay: -.8s; }
     .party-cat-card:nth-child(3) img { animation-delay: -1.4s; }
+    .party-cat-card:nth-child(4) video { animation-delay: -1.9s; }
 
     .surprise {
       width: min(94vw, 1080px);
@@ -1171,6 +1180,11 @@
       <div class="party-cat-card">
         <img src="assets/scroll-cat-cake.png" alt="Котик с тортом" />
       </div>
+      <div class="party-cat-card">
+        <video autoplay muted loop playsinline preload="metadata" aria-label="Танцующий чёрно-белый котик">
+          <source src="assets/dancing-cat.mp4" type="video/mp4" />
+        </video>
+      </div>
     </div>
   </section>
 
@@ -1243,7 +1257,7 @@
     const finale = document.querySelector('#finale');
     const blowCandlesButton = document.querySelector('#blowCandles');
     const colors = ['#ffd45f', '#ffffff', '#1f5cff', '#f04444', '#19b76b', '#ff8a2b'];
-    const birthdayAudio = new Audio('assets/happy-birthday-normal.mp3');
+    const birthdayAudio = new Audio('assets/yana-birthday-cats.m4a');
     birthdayAudio.loop = true;
     birthdayAudio.preload = 'auto';
     const birthdayStartAt = 0;
