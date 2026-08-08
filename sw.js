@@ -1,4 +1,4 @@
-const CACHE_NAME = "yana-unicorn-v98";
+const CACHE_NAME = "yana-unicorn-v99";
 const CACHE_PATHS = [
   "./",
   "./index.html",
@@ -17,6 +17,7 @@ const CACHE_PATHS = [
   "./games/kolobok/styles.css",
   "./games/snake-clash/index.html",
   "./games/people-arena/index.html",
+  "./pasha-birthday-yana/index.html",
   "./school/index.html",
   "./interneturok/index.html",
   "./schedule/index.html",

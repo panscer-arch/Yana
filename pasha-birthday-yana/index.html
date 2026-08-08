@@ -1,9 +1,12 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>С днём рождения, папа!</title>
+  <meta name="description" content="Поздравление папе Паше от Яны: семейные фотографии, путешествия, котики, подарок и музыка.">
+  <meta name="theme-color" content="#bdeeff">
+  <link rel="icon" type="image/png" href="../assets/yana-unicorn-logo.png">
   <style>
     * { box-sizing: border-box; }
 
@@ -17,6 +20,55 @@
         radial-gradient(circle at top right, rgba(94, 202, 255, .28), transparent 34vw),
         linear-gradient(180deg, #eef9ff 0%, #ffffff 54%, #e8f7ff 100%);
     }
+
+    .skip-link {
+      position: fixed;
+      top: 8px;
+      left: 8px;
+      z-index: 1000;
+      padding: 10px 14px;
+      color: #123251;
+      background: #fff;
+      border-radius: 8px;
+      transform: translateY(-150%);
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
+    .site-nav {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 50;
+    }
+
+    .site-nav a {
+      display: inline-flex;
+      padding: 10px 14px;
+      color: #183f64;
+      background: rgba(255,255,255,.9);
+      border: 2px solid rgba(76,167,220,.32);
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 800;
+      box-shadow: 0 8px 20px rgba(33,116,164,.12);
+    }
+
+    .birthday-footer {
+      padding: 28px 16px 34px;
+      text-align: center;
+      color: #315b79;
+      background: #eef9ff;
+    }
+
+    .birthday-footer nav {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .birthday-footer a { color: #176aa0; font-weight: 800; }
 
     .card {
       position: relative;
@@ -1054,7 +1106,11 @@
   </style>
 </head>
 <body>
-  <main class="card" aria-label="С днём рождения, папа">
+  <a class="skip-link" href="#content">К содержанию</a>
+  <nav class="site-nav" aria-label="Навигация сайта">
+    <a href="../index.html#games">← На сайт Яны</a>
+  </nav>
+  <main id="content" class="card" aria-label="С днём рождения, папа">
     <button class="music" id="music" type="button">Музыка</button>
     <div class="hero-scene" aria-hidden="true">
       <span class="balloon b1"></span>
@@ -1064,8 +1120,8 @@
       <span class="sparkle s1"></span>
       <span class="sparkle s2"></span>
       <span class="sparkle s3"></span>
-      <img class="hero-title" src="assets/happy-birthday-blue-cutout.png?v=blue-title-1" alt="" />
-      <img class="hero-cat-blue" src="assets/blue-cat-cutout.png?v=blue-cat-1" alt="" />
+      <img class="hero-title" src="assets/happy-birthday-blue-cutout.png" alt="" />
+      <img class="hero-cat-blue" src="assets/blue-cat-cutout.png" alt="" />
       <div class="hero-note">Папа, этот праздник сделан с любовью</div>
     </div>
     <div class="scroll-note">Листай вниз к воспоминаниям</div>
@@ -1107,13 +1163,13 @@
     <p>Когда листаешь дальше, появляются смешные котики-поздравляшки для папиного дня рождения.</p>
     <div class="party-cat-list">
       <div class="party-cat-card">
-        <img src="assets/scroll-cat-cupcake.png?v=party-cat-1" alt="Котик-кексик" />
+        <img src="assets/scroll-cat-cupcake.png" alt="Котик-кексик" />
       </div>
       <div class="party-cat-card">
-        <img src="assets/scroll-cat-party.png?v=party-cat-1" alt="Котик с праздничной дудочкой" />
+        <img src="assets/scroll-cat-party.png" alt="Котик с праздничной дудочкой" />
       </div>
       <div class="party-cat-card">
-        <img src="assets/scroll-cat-cake.png?v=party-cat-1" alt="Котик с тортом" />
+        <img src="assets/scroll-cat-cake.png" alt="Котик с тортом" />
       </div>
     </div>
   </section>
@@ -1121,7 +1177,7 @@
   <section class="surprise" aria-label="Праздничный сюрприз">
     <div class="gift" id="giftCard">
       <div class="gift-box gift-real" id="giftBox" role="button" tabindex="0" aria-label="Открыть подарок">
-        <img class="birthday-gift-image" src="assets/blue-gift-cutout.png?v=blue-gift-1" alt="Голубой подарок с белой крышкой и бантом" />
+        <img class="birthday-gift-image" src="assets/blue-gift-cutout.png" alt="Голубой подарок с белой крышкой и бантом" />
         <div class="gift-photo">
           <img src="assets/gift-surprise.jpg" alt="Фото-сюрприз для папы" />
         </div>
@@ -1146,7 +1202,7 @@
       <h2>Загадай желание</h2>
       <p>На тортике уже есть свечки, осталось только загадать самое доброе желание.</p>
       <div class="cake" aria-hidden="true">
-        <img class="cake-cat-finale" src="assets/blue-cake-cutout.png?v=blue-cake-1" alt="" />
+        <img class="cake-cat-finale" src="assets/blue-cake-cutout.png" alt="" />
       </div>
       <button class="action-button" id="blowCandles" type="button">Загадать желание</button>
       <div class="wish">С днём рождения, папа!</div>
@@ -1166,6 +1222,15 @@
     <img id="lightboxImage" alt="" />
   </div>
 
+  <footer class="birthday-footer">
+    <p>Сделано Яной для любимого папы.</p>
+    <nav aria-label="Быстрые ссылки в подвале">
+      <a href="../index.html">Главная</a>
+      <a href="../index.html#games">Игры</a>
+      <a href="../schedule/index.html">План</a>
+    </nav>
+  </footer>
+
   <script>
     const musicButton = document.querySelector('#music');
     const zoomImages = document.querySelectorAll('.trip-media img, .gift-photo img, .family-finale-frame img');
@@ -1178,7 +1243,7 @@
     const finale = document.querySelector('#finale');
     const blowCandlesButton = document.querySelector('#blowCandles');
     const colors = ['#ffd45f', '#ffffff', '#1f5cff', '#f04444', '#19b76b', '#ff8a2b'];
-    const birthdayAudio = new Audio('assets/user-birthday-music.m4a?v=user-video-1');
+    const birthdayAudio = new Audio('assets/happy-birthday-normal.mp3');
     birthdayAudio.loop = true;
     birthdayAudio.preload = 'auto';
     const birthdayStartAt = 0;
@@ -1289,5 +1354,6 @@
 
     setTimeout(party, 500);
   </script>
+  <script src="../assets/site.js"></script>
 </body>
 </html>
