@@ -407,6 +407,74 @@
       box-shadow: 0 24px 70px rgba(57, 98, 168, .15);
     }
 
+    .family-memories,
+    .motorcycle-memory {
+      width: min(94vw, 1180px);
+      margin: clamp(30px, 6vw, 76px) auto;
+      color: #244c78;
+      text-align: center;
+    }
+
+    .family-memories h2,
+    .motorcycle-memory h2 {
+      margin: 0 0 12px;
+      font-size: clamp(32px, 5vw, 62px);
+      line-height: 1;
+    }
+
+    .family-memories > p,
+    .motorcycle-memory > p {
+      width: min(760px, 100%);
+      margin: 0 auto 26px;
+      color: #5d6386;
+      font-size: clamp(17px, 2vw, 23px);
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .memory-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(12px, 2vw, 22px);
+    }
+
+    .memory-gallery button {
+      min-width: 0;
+      padding: 0;
+      overflow: hidden;
+      border: 4px solid #fff;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 18px 44px rgba(48, 108, 154, .16);
+      cursor: zoom-in;
+    }
+
+    .memory-gallery img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      transition: transform .28s ease;
+    }
+
+    .memory-gallery button:hover img { transform: scale(1.035); }
+
+    .motorcycle-frame {
+      overflow: hidden;
+      border: 6px solid #fff;
+      border-radius: 8px;
+      background: #dff4ff;
+      box-shadow: 0 24px 64px rgba(48, 108, 154, .2);
+    }
+
+    .motorcycle-frame img {
+      display: block;
+      width: 100%;
+      max-height: 780px;
+      object-fit: cover;
+      object-position: center;
+    }
+
     .party-cats::before {
       content: "";
       position: absolute;
@@ -1074,6 +1142,8 @@
     }
 
     @media (max-width: 760px) {
+      .memory-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
       .card {
         background-position: center;
       }
@@ -1160,11 +1230,35 @@
       </li>
       <li style="--accent:#eefaff">
         <div class="trip-media">
-          <img src="assets/trip-magnitogorsk.jpg" alt="Магнитогорск" />
+          <img src="assets/trip-magnitogorsk-cats.png" alt="Семья в Магнитогорске с белыми и коричневыми кошками девон-рекс" />
         </div>
         <div class="trip-copy">Магнитогорск</div>
       </li>
     </ul>
+  </section>
+
+  <section class="family-memories" aria-label="Любимые семейные фотографии">
+    <h2>Любимые моменты с папой</h2>
+    <p>Ещё больше настоящих семейных фотографий, которые хочется пересматривать вместе.</p>
+    <div class="memory-gallery">
+      <button type="button"><img src="assets/family-memory-1.jpg" alt="Семейное воспоминание 1" /></button>
+      <button type="button"><img src="assets/family-memory-2.jpg" alt="Семейное воспоминание 2" /></button>
+      <button type="button"><img src="assets/family-memory-3.jpg" alt="Семейное воспоминание 3" /></button>
+      <button type="button"><img src="assets/family-memory-4.jpg" alt="Семейное воспоминание 4" /></button>
+      <button type="button"><img src="assets/family-memory-5.jpg" alt="Семейное воспоминание 5" /></button>
+      <button type="button"><img src="assets/family-memory-6.jpg" alt="Семейное воспоминание 6" /></button>
+      <button type="button"><img src="assets/family-memory-7.jpg" alt="Семейное воспоминание 7" /></button>
+      <button type="button"><img src="assets/family-memory-8.jpg" alt="Семейное воспоминание 8" /></button>
+      <button type="button"><img src="assets/family-memory-9.jpg" alt="Семейное воспоминание 9" /></button>
+    </div>
+  </section>
+
+  <section class="motorcycle-memory" aria-label="Праздничный семейный кадр">
+    <h2>Наш большой праздник</h2>
+    <p>Семья, электрические мотоциклы и тот самый яркий праздничный кадр, который мы долго собирали.</p>
+    <div class="motorcycle-frame">
+      <img src="assets/family-motorcycle-party.png" alt="Семья на празднике с электрическими мотоциклами" />
+    </div>
   </section>
 
   <section class="party-cats" aria-label="Праздничные котики">
@@ -1247,7 +1341,7 @@
 
   <script>
     const musicButton = document.querySelector('#music');
-    const zoomImages = document.querySelectorAll('.trip-media img, .gift-photo img, .family-finale-frame img');
+    const zoomImages = document.querySelectorAll('.trip-media img, .memory-gallery img, .motorcycle-frame img, .gift-photo img, .family-finale-frame img');
     const lightbox = document.querySelector('#lightbox');
     const lightboxImage = document.querySelector('#lightboxImage');
     const lightboxClose = document.querySelector('#lightboxClose');
